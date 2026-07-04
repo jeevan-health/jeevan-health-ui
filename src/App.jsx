@@ -1,7 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import useAuthStore from './store/authStore';
-import Landing from './pages/Landing';
+import Layout from './components/layout/Layout';
+import Home from './pages/Home';
+import About from './pages/About';
+import Services from './pages/Services';
+import DoctorConsultation from './pages/DoctorConsultation';
+import Pharmacy from './pages/Pharmacy';
+import Diagnostics from './pages/Diagnostics';
+import Contact from './pages/Contact';
 import Signup from './pages/Signup';
 import ProfileSetup from './pages/ProfileSetup';
 import Dashboard from './pages/Dashboard';
@@ -31,7 +38,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+          <Route path="/pharmacy" element={<Pharmacy />} />
+          <Route path="/diagnostics" element={<Diagnostics />} />
+          <Route path="/contact" element={<Contact />} />
+        </Route>
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
         <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
