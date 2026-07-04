@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   House, StackSimple, Info, User, Pill, Flask, Phone,
   Stethoscope, Syringe, Heart, FirstAidKit, Baby, ChartBar,
   Briefcase, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
-  Clock, CaretDown, List, X, Heartbeat,
+  Clock, CaretDown, List, X, Heartbeat, MagnifyingGlass,
 } from '@phosphor-icons/react';
 
 const serviceGroups = [
@@ -56,10 +56,41 @@ const serviceGroups = [
   },
 ];
 
+const allSearchItems = [
+  { label: 'Home', path: '/', icon: House },
+  { label: 'About Us', path: '/about', icon: Info },
+  { label: 'Doctor Consultation', path: '/doctor-consultation', icon: Stethoscope },
+  { label: 'Medicine Delivery', path: '/pharmacy', icon: Pill },
+  { label: 'Lab Tests & Diagnostics', path: '/diagnostics', icon: Flask },
+  { label: 'Contact Us', path: '/contact', icon: Phone },
+  ...serviceGroups.flatMap(g => g.items),
+];
+
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showResults, setShowResults] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const searchRef = useRef(null);
+
   const isActive = (path) => location.pathname === path ? 'active' : '';
+
+  const filteredResults = searchQuery.trim()
+    ? allSearchItems.filter(item =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowResults(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   return (
     <header className="site-header">
@@ -67,6 +98,27 @@ export default function Header() {
         <Link to="/" className="header-logo">
           <img src="/logo.png" alt="Jeevan HealthCare" />
         </Link>
+
+        {/* Search Bar */}
+        <div className="header-search" ref={searchRef}>
+          <MagnifyingGlass size={18} weight="bold" className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search for doctors, medicines, tests, services..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setShowResults(true); }}
+            onFocus={() => setShowResults(true)}
+          />
+          {showResults && filteredResults.length > 0 && (
+            <div className="search-results">
+              {filteredResults.map(item => (
+                <Link key={item.label} to={item.path} onClick={() => { setSearchQuery(''); setShowResults(false); }}>
+                  <item.icon size={16} /> {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
 
         <nav>
           <ul className="nav-list">
@@ -92,7 +144,7 @@ export default function Header() {
             <li><Link to="/doctor-consultation" className={`nav-link ${isActive('/doctor-consultation')}`}><User size={16} /> Doctors</Link></li>
             <li><Link to="/pharmacy" className={`nav-link ${isActive('/pharmacy')}`}><Pill size={16} /> Medicines</Link></li>
             <li><Link to="/diagnostics" className={`nav-link ${isActive('/diagnostics')}`}><Flask size={16} /> Lab Tests</Link></li>
-            <li><Link to="/contact" className="nav-link nav-cta"><Phone size={16} weight="fill" /> Contact Us</Link></li>
+            <li><Link to="/contact" className="nav-link nav-cta"><Phone size={16} weight="fill" /> Contact</Link></li>
           </ul>
         </nav>
 
@@ -103,6 +155,10 @@ export default function Header() {
 
       {mobileOpen && (
         <div style={{ background: '#fff', borderTop: '1px solid var(--border)', padding: '12px 20px', maxHeight: '70vh', overflowY: 'auto' }}>
+          <div style={{ position: 'relative', marginBottom: 12 }}>
+            <input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, outline: 'none' }} />
+          </div>
           {[
             { label: 'Home', path: '/', icon: House },
             { label: 'About Us', path: '/about', icon: Info },
