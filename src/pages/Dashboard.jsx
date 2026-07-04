@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { SignOut, UserCircle, Plus, Stethoscope, Pill, Flask, Heart, Users } from '@phosphor-icons/react';
 import useAuthStore from '../store/authStore';
 
 const quickActions = [
-  { icon: '👨‍⚕️', title: 'Consult Doctor', desc: 'Chat, voice or video', color: 'bg-blue-50' },
-  { icon: '💊', title: 'Order Medicine', desc: 'Home delivery', color: 'bg-green-50' },
-  { icon: '🔬', title: 'Book Lab Test', desc: 'Home collection', color: 'bg-purple-50' },
-  { icon: '🏋️', title: 'Physiotherapy', desc: 'At home sessions', color: 'bg-orange-50' },
+  { icon: Stethoscope, title: 'Consult Doctor', desc: 'Chat, voice or video', color: '#ecfeff', iconColor: 'var(--primary)' },
+  { icon: Pill, title: 'Order Medicine', desc: 'Home delivery', color: '#f0fdf4', iconColor: 'var(--accent)' },
+  { icon: Flask, title: 'Book Lab Test', desc: 'Home collection', color: '#f5f3ff', iconColor: '#7c3aed' },
+  { icon: Heart, title: 'Physiotherapy', desc: 'At home sessions', color: '#fff7ed', iconColor: '#ea580c' },
 ];
 
 export default function Dashboard() {
@@ -14,44 +15,62 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-blue-500 text-white p-6 pb-12">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">Hello, {user?.name || 'User'} 👋</h1>
-          <button onClick={logout} className="text-sm bg-white/20 px-3 py-1 rounded-full">Logout</button>
+    <div style={{ background: 'var(--cyan-50)', minHeight: '100dvh' }}>
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #0891b2 0%, #066f8f 100%)' }} className="px-6 pt-6 pb-16 rounded-b-3xl">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.7)' }}>Welcome back,</p>
+            <h1 className="text-2xl font-bold text-white">{user?.name || 'User'}</h1>
+          </div>
+          <button onClick={logout} className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>
+            <SignOut size={20} />
+          </button>
         </div>
-        <p className="text-blue-100 text-sm">Your health is our priority</p>
+        <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Your health is our priority ❤️</p>
       </div>
 
-      <div className="px-4 -mt-8">
-        <div className="bg-white rounded-xl shadow p-4 mb-4">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-sm text-gray-400">Family</span>
-            <button onClick={() => navigate('/family')} className="text-blue-500 text-sm ml-auto">Manage</button>
+      {/* Family quick-switch */}
+      <div className="px-6 -mt-8 mb-4">
+        <div className="card flex items-center gap-3 p-4">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
+            U
           </div>
-          <div className="flex gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-sm font-bold">
-              {user?.name?.charAt(0) || 'U'}
-            </div>
-            <button onClick={() => navigate('/family/add')} className="w-10 h-10 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-gray-400 text-lg">
-              +
-            </button>
+          <div>
+            <p className="font-semibold text-sm">You</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Primary account</p>
           </div>
+          <button onClick={() => navigate('/family')} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'var(--cyan-50)', color: 'var(--primary)' }}>
+            <Users size={14} /> Family
+          </button>
         </div>
+      </div>
 
+      {/* Quick actions */}
+      <div className="px-6 mb-6">
+        <h2 className="font-semibold text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>QUICK ACTIONS</h2>
         <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action) => (
-            <div key={action.title} className={`${action.color} rounded-xl p-4 cursor-pointer`}>
-              <span className="text-2xl">{action.icon}</span>
-              <h3 className="font-semibold text-gray-800 text-sm mt-2">{action.title}</h3>
-              <p className="text-xs text-gray-400">{action.desc}</p>
+          {quickActions.map(({ icon: Icon, title, desc, color, iconColor }) => (
+            <div key={title} className="card p-4 cursor-pointer transition-all hover:-translate-y-0.5" style={{ boxShadow: 'var(--shadow)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: color, color: iconColor }}>
+                <Icon size={22} weight="fill" />
+              </div>
+              <h3 className="font-semibold text-sm">{title}</h3>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
             </div>
           ))}
         </div>
+      </div>
 
-        <div className="bg-white rounded-xl shadow p-4 mt-4 mb-8">
-          <h3 className="font-semibold text-gray-800 mb-3">Quick Health Summary</h3>
-          <p className="text-gray-400 text-sm">Health tracking coming soon...</p>
+      {/* Health summary */}
+      <div className="px-6 pb-8">
+        <h2 className="font-semibold text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>HEALTH SUMMARY</h2>
+        <div className="card p-5 text-center">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: 'var(--green-100)', color: 'var(--accent)' }}>
+            <Heart size={24} weight="fill" />
+          </div>
+          <p className="font-semibold">Track Your Health</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Vitals, records, and more coming in next update</p>
         </div>
       </div>
     </div>

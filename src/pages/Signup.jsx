@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DeviceMobile, Envelope, ArrowRight, ShieldCheck } from '@phosphor-icons/react';
 import { sendOtp } from '../services/authService';
 
 export default function Signup() {
@@ -13,7 +14,6 @@ export default function Signup() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       await sendOtp(identifier, type);
       navigate('/verify-otp', { state: { identifier, type } });
@@ -25,42 +25,51 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col px-6">
-      <div className="flex-1 flex flex-col justify-center">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome to</h1>
-        <h2 className="text-xl font-semibold text-blue-500 mb-1">Jeevan HealthCare</h2>
-        <p className="text-gray-400 text-sm mb-8">Your health is our priority</p>
-
-        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
-          <button
-            onClick={() => setType('phone')}
-            className={`flex-1 py-2 rounded-md text-sm font-medium ${type === 'phone' ? 'bg-white shadow text-blue-500' : 'text-gray-500'}`}
-          >
-            Phone
-          </button>
-          <button
-            onClick={() => setType('email')}
-            className={`flex-1 py-2 rounded-md text-sm font-medium ${type === 'email' ? 'bg-white shadow text-blue-500' : 'text-gray-500'}`}
-          >
-            Email
-          </button>
+    <div className="min-h-screen px-6 py-12" style={{ background: 'linear-gradient(180deg, #ecfeff 0%, #ffffff 100%)' }}>
+      <div className="flex flex-col min-h-full max-w-sm mx-auto">
+        <div className="mb-12">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6" style={{ background: 'var(--primary)', color: 'white' }}>
+            <ShieldCheck size={32} weight="bold" />
+          </div>
+          <h1 className="section-title mb-2">Welcome to</h1>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--primary)' }}>Jeevan HealthCare</h2>
+          <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>Your health is our priority. Enter your details to get started.</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="text-sm text-gray-500 mb-1 block">
-              {type === 'phone' ? 'Mobile Number' : 'Email Address'}
-            </label>
+        <div className="flex mb-6 rounded-xl p-1.5" style={{ background: 'var(--cyan-100)' }}>
+          {[
+            { key: 'phone', icon: DeviceMobile, label: 'Phone' },
+            { key: 'email', icon: Envelope, label: 'Email' },
+          ].map(({ key, icon: Icon, label }) => (
+            <button
+              key={key}
+              onClick={() => { setType(key); setIdentifier(''); }}
+              className="flex-1 py-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+              style={{
+                background: type === key ? 'white' : 'transparent',
+                color: type === key ? 'var(--primary)' : 'var(--text-secondary)',
+                boxShadow: type === key ? 'var(--shadow)' : 'none',
+              }}
+            >
+              <Icon size={18} /> {label}
+            </button>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label>{type === 'phone' ? 'Mobile Number' : 'Email Address'}</label>
             {type === 'phone' ? (
-              <div className="flex items-center border border-gray-300 rounded-lg px-3">
-                <span className="text-gray-500 text-sm mr-2">+91</span>
+              <div className="flex items-center input p-0 overflow-hidden">
+                <span className="px-4 font-medium" style={{ color: 'var(--text-secondary)' }}>+91</span>
                 <input
                   type="tel"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="Enter mobile number"
-                  className="flex-1 py-3 outline-none text-sm"
+                  className="flex-1 py-3.5 pr-4 outline-none border-none bg-transparent text-base"
                   maxLength={10}
+                  style={{ color: 'var(--text)' }}
                 />
               </div>
             ) : (
@@ -69,24 +78,21 @@ export default function Signup() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="Enter email address"
-                className="w-full border border-gray-300 rounded-lg px-3 py-3 outline-none text-sm"
+                className="input"
               />
             )}
           </div>
 
-          <label className="flex items-center gap-2 mb-6">
-            <input type="checkbox" className="rounded text-blue-500" />
-            <span className="text-xs text-gray-400">Send updates via WhatsApp</span>
+          <label className="flex items-center gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <input type="checkbox" className="w-5 h-5 rounded" style={{ accentColor: 'var(--primary)' }} />
+            Send updates via WhatsApp
           </label>
 
-          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {error && <p className="text-sm font-medium" style={{ color: 'var(--red-500)' }}>{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading || !identifier}
-            className="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading || !identifier} className="btn btn-primary w-full">
             {loading ? 'Sending...' : 'Send OTP'}
+            <ArrowRight size={20} weight="bold" />
           </button>
         </form>
       </div>
