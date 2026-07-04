@@ -1,304 +1,488 @@
-import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import {
-  Stethoscope, Pill, Flask, Heart, FirstAidKit, User,
-  Clipboard, Syringe, Brain, AppleLogo, Toolbox, Baby,
-  ShieldCheck, Star, Phone, ChatCircle, ArrowRight, Clock,
-  CaretDown,
+  House, StackSimple, User, Link as LinkIcon, Pulse, Monitor,
+  Users, Shield, Wrench, Heart, Briefcase, Package, Globe,
+  Smiley, Phone, Envelope, PaperPlaneTilt, FacebookLogo,
+  InstagramLogo, WhatsappLogo, Info, CaretDown, Sparkle,
+  Clock, Brain, Syringe, Baby,
 } from '@phosphor-icons/react';
 
 const services = [
-  { icon: Stethoscope, title: 'Doctor Consultation', desc: 'Chat, voice, or video call with top specialists from the comfort of your home' },
-  { icon: Pill, title: 'Medicine Delivery', desc: 'Order prescriptions and get medicines delivered to your doorstep in hours' },
-  { icon: Flask, title: 'Lab Tests at Home', desc: 'Book diagnostic tests with free home sample collection & digital reports' },
-  { icon: Heart, title: 'Physiotherapy', desc: 'Expert physiotherapists for rehab, pain management, and mobility at home' },
-  { icon: FirstAidKit, title: 'Nursing Care', desc: 'Skilled nursing for wound care, injections, post-surgery recovery & more' },
-  { icon: User, title: 'Elderly Care', desc: 'Compassionate attendants and caregivers for your loved ones at home' },
-  { icon: Clipboard, title: 'Health Checkups', desc: 'Comprehensive preventive health packages tailored for every age group' },
-  { icon: Syringe, title: 'Vaccination at Home', desc: 'Schedule vaccines for flu, pneumonia, travel and more at your doorstep' },
-  { icon: Brain, title: 'Mental Health', desc: 'Confidential counselling and therapy sessions with licensed professionals' },
-  { icon: AppleLogo, title: 'Diet & Nutrition', desc: 'Personalised meal plans and nutrition counselling from expert dietitians' },
-  { icon: Toolbox, title: 'Medical Equipment', desc: 'Rent or buy hospital beds, oxygen concentrators, wheelchairs & more' },
-  { icon: Baby, title: 'Mother & Baby Care', desc: 'Pre & post-natal care, newborn checkups, and lactation counselling' },
+  {
+    icon: House, title: 'Home Healthcare',
+    items: [
+      'Doctor consultation, medicine delivery',
+      <>Lab tests, diagnostics (<strong style={{color:'#0A5EB0'}}>X-Ray, ECG, EEG</strong>)</>,
+      'Nursing, caregiver, physiotherapy',
+      <><strong style={{color:'#0A5EB0'}}>Vaccination</strong>, equipment rental/sales</>,
+      'Home ICU, preventive health',
+    ],
+  },
+  {
+    icon: Monitor, title: 'Digital Health Tools',
+    items: [
+      'Service booking/tracking app',
+      'EMR/EHR, health trackers, remote monitoring',
+      'Symptom checker, e-prescriptions, reminders',
+      'Smart home device integration',
+      'Predictive analytics, mental health support',
+    ],
+  },
+  {
+    icon: Heart, title: 'Mother & Child Care',
+    items: [
+      'Postnatal & neonatal care',
+      'Pediatric consults & vaccinations',
+      'Lactation & nutrition support',
+    ],
+  },
+  {
+    icon: User, title: 'Specialist Home Services',
+    items: [
+      'Oncology, orthopedic, neurological, cardiac rehab at home',
+    ],
+  },
+  {
+    icon: Globe, title: 'Travel & Concierge Care',
+    items: [
+      'Pre-travel health, NRI/family assistance',
+      'Hotel/apartment-based care',
+    ],
+  },
 ];
 
-const highlights = [
-  { stat: '50+', label: 'Cities Covered' },
-  { stat: '500+', label: 'Expert Doctors' },
-  { stat: '50K+', label: 'Happy Families' },
-  { stat: '4.8', label: 'App Rating', suffix: <Star size={14} weight="fill" color="#f59e0b" /> },
+const wellnessItems = [
+  { icon: Activity, text: 'Yoga & Meditation' },
+  { icon: Baby, text: 'Nutrition & Disease Reversal' },
+  { icon: Brain, text: 'Smoking Cessation' },
+  { icon: Smiley, text: 'Mental Health & Wellness' },
 ];
 
-const howItWorks = [
-  { step: '01', title: 'Choose a Service', desc: 'Browse from 12+ healthcare services and pick what you need' },
-  { step: '02', title: 'Book an Appointment', desc: 'Select a convenient time slot and our team confirms instantly' },
-  { step: '03', title: 'Get Care at Home', desc: 'A qualified professional arrives at your doorstep — safe & hygienic' },
+const corporateItems = [
+  { icon: Briefcase, text: 'Employment health checks' },
+  { icon: Package, text: 'Customizable health packages' },
+  { icon: Clock, text: 'Annual plans & subscriptions' },
+  { icon: Shield, text: 'HIPAA-compliance & safety' },
 ];
 
-const testimonials = [
-  { name: 'Priya Sharma', role: 'Bengaluru', text: 'Jeevan HealthCare has been a blessing for my elderly parents. The nursing care is exceptional and the team is always on time.' },
-  { name: 'Rahul Mehta', role: 'Mumbai', text: 'From doctor consultation to medicine delivery, everything is seamless. The physiotherapy sessions at home saved me so much travel time.' },
-  { name: 'Anita Desai', role: 'Pune', text: 'Lab tests at home with digital reports — so convenient! Highly recommend for busy families.' },
+const communityItems = [
+  { icon: Users, text: 'Free camps & screening drives' },
+  { icon: Monitor, text: 'Insurance/TPA & school programs' },
+  { icon: Sparkle, text: 'AI, IoT & telemonitoring', sub: '(coming soon)' },
+  { icon: Shield, text: 'Health ID/ABHA integration' },
+];
+
+const socialLinks = [
+  { icon: Phone, label: '+91 9700 104 108', href: 'tel:+919700104108' },
+  { icon: Envelope, label: 'care@jeevanhealth.com', href: 'mailto:care@jeevanhealth.com' },
+  { icon: WhatsappLogo, label: 'WhatsApp', href: 'https://wa.me/919700104108' },
+  { icon: FacebookLogo, label: 'Facebook', href: 'https://facebook.com/' },
+  { icon: InstagramLogo, label: 'Instagram', href: 'https://instagram.com/' },
+];
+
+const bubbleColors = [
+  'linear-gradient(135deg, #2F89D9 60%, #0A5EB0 100%)',
+  'linear-gradient(135deg, #0A5EB0 60%, #2F89D9 100%)',
+  'linear-gradient(135deg, #7AD6F6 60%, #2F89D9 100%)',
+];
+
+const circleColors = [
+  '#0A5EB0', '#3AC6F6', '#7AD6F6', '#C8E6FF',
+  '#E3F0FF', '#A3D8F4', '#F1F6FB',
 ];
 
 export default function Landing() {
-  const navigate = useNavigate();
-  const [entered, setEntered] = useState(false);
-  const contentRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const featuresRef = useRef(null);
+  const bubblesRef = useRef(null);
 
-  const handleEnter = () => {
-    setEntered(true);
-    setTimeout(() => {
-      contentRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
+  useEffect(() => {
+    const bubblesEl = bubblesRef.current;
+    if (!bubblesEl) return;
+    const items = [];
+    for (let i = 0; i < 12; i++) {
+      const size = 64 + Math.floor(Math.random() * 56);
+      const el = document.createElement('div');
+      el.className = 'bubble';
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.left = Math.random() * 80 + '%';
+      el.style.top = Math.random() * 60 + 20 + '%';
+      el.style.background = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+      el.style.animation = `float${(i % 3) + 1} ${4 + Math.random() * 3}s ease-in-out infinite`;
+      el.style.animationDelay = Math.random() * 2 + 's';
+      bubblesEl.appendChild(el);
+      items.push(el);
+    }
+    return () => items.forEach(el => el.remove());
+  }, []);
+
+  useEffect(() => {
+    const vanta = document.querySelector('.vanta-bg');
+    if (!vanta) return;
+    const circles = [];
+    for (let i = 0; i < 16; i++) {
+      const c = document.createElement('div');
+      c.style.position = 'absolute';
+      c.style.borderRadius = '50%';
+      c.style.opacity = '0.18';
+      c.style.background = circleColors[i % circleColors.length];
+      const sz = 70 + Math.random() * 100;
+      c.style.width = sz + 'px';
+      c.style.height = sz + 'px';
+      c.style.left = Math.random() * 90 + '%';
+      c.style.top = Math.random() * 90 + '%';
+      c.style.transition = 'transform 6s ease-in-out, opacity 6s ease-in-out';
+      vanta.appendChild(c);
+      circles.push(c);
+      animateCircle(c);
+    }
+    function animateCircle(el) {
+      const tx = (Math.random() - 0.5) * 120;
+      const ty = (Math.random() - 0.5) * 120;
+      const sc = 0.8 + Math.random() * 0.4;
+      el.style.transform = `translate(${tx}px, ${ty}px) scale(${sc})`;
+      el.style.opacity = (0.12 + Math.random() * 0.12).toString();
+      setTimeout(() => animateCircle(el), 5000 + Math.random() * 3000);
+    }
+    return () => circles.forEach(c => c.remove());
+  }, []);
+
+  useEffect(() => {
+    const cards = document.querySelectorAll('.animate-card');
+    if (!cards.length || !window.IntersectionObserver) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    cards.forEach(c => { c.style.opacity = '0'; c.style.transform = 'translateY(30px)'; c.style.transition = 'opacity 0.6s ease, transform 0.6s ease'; obs.observe(c); });
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <div style={{ background: 'var(--cyan-50)', minHeight: '100dvh', overflow: 'hidden' }}>
-      {/* ─── SPLASH / ENTER SITE ─── */}
-      <section style={{
-        position: 'fixed', inset: 0, zIndex: 100,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        background: 'linear-gradient(135deg, #002080 0%, #0033a0 40%, #0044cc 70%, #00A0E0 100%)',
-        transition: 'opacity 0.8s ease, transform 0.8s ease',
-        opacity: entered ? 0 : 1,
-        transform: entered ? 'scale(1.05)' : 'scale(1)',
-        pointerEvents: entered ? 'none' : 'auto',
-      }}>
-        <img
-          src="/logo.png"
-          alt="Jeevan HealthCare"
-          style={{ width: 'clamp(240px, 50vw, 520px)', height: 'auto', marginBottom: 32 }}
-        />
-        <p style={{
-          color: 'rgba(255,255,255,0.8)', fontSize: 'clamp(16px, 2.5vw, 22px)',
-          fontFamily: 'var(--font-body)', fontWeight: 300, letterSpacing: 2,
-          textTransform: 'uppercase', marginBottom: 48, textAlign: 'center', padding: '0 16px',
-        }}>
-          Complete Healthcare at Your Doorstep
-        </p>
-        <button
-          onClick={handleEnter}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 12,
-            padding: '16px 48px', borderRadius: 50, border: '2px solid rgba(255,255,255,0.4)',
-            background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)',
-            color: 'white', fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-heading)',
-            cursor: 'pointer', transition: 'all 0.3s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'white';
-            e.currentTarget.style.color = '#002080';
-            e.currentTarget.style.borderColor = 'white';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.color = 'white';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
-          }}
-        >
-          Enter Site <ArrowRight size={22} weight="bold" />
-        </button>
-        <div style={{ position: 'absolute', bottom: 40, color: 'rgba(255,255,255,0.3)', animation: 'bounce 2s infinite' }}>
-          <CaretDown size={24} />
-        </div>
-      </section>
-
-      {/* ─── MAIN CONTENT ─── */}
-      <div ref={contentRef}>
-        {/* ─── NAV ─── */}
-        <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 36, width: 'auto' }} />
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/signup')} className="btn btn-ghost text-sm px-4 py-2" style={{ minHeight: 0 }}>Sign In</button>
-            <button onClick={() => navigate('/signup')} className="btn btn-primary text-sm px-5 py-2" style={{ minHeight: 0 }}>Get Started</button>
-          </div>
-        </nav>
-
-        {/* ─── HERO ─── */}
-        <section className="px-6 pt-8 pb-16 max-w-6xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center gap-10">
-            <div className="flex-1 text-center lg:text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-5" style={{ background: 'var(--blue-100)', color: 'var(--blue-800)' }}>
-                <ShieldCheck size={14} weight="fill" /> Trusted Healthcare Partner
-              </div>
-              <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-4" style={{ color: 'var(--blue-900)' }}>
-                Complete Healthcare<br />
-                <span style={{ color: 'var(--sky-500)' }}>at Your Doorstep</span>
-              </h1>
-              <p className="text-lg mb-6 max-w-lg mx-auto lg:mx-0" style={{ color: 'var(--text-secondary)' }}>
-                From doctor consultations to nursing care, lab tests to medicine delivery — we bring 12+ professional healthcare services home.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <button onClick={() => navigate('/signup')} className="btn btn-primary text-base px-8">
-                  Get Started <ArrowRight size={20} weight="bold" />
-                </button>
-                <button className="btn btn-outline text-base px-8">
-                  <Phone size={20} /> Call Us
-                </button>
-              </div>
-              <div className="flex items-center gap-5 mt-8 justify-center lg:justify-start">
-                {highlights.map((h) => (
-                  <div key={h.label} className="text-center">
-                    <div className="text-xl font-bold" style={{ color: 'var(--blue-800)' }}>
-                      {h.stat}{h.suffix}
-                    </div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{h.label}</div>
+    <div style={{ background: '#fff', minHeight: '100dvh' }}>
+      {/* HEADER */}
+      <header className="fixed top-0 left-0 w-full z-30" style={{ background: '#fff', boxShadow: '0 2px 16px 0 rgba(10,94,176,0.08)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          <a href="/" className="flex items-center gap-2 font-bold text-lg" style={{ color: '#0A5EB0' }}>
+            <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 40, width: 'auto' }} />
+          </a>
+          <nav className="hidden lg:flex gap-2 items-center">
+            <a href="#home" className="nav-link"><House size={18} /> Home</a>
+            <div className="relative" style={{ zIndex: 100 }}
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setTimeout(() => setServicesOpen(false), 300)}
+            >
+              <button className="nav-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <StackSimple size={18} /> Services <CaretDown size={14} />
+              </button>
+              {servicesOpen && (
+                <div className="absolute left-0 mt-2 bg-white shadow-xl rounded-2xl p-6 flex gap-8"
+                  style={{ width: 800, maxWidth: '95vw', border: '1px solid #C2D6EB', zIndex: 100, maxHeight: '70vh', overflowY: 'auto' }}
+                  onMouseEnter={() => setServicesOpen(true)}
+                  onMouseLeave={() => setServicesOpen(false)}
+                >
+                  <div style={{ minWidth: 200 }}>
+                    <div className="font-bold mb-3 flex items-center gap-1" style={{ color: '#0A5EB0', fontSize: 17 }}><House size={16} weight="fill" /> Healthcare Services</div>
+                    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {[
+                        { icon: User, label: 'Doctor Consultation', href: '#' },
+                        { icon: LinkIcon, label: 'Pharmacy', href: '#' },
+                        { icon: Activity, label: 'Diagnostics', href: '#' },
+                        { icon: Monitor, label: 'X-Ray, ECG, EEG', href: '#' },
+                        { icon: Users, label: 'Nursing Care', href: '#' },
+                        { icon: Users, label: 'Caregiver Services', href: '#' },
+                        { icon: Activity, label: 'Physiotherapy', href: '#' },
+                        { icon: Shield, label: 'Vaccination', href: '#' },
+                        { icon: Tool, label: 'Equipment Rental', href: '#' },
+                        { icon: Monitor, label: 'Home ICU Setup', href: '#' },
+                      ].map(s => (
+                        <li key={s.label}>
+                          <a href={s.href} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 6, color: '#666', fontSize: 15, fontWeight: 500, transition: 'background 0.12s, color 0.12s' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#E3F0FF'; e.currentTarget.style.color = '#133A6D'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '#666'; }}
+                          ><span style={{ color: '#0A5EB0' }}><s.icon size={16} /></span> {s.label}</a>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex-1 w-full max-w-md lg:max-w-none">
-              <div className="relative">
-                <div className="rounded-3xl p-8 text-center" style={{ background: 'linear-gradient(135deg, #002080 0%, #0044cc 50%, #00A0E0 100%)' }}>
-                  <Heart size={48} weight="fill" style={{ color: 'rgba(255,255,255,0.15)' }} />
-                  <img src="/logo.png" alt="Jeevan HealthCare" style={{ width: '80%', maxWidth: 280, margin: '12px auto 0', display: 'block' }} />
-                  <p className="text-sm mt-3" style={{ color: 'rgba(255,255,255,0.7)' }}>24/7 care at your doorstep</p>
+                  <div style={{ minWidth: 200 }}>
+                    <div className="font-bold mb-3 flex items-center gap-1" style={{ color: '#2F89D9', fontSize: 17 }}><Briefcase size={16} /> Preventive & Corporate</div>
+                    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {[
+                        { icon: Heart, label: 'Preventive Checkups' },
+                        { icon: Briefcase, label: 'Corporate Wellness' },
+                        { icon: Shield, label: 'Health Insurance' },
+                        { icon: Users, label: 'School Programs' },
+                        { icon: Brain, label: 'Mental Wellness' },
+                      ].map(s => (
+                        <li key={s.label}>
+                          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 6, color: '#666', fontSize: 15, fontWeight: 500, transition: 'background 0.12s, color 0.12s' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#E3F0FF'; e.currentTarget.style.color = '#133A6D'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '#666'; }}
+                          ><span style={{ color: '#0A5EB0' }}><s.icon size={16} /></span> {s.label}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
+            <a href="#features" className="nav-link"><Pulse size={18} /> Features</a>
+            <a href="#wellness" className="nav-link"><Heart size={18} /> Wellness</a>
+            <a href="#corporate" className="nav-link"><Briefcase size={18} /> Corporate</a>
+            <a href="#contact" className="nav-link"><Phone size={18} /> Contact</a>
+          </nav>
+          <div className="flex items-center gap-3">
+            <button className="hidden sm:inline-flex header-cta" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+              Get Started
+            </button>
+            <button className="lg:hidden p-2" style={{ color: '#0A5EB0' }} onClick={() => setMenuOpen(!menuOpen)}>
+              <Layers size={24} weight="fill" />
+            </button>
+          </div>
+        </div>
+        {menuOpen && (
+          <div style={{ background: '#fff', borderTop: '1px solid #C2D6EB', padding: '12px 16px' }}
+            onClick={() => setMenuOpen(false)}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <a href="#home" className="nav-link" style={{ padding: '10px 12px' }}>Home</a>
+              <a href="#features" className="nav-link" style={{ padding: '10px 12px' }}>Features</a>
+              <a href="#wellness" className="nav-link" style={{ padding: '10px 12px' }}>Wellness</a>
+              <a href="#corporate" className="nav-link" style={{ padding: '10px 12px' }}>Corporate</a>
+              <a href="#contact" className="nav-link" style={{ padding: '10px 12px' }}>Contact</a>
             </div>
           </div>
+        )}
+      </header>
+
+      {/* HERO */}
+      <main style={{ paddingTop: 64 }}>
+        <section id="home" className="relative flex items-center justify-center overflow-hidden" style={{ background: '#0A5EB0', minHeight: '85vh' }}>
+          <div className="vanta-bg absolute inset-0" />
+          <div className="relative z-10 max-w-3xl mx-auto text-center px-4 py-16">
+            <div style={{ opacity: 0, animation: 'fadeInUp 1s ease 0.5s forwards' }}>
+              <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 60, margin: '0 auto 24px', filter: 'brightness(0) invert(1)' }} />
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold" style={{ color: '#fff' }}>
+                Jeevan HealthCare at Home
+              </h1>
+              <p className="mt-6 text-lg sm:text-xl" style={{ color: '#fff', opacity: 0.92 }}>
+                Trusted healthcare services delivered safely, conveniently, and professionally at your doorstep.
+              </p>
+              <p className="mt-4 text-base sm:text-lg max-w-2xl mx-auto" style={{ color: '#fff', opacity: 0.85 }}>
+                From doctor consultations and diagnostics to nursing care, physiotherapy, and medicine delivery — we bring quality healthcare home, so you can focus on what matters most: your health and comfort.
+              </p>
+            </div>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a href="#features" className="hero-btn-primary">Explore Features</a>
+              <a href="#contact" className="hero-btn-secondary">Contact Us</a>
+            </div>
+          </div>
+          <div ref={bubblesRef} id="animated-bg-bubbles" style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} />
         </section>
 
-        {/* ─── SERVICES ─── */}
-        <section className="px-6 py-16" style={{ background: 'white' }}>
-          <div className="max-w-6xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4" style={{ background: 'var(--blue-100)', color: 'var(--blue-800)' }}>
-              Our Services
-            </div>
-            <h2 className="text-3xl font-bold mb-3" style={{ color: 'var(--blue-900)' }}>Everything Healthcare, at Home</h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-              We bring together all the healthcare services your family needs — no hospital visits required.
+        {/* FEATURES */}
+        <section className="section-white py-20" id="features">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4" style={{ color: '#0A5EB0' }}>
+              Our Core Services
+            </h2>
+            <p className="text-center max-w-2xl mx-auto mb-12" style={{ color: '#333', fontSize: 17 }}>
+              Comprehensive <strong style={{ color: '#0A5EB0' }}>at-home healthcare</strong>,
+              <strong style={{ color: '#0A5EB0' }}> digital tools</strong>, and
+              <strong style={{ color: '#0A5EB0' }}> wellness</strong> — delivered with compassion and technology.
             </p>
-          </div>
-          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {services.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="card p-5 transition-all duration-200" style={{ cursor: 'default' }}>
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-3" style={{ background: 'var(--blue-100)', color: 'var(--blue-800)' }}>
-                  <Icon size={24} weight="fill" />
+            <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+              {services.slice(0, 3).map((s) => (
+                <div key={s.title} className="service-card animate-card" style={{ opacity: 0, transform: 'translateY(30px)' }}>
+                  <div className="card-icon"><s.icon size={28} weight="fill" /></div>
+                  <h3 className="card-title">{s.title}</h3>
+                  <ul>{s.items.map((item, i) => <li key={i}>• {item}</li>)}</ul>
                 </div>
-                <h3 className="font-semibold text-sm mb-1">{title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ─── HOW IT WORKS ─── */}
-        <section className="px-6 py-16">
-          <div className="max-w-6xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4" style={{ background: 'var(--green-100)', color: 'var(--accent)' }}>
-              How It Works
+              ))}
             </div>
-            <h2 className="text-3xl font-bold mb-3" style={{ color: 'var(--blue-900)' }}>Three Simple Steps</h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-              Getting professional healthcare at home is as easy as 1-2-3.
-            </p>
-          </div>
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-            {howItWorks.map(({ step, title, desc }) => (
-              <div key={step} className="card p-6 text-center">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 font-bold" style={{ background: 'var(--blue-800)', color: 'white', fontSize: '18px' }}>
-                  {step}
+            <div className="mt-8 flex flex-col md:flex-row gap-8 justify-center max-w-4xl mx-auto">
+              {services.slice(3).map((s) => (
+                <div key={s.title} className="service-card animate-card flex-1" style={{ opacity: 0, transform: 'translateY(30px)' }}>
+                  <div className="card-icon"><s.icon size={28} weight="fill" /></div>
+                  <h3 className="card-title">{s.title}</h3>
+                  <ul>{s.items.map((item, i) => <li key={i}>• {item}</li>)}</ul>
                 </div>
-                <h3 className="font-semibold mb-2">{title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ─── WHY US ─── */}
-        <section className="px-6 py-16" style={{ background: 'white' }}>
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4" style={{ background: 'var(--blue-100)', color: 'var(--blue-800)' }}>
-                Why Jeevan
-              </div>
-              <h2 className="text-3xl font-bold mb-3" style={{ color: 'var(--blue-900)' }}>Why Families Trust Us</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="card p-6 text-center">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--blue-50)', color: 'var(--blue-800)' }}>
-                  <ShieldCheck size={28} weight="fill" />
-                </div>
-                <h3 className="font-semibold mb-2">Verified Professionals</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>All doctors, nurses, and therapists are background-verified and trained for in-home care.</p>
-              </div>
-              <div className="card p-6 text-center">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: '#f0fdf4', color: 'var(--accent)' }}>
-                  <Clock size={28} weight="fill" />
-                </div>
-                <h3 className="font-semibold mb-2">Same-Day Service</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>Book in the morning, get care by evening. Urgent needs? We prioritise your health.</p>
-              </div>
-              <div className="card p-6 text-center">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: '#fefce8', color: '#ca8a04' }}>
-                  <ChatCircle size={28} weight="fill" />
-                </div>
-                <h3 className="font-semibold mb-2">24/7 Support</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>Our care coordinators are available round-the-clock for appointments, queries, and emergencies.</p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* ─── TESTIMONIALS ─── */}
-        <section className="px-6 py-16">
-          <div className="max-w-6xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4" style={{ background: 'var(--green-100)', color: 'var(--accent)' }}>
-              Testimonials
-            </div>
-            <h2 className="text-3xl font-bold mb-3" style={{ color: 'var(--blue-900)' }}>What Our Families Say</h2>
-          </div>
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5">
-            {testimonials.map((t) => (
-              <div key={t.name} className="card p-5">
-                <div className="flex gap-1 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} weight="fill" color="#f59e0b" />
+        {/* WELLNESS */}
+        <section className="section-blue py-20" id="wellness">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold mb-3" style={{ color: '#fff' }}>
+                  Wellness & Lifestyle Support
+                </h2>
+                <p className="text-lg mb-6" style={{ color: '#fff', opacity: 0.92 }}>
+                  We believe in <strong style={{ color: '#fff', opacity: 0.92 }}>holistic health</strong>. Our platform delivers wellness programs and lifestyle management tools for every age and need.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                  {wellnessItems.map(w => (
+                    <li key={w.text} className="flex items-center gap-3" style={{ color: '#fff', opacity: 0.92 }}>
+                      <w.icon size={20} weight="fill" />
+                      <strong>{w.text}</strong>
+                    </li>
                   ))}
-                </div>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>"{t.text}"</p>
-                <div>
-                  <p className="font-semibold text-sm">{t.name}</p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.role}</p>
-                </div>
+                </ul>
+                <a href="#contact" className="cta-btn">Book a Wellness Session</a>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ─── CTA ─── */}
-        <section className="px-6 py-16" style={{ background: 'linear-gradient(135deg, #002080 0%, #0044cc 50%, #00A0E0 100%)' }}>
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-            <p className="text-lg mb-8" style={{ color: 'rgba(255,255,255,0.8)' }}>
-              Join 50,000+ families who trust Jeevan HealthCare for their home healthcare needs.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => navigate('/signup')} className="btn text-base px-10 py-3" style={{ background: 'white', color: 'var(--blue-800)', borderRadius: 'var(--radius)', fontWeight: 700 }}>
-                Create Free Account <ArrowRight size={20} weight="bold" />
-              </button>
-              <button className="btn text-base px-10 py-3" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: 'var(--radius)', fontWeight: 600, border: '2px solid rgba(255,255,255,0.3)' }}>
-                <Phone size={20} /> Book by Phone
-              </button>
+              <div className="relative">
+                <img alt="Wellness Yoga" className="rounded-2xl w-full max-w-md mx-auto" style={{ boxShadow: '0 3px 16px rgba(10,94,176,0.10)' }}
+                  src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&q=80" />
+                <span className="absolute -top-6 -right-6 px-3 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.9)', color: '#0A5EB0', fontWeight: 600, boxShadow: '0 2px 12px rgba(10,94,176,0.12)', fontSize: 15 }}>
+                  Personalized Wellness
+                </span>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ─── FOOTER ─── */}
-        <footer className="px-6 py-8" style={{ background: 'var(--blue-900)' }}>
-          <div className="max-w-6xl mx-auto text-center">
-            <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 32, width: 'auto', margin: '0 auto 12px' }} />
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              &copy; 2025 Jeevan HealthCare at Home. All rights reserved.
-            </p>
+        {/* CORPORATE */}
+        <section className="section-white py-20" id="corporate">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="relative order-2 md:order-1">
+                <img alt="Corporate Health" className="rounded-2xl w-full max-w-md mx-auto" style={{ boxShadow: '0 3px 16px rgba(10,94,176,0.10)' }}
+                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" />
+                <span className="absolute -top-6 -left-6 px-3 py-2 rounded-lg" style={{ background: '#0A5EB0', color: '#fff', fontWeight: 600, boxShadow: '0 2px 12px rgba(10,94,176,0.12)', fontSize: 15 }}>
+                  Corporate Wellness
+                </span>
+              </div>
+              <div className="order-1 md:order-2">
+                <h2 className="text-3xl sm:text-4xl font-bold mb-3" style={{ color: '#0A5EB0' }}>
+                  Corporate & Preventive Health
+                </h2>
+                <p className="text-lg mb-6" style={{ color: '#333' }}>
+                  Empower your workforce and community with <strong style={{ color: '#0A5EB0' }}>customizable health checkups</strong>,
+                  <strong style={{ color: '#0A5EB0' }}> occupational health</strong>, and
+                  <strong style={{ color: '#0A5EB0' }}> subscription plans</strong> — seamlessly integrated with digital tools and compliance.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                  {corporateItems.map(c => (
+                    <li key={c.text} className="flex items-center gap-3" style={{ color: '#0A5EB0' }}>
+                      <c.icon size={20} />
+                      <span style={{ color: '#333' }}>{c.text}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a href="#contact" className="header-cta">Request a Demo</a>
+              </div>
+            </div>
           </div>
-        </footer>
-      </div>
+        </section>
+
+        {/* COMMUNITY */}
+        <section className="section-blue py-20">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold mb-3" style={{ color: '#fff' }}>
+                  Community Engagement & Future Vision
+                </h2>
+                <p className="text-lg mb-6" style={{ color: '#fff', opacity: 0.92 }}>
+                  Jeevan HealthCare is committed to making <strong style={{ color: '#fff', opacity: 0.92 }}>quality healthcare accessible</strong> for all — through free camps, digital integration, and a vision for <strong style={{ color: '#fff', opacity: 0.92 }}>AI-driven</strong>, <strong style={{ color: '#fff', opacity: 0.92 }}>marketplace-enabled home care</strong>.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                  {communityItems.map(c => (
+                    <li key={c.text} className="flex items-center gap-3" style={{ color: '#fff', opacity: 0.92 }}>
+                      <c.icon size={20} />
+                      <span>{c.text}</span>
+                      {c.sub && <em style={{ fontSize: 14, opacity: 0.7 }}>({c.sub})</em>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="relative">
+                <img alt="Community Health" className="rounded-2xl w-full max-w-md mx-auto" style={{ boxShadow: '0 3px 16px rgba(10,94,176,0.10)' }}
+                  src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80" />
+                <span className="absolute -bottom-6 -right-6 px-3 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.9)', color: '#0A5EB0', fontWeight: 600, boxShadow: '0 2px 12px rgba(10,94,176,0.12)', fontSize: 15 }}>
+                  Future-Ready Platform
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CONTACT */}
+        <section className="section-white py-20" id="contact">
+          <div className="max-w-2xl mx-auto px-4 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: '#0A5EB0' }}>
+              Ready to Experience Better Healthcare?
+            </h2>
+            <p className="text-lg mb-8" style={{ color: '#333' }}>
+              Reach out to us for personalized care, corporate solutions, or partnership opportunities.
+            </p>
+            <form className="form-section flex flex-col gap-4 max-w-lg mx-auto" onSubmit={e => {
+              e.preventDefault();
+              const status = e.currentTarget.querySelector('#form-status');
+              if (status) {
+                status.textContent = "Thank you! We'll get back to you soon.";
+                status.style.display = 'block';
+                setTimeout(() => { status.style.display = 'none'; }, 5000);
+              }
+              e.currentTarget.reset();
+            }}>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <input name="name" placeholder="Your Name" required style={{ flex: 1 }} />
+                <input name="email" type="email" placeholder="Your Email" required style={{ flex: 1 }} />
+              </div>
+              <textarea name="message" placeholder="How can we help you?" required rows={4} />
+              <button type="submit" className="btn-primary-old mt-2" style={{ justifyContent: 'center' }}>
+                <PaperPlaneTilt size={20} weight="fill" /> Send Message
+              </button>
+              <div id="form-status" className="hidden text-sm font-medium mt-1" style={{ color: '#059669', display: 'none' }} />
+            </form>
+            <div className="mt-10 flex flex-wrap gap-4 justify-center items-center footer-social">
+              {socialLinks.map(s => (
+                <a key={s.label} href={s.href} className="flex items-center gap-2" target="_blank" rel="noopener noreferrer">
+                  <s.icon size={20} />
+                  {s.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="py-8">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2 font-bold text-lg">
+            <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 36, filter: 'brightness(0) invert(1)' }} />
+          </div>
+          <div className="flex flex-wrap gap-6 items-center">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#wellness">Wellness</a>
+            <a href="#corporate">Corporate</a>
+            <a href="#contact">Contact</a>
+          </div>
+          <div className="text-sm" style={{ opacity: 0.8 }}>
+            &copy; 2025 Jeevan HealthCare Solutions. All rights reserved.
+          </div>
+        </div>
+      </footer>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
