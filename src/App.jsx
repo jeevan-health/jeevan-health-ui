@@ -9,7 +9,9 @@ import DoctorConsultation from './pages/DoctorConsultation';
 import Pharmacy from './pages/Pharmacy';
 import Diagnostics from './pages/Diagnostics';
 import Contact from './pages/Contact';
+import Onboarding from './pages/Onboarding';
 import Signup from './pages/Signup';
+import OtpVerification from './pages/OtpVerification';
 import ProfileSetup from './pages/ProfileSetup';
 import Dashboard from './pages/Dashboard';
 import FamilyList from './pages/FamilyList';
@@ -17,7 +19,7 @@ import AddFamily from './pages/AddFamily';
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  if (!isAuthenticated) return <Navigate to="/signup" />;
+  if (!isAuthenticated) return <Navigate to="/onboarding" />;
   return children;
 }
 
@@ -47,7 +49,9 @@ export default function App() {
           <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/contact" element={<Contact />} />
         </Route>
+        <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+        <Route path="/verify-otp" element={<PublicRoute><OtpVerification /></PublicRoute>} />
         <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/family" element={<ProtectedRoute><FamilyList /></ProtectedRoute>} />

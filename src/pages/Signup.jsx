@@ -1,33 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Envelope, Lock, Eye, EyeSlash, ArrowRight } from '@phosphor-icons/react';
-import { signup, login } from '../services/authService';
-import useAuthStore from '../store/authStore';
+import { Envelope, Phone, ArrowRight, CaretLeft } from '@phosphor-icons/react';
+import api from '../services/api';
 
 export default function Signup() {
-  const [isLogin, setIsLogin] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPw, setShowPw] = useState(false);
-  const [error, setError] = useState('');
+  const [identifier, setIdentifier] = useState('');
+  const [method, setMethod] = useState('phone');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const setUser = useAuthStore((s) => s.setUser);
 
-  const handleSubmit = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const { data } = isLogin
-        ? await login(email, password)
-        : await signup(email, password);
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      setUser(data.user);
-      navigate(data.user.name ? '/dashboard' : '/profile-setup');
+      await api.post('/auth/send-otp', { identifier, type: method });
+      navigate('/verify-otp', { state: { identifier, type: method } });
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
+      setError(err.response?.data?.message || 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
@@ -36,50 +27,65 @@ export default function Signup() {
   return (
     <div className="min-h-screen px-6 py-12" style={{ background: 'linear-gradient(180deg, #ecfeff 0%, #ffffff 100%)' }}>
       <div className="flex flex-col min-h-full max-w-sm mx-auto">
-        <div className="mb-12">
-          <h1 className="section-title mb-2">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            {isLogin ? 'Sign in to your Jeevan HealthCare account' : 'Sign up to start your healthcare journey'}
+        <button onClick={() => navigate('/onboarding')} className="flex items-center gap-1.5 text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+          <CaretLeft size={16} /> Back
+        </button>
+
+        <div className="mb-8">
+          <h1 className="section-title mb-2">Get Started</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Enter your phone number or email to receive an OTP
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div>
-            <label>Email Address</label>
-            <div className="input flex items-center p-0 overflow-hidden">
-              <span className="px-3" style={{ color: 'var(--text-muted)' }}><Envelope size={18} /></span>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com" className="flex-1 py-3.5 pr-4 outline-none border-none bg-transparent text-base" required
-                style={{ color: 'var(--text)' }} />
-            </div>
+        <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
+          {/* Method toggle */}
+          <div className="flex gap-2 p-1 rounded-xl" style={{ background: 'var(--cyan-100)' }}>
+            {[
+              { value: 'phone', label: 'Phone', icon: Phone },
+              { value: 'email', label: 'Email', icon: Envelope },
+            ].map(({ value, label, icon: Icon }) => (
+              <button key={value} type="button" onClick={() => { setMethod(value); setIdentifier(''); setError(''); }}
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                style={{
+                  background: method === value ? '#fff' : 'transparent',
+                  color: method === value ? 'var(--primary)' : 'var(--text-secondary)',
+                  boxShadow: method === value ? 'var(--shadow)' : 'none',
+                }}>
+                <Icon size={16} className="inline mr-1.5" /> {label}
+              </button>
+            ))}
           </div>
 
           <div>
-            <label>Password</label>
+            <label>{method === 'phone' ? 'Phone Number' : 'Email Address'}</label>
             <div className="input flex items-center p-0 overflow-hidden">
-              <span className="px-3" style={{ color: 'var(--text-muted)' }}><Lock size={18} /></span>
-              <input type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder={isLogin ? 'Enter your password' : 'Create a password (min 6 chars)'}
-                className="flex-1 py-3.5 pr-4 outline-none border-none bg-transparent text-base" required minLength={6}
+              <span className="px-3" style={{ color: 'var(--text-muted)' }}>
+                {method === 'phone' ? <Phone size={18} /> : <Envelope size={18} />}
+              </span>
+              <input type={method === 'phone' ? 'tel' : 'email'}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder={method === 'phone' ? '+91 98765 43210' : 'you@example.com'}
+                className="flex-1 py-3.5 pr-4 outline-none border-none bg-transparent text-base"
+                required
                 style={{ color: 'var(--text)' }} />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="px-3" style={{ color: 'var(--text-muted)' }}>
-                {showPw ? <EyeSlash size={18} /> : <Eye size={18} />}
-              </button>
             </div>
           </div>
 
           {error && <p className="text-sm font-medium" style={{ color: 'var(--red-500)' }}>{error}</p>}
 
-          <button type="submit" disabled={loading || !email || password.length < 6} className="btn btn-primary w-full">
-            {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+          <button type="submit" disabled={loading || !identifier} className="btn btn-primary w-full">
+            {loading ? 'Sending...' : 'Send OTP'}
             <ArrowRight size={20} weight="bold" />
           </button>
         </form>
 
-        <p className="text-sm text-center mt-8" style={{ color: 'var(--text-secondary)' }}>
-          {isLogin ? "Don't have an account? " : 'Already have an account? '}
-          <button onClick={() => { setIsLogin(!isLogin); setError(''); }} className="font-semibold" style={{ color: 'var(--primary)' }}>
-            {isLogin ? 'Sign Up' : 'Sign In'}
+        <p className="text-sm text-center mt-6" style={{ color: 'var(--text-secondary)' }}>
+          Already have an account?{' '}
+          <button onClick={() => navigate('/verify-otp', { state: { identifier: '', type: 'phone' } })}
+            className="font-semibold" style={{ color: 'var(--primary)' }}>
+            Sign In
           </button>
         </p>
       </div>

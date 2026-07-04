@@ -105,6 +105,11 @@ ul { list-style: none; padding: 0; margin: 0; }
 .mega-group a:hover { background: var(--bg-light); color: var(--primary); }
 
 /* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px;
+  transition: all 0.2s; border: none;
+}
 .btn-primary {
   background: var(--accent); color: var(--bg-white); border-radius: 8px;
   padding: 12px 28px; font-weight: 600; font-size: 14px;
@@ -112,6 +117,14 @@ ul { list-style: none; padding: 0; margin: 0; }
   transition: background 0.2s;
 }
 .btn-primary:hover { background: var(--accent-hover); }
+.btn-accent {
+  background: var(--accent); color: var(--bg-white); border-radius: 10px;
+  padding: 14px 28px; font-weight: 600; font-size: 15px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.2s; border: none; width: 100%;
+}
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-accent:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-outline {
   background: transparent; color: var(--primary); border: 2px solid var(--primary);
   border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 14px;
@@ -258,6 +271,24 @@ ul { list-style: none; padding: 0; margin: 0; }
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
   font-size: 12px; color: rgba(255,255,255,0.5);
 }
+
+/* Form Elements */
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-dark); }
+.input {
+  width: 100%; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; font-size: 14px; outline: none; background: #fff;
+  color: var(--text-dark); transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--primary); }
+
+/* OTP Input */
+.otp-input {
+  width: 48px; height: 54px; text-align: center; font-size: 22px; font-weight: 700;
+  border: 2px solid var(--border); border-radius: var(--radius);
+  outline: none; background: #fff; color: var(--text-dark);
+  transition: border-color 0.2s;
+}
+.otp-input:focus { border-color: var(--primary); }
 
 @media (max-width: 900px) {
   .service-grid { grid-template-columns: repeat(2, 1fr); }
