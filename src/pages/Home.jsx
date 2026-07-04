@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   Pill, Stethoscope, Flask, Shield, Heart, Monitor,
   Baby, User, Syringe, FirstAidKit, Clock,
+  Heartbeat, Ear, Brain, Eye, Tooth, Bone,
 } from '@phosphor-icons/react';
 
 const services = [
@@ -24,6 +25,33 @@ const categories = [
   { icon: Heart, label: 'Wellness' },
   { icon: Baby, label: 'Mother Care' },
   { icon: Monitor, label: 'Health Devices' },
+];
+
+const specialties = [
+  { icon: User, name: 'General Physician / Internal Medicine' },
+  { icon: User, name: 'Dermatology' },
+  { icon: Baby, name: 'Obstetrics & Gynaecology' },
+  { icon: Bone, name: 'Orthopaedics' },
+  { icon: Ear, name: 'ENT' },
+  { icon: Brain, name: 'Neurology' },
+  { icon: Heartbeat, name: 'Cardiology' },
+  { icon: User, name: 'Urology' },
+  { icon: User, name: 'Gastroenterology / GI Medicine' },
+  { icon: User, name: 'Psychiatry' },
+  { icon: Baby, name: 'Paediatrics' },
+  { icon: Monitor, name: 'Pulmonology / Respiratory Medicine' },
+  { icon: User, name: 'Endocrinology' },
+  { icon: User, name: 'Nephrology' },
+  { icon: Brain, name: 'Neurosurgery' },
+  { icon: User, name: 'Rheumatology' },
+  { icon: Eye, name: 'Ophthalmology' },
+  { icon: User, name: 'Surgical Gastroenterology' },
+  { icon: Shield, name: 'Infectious Disease' },
+  { icon: User, name: 'General & Laparoscopic Surgeon' },
+  { icon: User, name: 'Psychology' },
+  { icon: Shield, name: 'Medical Oncology' },
+  { icon: User, name: 'Diabetology' },
+  { icon: Tooth, name: 'Dentist' },
 ];
 
 const topTests = [
@@ -103,6 +131,35 @@ export default function Home() {
                 <div className="icon"><cat.icon size={28} weight="fill" /></div>
                 <span>{cat.label}</span>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Browse by Specialties */}
+      <section className="section" style={{ background: '#fff' }}>
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Browse by Specialties</h2>
+            <Link to="/doctor-consultation" className="section-link">View All Doctors</Link>
+          </div>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: 8,
+          }}>
+            {specialties.map(s => (
+              <Link key={s.name} to="/doctor-consultation" style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 14px', borderRadius: 8, fontSize: 13,
+                color: 'var(--text-body)', transition: 'all 0.15s',
+                border: '1px solid var(--border)', background: 'var(--bg-white)',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-body)'; }}
+              >
+                <s.icon size={18} style={{ flexShrink: 0 }} />
+                {s.name}
+              </Link>
             ))}
           </div>
         </div>
