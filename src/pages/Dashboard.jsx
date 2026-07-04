@@ -7,6 +7,7 @@ const quickActions = [
   { icon: Calendar, title: 'My Appointments', desc: 'View all bookings', color: '#fef3e2', iconColor: 'var(--accent)', path: '/my-appointments' },
   { icon: Pill, title: 'Order Medicine', desc: 'Home delivery', color: '#f0fdf4', iconColor: 'var(--accent)', path: '/pharmacy' },
   { icon: Flask, title: 'Book Lab Test', desc: 'Home collection', color: '#f5f3ff', iconColor: '#7c3aed', path: '/diagnostics' },
+  { icon: Flask, title: 'Test Orders', desc: 'Track & view results', color: '#fce4ec', iconColor: '#e91e63', path: '/my-test-orders' },
   { icon: FileText, title: 'Health Records', desc: 'Upload & manage', color: '#fff7ed', iconColor: '#ea580c', path: '/health-records' },
   { icon: ChartLine, title: 'Vitals Tracker', desc: 'BP, sugar & more', color: '#f0fdf4', iconColor: '#16a34a', path: '/vitals' },
 ];

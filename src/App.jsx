@@ -14,6 +14,8 @@ import MyOrders from './pages/MyOrders';
 import HealthRecords from './pages/HealthRecords';
 import VitalsTracker from './pages/VitalsTracker';
 import Diagnostics from './pages/Diagnostics';
+import MyTestOrders from './pages/MyTestOrders';
+import TestResults from './pages/TestResults';
 import Contact from './pages/Contact';
 import Onboarding from './pages/Onboarding';
 import Signup from './pages/Signup';
@@ -59,6 +61,8 @@ export default function App() {
           <Route path="/health-records" element={<ProtectedRoute><HealthRecords /></ProtectedRoute>} />
           <Route path="/vitals" element={<ProtectedRoute><VitalsTracker /></ProtectedRoute>} />
           <Route path="/diagnostics" element={<Diagnostics />} />
+          <Route path="/my-test-orders" element={<ProtectedRoute><MyTestOrders /></ProtectedRoute>} />
+          <Route path="/test-results/:orderId" element={<ProtectedRoute><TestResults /></ProtectedRoute>} />
           <Route path="/contact" element={<Contact />} />
         </Route>
         <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
