@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import useAuthStore from './store/authStore';
 import Onboarding from './pages/Onboarding';
 import Signup from './pages/Signup';
-import VerifyOtp from './pages/VerifyOtp';
 import ProfileSetup from './pages/ProfileSetup';
 import Dashboard from './pages/Dashboard';
 import FamilyList from './pages/FamilyList';
@@ -34,7 +33,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<PublicRoute><Onboarding /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
-        <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />
         <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/family" element={<ProtectedRoute><FamilyList /></ProtectedRoute>} />

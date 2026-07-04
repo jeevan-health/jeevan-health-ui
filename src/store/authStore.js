@@ -14,6 +14,8 @@ const useAuthStore = create((set) => ({
       const { data } = await getProfile();
       set({ user: data, isAuthenticated: true });
     } catch {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       set({ user: null, isAuthenticated: false });
     } finally {
       set({ isLoading: false });

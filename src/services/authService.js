@@ -1,10 +1,10 @@
 import api from './api';
 
-export const sendOtp = (identifier, type) =>
-  api.post('/auth/send-otp', { identifier, type });
+export const signup = (email, password) =>
+  api.post('/auth/signup', { email, password });
 
-export const verifyOtp = (identifier, code, type) =>
-  api.post('/auth/verify-otp', { identifier, code, type });
+export const login = (email, password) =>
+  api.post('/auth/login', { email, password });
 
 export const getProfile = () =>
   api.get('/user/profile');
