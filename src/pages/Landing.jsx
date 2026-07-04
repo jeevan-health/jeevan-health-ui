@@ -52,7 +52,7 @@ const services = [
 ];
 
 const wellnessItems = [
-  { icon: Activity, text: 'Yoga & Meditation' },
+  { icon: Pulse, text: 'Yoga & Meditation' },
   { icon: Baby, text: 'Nutrition & Disease Reversal' },
   { icon: Brain, text: 'Smoking Cessation' },
   { icon: Smiley, text: 'Mental Health & Wellness' },
@@ -194,13 +194,13 @@ export default function Landing() {
                       {[
                         { icon: User, label: 'Doctor Consultation', href: '#' },
                         { icon: LinkIcon, label: 'Pharmacy', href: '#' },
-                        { icon: Activity, label: 'Diagnostics', href: '#' },
+                        { icon: Pulse, label: 'Diagnostics', href: '#' },
                         { icon: Monitor, label: 'X-Ray, ECG, EEG', href: '#' },
                         { icon: Users, label: 'Nursing Care', href: '#' },
                         { icon: Users, label: 'Caregiver Services', href: '#' },
-                        { icon: Activity, label: 'Physiotherapy', href: '#' },
+                        { icon: Pulse, label: 'Physiotherapy', href: '#' },
                         { icon: Shield, label: 'Vaccination', href: '#' },
-                        { icon: Tool, label: 'Equipment Rental', href: '#' },
+                        { icon: Wrench, label: 'Equipment Rental', href: '#' },
                         { icon: Monitor, label: 'Home ICU Setup', href: '#' },
                       ].map(s => (
                         <li key={s.label}>
