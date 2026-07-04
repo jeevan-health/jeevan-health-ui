@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { SignOut, Stethoscope, Pill, Flask, Heart, Users, Calendar, FileText, ChartLine } from '@phosphor-icons/react';
+import { SignOut, Stethoscope, Pill, Flask, Heart, Users, Calendar, FileText, ChartLine, Leaf } from '@phosphor-icons/react';
 import useAuthStore from '../store/authStore';
 
 const quickActions = [
@@ -10,6 +10,7 @@ const quickActions = [
   { icon: Flask, title: 'Test Orders', desc: 'Track & view results', color: '#fce4ec', iconColor: '#e91e63', path: '/my-test-orders' },
   { icon: FileText, title: 'Health Records', desc: 'Upload & manage', color: '#fff7ed', iconColor: '#ea580c', path: '/health-records' },
   { icon: ChartLine, title: 'Vitals Tracker', desc: 'BP, sugar & more', color: '#f0fdf4', iconColor: '#16a34a', path: '/vitals' },
+  { icon: Leaf, title: 'Wellness Hub', desc: 'BMI, diet & vaccines', color: '#fefce8', iconColor: '#ca8a04', path: '/wellness' },
 ];
 
 export default function Dashboard() {

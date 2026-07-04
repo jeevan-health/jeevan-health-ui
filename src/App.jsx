@@ -24,6 +24,8 @@ import ProfileSetup from './pages/ProfileSetup';
 import Dashboard from './pages/Dashboard';
 import FamilyList from './pages/FamilyList';
 import AddFamily from './pages/AddFamily';
+import WellnessHub from './pages/WellnessHub';
+import FoodDiary from './pages/FoodDiary';
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -64,6 +66,8 @@ export default function App() {
           <Route path="/my-test-orders" element={<ProtectedRoute><MyTestOrders /></ProtectedRoute>} />
           <Route path="/test-results/:orderId" element={<ProtectedRoute><TestResults /></ProtectedRoute>} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/wellness" element={<WellnessHub />} />
+          <Route path="/food-diary" element={<ProtectedRoute><FoodDiary /></ProtectedRoute>} />
         </Route>
         <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
