@@ -244,7 +244,7 @@ export default function Landing() {
               Get Started
             </button>
             <button className="lg:hidden p-2" style={{ color: '#0A5EB0' }} onClick={() => setMenuOpen(!menuOpen)}>
-              <Layers size={24} weight="fill" />
+              <StackSimple size={24} weight="fill" />
             </button>
           </div>
         </div>
