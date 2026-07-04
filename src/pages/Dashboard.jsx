@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import { SignOut, UserCircle, Plus, Stethoscope, Pill, Flask, Heart, Users } from '@phosphor-icons/react';
+import { SignOut, Stethoscope, Pill, Flask, Heart, Users, Calendar, FileText, ChartLine } from '@phosphor-icons/react';
 import useAuthStore from '../store/authStore';
 
 const quickActions = [
-  { icon: Stethoscope, title: 'Consult Doctor', desc: 'Chat, voice or video', color: '#ecfeff', iconColor: 'var(--primary)' },
-  { icon: Pill, title: 'Order Medicine', desc: 'Home delivery', color: '#f0fdf4', iconColor: 'var(--accent)' },
-  { icon: Flask, title: 'Book Lab Test', desc: 'Home collection', color: '#f5f3ff', iconColor: '#7c3aed' },
-  { icon: Heart, title: 'Physiotherapy', desc: 'At home sessions', color: '#fff7ed', iconColor: '#ea580c' },
+  { icon: Stethoscope, title: 'Consult Doctor', desc: 'Chat, voice or video', color: '#ecfeff', iconColor: 'var(--primary)', path: '/doctor-consultation' },
+  { icon: Calendar, title: 'My Appointments', desc: 'View all bookings', color: '#fef3e2', iconColor: 'var(--accent)', path: '/my-appointments' },
+  { icon: Pill, title: 'Order Medicine', desc: 'Home delivery', color: '#f0fdf4', iconColor: 'var(--accent)', path: '/pharmacy' },
+  { icon: Flask, title: 'Book Lab Test', desc: 'Home collection', color: '#f5f3ff', iconColor: '#7c3aed', path: '/diagnostics' },
+  { icon: FileText, title: 'Health Records', desc: 'Upload & manage', color: '#fff7ed', iconColor: '#ea580c', path: '/health-records' },
+  { icon: ChartLine, title: 'Vitals Tracker', desc: 'BP, sugar & more', color: '#f0fdf4', iconColor: '#16a34a', path: '/vitals' },
 ];
 
 export default function Dashboard() {
@@ -49,9 +51,9 @@ export default function Dashboard() {
       {/* Quick actions */}
       <div className="px-6 mb-6">
         <h2 className="font-semibold text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>QUICK ACTIONS</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {quickActions.map(({ icon: Icon, title, desc, color, iconColor }) => (
-            <div key={title} className="card p-4 cursor-pointer transition-all hover:-translate-y-0.5" style={{ boxShadow: 'var(--shadow)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {quickActions.map(({ icon: Icon, title, desc, color, iconColor, path }) => (
+            <div key={title} onClick={() => navigate(path)} className="card p-4 cursor-pointer transition-all hover:-translate-y-0.5" style={{ boxShadow: 'var(--shadow)' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: color, color: iconColor }}>
                 <Icon size={22} weight="fill" />
               </div>
@@ -65,12 +67,21 @@ export default function Dashboard() {
       {/* Health summary */}
       <div className="px-6 pb-8">
         <h2 className="font-semibold text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>HEALTH SUMMARY</h2>
-        <div className="card p-5 text-center">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: 'var(--green-100)', color: 'var(--accent)' }}>
-            <Heart size={24} weight="fill" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div onClick={() => navigate('/vitals')} className="card p-4 text-center cursor-pointer">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+              <ChartLine size={20} weight="fill" />
+            </div>
+            <p className="font-semibold text-sm">Track Vitals</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>BP, Sugar & more</p>
           </div>
-          <p className="font-semibold">Track Your Health</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Vitals, records, and more coming in next update</p>
+          <div onClick={() => navigate('/health-records')} className="card p-4 text-center cursor-pointer">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#fff7ed', color: '#ea580c' }}>
+              <FileText size={20} weight="fill" />
+            </div>
+            <p className="font-semibold text-sm">Health Records</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Upload & manage</p>
+          </div>
         </div>
       </div>
     </div>

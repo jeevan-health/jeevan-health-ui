@@ -6,7 +6,13 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
 import DoctorConsultation from './pages/DoctorConsultation';
+import DoctorProfile from './pages/DoctorProfile';
+import MyAppointments from './pages/MyAppointments';
+import ConsultationRoom from './pages/ConsultationRoom';
 import Pharmacy from './pages/Pharmacy';
+import MyOrders from './pages/MyOrders';
+import HealthRecords from './pages/HealthRecords';
+import VitalsTracker from './pages/VitalsTracker';
 import Diagnostics from './pages/Diagnostics';
 import Contact from './pages/Contact';
 import Onboarding from './pages/Onboarding';
@@ -45,7 +51,13 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+          <Route path="/doctor/:id" element={<DoctorProfile />} />
+          <Route path="/my-appointments" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
+          <Route path="/consultation/:appointmentId" element={<ProtectedRoute><ConsultationRoom /></ProtectedRoute>} />
           <Route path="/pharmacy" element={<Pharmacy />} />
+          <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+          <Route path="/health-records" element={<ProtectedRoute><HealthRecords /></ProtectedRoute>} />
+          <Route path="/vitals" element={<ProtectedRoute><VitalsTracker /></ProtectedRoute>} />
           <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/contact" element={<Contact />} />
         </Route>
