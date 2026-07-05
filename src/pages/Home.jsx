@@ -34,39 +34,6 @@ const whyChoose = [
   { icon: Clipboard, title: 'Real-Time Tracking', desc: 'Live tracking of sample collection, service delivery, and reports.' },
 ];
 
-const serviceCategories = [
-  {
-    icon: Stethoscope, title: 'Doctor Consultation', color: '#0A5EB0',
-    items: ['General Medicine', 'Pediatrics', 'Gynecology', 'Cardiology', 'Orthopedics', 'Dermatology', 'Psychiatry', 'Neurology'],
-    path: '/doctor-consultation',
-  },
-  {
-    icon: Flask, title: 'Lab Tests & Diagnostics', color: '#4169E1',
-    items: ['2,000+ Tests Available', 'Health Checkup Packages', 'Home Sample Collection', 'Digital Reports in 24hrs', 'Preventive Screening'],
-    path: '/diagnostics',
-  },
-  {
-    icon: Heart, title: 'Home Healthcare Programs', color: '#059669',
-    items: ['Post Surgery Care', 'Elder Care', 'Cancer Care', 'Stroke Rehabilitation', 'Dementia Care', 'Parkinson\'s Care', 'Home ICU', 'Mother & Child Care'],
-    path: '/services',
-  },
-  {
-    icon: Pill, title: 'Pharmacy & Medicines', color: '#dc2626',
-    items: ['Search Medicines', 'Upload Prescription', 'OTC Products', 'Health Supplements', 'Medical Consumables', 'Refill Orders'],
-    path: '/pharmacy',
-  },
-  {
-    icon: SuitcaseSimple, title: 'Corporate Healthcare', color: '#7c3aed',
-    items: ['Employee Wellness Programs', 'Industrial Medical Camps', 'Executive Checkups', 'Occupational Health', 'Vaccination Drives', 'School & College Programs'],
-    path: '/services',
-  },
-  {
-    icon: Shield, title: 'Health Insurance', color: '#0891b2',
-    items: ['Compare Plans', 'Buy Insurance', 'Claims Support', 'Cashless Assistance', 'Renew Policy'],
-    path: '/services',
-  },
-];
-
 const healthPackages = [
   { name: 'Basic Health Checkup', tests: '30+ Tests', price: 999, oldPrice: 2499 },
   { name: 'Essential Wellness', tests: '45+ Tests', price: 1499, oldPrice: 3749 },
@@ -233,46 +200,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Our Services */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Our Complete Healthcare Services</h2>
-            <Link to="/services" className="section-link">View All</Link>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 20 }}>
-            {serviceCategories.map(cat => (
-              <div key={cat.title} style={{
-                background: '#fff', borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border)', overflow: 'hidden',
-              }}>
-                <div style={{
-                  background: cat.color, color: '#fff', padding: '14px 20px',
-                  display: 'flex', alignItems: 'center', gap: 10,
-                }}>
-                  <cat.icon size={20} weight="fill" />
-                  <h3 style={{ color: '#fff', fontSize: 15, margin: 0 }}>{cat.title}</h3>
-                </div>
-                <div style={{ padding: '12px 20px 16px' }}>
-                  {cat.items.map(item => (
-                    <div key={item} style={{
-                      padding: '5px 0', fontSize: 13, color: '#555',
-                      borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 8,
-                    }}>
-                      <span style={{ color: cat.color, fontSize: 8 }}>●</span> {item}
-                    </div>
-                  ))}
-                  <Link to={cat.path} className="btn-primary" style={{ marginTop: 12, padding: '8px 20px', fontSize: 13, display: 'inline-flex' }}>
-                    Book Now <CaretRight size={14} weight="bold" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Diagnostics Section */}
+      {/* 4. Diagnostics Section */}
       <section className="section" style={{ background: '#fff' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
