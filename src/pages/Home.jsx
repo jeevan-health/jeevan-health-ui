@@ -5,7 +5,7 @@ import {
   Baby, User, Syringe, FirstAidKit, Clock, Heartbeat,
   Phone, Star, Truck, Microscope, Clipboard, Buildings,
   Brain, Eye, Tooth, Ear, Bone, Users, Sparkle,
-  ChatCircle, CheckCircle, CaretRight, CaretLeft, SuitcaseSimple,
+  ChatCircle, CheckCircle, CaretRight, CaretLeft, Globe, SuitcaseSimple,
 } from '@phosphor-icons/react';
 
 const services = [
