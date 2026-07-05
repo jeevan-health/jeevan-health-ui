@@ -300,39 +300,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Doctor Consultation */}
-      <section className="section" style={{ background: '#fff' }}>
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Consult Top Doctors from Home</h2>
-            <Link to="/doctor-consultation" className="section-link">View All Doctors</Link>
-          </div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-            {['Home Visit', 'Video Consultation', 'Clinic Visit'].map(opt => (
-              <Link key={opt} to="/doctor-consultation" style={{
-                padding: '6px 16px', background: '#0B4FA8', color: '#fff',
-                borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none',
-              }}>{opt}</Link>
-            ))}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
-            {doctorSpecs.map(s => (
-              <Link key={s.name} to={`/doctor-consultation?specialty=${encodeURIComponent(s.name)}`} style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '10px 14px', borderRadius: 8, fontSize: 13,
-                color: 'var(--text-body)', border: '1px solid var(--border)',
-                background: 'var(--bg-white)', transition: 'all 0.15s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0B4FA8'; e.currentTarget.style.color = '#0B4FA8'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-body)'; }}
-              >
-                <s.icon size={18} style={{ flexShrink: 0 }} />
-                {s.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* 8. Home Healthcare Programs */}
       <section className="section">

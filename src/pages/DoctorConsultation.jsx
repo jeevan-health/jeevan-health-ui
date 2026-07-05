@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MagnifyingGlass, Star, Clock, CaretRight, House, VideoCamera, Phone } from '@phosphor-icons/react';
-import { searchDoctors, getSpecialties } from '../services/doctorService';
+import {
+  Star, Clock, CaretRight, House, VideoCamera, Phone,
+  Heartbeat, Brain, Monitor, Bone, Baby, User, Ear, Eye,
+  Shield, Syringe, FirstAidKit, Heart,
+} from '@phosphor-icons/react';
+import { searchDoctors } from '../services/doctorService';
 
 const consultTypes = [
   { value: 'home', label: 'Home Visit', icon: House },
@@ -10,22 +14,41 @@ const consultTypes = [
 ];
 
 const allSpecialties = [
-  'Cardiologist', 'Neurologist', 'Pulmonologist', 'Orthopedic Surgeon',
-  'Pediatrician', 'Gynecologist', 'Psychiatrist', 'Dermatologist',
-  'ENT Specialist', 'Ophthalmologist', 'Endocrinologist', 'Diabetologist',
-  'Gastroenterologist', 'Hepatologist', 'Nephrologist', 'Urologist',
-  'Oncologist', 'Rheumatologist', 'Radiologist', 'Anesthesiologist',
-  'General Surgeon', 'Plastic Surgeon', 'Vascular Surgeon',
-  'Infectious Disease Specialist', 'Geriatrician', 'Fertility Specialist',
-  'Neonatologist', 'Pain Management Specialist',
-  'Emergency Medicine Specialist', 'Critical Care Specialist',
+  { name: 'Cardiologist', icon: Heartbeat },
+  { name: 'Neurologist', icon: Brain },
+  { name: 'Pulmonologist', icon: Monitor },
+  { name: 'Orthopedic Surgeon', icon: Bone },
+  { name: 'Pediatrician', icon: Baby },
+  { name: 'Gynecologist', icon: User },
+  { name: 'Psychiatrist', icon: Brain },
+  { name: 'Dermatologist', icon: User },
+  { name: 'ENT Specialist', icon: Ear },
+  { name: 'Ophthalmologist', icon: Eye },
+  { name: 'Endocrinologist', icon: User },
+  { name: 'Diabetologist', icon: User },
+  { name: 'Gastroenterologist', icon: User },
+  { name: 'Hepatologist', icon: Shield },
+  { name: 'Nephrologist', icon: User },
+  { name: 'Urologist', icon: User },
+  { name: 'Oncologist', icon: Shield },
+  { name: 'Rheumatologist', icon: Bone },
+  { name: 'Radiologist', icon: Monitor },
+  { name: 'Anesthesiologist', icon: Shield },
+  { name: 'General Surgeon', icon: Syringe },
+  { name: 'Plastic Surgeon', icon: User },
+  { name: 'Vascular Surgeon', icon: Heartbeat },
+  { name: 'Infectious Disease Specialist', icon: Shield },
+  { name: 'Geriatrician', icon: User },
+  { name: 'Fertility Specialist', icon: Baby },
+  { name: 'Neonatologist', icon: Baby },
+  { name: 'Pain Management Specialist', icon: FirstAidKit },
+  { name: 'Emergency Medicine Specialist', icon: Syringe },
+  { name: 'Critical Care Specialist', icon: Heart },
 ];
 
 export default function DoctorConsultation() {
   const [doctors, setDoctors] = useState([]);
-  const [specialties, setSpecialties] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [consultType, setConsultType] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,7 +65,6 @@ export default function DoctorConsultation() {
     setLoading(true);
     try {
       const params = {};
-      if (search) params.name = search;
       if (specialty) params.specialty = specialty;
       const { data } = await searchDoctors(params);
       setDoctors(data);
@@ -51,13 +73,11 @@ export default function DoctorConsultation() {
 
   useEffect(() => {
     loadDoctors();
-    getSpecialties().then(({ data }) => setSpecialties(data)).catch(() => {});
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(loadDoctors, 300);
-    return () => clearTimeout(timer);
-  }, [search, specialty]);
+    loadDoctors();
+  }, [specialty]);
 
   const handleSpecialtyClick = (s) => {
     const next = specialty === s ? '' : s;
@@ -75,7 +95,7 @@ export default function DoctorConsultation() {
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
           <h1 style={{ margin: 0 }}>Consult Top Doctors from Home</h1>
-          <button onClick={() => { setSpecialty(''); setSearch(''); setSearchParams({}); }}
+          <button onClick={() => { setSpecialty(''); setSearchParams({}); }}
             style={{ background: 'none', border: 'none', color: '#0B4FA8', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
             View All Doctors
           </button>
@@ -103,31 +123,19 @@ export default function DoctorConsultation() {
         {/* Specialty Chips */}
         <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
           {allSpecialties.map(s => (
-            <button key={s} onClick={() => handleSpecialtyClick(s)}
+            <button key={s.name} onClick={() => handleSpecialtyClick(s.name)}
               style={{
+                display: 'flex', alignItems: 'center', gap: 6,
                 padding: '6px 16px', borderRadius: 50, fontSize: 12, fontWeight: 500,
-                background: specialty === s ? '#0B4FA8' : '#f5f7fa',
-                color: specialty === s ? '#fff' : 'var(--text-body)',
-                border: `1px solid ${specialty === s ? '#0B4FA8' : 'transparent'}`,
+                background: specialty === s.name ? '#0B4FA8' : '#f5f7fa',
+                color: specialty === s.name ? '#fff' : 'var(--text-body)',
+                border: `1px solid ${specialty === s.name ? '#0B4FA8' : 'transparent'}`,
                 cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
               }}>
-              {s}
+              <s.icon size={16} weight={specialty === s.name ? 'fill' : 'regular'} />
+              {s.name}
             </button>
           ))}
-        </div>
-
-        {/* Search + Filter */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24 }}>
-          <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
-            <MagnifyingGlass size={18} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-light)' }} />
-            <input type="text" placeholder="Search by doctor name or specialty..."
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              className="input" style={{ paddingLeft: 38 }} />
-          </div>
-          <select value={specialty} onChange={(e) => handleSpecialtyClick(e.target.value)} className="input" style={{ width: 'auto', minWidth: 160 }}>
-            <option value="">All Specialties</option>
-            {specialties.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
         </div>
 
         {/* Results */}
