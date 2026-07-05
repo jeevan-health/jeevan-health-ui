@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info,
-  Heartbeat, Heart, Drop, Shield, Brain, Bone, Baby, User,
-  Microscope, Truck, SealCheck, Sparkle,
+  Heartbeat, Heart, Drop, Shield, Bone, Baby, User,
+  Microscope, Truck, Sparkle,
   CaretRight, FileText, CalendarDots, ChatCircle,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
@@ -34,21 +34,6 @@ const categoryFilterMap = {
   'Cancer': 'Cancer', 'Combo': '', 'Pregnancy': 'Hormones', 'Allergy': 'Infections',
   'Arthritis': '', 'STD': 'Infections', 'Anemia': 'Hematology', 'Antenatal': 'Hormones',
 };
-
-const whyUs = [
-  { icon: Truck, title: 'One-prick sample collection', desc: 'by trained & experienced experts at home' },
-  { icon: Shield, title: 'Temperature-controlled transfer', desc: 'Sample Transfer in Temperature-controlled Bags' },
-  { icon: Microscope, title: 'Certified laboratories', desc: 'Sample processing under strict quality protocols' },
-  { icon: SealCheck, title: 'Doctor-verified reports', desc: 'Smart, easy-to-understand, verified by MD pathologists' },
-];
-
-const steps = [
-  { num: '01', title: 'Start Your Online Booking', desc: 'Select your test or package, enter details, and schedule a preferred slot.' },
-  { num: '02', title: 'Live Tracking', desc: 'Stay updated with real-time tracking for smooth home sample collection.' },
-  { num: '03', title: 'Sample Collection', desc: 'Our certified experts ensure a hygienic & compliant collection experience.' },
-  { num: '04', title: 'Doctor-Verified Reports', desc: 'Every report is clinically checked by expert doctors with smart insights.' },
-  { num: '05', title: 'Consult & Act', desc: 'Consult our experts to get actionable insights to improve your health.' },
-];
 
 const stats = [
   { value: '1 Crore+', label: 'Lives Touched' },
@@ -212,80 +197,12 @@ export default function Diagnostics() {
             })}
           </div>
 
-          {/* Routine health checkups for Men */}
-          <div style={{ marginBottom: 36 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <h2 style={{ fontSize: 18 }}>Routine health checkups for Men</h2>
-              <button onClick={() => setShowAllTests(true)} style={{ color: '#0B4FA8', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-                View All
-              </button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-              {[
-                { age: 'Under 30 yrs', icon: User, color: '#43a047' },
-                { age: '30 - 45 yrs', icon: User, color: '#1e88e5' },
-                { age: '45 - 60 yrs', icon: User, color: '#fb8c00' },
-                { age: 'Above 60 yrs', icon: User, color: '#e53935' },
-              ].map(item => (
-                <button key={item.age} onClick={() => setShowAllTests(true)}
-                  style={{
-                    background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
-                    padding: '20px 12px', textAlign: 'center', cursor: 'pointer',
-                    transition: 'all 0.15s', fontFamily: 'inherit',
-                  }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: '50%',
-                    background: item.color + '15', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px',
-                  }}>
-                    <item.icon size={24} weight="fill" color={item.color} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>{item.age}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Routine health checkups for Women */}
-          <div style={{ marginBottom: 36 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <h2 style={{ fontSize: 18 }}>Routine health checkups for Women</h2>
-              <button onClick={() => setShowAllTests(true)} style={{ color: '#0B4FA8', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-                View All
-              </button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-              {[
-                { age: 'Under 30 yrs', icon: User, color: '#ec407a' },
-                { age: '30 - 45 yrs', icon: User, color: '#8e24aa' },
-                { age: '45 - 60 yrs', icon: User, color: '#d81b60' },
-                { age: 'Above 60 yrs', icon: User, color: '#6d4c41' },
-              ].map(item => (
-                <button key={item.age} onClick={() => setShowAllTests(true)}
-                  style={{
-                    background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
-                    padding: '20px 12px', textAlign: 'center', cursor: 'pointer',
-                    transition: 'all 0.15s', fontFamily: 'inherit',
-                  }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: '50%',
-                    background: item.color + '15', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px',
-                  }}>
-                    <item.icon size={24} weight="fill" color={item.color} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>{item.age}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Top Booked Health Checkup Packages */}
           <div style={{ marginBottom: 40 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h2 style={{ fontSize: 20 }}>Top Booked Health Checkup Packages</h2>
               <button onClick={() => setShowAllTests(true)} style={{ color: '#0B4FA8', fontSize: 14, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-                View All
+                View All Tests
               </button>
             </div>
             <div className="scroll-row">
@@ -305,51 +222,24 @@ export default function Diagnostics() {
             </div>
           </div>
 
-          {/* Features */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
-            {[
-              { icon: FileText, title: 'Smart Reports', desc: 'Colour-coded insights' },
-              { icon: ChatCircle, title: 'Expert Consultation', desc: 'Free with every test' },
-              { icon: Sparkle, title: 'AI Assistance', desc: 'Available 24/7' },
-              { icon: CalendarDots, title: 'Diet Plan', desc: 'Personalized for you' },
-            ].map(f => (
-              <div key={f.title} style={{ textAlign: 'center', padding: 20, background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#0B4FA8' }}>
-                  <f.icon size={24} weight="fill" />
-                </div>
-                <h3 style={{ fontSize: 14, marginBottom: 4 }}>{f.title}</h3>
-                <p style={{ fontSize: 12, color: 'var(--text-light)' }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Why Book Tests With Us */}
+          {/* Why Jeevan HealthCare */}
           <div style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, marginBottom: 20, textAlign: 'center' }}>Why Book Tests With Us?</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
-              {whyUs.map(item => (
-                <div key={item.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 20, background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0B4FA8', flexShrink: 0 }}>
-                    <item.icon size={22} weight="fill" />
+            <h2 style={{ fontSize: 20, marginBottom: 20, textAlign: 'center' }}>Why Jeevan HealthCare?</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+              {[
+                { icon: FileText, title: 'Smart Reports', desc: 'Colour-coded insights & doctor-verified' },
+                { icon: Truck, title: 'One-prick Collection', desc: 'by trained experts at your doorstep' },
+                { icon: Shield, title: 'Temperature-controlled', desc: 'Sample transfer in certified bags' },
+                { icon: Microscope, title: 'NABL Labs', desc: 'Processing under strict quality protocols' },
+                { icon: ChatCircle, title: 'Free Expert Consultation', desc: 'With every test booked' },
+                { icon: CalendarDots, title: 'Diet Plan', desc: 'Personalized for your health goals' },
+              ].map(f => (
+                <div key={f.title} style={{ textAlign: 'center', padding: 20, background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#0B4FA8' }}>
+                    <f.icon size={22} weight="fill" />
                   </div>
-                  <div>
-                    <h4 style={{ fontSize: 13, marginBottom: 2 }}>{item.title}</h4>
-                    <p style={{ fontSize: 12, color: 'var(--text-light)' }}>{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 5 Steps */}
-          <div style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, marginBottom: 20, textAlign: 'center' }}>5 Simple Steps to Manage Your Health</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
-              {steps.map(s => (
-                <div key={s.num} style={{ textAlign: 'center', padding: 20, background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: '#0B4FA8', opacity: 0.15, marginBottom: 4 }}>{s.num}</div>
-                  <h3 style={{ fontSize: 13, marginBottom: 6 }}>{s.title}</h3>
-                  <p style={{ fontSize: 12, color: 'var(--text-light)', lineHeight: 1.5 }}>{s.desc}</p>
+                  <h3 style={{ fontSize: 14, marginBottom: 4 }}>{f.title}</h3>
+                  <p style={{ fontSize: 12, color: 'var(--text-light)' }}>{f.desc}</p>
                 </div>
               ))}
             </div>
