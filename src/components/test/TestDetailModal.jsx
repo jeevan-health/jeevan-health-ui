@@ -1,0 +1,279 @@
+import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield } from '@phosphor-icons/react';
+import testDetailData from './testDetailData';
+
+const TestDetailModal = ({ test, onClose }) => {
+  if (!test) return null;
+  const data = testDetailData[test.name] || null;
+
+  const Section = ({ title, icon: Icon, children, color = '#0B4FA8' }) => (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        {Icon && <Icon size={18} weight="fill" color={color} />}
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-dark)' }}>{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+
+  const Pill = ({ label, bg = '#e8f0fe', color = '#0B4FA8' }) => (
+    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: bg, color, margin: '2px 4px 2px 0' }}>{label}</span>
+  );
+
+  return (
+    <div onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', overflowY: 'auto', padding: '20px 10px', display: 'flex', justifyContent: 'center' }}>
+      <div onClick={e => e.stopPropagation()}
+        style={{ background: '#fff', borderRadius: 16, maxWidth: 720, width: '100%', padding: '24px 20px', position: 'relative', margin: 'auto' }}>
+        <button onClick={onClose}
+          style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: '50%', background: '#f5f5f5', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+          <X size={16} />
+        </button>
+
+        {/* Test Name */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Drop size={24} weight="fill" color="#c62828" />
+          </div>
+          <div>
+            <h2 style={{ fontSize: 18, margin: 0 }}>{test.name}</h2>
+            {test.subcategory && <p style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 500, marginTop: 2 }}>{test.subcategory}</p>}
+          </div>
+        </div>
+
+        {/* Also Referred As */}
+        {data?.alsoKnownAs && (
+          <Section title="Also Referred As" icon={Info}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {data.alsoKnownAs.map((a, i) => <Pill key={i} label={a} />)}
+            </div>
+          </Section>
+        )}
+
+        {/* Applicable For */}
+        {data?.applicableFor && (
+          <Section title="Applicable For" icon={Heart}>
+            <Pill label={data.applicableFor.gender} bg="#fce4ec" color="#c62828" />
+            <Pill label={data.applicableFor.age} bg="#e8f5e9" color="#2e7d32" />
+            {data.applicableFor.conditions.map((c, i) => <Pill key={i} label={c} bg="#fff3e0" color="#e65100" />)}
+          </Section>
+        )}
+
+        {/* Report Time */}
+        <Section title="Report Time" icon={Clock} color="#e65100">
+          <div style={{ background: '#fff8e1', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#e65100' }}>
+            {test.report_time ? `Within ${test.report_time}` : 'Varies by lab location'}
+          </div>
+        </Section>
+
+        {/* Test Details */}
+        <Section title="Test Details" icon={Flask}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Contains:</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>1 Test</div>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Sample Type:</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>{data?.sampleType || 'Blood Sample'}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Home Collection:</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#2e7d32' }}>
+              {test.home_collection !== false ? 'Yes' : 'Lab visit preferred'}
+            </div>
+          </div>
+        </Section>
+
+        {/* Overview */}
+        <Section title="KNOW MORE ABOUT THIS TEST" icon={Microscope}>
+          <p style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text-body)' }}>{test.description}</p>
+        </Section>
+
+        {/* Why This Test is Booked */}
+        {data?.symptoms && (
+          <Section title="WHY THIS TEST IS BOOKED" icon={Heart} color="#c62828">
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 8 }}>You may need this test if you have:</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
+              {data.symptoms.map((s, i) => <Pill key={i} label={s} bg="#fce4ec" color="#c62828" />)}
+            </div>
+            {data.riskConditions && (
+              <>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 8 }}>High Risk Conditions:</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {data.riskConditions.map((r, i) => <Pill key={i} label={r} bg="#ffebee" color="#b71c1c" />)}
+                </div>
+              </>
+            )}
+          </Section>
+        )}
+
+        {/* When Should You Take This Test */}
+        {data?.whenToTake && (
+          <Section title="WHEN SHOULD YOU TAKE THIS TEST?" icon={Clock} color="#1565c0">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {data.whenToTake.map((w, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
+                  <span style={{ color: '#1565c0', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                  <span style={{ color: 'var(--text-body)' }}>{w}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* Sample Collection */}
+        <Section title="SAMPLE COLLECTION" icon={Drop} color="#1565c0">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+            <span style={{ color: 'var(--text-light)' }}>Sample Type:</span>
+            <span style={{ fontWeight: 600 }}>{data?.sampleType || 'Blood (Vein sample)'}</span>
+            <span style={{ color: 'var(--text-light)' }}>Collection Method:</span>
+            <span style={{ fontWeight: 600 }}>{data?.collectionMethod || 'Home visit or lab visit'}</span>
+            <span style={{ color: 'var(--text-light)' }}>Collected by:</span>
+            <span style={{ fontWeight: 600 }}>Certified Phlebotomist</span>
+          </div>
+        </Section>
+
+        {/* Preparation */}
+        <Section title="PREPARATION" icon={Info} color="#e65100">
+          <div style={{ background: '#fff8e1', padding: '10px 14px', borderRadius: 8, fontSize: 13, lineHeight: 1.6 }}>
+            {data?.preparation || test.preparation_instructions || 'No special preparation required'}
+          </div>
+        </Section>
+
+        {/* How Test is Done */}
+        {data?.procedure && (
+          <Section title="HOW TEST IS DONE" icon={Microscope}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {data.procedure.map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
+                  <span style={{ color: '#0B4FA8', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                  <span style={{ color: 'var(--text-body)' }}>{step}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* What Results Mean */}
+        {data?.normalRange && (
+          <Section title="WHAT THE RESULTS MEAN" icon={Shield} color="#2e7d32">
+            {data.normalRange.sections.map((s, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: i % 2 === 0 ? '#f8f9fa' : '#fff', borderRadius: 6, marginBottom: 4, fontSize: 13 }}>
+                <span style={{ fontWeight: 600, color: 'var(--text-dark)', flex: 1 }}>{s.label}</span>
+                <span style={{ color: s.label === 'Normal' || s.label === 'Sufficient' || s.label === 'Desirable' || s.label === 'Normal Sinus Rhythm' || s.label === 'Negative' ? '#2e7d32' : s.label === 'Prediabetes' || s.label === 'Borderline' || s.label === 'Insufficient' ? '#e65100' : s.label === 'Diabetes' || s.label === 'Deficient' || s.label === 'High' || s.label === 'Elevated' || s.label === 'Positive' || s.label === 'Abnormal' ? '#c62828' : 'var(--text-dark)', fontWeight: 600, textAlign: 'right' }}>
+                  {s.male !== 'N/A' ? s.male : s.female}
+                </span>
+              </div>
+            ))}
+            {data.normalRange.note && (
+              <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 8, fontStyle: 'italic' }}>{data.normalRange.note}</p>
+            )}
+          </Section>
+        )}
+
+        {/* Interpretation */}
+        {data?.interpretation && (
+          <Section title="INTERPRETATION">
+            <div style={{ padding: '8px 12px', background: '#e8f5e9', borderRadius: 6, marginBottom: 4, fontSize: 13 }}>
+              <span style={{ fontWeight: 600, color: '#2e7d32' }}>Normal: </span>
+              <span style={{ color: 'var(--text-body)' }}>{data.interpretation.normal}</span>
+            </div>
+            <div style={{ padding: '8px 12px', background: '#ffebee', borderRadius: 6, fontSize: 13 }}>
+              <span style={{ fontWeight: 600, color: '#c62828' }}>Abnormal: </span>
+              <span style={{ color: 'var(--text-body)' }}>{data.interpretation.abnormal}</span>
+            </div>
+          </Section>
+        )}
+
+        {/* Related Tests */}
+        {data?.relatedTests && (
+          <Section title="RELATED TESTS" icon={Flask}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {data.relatedTests.map((r, i) => <Pill key={i} label={r} bg="#f3e5f5" color="#7b1fa2" />)}
+            </div>
+          </Section>
+        )}
+
+        {/* Home Sample Collection */}
+        <Section title="HOME SAMPLE COLLECTION" icon={House} color="#2e7d32">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 13 }}>
+            {['Easy online booking', 'Doorstep sample collection', 'Live tracking of phlebotomist', 'Safe & hygienic procedure', 'Digital reports via WhatsApp & Email'].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2e7d32', flexShrink: 0 }} />
+                <span style={{ color: 'var(--text-body)' }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Report Delivery */}
+        <Section title="REPORT DELIVERY" icon={Clock} color="#1565c0">
+          <div style={{ background: '#e3f2fd', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#1565c0' }}>
+            Usually within {test.report_time || '12-24 hours'} — Faster in metro cities
+          </div>
+        </Section>
+
+        {/* Benefits */}
+        {data?.benefits && (
+          <Section title="BENEFITS OF THIS TEST" icon={Shield} color="#2e7d32">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 13 }}>
+              {data.benefits.map((b, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: '#2e7d32', fontWeight: 700 }}>✓</span>
+                  <span style={{ color: 'var(--text-body)' }}>{b}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* Limitations */}
+        {data?.limitations && (
+          <Section title="LIMITATIONS" icon={Info} color="#e65100">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
+              {data.limitations.map((l, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                  <span style={{ color: '#e65100', fontWeight: 700, flexShrink: 0 }}>⚠</span>
+                  <span style={{ color: 'var(--text-body)' }}>{l}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* When to Consult Doctor */}
+        <Section title="WHEN TO CONSULT DOCTOR" icon={Phone} color="#c62828">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
+            {['Test result is above or below normal range', 'Symptoms of the condition are present', 'Sudden fatigue or unexplained weight changes', 'Need help interpreting your report'].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <span style={{ color: '#c62828', fontWeight: 700, flexShrink: 0 }}>→</span>
+                <span style={{ color: 'var(--text-body)' }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Safety & Risks */}
+        <Section title="SAFETY & RISKS" icon={Shield} color="#0B4FA8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
+            {['Minimal pain during blood draw', 'Rare bruising at puncture site', 'Extremely safe procedure'].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: '#0B4FA8', fontWeight: 700 }}>✓</span>
+                <span style={{ color: 'var(--text-body)' }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Lifestyle Guidance (generic) */}
+        <Section title="LIFESTYLE GUIDANCE" icon={Heart} color="#2e7d32">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 13 }}>
+            {['Balanced low-sugar diet', 'Regular exercise (30 min daily)', 'Stress control and meditation', 'Proper sleep cycle (7-8 hours)', 'Regular health checkups', 'Stay hydrated'].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2e7d32', flexShrink: 0 }} />
+                <span style={{ color: 'var(--text-body)' }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      </div>
+    </div>
+  );
+};
+
+export default TestDetailModal;

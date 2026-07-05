@@ -1,27 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  MagnifyingGlass, Flask, ShoppingCart, Plus, Minus, Trash, CheckCircle, Clock, Info,
-  Heartbeat, Heart, Drop, Shield, Brain, Bone, Baby, User, Eye, Ear,
-  Syringe, FirstAidKit, Microscope, Star, Truck, SealCheck, Sparkle,
-  CaretRight, X, FileText, CalendarDots, House, Phone, ChatCircle,
+  MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info,
+  Heartbeat, Heart, Drop, Shield, Brain, Bone, Baby, User,
+  Microscope, Truck, SealCheck, Sparkle,
+  CaretRight, FileText, CalendarDots, ChatCircle,
 } from '@phosphor-icons/react';
-import { searchTests, getTestCategories, getTestSubcategories, placeDiagnosticOrder } from '../services/diagnosticsService';
+import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
 
-const categoryIcons = {
-  Hematology: { icon: Drop, color: '#e53935' },
-  Diabetes: { icon: Drop, color: '#1e88e5' },
-  Cardiac: { icon: Heartbeat, color: '#e53935' },
-  Thyroid: { icon: Shield, color: '#8e24aa' },
-  Liver: { icon: Shield, color: '#43a047' },
-  Kidney: { icon: Shield, color: '#fb8c00' },
-  Vitamins: { icon: Sparkle, color: '#00acc1' },
-  Infections: { icon: Microscope, color: '#6d4c41' },
-  Urinalysis: { icon: Flask, color: '#3949ab' },
-  Cancer: { icon: Shield, color: '#e53935' },
-  Radiology: { icon: Brain, color: '#5e35b1' },
-  Hormones: { icon: Drop, color: '#d81b60' },
+const categoryList = [
+  { name: 'Full Body', icon: User, color: '#0B4FA8' },
+  { name: 'Heart', icon: Heartbeat, color: '#e53935', mostBooked: true },
+  { name: 'Fever', icon: Drop, color: '#ff6f00', ticker: '20,186 Chikungunya cases • 6,927 Dengue cases • 19,422 Malaria cases • 4,08,000 Typhoid cases' },
+  { name: 'Vitamin', icon: Sparkle, color: '#00acc1' },
+  { name: 'Diabetes', icon: Drop, color: '#1e88e5' },
+  { name: 'Thyroid', icon: Shield, color: '#8e24aa' },
+  { name: 'Hormones', icon: Drop, color: '#d81b60' },
+  { name: 'Lifestyle', icon: Heart, color: '#43a047' },
+  { name: 'Cancer', icon: Shield, color: '#e53935' },
+  { name: 'Combo', icon: Flask, color: '#6d4c41' },
+  { name: 'Pregnancy', icon: Baby, color: '#ec407a' },
+  { name: 'Allergy', icon: Shield, color: '#7e57c2' },
+  { name: 'Arthritis', icon: Bone, color: '#5d4037' },
+  { name: 'STD', icon: Shield, color: '#c62828' },
+  { name: 'Anemia', icon: Drop, color: '#c62828' },
+  { name: 'Antenatal', icon: Baby, color: '#f06292' },
+];
+
+const categoryFilterMap = {
+  'Full Body': '', 'Heart': 'Cardiac', 'Fever': 'Infections', 'Vitamin': 'Vitamins',
+  'Diabetes': 'Diabetes', 'Thyroid': 'Thyroid', 'Hormones': 'Hormones', 'Lifestyle': '',
+  'Cancer': 'Cancer', 'Combo': '', 'Pregnancy': 'Hormones', 'Allergy': 'Infections',
+  'Arthritis': '', 'STD': 'Infections', 'Anemia': 'Hematology', 'Antenatal': 'Hormones',
 };
 
 const whyUs = [
@@ -67,13 +78,13 @@ export default function Diagnostics() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const [tests, setTests] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [selectedTest, setSelectedTest] = useState(null);
   const [collectionDate, setCollectionDate] = useState('');
   const [collectionTime, setCollectionTime] = useState('');
   const [address, setAddress] = useState({ line1: '', city: '', pincode: '' });
@@ -94,7 +105,7 @@ export default function Diagnostics() {
 
   useEffect(() => {
     load();
-    getTestCategories().then(({ data }) => setCategories(data)).catch(() => {});
+
   }, []);
 
   useEffect(() => { const t = setTimeout(load, 300); return () => clearTimeout(t); }, [search, category]);
@@ -163,35 +174,113 @@ export default function Diagnostics() {
         </div>
       </div>
 
-      <section style={{ padding: '28px 20px' }}>
+      <div style={{ padding: '28px 20px' }}>
         <div className="container">
           {/* Category Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12, marginBottom: 36 }}>
-            {categories.filter(c => c !== 'All').slice(0, 12).map(c => {
-              const meta = categoryIcons[c] || { icon: Flask, color: '#0B4FA8' };
-              const Icon = meta.icon;
+            {categoryList.map(c => {
+              const Icon = c.icon;
+              const isActive = category === categoryFilterMap[c.name];
               return (
-                <button key={c} onClick={() => { setCategory(category === c ? '' : c); setShowAllTests(true); }}
+                <button key={c.name} onClick={() => { setCategory(isActive ? '' : categoryFilterMap[c.name]); setShowAllTests(true); }}
                   style={{
-                    background: category === c ? '#0B4FA8' : '#fff', border: '1px solid var(--border)',
+                    background: isActive ? '#0B4FA8' : '#fff', border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-lg)', padding: '16px 8px', textAlign: 'center',
-                    cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+                    cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit', position: 'relative',
                   }}>
+                  {c.mostBooked && (
+                    <span style={{ position: 'absolute', top: -6, right: 6, fontSize: 8, fontWeight: 700, background: '#00FFFF', color: '#083d86', padding: '1px 6px', borderRadius: 4 }}>
+                      MOST BOOKED
+                    </span>
+                  )}
                   <div style={{
                     width: 44, height: 44, borderRadius: 12,
-                    background: category === c ? 'rgba(255,255,255,0.2)' : '#e8f0fe',
+                    background: isActive ? 'rgba(255,255,255,0.2)' : '#e8f0fe',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     margin: '0 auto 8px',
                   }}>
-                    <Icon size={22} weight="fill" color={category === c ? '#fff' : meta.color} />
+                    <Icon size={22} weight="fill" color={isActive ? '#fff' : c.color} />
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: category === c ? '#fff' : 'var(--text-dark)' }}>{c}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? '#fff' : 'var(--text-dark)' }}>{c.name}</span>
+                  {c.ticker && (
+                    <div style={{ fontSize: 8, color: isActive ? 'rgba(255,255,255,0.7)' : '#888', marginTop: 4, lineHeight: 1.3 }}>
+                      {c.ticker}
+                    </div>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          {/* Health Packages for Men */}
+          {/* Routine health checkups for Men */}
+          <div style={{ marginBottom: 36 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <h2 style={{ fontSize: 18 }}>Routine health checkups for Men</h2>
+              <button onClick={() => setShowAllTests(true)} style={{ color: '#0B4FA8', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                View All
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {[
+                { age: 'Under 30 yrs', icon: User, color: '#43a047' },
+                { age: '30 - 45 yrs', icon: User, color: '#1e88e5' },
+                { age: '45 - 60 yrs', icon: User, color: '#fb8c00' },
+                { age: 'Above 60 yrs', icon: User, color: '#e53935' },
+              ].map(item => (
+                <button key={item.age} onClick={() => setShowAllTests(true)}
+                  style={{
+                    background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
+                    padding: '20px 12px', textAlign: 'center', cursor: 'pointer',
+                    transition: 'all 0.15s', fontFamily: 'inherit',
+                  }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: '50%',
+                    background: item.color + '15', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px',
+                  }}>
+                    <item.icon size={24} weight="fill" color={item.color} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>{item.age}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Routine health checkups for Women */}
+          <div style={{ marginBottom: 36 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <h2 style={{ fontSize: 18 }}>Routine health checkups for Women</h2>
+              <button onClick={() => setShowAllTests(true)} style={{ color: '#0B4FA8', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                View All
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {[
+                { age: 'Under 30 yrs', icon: User, color: '#ec407a' },
+                { age: '30 - 45 yrs', icon: User, color: '#8e24aa' },
+                { age: '45 - 60 yrs', icon: User, color: '#d81b60' },
+                { age: 'Above 60 yrs', icon: User, color: '#6d4c41' },
+              ].map(item => (
+                <button key={item.age} onClick={() => setShowAllTests(true)}
+                  style={{
+                    background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
+                    padding: '20px 12px', textAlign: 'center', cursor: 'pointer',
+                    transition: 'all 0.15s', fontFamily: 'inherit',
+                  }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: '50%',
+                    background: item.color + '15', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px',
+                  }}>
+                    <item.icon size={24} weight="fill" color={item.color} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>{item.age}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Booked Health Checkup Packages */}
           <div style={{ marginBottom: 40 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h2 style={{ fontSize: 20 }}>Top Booked Health Checkup Packages</h2>
@@ -377,10 +466,10 @@ export default function Diagnostics() {
                   {tests.map(test => {
                     const inCart = cart.find(i => i.id === test.id);
                     return (
-                      <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16 }}>
+                       <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <h3 style={{ fontSize: 14, margin: 0 }}>{test.name}</h3>
+                            <h3 style={{ fontSize: 14, margin: 0, cursor: 'pointer', color: '#0B4FA8' }} onClick={() => setSelectedTest(test)}>{test.name}</h3>
                             <p style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 500, marginTop: 2 }}>{test.subcategory}</p>
                           </div>
                         </div>
@@ -429,7 +518,9 @@ export default function Diagnostics() {
             </div>
           )}
         </div>
-      </section>
+      </div>
+
+      <TestDetailModal test={selectedTest} onClose={() => setSelectedTest(null)} />
     </>
   );
 }
