@@ -4,7 +4,7 @@ import { CaretLeft, Calendar, Clock, Phone, VideoCamera, ChatCircle, House, XCir
 import { getMyAppointments, cancelAppointment } from '../services/doctorService';
 
 const statusStyles = {
-  scheduled: { bg: '#e8f0fe', color: '#0B4FA8' },
+  scheduled: { bg: '#e8f0fe', color: '#0F5DA8' },
   confirmed: { bg: '#e8f5e9', color: '#2e7d32' },
   in_progress: { bg: '#fff3e0', color: '#e65100' },
   completed: { bg: '#f5f5f5', color: '#757575' },

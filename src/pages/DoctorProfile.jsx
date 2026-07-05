@@ -187,7 +187,7 @@ export default function DoctorProfile() {
                       </p>
                       <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                         <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500 }}>
-                          <Star size={16} weight="fill" color="#0B4FA8" /> {doctor.rating}
+                          <Star size={16} weight="fill" color="#0F5DA8" /> {doctor.rating}
                           <span style={{ color: 'var(--text-light)', fontWeight: 400 }}>({doctor.review_count} Reviews)</span>
                         </span>
                         <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-light)' }}>
@@ -198,7 +198,7 @@ export default function DoctorProfile() {
                         <span style={{
                           display: 'flex', alignItems: 'center', gap: 4,
                           padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-                          background: '#e8f0fe', color: '#0B4FA8',
+                          background: '#e8f0fe', color: '#0F5DA8',
                         }}>
                           <SealCheck size={13} weight="fill" /> Verified by Jeevan HealthCare
                         </span>
@@ -237,7 +237,7 @@ export default function DoctorProfile() {
                 }}>
                   <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
                     <h3 style={{ fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Article size={18} weight="fill" color="#0B4FA8" /> Choose Consultation Type
+                      <Article size={18} weight="fill" color="#0F5DA8" /> Choose Consultation Type
                     </h3>
                   </div>
                   {consultModes.map(mode => (
@@ -257,9 +257,9 @@ export default function DoctorProfile() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{
                             width: 40, height: 40, borderRadius: 10,
-                            background: consultType === mode.value ? '#0B4FA8' : '#f0f4f8',
+                            background: consultType === mode.value ? '#0F5DA8' : '#f0f4f8',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: consultType === mode.value ? '#fff' : '#0B4FA8',
+                            color: consultType === mode.value ? '#fff' : '#0F5DA8',
                           }}>
                             <mode.icon size={20} weight="fill" />
                           </div>
@@ -268,7 +268,7 @@ export default function DoctorProfile() {
                               {mode.label}
                               {mode.recommended && (
                                 <span style={{
-                                  fontSize: 10, background: '#00FFFF', color: '#083d86',
+                                  fontSize: 10, background: '#00D4FF', color: '#0a4a8a',
                                   padding: '1px 8px', borderRadius: 50, fontWeight: 700,
                                 }}>RECOMMENDED</span>
                               )}
@@ -280,12 +280,12 @@ export default function DoctorProfile() {
                         </div>
                         <div style={{
                           width: 22, height: 22, borderRadius: '50%',
-                          border: `2px solid ${consultType === mode.value ? '#0B4FA8' : '#ddd'}`,
+                          border: `2px solid ${consultType === mode.value ? '#0F5DA8' : '#ddd'}`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           flexShrink: 0,
                         }}>
                           {consultType === mode.value && (
-                            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#0B4FA8' }} />
+                            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#0F5DA8' }} />
                           )}
                         </div>
                       </button>
@@ -308,13 +308,13 @@ export default function DoctorProfile() {
                   border: '1px solid var(--border)', padding: 20, marginBottom: 16,
                 }}>
                   <h3 style={{ fontSize: 15, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Shield size={18} weight="fill" color="#0B4FA8" /> Specialization Summary
+                    <Shield size={18} weight="fill" color="#0F5DA8" /> Specialization Summary
                   </h3>
                   <p style={{ fontSize: 14, color: 'var(--text-body)', lineHeight: 1.6, marginBottom: 12 }}>{doctor.about}</p>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {doctor.languages?.map(l => (
                       <span key={l} style={{
-                        padding: '4px 12px', background: '#0B4FA8', color: '#fff',
+                        padding: '4px 12px', background: '#0F5DA8', color: '#fff',
                         borderRadius: 20, fontSize: 12, fontWeight: 600,
                       }}>{l}</span>
                     ))}
@@ -328,10 +328,10 @@ export default function DoctorProfile() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <h3 style={{ fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Star size={18} weight="fill" color="#0B4FA8" /> Patient Reviews ({reviews.length})
+                      <Star size={18} weight="fill" color="#0F5DA8" /> Patient Reviews ({reviews.length})
                     </h3>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: '#0B4FA8' }}>{doctor.rating}</div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: '#0F5DA8' }}>{doctor.rating}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{doctor.review_count} Reviews</div>
                     </div>
                   </div>
@@ -343,7 +343,7 @@ export default function DoctorProfile() {
                         <span style={{ fontWeight: 600, fontSize: 13 }}>{r.user_name}</span>
                         <div style={{ display: 'flex', gap: 2 }}>
                           {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} size={11} weight={i < r.rating ? 'fill' : 'regular'} color={i < r.rating ? '#0B4FA8' : '#ddd'} />
+                            <Star key={i} size={11} weight={i < r.rating ? 'fill' : 'regular'} color={i < r.rating ? '#0F5DA8' : '#ddd'} />
                           ))}
                         </div>
                       </div>
@@ -354,7 +354,7 @@ export default function DoctorProfile() {
 
                 {/* Trust Footer */}
                 <div style={{
-                  background: 'linear-gradient(135deg, #0B4FA8, #0C6BC4)',
+                  background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)',
                   borderRadius: 'var(--radius-lg)', padding: 24, textAlign: 'center', color: '#fff',
                 }}>
                   <Shield size={28} weight="fill" style={{ marginBottom: 8, opacity: 0.8 }} />
@@ -373,7 +373,7 @@ export default function DoctorProfile() {
                   boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
                 }}>
                   <h3 style={{ fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Article size={18} weight="fill" color="#0B4FA8" /> Book Appointment
+                    <Article size={18} weight="fill" color="#0F5DA8" /> Book Appointment
                   </h3>
 
                   {/* Selected Mode Summary */}
@@ -382,7 +382,7 @@ export default function DoctorProfile() {
                       padding: '10px 14px', background: '#e8f0fe', borderRadius: 'var(--radius)',
                       marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10,
                     }}>
-                      <currentMode.icon size={20} weight="fill" color="#0B4FA8" />
+                      <currentMode.icon size={20} weight="fill" color="#0F5DA8" />
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600 }}>{currentMode.label}</div>
                         <div style={{ fontSize: 12, color: 'var(--text-light)' }}>{currentMode.priceRange} — {currentMode.duration}</div>
@@ -410,8 +410,8 @@ export default function DoctorProfile() {
                           <button key={slot} onClick={() => setSelectedSlot(slot)}
                             style={{
                               padding: '8px 4px', borderRadius: 6,
-                              border: `1px solid ${selectedSlot === slot ? '#0B4FA8' : 'var(--border)'}`,
-                              background: selectedSlot === slot ? '#0B4FA8' : '#fff',
+                              border: `1px solid ${selectedSlot === slot ? '#0F5DA8' : 'var(--border)'}`,
+                              background: selectedSlot === slot ? '#0F5DA8' : '#fff',
                               color: selectedSlot === slot ? '#fff' : 'var(--text-body)',
                               fontSize: 11, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
                             }}>
@@ -451,7 +451,7 @@ export default function DoctorProfile() {
                   <button onClick={handleBook} disabled={booking || !selectedDate || !selectedSlot}
                     className="btn btn-accent" style={{
                       fontSize: 16, padding: '16px', fontWeight: 700,
-                      background: '#0B4FA8', color: '#fff', borderRadius: 'var(--radius)',
+                      background: '#0F5DA8', color: '#fff', borderRadius: 'var(--radius)',
                       width: '100%', border: 'none', cursor: booking || !selectedDate || !selectedSlot ? 'not-allowed' : 'pointer',
                       opacity: booking || !selectedDate || !selectedSlot ? 0.5 : 1,
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -472,11 +472,11 @@ export default function DoctorProfile() {
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-light)' }}>{doctor.name}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0B4FA8' }}>{currentMode?.priceRange || `₹${doctor.fees}`}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0F5DA8' }}>{currentMode?.priceRange || `₹${doctor.fees}`}</div>
                 </div>
                 <button onClick={() => document.querySelector('.booking-section')?.scrollIntoView({ behavior: 'smooth' })}
                   style={{
-                    background: '#0B4FA8', color: '#fff', border: 'none', borderRadius: 'var(--radius)',
+                    background: '#0F5DA8', color: '#fff', border: 'none', borderRadius: 'var(--radius)',
                     padding: '12px 28px', fontWeight: 700, fontSize: 15, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'inherit',
                     boxShadow: '0 4px 14px rgba(11,79,168,0.35)',

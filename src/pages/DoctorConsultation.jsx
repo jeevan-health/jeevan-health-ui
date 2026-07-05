@@ -96,7 +96,7 @@ export default function DoctorConsultation() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
           <h1 style={{ margin: 0 }}>Consult Top Doctors from Home</h1>
           <button onClick={() => { setSpecialty(''); setSearchParams({}); }}
-            style={{ background: 'none', border: 'none', color: '#0B4FA8', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ background: 'none', border: 'none', color: '#0F5DA8', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
             View All Doctors
           </button>
         </div>
@@ -109,9 +109,9 @@ export default function DoctorConsultation() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '8px 18px', borderRadius: 50, fontSize: 13, fontWeight: 600,
-                background: consultType === t.value ? '#0B4FA8' : '#fff',
+                background: consultType === t.value ? '#0F5DA8' : '#fff',
                 color: consultType === t.value ? '#fff' : 'var(--text-body)',
-                border: `1px solid ${consultType === t.value ? '#0B4FA8' : 'var(--border)'}`,
+                border: `1px solid ${consultType === t.value ? '#0F5DA8' : 'var(--border)'}`,
                 cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
               }}>
               <t.icon size={16} weight={consultType === t.value ? 'fill' : 'regular'} />
@@ -127,9 +127,9 @@ export default function DoctorConsultation() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '6px 16px', borderRadius: 50, fontSize: 12, fontWeight: 500,
-                background: specialty === s.name ? '#0B4FA8' : '#f5f7fa',
+                background: specialty === s.name ? '#0F5DA8' : '#f5f7fa',
                 color: specialty === s.name ? '#fff' : 'var(--text-body)',
-                border: `1px solid ${specialty === s.name ? '#0B4FA8' : 'transparent'}`,
+                border: `1px solid ${specialty === s.name ? '#0F5DA8' : 'transparent'}`,
                 cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
               }}>
               <s.icon size={16} weight={specialty === s.name ? 'fill' : 'regular'} />
@@ -183,7 +183,7 @@ export default function DoctorConsultation() {
                   <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 4, lineHeight: 1.4 }}>{doc.about}</p>
                   <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Star size={14} weight="fill" color="#0B4FA8" /> {doc.rating} ({doc.review_count} reviews)
+                      <Star size={14} weight="fill" color="#0F5DA8" /> {doc.rating} ({doc.review_count} reviews)
                     </span>
                     <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Clock size={14} /> {doc.experience} yrs exp

@@ -194,7 +194,7 @@ export default function Header() {
       <div className="search-bar-row">
         <div className="search-bar-inner" ref={searchRef}>
           <div className="search-bar-main">
-            <MagnifyingGlass size={22} weight="bold" style={{ color: '#0B4FA8', flexShrink: 0 }} />
+            <MagnifyingGlass size={22} weight="bold" style={{ color: '#0F5DA8', flexShrink: 0 }} />
             <input type="text" placeholder="Search doctor, lab test, medicine, or health service…"
               value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
               onFocus={() => setShowSearch(true)} className="search-input" />
@@ -213,9 +213,9 @@ export default function Header() {
                   <Link key={item.label} to={item.path} onClick={() => { setSearchQuery(''); setShowSearch(false); }}
                     className="search-result-item">
                     {'icon' in item && item.icon ? (
-                      <item.icon size={18} style={{ color: '#0B4FA8', flexShrink: 0 }} />
+                      <item.icon size={18} style={{ color: '#0F5DA8', flexShrink: 0 }} />
                     ) : (
-                      <MagnifyingGlass size={18} style={{ color: '#0B4FA8', flexShrink: 0 }} />
+                      <MagnifyingGlass size={18} style={{ color: '#0F5DA8', flexShrink: 0 }} />
                     )}
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</div>
@@ -241,7 +241,7 @@ export default function Header() {
         }}>
           {navLinks.map(link => (
             <Link key={link.label} to={link.path || '/services'} onClick={() => setMobileOpen(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 8, color: '#0B4FA8', fontWeight: 500, fontSize: 14, borderBottom: '1px solid var(--bg-light)' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 8, color: '#0F5DA8', fontWeight: 500, fontSize: 14, borderBottom: '1px solid var(--bg-light)' }}>
               <link.icon size={18} /> {link.label}
             </Link>
           ))}

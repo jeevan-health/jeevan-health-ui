@@ -5,7 +5,7 @@ import { getDiagnosticOrders, scheduleCollection } from '../services/diagnostics
 
 const statusConfig = {
   pending: { icon: Clock, color: '#e65100', bg: '#fff3e0', label: 'Pending' },
-  confirmed: { icon: CheckCircle, color: '#0B4FA8', bg: '#e8f0fe', label: 'Confirmed' },
+  confirmed: { icon: CheckCircle, color: '#0F5DA8', bg: '#e8f0fe', label: 'Confirmed' },
   sample_collected: { icon: Truck, color: '#7c3aed', bg: '#f5f3ff', label: 'Sample Collected' },
   processing: { icon: Clock, color: '#e65100', bg: '#fff3e0', label: 'Processing' },
   results_ready: { icon: CheckCircle, color: '#2e7d32', bg: '#e8f5e9', label: 'Results Ready' },

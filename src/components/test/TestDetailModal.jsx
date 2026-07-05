@@ -5,7 +5,7 @@ const TestDetailModal = ({ test, onClose }) => {
   if (!test) return null;
   const data = testDetailData[test.name] || null;
 
-  const Section = ({ title, icon: Icon, children, color = '#0B4FA8' }) => (
+  const Section = ({ title, icon: Icon, children, color = '#0F5DA8' }) => (
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         {Icon && <Icon size={18} weight="fill" color={color} />}
@@ -15,7 +15,7 @@ const TestDetailModal = ({ test, onClose }) => {
     </div>
   );
 
-  const Pill = ({ label, bg = '#e8f0fe', color = '#0B4FA8' }) => (
+  const Pill = ({ label, bg = '#e8f0fe', color = '#0F5DA8' }) => (
     <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: bg, color, margin: '2px 4px 2px 0' }}>{label}</span>
   );
 
@@ -141,7 +141,7 @@ const TestDetailModal = ({ test, onClose }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.procedure.map((step, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
-                  <span style={{ color: '#0B4FA8', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                  <span style={{ color: '#0F5DA8', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
                   <span style={{ color: 'var(--text-body)' }}>{step}</span>
                 </div>
               ))}
@@ -249,11 +249,11 @@ const TestDetailModal = ({ test, onClose }) => {
         </Section>
 
         {/* Safety & Risks */}
-        <Section title="SAFETY & RISKS" icon={Shield} color="#0B4FA8">
+        <Section title="SAFETY & RISKS" icon={Shield} color="#0F5DA8">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
             {['Minimal pain during blood draw', 'Rare bruising at puncture site', 'Extremely safe procedure'].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ color: '#0B4FA8', fontWeight: 700 }}>✓</span>
+                <span style={{ color: '#0F5DA8', fontWeight: 700 }}>✓</span>
                 <span style={{ color: 'var(--text-body)' }}>{item}</span>
               </div>
             ))}

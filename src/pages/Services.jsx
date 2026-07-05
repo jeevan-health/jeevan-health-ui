@@ -7,7 +7,7 @@ import {
 
 const categories = [
   {
-    icon: Stethoscope, title: 'Home Healthcare Services', color: '#0B4FA8',
+    icon: Stethoscope, title: 'Home Healthcare Services', color: '#0F5DA8',
     items: [
       'Doctor Consultation at Home', 'Medicine Delivery at Home',
       'Lab Tests & Diagnostics at Home', 'X-Ray, ECG, EEG at Home',
@@ -83,7 +83,7 @@ const categories = [
     ],
   },
   {
-    icon: UsersIcon, title: 'Community & Public Health Engagement', color: '#0B4FA8',
+    icon: UsersIcon, title: 'Community & Public Health Engagement', color: '#0F5DA8',
     items: [
       'Free Medical Camps & CSR Activities',
       'Health Awareness & Preventive Screening Drives',

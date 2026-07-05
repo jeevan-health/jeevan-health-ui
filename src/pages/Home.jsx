@@ -151,7 +151,7 @@ export default function Home() {
       <section className="banner-carousel">
         <div className="banner-slide">
           <div style={{
-            background: 'linear-gradient(135deg, #0B4FA8 0%, #0C6BC4 50%, #0B7DE5 100%)',
+            background: 'linear-gradient(135deg, #0F5DA8 0%, #0C6BC4 50%, #0B7DE5 100%)',
             padding: '48px 40px', borderRadius: 'var(--radius-lg)',
             width: '100%', maxWidth: 1240, margin: '0 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -164,7 +164,7 @@ export default function Home() {
                 background: 'rgba(255,255,255,0.15)', borderRadius: 50,
                 padding: '5px 14px 5px 5px', fontSize: 12, marginBottom: 14,
               }}>
-                <span style={{ background: '#00FFFF', borderRadius: 50, padding: '2px 10px', fontWeight: 700, color: '#083d86' }}>
+                <span style={{ background: '#00D4FF', borderRadius: 50, padding: '2px 10px', fontWeight: 700, color: '#0a4a8a' }}>
                   Most booked today
                 </span>
                 <span style={{ color: 'rgba(255,255,255,0.85)' }}>Full Body Checkup — 60% off</span>
@@ -234,7 +234,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
             {whyChoose.map(item => (
               <div key={item.title} className="info-card" style={{ textAlign: 'center', padding: 20 }}>
-                <div style={{ fontSize: 28, color: '#0B4FA8', marginBottom: 8 }}><item.icon size={28} weight="fill" /></div>
+                <div style={{ fontSize: 28, color: '#0F5DA8', marginBottom: 8 }}><item.icon size={28} weight="fill" /></div>
                 <h3 style={{ fontSize: 14, marginBottom: 4 }}>{item.title}</h3>
                 <p style={{ fontSize: 12, color: '#888', lineHeight: 1.5 }}>{item.desc}</p>
               </div>
@@ -256,7 +256,7 @@ export default function Home() {
                 {['Search 2,000+ Tests', 'Browse by Category', 'Popular Tests', 'Health Packages', 'Home Collection', 'Digital Reports'].map(b => (
                   <span key={b} style={{
                     padding: '4px 12px', background: '#e8f0fe', borderRadius: 20,
-                    fontSize: 12, color: '#0B4FA8', fontWeight: 500,
+                    fontSize: 12, color: '#0F5DA8', fontWeight: 500,
                   }}>{b}</span>
                 ))}
               </div>
@@ -266,8 +266,8 @@ export default function Home() {
               background: 'linear-gradient(135deg, #e8f0fe, #d4e4f7)',
               borderRadius: 'var(--radius-lg)', padding: 32, textAlign: 'center',
             }}>
-              <Flask size={64} color="#0B4FA8" opacity="0.3" weight="fill" />
-              <div style={{ fontSize: 48, fontWeight: 800, color: '#0B4FA8', marginTop: 12 }}>2,000+</div>
+              <Flask size={64} color="#0F5DA8" opacity="0.3" weight="fill" />
+              <div style={{ fontSize: 48, fontWeight: 800, color: '#0F5DA8', marginTop: 12 }}>2,000+</div>
               <div style={{ fontSize: 14, color: '#555' }}>Lab Tests Available</div>
             </div>
           </div>
@@ -317,10 +317,10 @@ export default function Home() {
                 color: 'var(--text-dark)', transition: 'all 0.15s',
                 display: 'flex', alignItems: 'center', gap: 8,
               }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0B4FA8'; e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0F5DA8'; e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none'; }}
               >
-                <Heart size={16} color="#0B4FA8" /> {prog}
+                <Heart size={16} color="#0F5DA8" /> {prog}
               </Link>
             ))}
           </div>
@@ -333,8 +333,8 @@ export default function Home() {
           <div className="section-header">
             <h2 className="section-title">Medical Equipment — Rent or Purchase</h2>
             <div style={{ display: 'flex', gap: 8 }}>
-              <span style={{ padding: '4px 12px', background: '#0B4FA8', color: '#fff', borderRadius: 20, fontSize: 12, fontWeight: 500 }}>Rent</span>
-              <span style={{ padding: '4px 12px', background: '#00FFFF', color: '#083d86', borderRadius: 20, fontSize: 12, fontWeight: 500 }}>Purchase</span>
+              <span style={{ padding: '4px 12px', background: '#0F5DA8', color: '#fff', borderRadius: 20, fontSize: 12, fontWeight: 500 }}>Rent</span>
+              <span style={{ padding: '4px 12px', background: '#00D4FF', color: '#0a4a8a', borderRadius: 20, fontSize: 12, fontWeight: 500 }}>Purchase</span>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
@@ -344,10 +344,10 @@ export default function Home() {
                 border: '1px solid var(--border)', textAlign: 'center', fontSize: 13, fontWeight: 500,
                 color: 'var(--text-dark)', transition: 'all 0.15s',
               }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0B4FA8'; e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0F5DA8'; e.currentTarget.style.boxShadow = 'var(--shadow-hover)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none'; }}
               >
-                <item.icon size={24} color="#0B4FA8" style={{ marginBottom: 6 }} />
+                <item.icon size={24} color="#0F5DA8" style={{ marginBottom: 6 }} />
                 <div>{item.name}</div>
               </Link>
             ))}
@@ -356,14 +356,14 @@ export default function Home() {
       </section>
 
       {/* 10. Pharmacy */}
-      <section className="section" style={{ background: 'linear-gradient(135deg, #0B4FA8, #0C6BC4)' }}>
+      <section className="section" style={{ background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <h2 style={{ color: '#fff', fontSize: 24, marginBottom: 8 }}>Pharmacy — Medicines Delivered to Your Doorstep</h2>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, marginBottom: 20, maxWidth: 600, margin: '0 auto 20px' }}>
             Search medicines, upload prescriptions, order OTC products, health supplements, and medical consumables. Express delivery in 2 hours.
           </p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/pharmacy" className="btn-primary" style={{ background: '#fff', color: '#0B4FA8' }}>Search Medicines</Link>
+            <Link to="/pharmacy" className="btn-primary" style={{ background: '#fff', color: '#0F5DA8' }}>Search Medicines</Link>
             <Link to="/pharmacy" className="btn-primary" style={{ background: 'rgba(255,255,255,0.2)' }}>Upload Prescription</Link>
           </div>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' }}>
@@ -388,7 +388,7 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                 {['Employee Wellness Programs', 'Industrial Medical Camps', 'Executive Health Checkups', 'Occupational Health Services', 'Vaccination Drives', 'School & College Programs'].map(s => (
                   <span key={s} style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <CheckCircle size={16} weight="fill" color="#0B4FA8" /> {s}
+                    <CheckCircle size={16} weight="fill" color="#0F5DA8" /> {s}
                   </span>
                 ))}
               </div>
@@ -398,7 +398,7 @@ export default function Home() {
               background: '#e8f0fe', borderRadius: 'var(--radius-lg)',
               padding: 32, textAlign: 'center',
             }}>
-              <Buildings size={64} color="#0B4FA8" opacity="0.3" weight="fill" />
+              <Buildings size={64} color="#0F5DA8" opacity="0.3" weight="fill" />
               <div style={{ fontSize: 14, color: '#555', marginTop: 12, lineHeight: 1.6 }}>
                 Trusted by leading organizations for employee healthcare needs
               </div>
@@ -411,7 +411,7 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <div style={{
-            background: 'linear-gradient(135deg, #0B4FA8, #0C6BC4)', borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)', borderRadius: 'var(--radius-lg)',
             padding: '40px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             flexWrap: 'wrap', gap: 20,
           }}>
@@ -428,7 +428,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <Link to="/services" className="btn-primary" style={{ background: '#fff', color: '#0B4FA8' }}>
+            <Link to="/services" className="btn-primary" style={{ background: '#fff', color: '#0F5DA8' }}>
               Explore Plans
             </Link>
           </div>
@@ -447,7 +447,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
             {aiCapabilities.map(item => (
               <div key={item.title} className="info-card" style={{ textAlign: 'center', padding: 20 }}>
-                <div style={{ fontSize: 28, color: '#0B4FA8', marginBottom: 8 }}><item.icon size={28} weight="fill" /></div>
+                <div style={{ fontSize: 28, color: '#0F5DA8', marginBottom: 8 }}><item.icon size={28} weight="fill" /></div>
                 <h3 style={{ fontSize: 14, marginBottom: 4 }}>{item.title}</h3>
                 <p style={{ fontSize: 12, color: '#888', lineHeight: 1.5 }}>{item.desc}</p>
               </div>
@@ -472,7 +472,7 @@ export default function Home() {
                 border: '1px solid var(--border)', textAlign: 'center', fontSize: 13, fontWeight: 500,
                 color: 'var(--text-dark)',
               }}>
-                <f.icon size={24} color="#0B4FA8" style={{ marginBottom: 6 }} />
+                <f.icon size={24} color="#0F5DA8" style={{ marginBottom: 6 }} />
                 <div>{f.title}</div>
               </div>
             ))}
@@ -489,10 +489,10 @@ export default function Home() {
           <div className="scroll-row">
             {testimonials.map(t => (
               <div key={t.name} className="blog-card" style={{ width: 300 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: '#0B4FA8' }}>{t.name}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: '#0F5DA8' }}>{t.name}</div>
                 <div style={{ display: 'flex', gap: 2, marginBottom: 8 }}>
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={14} weight={i < t.rating ? 'fill' : 'regular'} color={i < t.rating ? '#0B4FA8' : '#ddd'} />
+                    <Star key={i} size={14} weight={i < t.rating ? 'fill' : 'regular'} color={i < t.rating ? '#0F5DA8' : '#ddd'} />
                   ))}
                 </div>
                 <p style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>"{t.text}"</p>

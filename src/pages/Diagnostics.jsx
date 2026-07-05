@@ -10,7 +10,7 @@ import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
 
 const categoryList = [
-  { name: 'Full Body', icon: User, color: '#0B4FA8' },
+  { name: 'Full Body', icon: User, color: '#0F5DA8' },
   { name: 'Heart', icon: Heartbeat, color: '#e53935', mostBooked: true },
   { name: 'Fever', icon: Drop, color: '#ff6f00', ticker: '20,186 Chikungunya cases • 6,927 Dengue cases • 19,422 Malaria cases • 4,08,000 Typhoid cases' },
   { name: 'Vitamin', icon: Sparkle, color: '#00acc1' },
@@ -138,7 +138,7 @@ export default function Diagnostics() {
     <>
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #0B4FA8 0%, #0C6BC4 100%)',
+        background: 'linear-gradient(135deg, #0F5DA8 0%, #0C6BC4 100%)',
         padding: '48px 20px 40px', textAlign: 'center',
       }}>
         <div className="container" style={{ maxWidth: 720 }}>
@@ -147,7 +147,7 @@ export default function Diagnostics() {
             Book diagnostic tests at home — accurate reports, doorstep collection
           </p>
           <div style={{ position: 'relative', maxWidth: 600, margin: '0 auto' }}>
-            <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0B4FA8' }} />
+            <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0F5DA8' }} />
             <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
               value={search} onChange={e => setSearch(e.target.value)}
               style={{
@@ -169,12 +169,12 @@ export default function Diagnostics() {
               return (
                 <button key={c.name} onClick={() => { setCategory(isActive ? '' : categoryFilterMap[c.name]); setShowAllTests(true); }}
                   style={{
-                    background: isActive ? '#0B4FA8' : '#fff', border: '1px solid var(--border)',
+                    background: isActive ? '#0F5DA8' : '#fff', border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-lg)', padding: '16px 8px', textAlign: 'center',
                     cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit', position: 'relative',
                   }}>
                   {c.mostBooked && (
-                    <span style={{ position: 'absolute', top: -6, right: 6, fontSize: 8, fontWeight: 700, background: '#00FFFF', color: '#083d86', padding: '1px 6px', borderRadius: 4 }}>
+                    <span style={{ position: 'absolute', top: -6, right: 6, fontSize: 8, fontWeight: 700, background: '#00D4FF', color: '#0a4a8a', padding: '1px 6px', borderRadius: 4 }}>
                       MOST BOOKED
                     </span>
                   )}
@@ -201,14 +201,14 @@ export default function Diagnostics() {
           <div style={{ marginBottom: 40 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h2 style={{ fontSize: 20 }}>Top Booked Health Checkup Packages</h2>
-              <button onClick={() => setShowAllTests(true)} style={{ color: '#0B4FA8', fontSize: 14, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowAllTests(true)} style={{ color: '#0F5DA8', fontSize: 14, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
                 View All Tests
               </button>
             </div>
             <div className="scroll-row">
               {healthPackages.map(pkg => (
                 <div key={pkg.name} className="test-card" style={{ width: 240 }}>
-                  <div style={{ fontSize: 11, color: '#0B4FA8', fontWeight: 600, marginBottom: 4 }}>DOCTOR CURATED</div>
+                  <div style={{ fontSize: 11, color: '#0F5DA8', fontWeight: 600, marginBottom: 4 }}>DOCTOR CURATED</div>
                   <h4 style={{ fontSize: 14 }}>{pkg.name}</h4>
                   <div style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 8 }}>{pkg.tests}</div>
                   <div className="pricing">
@@ -235,7 +235,7 @@ export default function Diagnostics() {
                 { icon: CalendarDots, title: 'Diet Plan', desc: 'Personalized for your health goals' },
               ].map(f => (
                 <div key={f.title} style={{ textAlign: 'center', padding: 20, background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#0B4FA8' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#0F5DA8' }}>
                     <f.icon size={22} weight="fill" />
                   </div>
                   <h3 style={{ fontSize: 14, marginBottom: 4 }}>{f.title}</h3>
@@ -249,7 +249,7 @@ export default function Diagnostics() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16, marginBottom: 40 }}>
             {stats.map(s => (
               <div key={s.label} style={{ textAlign: 'center', padding: '20px 16px', background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#0B4FA8' }}>{s.value}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#0F5DA8' }}>{s.value}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
@@ -262,7 +262,7 @@ export default function Diagnostics() {
               {testimonials.map(t => (
                 <div key={t.name} style={{ width: 300, flexShrink: 0, padding: 20, background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0B4FA8', fontWeight: 700, fontSize: 14 }}>{t.name.charAt(0)}</div>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F5DA8', fontWeight: 700, fontSize: 14 }}>{t.name.charAt(0)}</div>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600 }}>{t.name}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{t.place}</div>
@@ -359,7 +359,7 @@ export default function Diagnostics() {
                        <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <h3 style={{ fontSize: 14, margin: 0, cursor: 'pointer', color: '#0B4FA8' }} onClick={() => setSelectedTest(test)}>{test.name}</h3>
+                            <h3 style={{ fontSize: 14, margin: 0, cursor: 'pointer', color: '#0F5DA8' }} onClick={() => setSelectedTest(test)}>{test.name}</h3>
                             <p style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 500, marginTop: 2 }}>{test.subcategory}</p>
                           </div>
                         </div>
