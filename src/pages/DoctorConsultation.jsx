@@ -1,134 +1,273 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MagnifyingGlass, Funnel, Star, MapPin, Clock, CaretRight } from '@phosphor-icons/react';
-import { searchDoctors, getSpecialties } from '../services/doctorService';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Star, Heart, Shield, Clock, ChatCircle, CheckCircle, User,
+  Phone, ArrowRight, CaretRight, CaretDown, Sparkle, Globe, ChartBar,
+} from '@phosphor-icons/react';
 
-const consultTypes = [
-  { value: '', label: 'All Types' },
-  { value: 'video', label: 'Video Call' },
-  { value: 'audio', label: 'Voice Call' },
-  { value: 'chat', label: 'Chat' },
-  { value: 'home', label: 'Home Visit' },
-  { value: 'clinic', label: 'Clinic Visit' },
+const testimonials = [
+  { name: 'Aarohi', text: 'The consultation was extremely helpful. The doctor provided a detailed diet plan that was easy to follow.' },
+  { name: 'Ronak', text: 'Very smooth experience. I was able to consult a doctor from home without any hassle.' },
+  { name: 'Aarzoo', text: 'I was skeptical at first, but the doctor was very professional and supportive.' },
+  { name: 'Yash', text: 'The doctor explained everything clearly and helped me understand my condition better.' },
+  { name: 'Rahul', text: 'Fast, convenient, and cost-effective. Much better than visiting a clinic.' },
 ];
 
-const timeSlots = [
-  { value: '', label: 'Any Time' },
-  { value: 'morning', label: 'Morning (8AM-12PM)' },
-  { value: 'afternoon', label: 'Afternoon (12PM-4PM)' },
-  { value: 'evening', label: 'Evening (4PM-8PM)' },
+const whyItems = [
+  { icon: Shield, title: '100% Confidential Healthcare', desc: 'All consultations are private and securely handled with strict confidentiality.' },
+  { icon: User, title: 'Certified Doctors', desc: 'We connect you only with verified and experienced medical professionals.' },
+  { icon: Globe, title: 'Convenience Anytime, Anywhere', desc: 'No queues, no travel — consult doctors from home, office, or anywhere.' },
+  { icon: Star, title: 'Affordable Online Healthcare', desc: 'Online doctor consultation starting from just ₹199.' },
+];
+
+const faqs = [
+  { q: 'When will I get a response from the doctor?', a: 'Most consultations are answered within 30 minutes.' },
+  { q: 'Will I get a prescription?', a: 'Yes, you will receive a valid digital prescription after consultation.' },
+  { q: 'Is my consultation private?', a: 'Yes, all consultations are completely confidential and secure.' },
+  { q: 'Can I follow up with the same doctor?', a: 'Yes, free follow-up consultation is available for 3 days.' },
+  { q: 'What if I don\'t get a response?', a: 'Our support team ensures your query is resolved or refunded as per policy.' },
 ];
 
 export default function DoctorConsultation() {
-  const [doctors, setDoctors] = useState([]);
-  const [specialties, setSpecialties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [specialty, setSpecialty] = useState('');
-  const [consultType, setConsultType] = useState('');
-  const navigate = useNavigate();
-
-  const loadDoctors = async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (search) params.name = search;
-      if (specialty) params.specialty = specialty;
-      const { data } = await searchDoctors(params);
-      setDoctors(data);
-    } catch {} finally { setLoading(false); }
-  };
-
-  useEffect(() => {
-    loadDoctors();
-    getSpecialties().then(({ data }) => setSpecialties(data)).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(loadDoctors, 300);
-    return () => clearTimeout(timer);
-  }, [search, specialty]);
+  const [openFaq, setOpenFaq] = useState(null);
 
   return (
-    <section className="page-section">
-      <div className="container">
-        <h1>Consult Top Doctors from Home</h1>
-        <p>Video, voice, or chat with verified specialists. No waiting rooms.</p>
-
-        {/* Filters */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '24px 0' }}>
-          <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
-            <MagnifyingGlass size={18} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-light)' }} />
-            <input type="text" placeholder="Search by doctor name or specialty..."
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              className="input" style={{ paddingLeft: 38 }} />
+    <>
+      {/* Hero */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0B4FA8 0%, #0C6BC4 50%, #0B7DE5 100%)',
+        padding: '60px 20px 52px', textAlign: 'center', color: '#fff',
+      }}>
+        <div className="container">
+          <div style={{
+            width: 64, height: 64, borderRadius: 16,
+            background: 'rgba(255,255,255,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+          }}>
+            <Heart size={34} weight="fill" color="#00FFFF" />
           </div>
-          <select value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="input" style={{ width: 'auto', minWidth: 160 }}>
-            <option value="">All Specialties</option>
-            {specialties.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select value={consultType} onChange={(e) => setConsultType(e.target.value)} className="input" style={{ width: 'auto', minWidth: 140 }}>
-            {consultTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
+          <h1 style={{ color: '#fff', fontSize: 32, marginBottom: 10 }}>
+            Online Doctor Consultation at Home
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 15, maxWidth: 700, margin: '0 auto', lineHeight: 1.6 }}>
+            Get fast, reliable, and affordable online doctor consultation in India with certified and experienced doctors
+            from Jeevan HealthCare at Home. Consult doctors anytime from the comfort of your home and receive a valid
+            digital prescription within minutes.
+          </p>
+          <Link to="/book-appointment" className="btn-primary" style={{
+            marginTop: 24, background: '#00FFFF', color: '#083d86', fontSize: 16, padding: '14px 36px', fontWeight: 700,
+          }}>
+            Consult Now <ArrowRight size={18} weight="bold" />
+          </Link>
         </div>
+      </div>
 
-        {/* Results */}
-        {loading ? (
-          <div className="card p-10 text-center"><p style={{ color: 'var(--text-light)' }}>Loading doctors...</p></div>
-        ) : doctors.length === 0 ? (
-          <div className="card p-10 text-center"><p style={{ color: 'var(--text-light)' }}>No doctors found. Try different search criteria.</p></div>
-        ) : (
-          <div style={{ display: 'grid', gap: 16 }}>
-            {doctors.map(doc => (
-              <div key={doc.id} className="card" style={{ display: 'flex', gap: 20, alignItems: 'flex-start', padding: 20, cursor: 'pointer' }}
-                onClick={() => navigate(`/doctor/${doc.id}`)}>
-                <div style={{
-                  width: 72, height: 72, borderRadius: '50%', background: 'var(--primary-light)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  fontSize: 24, fontWeight: 700, color: 'var(--primary)',
-                }}>
-                  {doc.name?.charAt(0)}
+      <section className="page-section" style={{ paddingBottom: 0 }}>
+        <div className="container">
+
+          {/* Care Plan */}
+          <div style={{
+            background: 'linear-gradient(135deg, #00FFFF, #b9f6fc)',
+            borderRadius: 'var(--radius-lg)', padding: '36px 32px',
+            marginBottom: 36, color: '#083d86',
+          }}>
+            <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Sparkle size={24} weight="fill" color="#0B4FA8" /> Care Plan Membership – Better Healthcare, Better Savings
+            </div>
+            <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
+              <Star size={16} weight="fill" style={{ verticalAlign: 'middle', marginRight: 6 }} />
+              Join Care Plan & Unlock Premium Healthcare Benefits
+            </p>
+            <p style={{ fontSize: 14, marginBottom: 16, lineHeight: 1.6 }}>
+              Become a Care Plan member and enjoy exclusive benefits designed for affordable and continuous healthcare support:
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10, marginBottom: 20 }}>
+              {[
+                'Free or discounted doctor consultations',
+                'Priority access to doctors',
+                'Free follow-up consultation for 3 days',
+                'Faster prescription processing',
+                'Priority chat with medical experts',
+              ].map(item => (
+                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+                  <CheckCircle size={18} weight="fill" color="#0B4FA8" style={{ flexShrink: 0 }} /> {item}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: 16, margin: 0 }}>{doc.name}</h3>
-                    <span style={{ fontSize: 12, color: 'var(--text-light)' }}>{doc.qualifications?.join(', ')}</span>
-                  </div>
-                  <p style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 500, marginTop: 2 }}>{doc.specialty}</p>
-                  <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 4, lineHeight: 1.4 }}>{doc.about}</p>
-                  <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Star size={14} weight="fill" color="#0B4FA8" /> {doc.rating} ({doc.review_count} reviews)
-                    </span>
-                    <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Clock size={14} /> {doc.experience} yrs exp
-                    </span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--primary)' }}>₹{doc.fees}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                    {doc.languages?.map(l => (
-                      <span key={l} style={{ padding: '2px 8px', background: 'var(--bg-light)', borderRadius: 12, fontSize: 11, color: 'var(--text-light)' }}>{l}</span>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-                  <span style={{
-                    padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-                    background: doc.is_available ? '#e8f5e9' : '#fef3e2',
-                    color: doc.is_available ? '#2e7d32' : '#e65100',
+              ))}
+            </div>
+            <Link to="/book-appointment" className="btn-primary" style={{ background: '#0B4FA8', color: '#fff', padding: '12px 28px' }}>
+              Join Care Plan Now <ArrowRight size={16} weight="bold" />
+            </Link>
+          </div>
+
+          {/* Online Consultation */}
+          <div style={{
+            background: '#fff', borderRadius: 'var(--radius-lg)',
+            padding: '36px 32px', border: '1px solid var(--border)', marginBottom: 36,
+          }}>
+            <h2 style={{ fontSize: 22, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Heart size={22} weight="fill" color="#0B4FA8" /> Online Doctor Consultation in India
+            </h2>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#0B4FA8', marginBottom: 12 }}>
+              Starting at just ₹199
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--text-body)', marginBottom: 20, lineHeight: 1.6 }}>
+              Connect with certified doctors online within 30 minutes for medical advice, diagnosis, and treatment guidance.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
+              {[
+                { icon: Clock, text: 'Consultation within 30 minutes' },
+                { icon: ArrowRight, text: 'Free follow-up for 3 days' },
+                { icon: CheckCircle, text: 'Valid digital prescription after consultation' },
+                { icon: User, text: 'Experienced and verified doctors' },
+              ].map(item => (
+                <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    background: '#e8f0fe', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', color: '#0B4FA8', flexShrink: 0,
                   }}>
-                    {doc.is_available ? 'Available' : 'Limited'}
-                  </span>
-                  <button className="btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}
-                    onClick={(e) => { e.stopPropagation(); navigate(`/doctor/${doc.id}`); }}>
-                    Book Now <CaretRight size={14} weight="bold" />
-                  </button>
+                    <item.icon size={18} weight="fill" />
+                  </div>
+                  {item.text}
                 </div>
+              ))}
+            </div>
+            <Link to="/book-appointment" className="btn-primary" style={{ padding: '12px 28px' }}>
+              Consult Now <ArrowRight size={16} weight="bold" />
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 36,
+          }}>
+            {[
+              { icon: User, value: '30L+', label: 'Total Consultations Completed' },
+              { icon: ChartBar, value: '3,000+', label: 'Daily Online Consultations' },
+              { icon: Heart, value: '22+', label: 'Medical Specialities Available' },
+            ].map(stat => (
+              <div key={stat.label} style={{
+                background: '#fff', borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border)', padding: '24px 16px', textAlign: 'center',
+              }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14,
+                  background: '#e8f0fe', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 12px', color: '#0B4FA8',
+                }}>
+                  <stat.icon size={26} weight="fill" />
+                </div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: '#0B4FA8', marginBottom: 4 }}>{stat.value}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-light)' }}>{stat.label}</div>
               </div>
             ))}
           </div>
-        )}
-      </div>
-    </section>
+
+          {/* Testimonials */}
+          <div style={{ marginBottom: 36 }}>
+            <h2 style={{ fontSize: 22, marginBottom: 20, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <Heart size={22} weight="fill" color="#0B4FA8" /> What Our Patients Say
+            </h2>
+            <div className="scroll-row" style={{ justifyContent: 'center' }}>
+              {testimonials.map(t => (
+                <div key={t.name} className="blog-card" style={{ width: 280, textAlign: 'center', padding: '24px 20px' }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: '50%',
+                    background: '#e8f0fe', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 10px', color: '#0B4FA8', fontSize: 18, fontWeight: 700,
+                  }}>
+                    {t.name.charAt(0)}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0B4FA8', marginBottom: 4 }}>{t.name}</div>
+                  <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5 }}>"{t.text}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Why Choose */}
+          <div style={{ marginBottom: 36 }}>
+            <h2 style={{ fontSize: 22, marginBottom: 20, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <Shield size={22} weight="fill" color="#0B4FA8" /> Why Choose Jeevan HealthCare Online Consultation?
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+              {whyItems.map(item => (
+                <div key={item.title} className="info-card" style={{ textAlign: 'center', padding: 24 }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 14,
+                    background: '#e8f0fe', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 12px', color: '#0B4FA8',
+                  }}>
+                    <item.icon size={26} weight="fill" />
+                  </div>
+                  <h3 style={{ fontSize: 14, marginBottom: 6 }}>{item.title}</h3>
+                  <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5 }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* FAQ */}
+          <div style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 22, marginBottom: 20, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <ChatCircle size={22} weight="fill" color="#0B4FA8" /> Frequently Asked Questions
+            </h2>
+            <div style={{ maxWidth: 700, margin: '0 auto' }}>
+              {faqs.map((faq, i) => (
+                <div key={i} style={{
+                  background: '#fff', borderRadius: 'var(--radius)',
+                  border: '1px solid var(--border)', marginBottom: 8, overflow: 'hidden',
+                }}>
+                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{
+                    width: '100%', padding: '14px 18px', textAlign: 'left', fontSize: 14,
+                    fontWeight: 600, color: 'var(--text-dark)', background: 'none',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  }}>
+                    {faq.q}
+                    <CaretDown size={14} weight="bold" style={{
+                      transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0)',
+                      transition: 'transform 0.2s', flexShrink: 0, color: '#0B4FA8',
+                    }} />
+                  </button>
+                  {openFaq === i && (
+                    <div style={{ padding: '0 18px 14px', fontSize: 13, color: '#666', lineHeight: 1.6 }}>
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Join Doctor Network */}
+          <div style={{
+            background: '#fff', borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--border)', padding: '36px 32px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 14,
+              background: '#e8f0fe', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 12px', color: '#0B4FA8',
+            }}>
+              <User size={30} weight="fill" />
+            </div>
+            <h2 style={{ fontSize: 20, marginBottom: 8 }}>Join Our Doctor Network</h2>
+            <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 20, maxWidth: 500, margin: '0 auto 20px', lineHeight: 1.6 }}>
+              Are you a doctor? Join Jeevan HealthCare at Home and provide online consultations to patients across India.
+            </p>
+            <a href="tel:+919700104108" className="btn-primary" style={{ padding: '12px 28px' }}>
+              <Phone size={16} weight="fill" /> Join Now
+            </a>
+          </div>
+
+        </div>
+      </section>
+    </>
   );
 }
