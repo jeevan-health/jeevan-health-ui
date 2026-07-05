@@ -5,7 +5,7 @@ import { getMyOrders } from '../services/pharmacyService';
 
 const statusConfig = {
   pending: { icon: Clock, color: '#e65100', bg: '#fff3e0', label: 'Pending' },
-  confirmed: { icon: CheckCircle, color: '#0A5EB0', bg: '#e8f0fe', label: 'Confirmed' },
+  confirmed: { icon: CheckCircle, color: '#0B4FA8', bg: '#e8f0fe', label: 'Confirmed' },
   preparing: { icon: Package, color: '#7c3aed', bg: '#f5f3ff', label: 'Preparing' },
   shipped: { icon: Truck, color: '#2e7d32', bg: '#e8f5e9', label: 'Shipped' },
   delivered: { icon: CheckCircle, color: '#2e7d32', bg: '#e8f5e9', label: 'Delivered' },

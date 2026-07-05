@@ -5,7 +5,7 @@ import {
   Stethoscope, Syringe, Heart, FirstAidKit, Baby, ChartBar,
   SuitcaseSimple, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
   Clock, CaretDown, List, X, Heartbeat, MagnifyingGlass,
-  Envelope, Clipboard, Brain, Bone, WhatsappLogo, FileArrowUp,
+  Envelope, Clipboard, Brain, Bone, WhatsappLogo, 
 } from '@phosphor-icons/react';
 
 const serviceGroups = [
@@ -92,8 +92,7 @@ export default function Header() {
   const searchRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-  const [prescriptionFile, setPrescriptionFile] = useState(null);
-  const fileRef = useRef(null);
+
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
@@ -121,11 +120,6 @@ export default function Header() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
-
-  const handlePrescriptionUpload = (e) => {
-    const f = e.target.files?.[0];
-    if (f) setPrescriptionFile(f);
-  };
 
   return (
     <>
@@ -200,7 +194,7 @@ export default function Header() {
       <div className="search-bar-row">
         <div className="search-bar-inner" ref={searchRef}>
           <div className="search-bar-main">
-            <MagnifyingGlass size={22} weight="bold" style={{ color: '#0A5EB0', flexShrink: 0 }} />
+            <MagnifyingGlass size={22} weight="bold" style={{ color: '#0B4FA8', flexShrink: 0 }} />
             <input type="text" placeholder="Search doctor, lab test, medicine, or health service…"
               value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
               onFocus={() => setShowSearch(true)} className="search-input" />
@@ -209,12 +203,6 @@ export default function Header() {
                 <X size={18} weight="bold" />
               </button>
             )}
-            {/* Prescription Upload */}
-            <div className="search-prescription-btn" onClick={() => fileRef.current?.click()}>
-              <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={handlePrescriptionUpload} />
-              <FileArrowUp size={20} weight="fill" />
-              <span>Upload Rx</span>
-            </div>
           </div>
 
           {/* Search Suggestions Dropdown */}
@@ -225,9 +213,9 @@ export default function Header() {
                   <Link key={item.label} to={item.path} onClick={() => { setSearchQuery(''); setShowSearch(false); }}
                     className="search-result-item">
                     {'icon' in item && item.icon ? (
-                      <item.icon size={18} style={{ color: '#0A5EB0', flexShrink: 0 }} />
+                      <item.icon size={18} style={{ color: '#0B4FA8', flexShrink: 0 }} />
                     ) : (
-                      <MagnifyingGlass size={18} style={{ color: '#0A5EB0', flexShrink: 0 }} />
+                      <MagnifyingGlass size={18} style={{ color: '#0B4FA8', flexShrink: 0 }} />
                     )}
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</div>
@@ -245,27 +233,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Prescription Uploaded Toast */}
-      {prescriptionFile && (
-        <div className="prescription-toast">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 18 }}>📎</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {prescriptionFile.name}
-              </div>
-              <div style={{ fontSize: 11, color: '#2e7d32', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span>✓</span> Uploaded successfully — {(prescriptionFile.size / (1024 * 1024)).toFixed(1)} MB
-              </div>
-            </div>
-            <button onClick={() => setPrescriptionFile(null)} style={{
-              background: '#fee2e2', border: 'none', borderRadius: 6, padding: '4px 10px',
-              fontSize: 12, color: '#dc2626', cursor: 'pointer', fontWeight: 500, whiteSpace: 'nowrap',
-            }}>Remove</button>
-          </div>
-        </div>
-      )}
-
       {/* Mobile Menu */}
       {mobileOpen && (
         <div style={{
@@ -274,7 +241,7 @@ export default function Header() {
         }}>
           {navLinks.map(link => (
             <Link key={link.label} to={link.path || '/services'} onClick={() => setMobileOpen(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 8, color: '#0A5EB0', fontWeight: 500, fontSize: 14, borderBottom: '1px solid var(--bg-light)' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 8, color: '#0B4FA8', fontWeight: 500, fontSize: 14, borderBottom: '1px solid var(--bg-light)' }}>
               <link.icon size={18} /> {link.label}
             </Link>
           ))}

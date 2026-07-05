@@ -52,7 +52,7 @@ export default function Contact() {
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
       }}>
         <div style={{
-          background: 'linear-gradient(180deg, #0A5EB0 0%, #1a7ad4 100%)',
+          background: 'linear-gradient(180deg, #0B4FA8 0%, #0C6BC4 100%)',
           borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 440,
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
           position: 'relative', overflow: 'hidden',
@@ -72,7 +72,7 @@ export default function Contact() {
               background: 'linear-gradient(135deg, #e8f0fe, #d4e4f7)',
               borderRadius: 'var(--radius)', padding: '10px 16px',
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              fontSize: 13, color: '#0A5EB0', fontWeight: 700, marginBottom: 16,
+              fontSize: 13, color: '#0B4FA8', fontWeight: 700, marginBottom: 16,
             }}>
               <CheckCircle size={16} weight="fill" /> Booking ID: {bookingId}
             </div>
@@ -81,7 +81,7 @@ export default function Contact() {
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
               <a href="tel:+919700104108" style={{
-                background: 'linear-gradient(135deg, #0A5EB0, #1a7ad4)',
+                background: 'linear-gradient(135deg, #0B4FA8, #0C6BC4)',
                 color: '#fff', padding: '11px 22px', borderRadius: 'var(--radius)',
                 fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6,
                 textDecoration: 'none', boxShadow: '0 3px 10px rgba(10,94,176,0.3)',
@@ -125,7 +125,7 @@ export default function Contact() {
         position: 'relative',
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, #0A5EB0 0%, #1a7ad4 50%, #2196F3 100%)',
+          background: 'linear-gradient(135deg, #0B4FA8 0%, #0C6BC4 50%, #0B7DE5 100%)',
           padding: '28px 36px', borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
           position: 'relative',
         }}>
@@ -159,7 +159,7 @@ export default function Contact() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 18 }}>
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <User size={13} weight="fill" color="#0A5EB0" /> Your Name <span style={{ color: '#ff6b35' }}>*</span>
+                <User size={13} weight="fill" color="#0B4FA8" /> Your Name <span style={{ color: '#0B4FA8' }}>*</span>
               </label>
               <input type="text" placeholder="Enter your name" required className="input"
                 value={name} onChange={e => setName(e.target.value)}
@@ -167,7 +167,7 @@ export default function Contact() {
             </div>
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <DeviceMobile size={13} weight="fill" color="#0A5EB0" /> Phone <span style={{ color: '#ff6b35' }}>*</span>
+                <DeviceMobile size={13} weight="fill" color="#0B4FA8" /> Phone <span style={{ color: '#0B4FA8' }}>*</span>
               </label>
               <div style={{ display: 'flex', alignItems: 'stretch' }}>
                 <span style={{
@@ -196,7 +196,7 @@ export default function Contact() {
 
           <div style={{ marginBottom: 18 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Envelope size={13} weight="fill" color="#0A5EB0" /> Email Address
+              <Envelope size={13} weight="fill" color="#0B4FA8" /> Email Address
             </label>
             <input type="email" placeholder="Enter your email" className="input"
               value={email} onChange={e => setEmail(e.target.value)}
@@ -205,7 +205,7 @@ export default function Contact() {
 
           <div style={{ marginBottom: 18 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <ClipboardText size={13} weight="fill" color="#0A5EB0" /> Select Service
+              <ClipboardText size={13} weight="fill" color="#0B4FA8" /> Select Service
             </label>
             <select className="input" value={service} onChange={e => setService(e.target.value)}
               style={{ borderColor: '#d1d5db', fontSize: 14, appearance: 'none', backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\'%3E%3Cpath d=\'M6 8L1 3h10z\' fill=\'%23666\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}>
@@ -224,7 +224,7 @@ export default function Contact() {
 
           <div style={{ marginBottom: 18 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <FileText size={13} weight="fill" color="#0A5EB0" /> Upload Prescription
+              <FileText size={13} weight="fill" color="#0B4FA8" /> Upload Prescription
             </label>
             {prescription ? (
               <div style={{
@@ -257,7 +257,7 @@ export default function Contact() {
                 background: '#f9fafb', transition: 'all 0.2s',
                 fontSize: 13, color: '#6b7280',
               }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0A5EB0'; e.currentTarget.style.background = '#eef4ff'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0B4FA8'; e.currentTarget.style.background = '#eef4ff'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.background = '#f9fafb'; }}
                 onClick={() => fileRef.current?.click()}
               >
@@ -273,7 +273,7 @@ export default function Contact() {
 
           <div style={{ marginBottom: 18 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <ChatText size={13} weight="fill" color="#0A5EB0" /> Your Message <span style={{ color: '#ff6b35' }}>*</span>
+              <ChatText size={13} weight="fill" color="#0B4FA8" /> Your Message <span style={{ color: '#0B4FA8' }}>*</span>
             </label>
             <textarea rows={4} placeholder="Describe your query or request..." required className="input"
               value={message} onChange={e => setMessage(e.target.value)}
@@ -281,12 +281,12 @@ export default function Contact() {
           </div>
 
           <button type="submit" disabled={!canSubmit || submitting} style={{
-            background: !canSubmit || submitting ? '#d1d5db' : 'linear-gradient(135deg, #ff6b35, #e55a2b)',
+            background: !canSubmit || submitting ? '#d1d5db' : 'linear-gradient(135deg, #0B4FA8, #0C6BC4)',
             color: '#fff', padding: '14px 32px',
             borderRadius: 'var(--radius)', fontWeight: 700, fontSize: 15,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             border: 'none', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s', boxShadow: !canSubmit || submitting ? 'none' : '0 4px 14px rgba(255,107,53,0.35)',
+            transition: 'all 0.2s', boxShadow: !canSubmit || submitting ? 'none' : '0 4px 14px rgba(11,79,168,0.35)',
           }}>
             {submitting ? (
               <><SpinnerGap size={18} weight="bold" className="spin" /> Processing your request…</>

@@ -9,7 +9,7 @@ export default function About() {
     <>
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #0A5EB0 0%, #1a7ad4 50%, #2196F3 100%)',
+        background: 'linear-gradient(135deg, #0B4FA8 0%, #0C6BC4 50%, #0B7DE5 100%)',
         padding: '60px 20px 52px', textAlign: 'center', color: '#fff',
       }}>
         <div className="container">
@@ -40,7 +40,7 @@ export default function About() {
             border: '1px solid var(--border)',
           }}>
             <p style={{ fontSize: 15, color: 'var(--text-body)', lineHeight: 1.8 }}>
-              <strong style={{ color: '#0A5EB0' }}>Jeevan HealthCare at Home</strong> is a trusted home healthcare service provider in India,
+              <strong style={{ color: '#0B4FA8' }}>Jeevan HealthCare at Home</strong> is a trusted home healthcare service provider in India,
               dedicated to delivering comprehensive medical services at home in a safe, professional, and patient-centric manner.
               We specialize in <strong>doctor consultation at home, lab tests at home, nursing care services, elderly care, physiotherapy,
               and preventive health checkups</strong>.
@@ -55,9 +55,9 @@ export default function About() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20, marginBottom: 40 }}>
             {[
               { icon: Target, title: 'Our Mission', desc: 'To make quality healthcare accessible to every Indian family through innovative and reliable home-based healthcare services in India. We combine clinical excellence, certified medical professionals, and compassionate care to deliver safe and effective treatment at home.',
-                gradient: 'linear-gradient(135deg, #e8f0fe, #d4e4f7)', iconBg: '#0A5EB0' },
+                gradient: 'linear-gradient(135deg, #e8f0fe, #d4e4f7)', iconBg: '#0B4FA8' },
               { icon: Eye, title: 'Our Vision', desc: 'To become India\'s most trusted home healthcare platform, empowering millions of families to access world-class medical care at home. We aim to transform healthcare delivery through digital healthcare services, home diagnostics, preventive care, and chronic disease management solutions.',
-                gradient: 'linear-gradient(135deg, #fef3e7, #fde8d0)', iconBg: '#ff6b35' },
+                gradient: 'linear-gradient(135deg, #e0f7fa, #b9f6fc)', iconBg: '#00FFFF' },
               { icon: Heart, title: 'Our Core Values', desc: 'Compassion — Patient-first care with empathy and dignity. Integrity — Transparent and ethical healthcare practices. Innovation — Modern digital healthcare and home care solutions. Excellence — High-quality medical services and patient safety.',
                 gradient: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)', iconBg: '#2e7d32' },
             ].map(item => (
@@ -81,7 +81,7 @@ export default function About() {
 
           {/* Values Strip */}
           <div style={{
-            background: 'linear-gradient(135deg, #0A5EB0, #1a7ad4)',
+            background: 'linear-gradient(135deg, #0B4FA8, #0C6BC4)',
             borderRadius: 'var(--radius-lg)', padding: '32px 36px',
             display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 20,
             marginBottom: 40,
@@ -108,7 +108,7 @@ export default function About() {
 
           {/* Why Choose Us */}
           <h2 style={{
-            fontSize: 24, color: '#0A5EB0', marginBottom: 20,
+            fontSize: 24, color: '#0B4FA8', marginBottom: 20,
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <Buildings size={24} weight="fill" /> Why Choose Jeevan HealthCare at Home?
@@ -132,12 +132,12 @@ export default function About() {
                   width: 40, height: 40, borderRadius: 10,
                   background: 'var(--primary-light)', display: 'flex',
                   alignItems: 'center', justifyContent: 'center',
-                  color: '#0A5EB0', flexShrink: 0,
+                  color: '#0B4FA8', flexShrink: 0,
                 }}>
                   <s.icon size={20} weight="fill" />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: 14, marginBottom: 2, color: '#0A5EB0' }}>{s.label}</h4>
+                  <h4 style={{ fontSize: 14, marginBottom: 2, color: '#0B4FA8' }}>{s.label}</h4>
                   <p style={{ fontSize: 12, color: 'var(--text-light)' }}>{s.desc}</p>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export default function About() {
 
           {/* Quality & Safety */}
           <h2 style={{
-            fontSize: 24, color: '#0A5EB0', marginBottom: 20,
+            fontSize: 24, color: '#0B4FA8', marginBottom: 20,
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <Shield size={24} weight="fill" /> Quality & Safety Assurance
@@ -183,7 +183,7 @@ export default function About() {
 
           {/* Tagline */}
           <div style={{
-            background: 'linear-gradient(135deg, #ff6b35, #e55a2b)',
+            background: 'linear-gradient(135deg, #0B4FA8, #0C6BC4)',
             borderRadius: 'var(--radius-lg)', padding: '32px 36px',
             textAlign: 'center', color: '#fff',
           }}>

@@ -98,7 +98,7 @@ export default function DoctorConsultation() {
                   <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 4, lineHeight: 1.4 }}>{doc.about}</p>
                   <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Star size={14} weight="fill" color="#ff6b35" /> {doc.rating} ({doc.review_count} reviews)
+                      <Star size={14} weight="fill" color="#0B4FA8" /> {doc.rating} ({doc.review_count} reviews)
                     </span>
                     <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Clock size={14} /> {doc.experience} yrs exp

@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router-dom';
-import { WhatsappLogo } from '@phosphor-icons/react';
+import { Outlet, Link } from 'react-router-dom';
+import { WhatsappLogo, Phone, CalendarDots } from '@phosphor-icons/react';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -11,6 +11,22 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
+
+      {/* Mobile Sticky Bottom Bar */}
+      <div className="mobile-bottom-bar">
+        <a href="tel:+919700104108">
+          <Phone size={20} weight="fill" />
+          <span>Call Now</span>
+        </a>
+        <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer">
+          <WhatsappLogo size={20} weight="fill" />
+          <span>WhatsApp</span>
+        </a>
+        <Link to="/book-appointment" className="mbb-cta">
+          <CalendarDots size={18} weight="fill" />
+          <span>Book Now</span>
+        </Link>
+      </div>
 
       {/* Floating WhatsApp */}
       <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{

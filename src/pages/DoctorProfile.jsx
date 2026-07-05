@@ -124,7 +124,7 @@ export default function DoctorProfile() {
                     <p style={{ fontSize: 13, color: 'var(--text-light)' }}>{doctor.qualifications?.join(', ')}</p>
                     <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
                       <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Star size={16} weight="fill" color="#ff6b35" /> {doctor.rating}
+                        <Star size={16} weight="fill" color="#0B4FA8" /> {doctor.rating}
                       </span>
                       <span style={{ fontSize: 13, color: 'var(--text-light)' }}>{doctor.review_count} reviews</span>
                       <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -153,7 +153,7 @@ export default function DoctorProfile() {
                       <span style={{ fontWeight: 600, fontSize: 13 }}>{r.user_name}</span>
                       <div style={{ display: 'flex', gap: 2 }}>
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} size={12} weight={i < r.rating ? 'fill' : 'regular'} color={i < r.rating ? '#ff6b35' : '#ddd'} />
+                          <Star key={i} size={12} weight={i < r.rating ? 'fill' : 'regular'} color={i < r.rating ? '#0B4FA8' : '#ddd'} />
                         ))}
                       </div>
                     </div>
