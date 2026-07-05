@@ -133,18 +133,29 @@ export default function Home() {
       <section className="banner-carousel">
         <div className="banner-slide">
           <div style={{
-            background: 'linear-gradient(135deg, #0A5EB0 0%, #1a7ad4 100%)',
-            padding: '40px 40px', borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(135deg, #0A5EB0 0%, #1a7ad4 50%, #2196F3 100%)',
+            padding: '48px 40px', borderRadius: 'var(--radius-lg)',
             width: '100%', maxWidth: 1240, margin: '0 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            flexWrap: 'wrap', gap: 24,
+            flexWrap: 'wrap', gap: 24, position: 'relative', overflow: 'hidden',
           }}>
-            <div style={{ color: '#fff', maxWidth: 520 }}>
+            <img src="/logo.png" alt="" style={{ position: 'absolute', right: -20, top: -20, height: 200, opacity: 0.06, filter: 'brightness(0) invert(1)', pointerEvents: 'none' }} />
+            <div style={{ color: '#fff', maxWidth: 560, position: 'relative', zIndex: 1 }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'rgba(255,255,255,0.15)', borderRadius: 50,
+                padding: '5px 14px 5px 5px', fontSize: 12, marginBottom: 14,
+              }}>
+                <span style={{ background: '#ff6b35', borderRadius: 50, padding: '2px 10px', fontWeight: 700, color: '#fff' }}>
+                  Most booked today
+                </span>
+                <span style={{ color: 'rgba(255,255,255,0.85)' }}>Full Body Checkup — 60% off</span>
+              </div>
               <h1 style={{ color: '#fff', fontSize: 36, marginBottom: 12, lineHeight: 1.2 }}>
                 Complete Healthcare<br />at Your Doorstep
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24, lineHeight: 1.6 }}>
-                Book doctors, diagnostics, pharmacy, nursing, physiotherapy, vaccinations, and more—all from one trusted platform.
+                Book doctors, diagnostics, pharmacy, nursing, physiotherapy, vaccinations, and more — all from one trusted platform.
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <Link to="/book-appointment" className="btn-primary"><Phone size={18} weight="fill" /> Book Appointment</Link>
@@ -162,7 +173,21 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 140, opacity: 0.15, filter: 'brightness(0) invert(1)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', zIndex: 1 }}>
+              {[
+                { label: 'Doctor available', time: 'in 30–60 mins' },
+                { label: 'Home sample collection', time: 'in 30 mins' },
+              ].map(item => (
+                <div key={item.label} style={{
+                  background: 'rgba(255,255,255,0.1)', borderRadius: 10,
+                  padding: '12px 16px', backdropFilter: 'blur(4px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                }}>
+                  <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 2 }}>{item.label}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700 }}>{item.time}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

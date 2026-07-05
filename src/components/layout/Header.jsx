@@ -5,7 +5,7 @@ import {
   Stethoscope, Syringe, Heart, FirstAidKit, Baby, ChartBar,
   SuitcaseSimple, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
   Clock, CaretDown, List, X, Heartbeat, MagnifyingGlass,
-  Envelope, Clipboard, Brain, Bone, WhatsappLogo,
+  Envelope, Clipboard, Brain, Bone, WhatsappLogo, FileArrowUp,
 } from '@phosphor-icons/react';
 
 const serviceGroups = [
@@ -73,25 +73,46 @@ const navLinks = [
   { label: 'Book Appointment', path: '/book-appointment', icon: Phone },
 ];
 
+const searchSuggestions = [
+  { label: 'Full Body Checkup', type: 'Package', path: '/services' },
+  { label: 'Complete Blood Count (CBC)', type: 'Lab Test', path: '/diagnostics' },
+  { label: 'Lipid Profile', type: 'Lab Test', path: '/diagnostics' },
+  { label: 'General Medicine', type: 'Doctor Specialty', path: '/doctor-consultation' },
+  { label: 'Pediatrics', type: 'Doctor Specialty', path: '/doctor-consultation' },
+  { label: 'Cardiology', type: 'Doctor Specialty', path: '/doctor-consultation' },
+  { label: 'Paracetamol 500mg', type: 'Medicine', path: '/pharmacy' },
+  { label: 'Nursing Care', type: 'Service', path: '/services' },
+  { label: 'Physiotherapy', type: 'Service', path: '/services' },
+  { label: 'Vaccination', type: 'Service', path: '/services' },
+];
+
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const searchRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
+  const fileRef = useRef(null);
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
   const allSearchItems = [
     ...navLinks.filter(l => l.path).map(l => ({ label: l.label, path: l.path, icon: l.icon })),
     ...serviceGroups.flatMap(g => g.items),
+    ...searchSuggestions,
   ];
 
+  const uniqueLabels = new Map();
+  allSearchItems.forEach(item => {
+    if (!uniqueLabels.has(item.label)) uniqueLabels.set(item.label, item);
+  });
+
   const filteredResults = searchQuery.trim()
-    ? allSearchItems.filter(item =>
+    ? Array.from(uniqueLabels.values()).filter(item =>
         item.label.toLowerCase().includes(searchQuery.toLowerCase())
       ).slice(0, 8)
-    : [];
+    : searchSuggestions;
 
   useEffect(() => {
     function handleClick(e) {
@@ -100,6 +121,11 @@ export default function Header() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  const handlePrescriptionUpload = (e) => {
+    const f = e.target.files?.[0];
+    if (f) setPrescriptionFile(f);
+  };
 
   return (
     <>
@@ -119,28 +145,6 @@ export default function Header() {
               <option value="te">తెలుగు</option>
               <option value="hi">हिन्दी</option>
             </select>
-            <div ref={searchRef} style={{ position: 'relative' }}>
-              <button onClick={() => setShowSearch(!showSearch)} style={{ background: 'none', color: 'rgba(255,255,255,0.9)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
-                <MagnifyingGlass size={14} weight="bold" /> Search
-              </button>
-              {showSearch && (
-                <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 8, width: 300, background: '#fff', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', padding: 12, zIndex: 300 }}>
-                  <input type="text" placeholder="Search doctors, tests, medicines..." value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)} autoFocus
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 6, fontSize: 13, outline: 'none' }} />
-                  {filteredResults.length > 0 && (
-                    <div style={{ marginTop: 8, maxHeight: 240, overflowY: 'auto' }}>
-                      {filteredResults.map(item => (
-                        <Link key={item.label} to={item.path} onClick={() => { setSearchQuery(''); setShowSearch(false); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 6, fontSize: 13, color: 'var(--text-body)', transition: 'background 0.1s' }}>
-                          <item.icon size={16} /> {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
             <Link to="/signup"><User size={14} /> Login / Register</Link>
           </div>
         </div>
@@ -191,6 +195,76 @@ export default function Header() {
           </button>
         </div>
       </header>
+
+      {/* Search Bar Row */}
+      <div className="search-bar-row">
+        <div className="search-bar-inner" ref={searchRef}>
+          <div className="search-bar-main">
+            <MagnifyingGlass size={22} weight="bold" style={{ color: '#0A5EB0', flexShrink: 0 }} />
+            <input type="text" placeholder="Search doctor, lab test, medicine, or health service…"
+              value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
+              onFocus={() => setShowSearch(true)} className="search-input" />
+            {searchQuery && (
+              <button onClick={() => { setSearchQuery(''); setShowSearch(true); }} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: 4 }}>
+                <X size={18} weight="bold" />
+              </button>
+            )}
+            {/* Prescription Upload */}
+            <div className="search-prescription-btn" onClick={() => fileRef.current?.click()}>
+              <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={handlePrescriptionUpload} />
+              <FileArrowUp size={20} weight="fill" />
+              <span>Upload Rx</span>
+            </div>
+          </div>
+
+          {/* Search Suggestions Dropdown */}
+          {showSearch && (
+            <div className="search-dropdown">
+              {filteredResults.length > 0 ? (
+                filteredResults.map(item => (
+                  <Link key={item.label} to={item.path} onClick={() => { setSearchQuery(''); setShowSearch(false); }}
+                    className="search-result-item">
+                    {'icon' in item && item.icon ? (
+                      <item.icon size={18} style={{ color: '#0A5EB0', flexShrink: 0 }} />
+                    ) : (
+                      <MagnifyingGlass size={18} style={{ color: '#0A5EB0', flexShrink: 0 }} />
+                    )}
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</div>
+                      {'type' in item && <div style={{ fontSize: 11, color: '#888' }}>{item.type}</div>}
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div style={{ padding: '16px 20px', fontSize: 13, color: '#999', textAlign: 'center' }}>
+                  No results found for "{searchQuery}"
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Prescription Uploaded Toast */}
+      {prescriptionFile && (
+        <div className="prescription-toast">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 18 }}>📎</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {prescriptionFile.name}
+              </div>
+              <div style={{ fontSize: 11, color: '#2e7d32', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span>✓</span> Uploaded successfully — {(prescriptionFile.size / (1024 * 1024)).toFixed(1)} MB
+              </div>
+            </div>
+            <button onClick={() => setPrescriptionFile(null)} style={{
+              background: '#fee2e2', border: 'none', borderRadius: 6, padding: '4px 10px',
+              fontSize: 12, color: '#dc2626', cursor: 'pointer', fontWeight: 500, whiteSpace: 'nowrap',
+            }}>Remove</button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       {mobileOpen && (
