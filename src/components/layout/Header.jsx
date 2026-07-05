@@ -69,8 +69,8 @@ const navLinks = [
   { label: 'Health Packages', path: '/services', icon: Heartbeat },
   { label: 'Corporate Healthcare', path: '/services', icon: SuitcaseSimple },
   { label: 'Health Insurance', path: '/services', icon: Shield },
-  { label: 'Blog', path: '/contact', icon: Globe },
-  { label: 'Contact & Reach Us', path: '/contact', icon: Phone },
+  { label: 'Blog', path: '/book-appointment', icon: Globe },
+  { label: 'Book Appointment', path: '/book-appointment', icon: Phone },
 ];
 
 export default function Header() {
@@ -182,7 +182,7 @@ export default function Header() {
                   )}
                 </li>
               ))}
-              <li><Link to="/contact" className="nav-link nav-cta">Book Appointment</Link></li>
+              <li><Link to="/book-appointment" className="nav-link nav-cta">Book Appointment</Link></li>
             </ul>
           </nav>
 

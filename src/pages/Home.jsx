@@ -134,7 +134,7 @@ export default function Home() {
         <div className="banner-slide">
           <div style={{
             background: 'linear-gradient(135deg, #0A5EB0 0%, #1a7ad4 100%)',
-            padding: '60px 40px', borderRadius: 'var(--radius-lg)',
+            padding: '40px 40px', borderRadius: 'var(--radius-lg)',
             width: '100%', maxWidth: 1240, margin: '0 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             flexWrap: 'wrap', gap: 24,
@@ -147,7 +147,7 @@ export default function Home() {
                 Book doctors, diagnostics, pharmacy, nursing, physiotherapy, vaccinations, and more—all from one trusted platform.
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <Link to="/contact" className="btn-primary"><Phone size={18} weight="fill" /> Book Appointment</Link>
+                <Link to="/book-appointment" className="btn-primary"><Phone size={18} weight="fill" /> Book Appointment</Link>
                 <Link to="/diagnostics" className="btn-primary" style={{ background: 'rgba(255,255,255,0.2)' }}><Flask size={18} /> Book Lab Test</Link>
                 <Link to="/pharmacy" className="btn-primary" style={{ background: 'rgba(255,255,255,0.2)' }}><Pill size={18} /> Order Medicines</Link>
                 <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ background: '#25d366', boxShadow: '0 3px 12px rgba(37,211,102,0.3)' }}>
@@ -496,7 +496,7 @@ export default function Home() {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Health Blogs & Articles</h2>
-            <Link to="/contact" className="section-link">View All</Link>
+            <Link to="/book-appointment" className="section-link">View All</Link>
           </div>
           <div className="scroll-row">
             {blogs.map(blog => (

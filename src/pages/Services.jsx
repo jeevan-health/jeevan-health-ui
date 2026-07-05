@@ -125,7 +125,7 @@ export default function Services() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <Link to="/contact" className="btn-primary">Book a Service Now</Link>
+          <Link to="/book-appointment" className="btn-primary">Book a Service Now</Link>
         </div>
       </div>
     </section>

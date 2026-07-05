@@ -48,7 +48,7 @@ export default function Footer() {
           <Link to="/services">How It Works</Link>
           <Link to="/diagnostics">Lab Tests</Link>
           <Link to="/services">Health Packages</Link>
-          <Link to="/contact">FAQs</Link>
+          <Link to="/book-appointment">FAQs</Link>
           <Link to="/doctor-consultation">Doctor Consultation</Link>
           <Link to="/pharmacy">Order Medicines</Link>
           <Link to="/services">Corporate Wellness</Link>
