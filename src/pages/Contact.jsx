@@ -24,11 +24,6 @@ export default function Contact() {
     else setPhoneError('');
   };
 
-  const formatPhone = (d) => {
-    if (!d) return '';
-    return d.length > 5 ? `+91 ${d.slice(0, 5)} ${d.slice(5)}` : `+91 ${d}`;
-  };
-
   const handleFile = (e) => {
     const f = e.target.files?.[0];
     if (f) setPrescription(f);
@@ -152,9 +147,17 @@ export default function Contact() {
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 4, display: 'block' }}>
                 Phone Number <span style={{ color: 'var(--accent)' }}>*</span>
               </label>
-              <input type="tel" placeholder="+91 XXXXX XXXXX" required className="input"
-                value={formatPhone(phone)} onChange={e => handlePhone(e.target.value)}
-                style={{ borderColor: phoneError ? '#dc2626' : 'var(--border)' }} />
+              <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                <span style={{
+                  display: 'flex', alignItems: 'center', padding: '0 10px',
+                  background: '#f0f4f8', border: '1px solid var(--border)',
+                  borderRight: 'none', borderRadius: 'var(--radius) 0 0 var(--radius)',
+                  fontSize: 14, fontWeight: 600, color: 'var(--text-dark)',
+                }}>+91</span>
+                <input type="tel" inputMode="numeric" placeholder="XXXXXXXXXX" required className="input"
+                  value={phone} onChange={e => handlePhone(e.target.value)}
+                  style={{ borderRadius: '0 var(--radius) var(--radius) 0', borderColor: phoneError ? '#dc2626' : 'var(--border)' }} />
+              </div>
               {phoneError && (
                 <span style={{ fontSize: 11, color: '#dc2626', marginTop: 2, display: 'block' }}>{phoneError}</span>
               )}
