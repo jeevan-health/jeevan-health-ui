@@ -137,17 +137,6 @@ const testimonials = [
   { name: 'Lakshmi Devi', text: 'The physiotherapy sessions at home have been a blessing for my father. Professional therapist, great results.', rating: 4 },
 ];
 
-const partners = [
-  { name: 'Apollo Diagnostics', type: 'Diagnostic Lab' },
-  { name: 'Thyrocare', type: 'Diagnostic Lab' },
-  { name: 'Dr. Lal PathLabs', type: 'Diagnostic Lab' },
-  { name: 'Metropolis Healthcare', type: 'Diagnostic Lab' },
-  { name: 'Care Hospitals', type: 'Hospital Partner' },
-  { name: 'ICICI Lombard', type: 'Insurance Partner' },
-  { name: 'HDFC ERGO', type: 'Insurance Partner' },
-  { name: 'Tata AIG', type: 'Insurance Partner' },
-];
-
 const blogs = [
   { title: 'Testing Pregnancy At Home? Here\'s Everything About Pregnancy Test Kits', date: '08.06.26', author: 'Jeevan HealthCare' },
   { title: 'What are the best sources of probiotics for diabetics?', date: '30.05.26', author: 'Jeevan HealthCare' },
@@ -574,28 +563,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 16. Healthcare Partners */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header" style={{ justifyContent: 'center' }}>
-            <h2 className="section-title" style={{ textAlign: 'center' }}>Our Healthcare Partners</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
-            {partners.map(p => (
-              <div key={p.name} style={{
-                padding: '16px', background: '#fff', borderRadius: 'var(--radius)',
-                border: '1px solid var(--border)', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: 28, color: '#0A5EB0' }}><Buildings size={28} weight="fill" /></div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginTop: 6 }}>{p.name}</div>
-                <div style={{ fontSize: 11, color: '#888' }}>{p.type}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 17. Blog */}
+      {/* 16. Blog */}
       <section className="section" style={{ background: '#fff' }}>
         <div className="container">
           <div className="section-header">
