@@ -3,22 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { MagnifyingGlass, Star, Clock, CaretRight } from '@phosphor-icons/react';
 import { searchDoctors, getSpecialties } from '../services/doctorService';
 
-const consultTypes = [
-  { value: '', label: 'All Types' },
-  { value: 'video', label: 'Video Call' },
-  { value: 'audio', label: 'Voice Call' },
-  { value: 'chat', label: 'Chat' },
-  { value: 'home', label: 'Home Visit' },
-  { value: 'clinic', label: 'Clinic Visit' },
-];
-
 export default function DoctorConsultation() {
   const [doctors, setDoctors] = useState([]);
   const [specialties, setSpecialties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [specialty, setSpecialty] = useState('');
-  const [consultType, setConsultType] = useState('');
   const navigate = useNavigate();
 
   const loadDoctors = async () => {
@@ -59,9 +49,6 @@ export default function DoctorConsultation() {
           <select value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="input" style={{ width: 'auto', minWidth: 160 }}>
             <option value="">All Specialties</option>
             {specialties.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select value={consultType} onChange={(e) => setConsultType(e.target.value)} className="input" style={{ width: 'auto', minWidth: 140 }}>
-            {consultTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
 
