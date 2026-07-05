@@ -543,73 +543,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 19. Contact */}
-      <section className="section" style={{ background: '#fff' }}>
-        <div className="container">
-          <div style={{
-            background: 'linear-gradient(135deg, #0A5EB0, #1a7ad4)',
-            borderRadius: 'var(--radius-lg)', padding: '40px 32px',
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'center',
-          }}>
-            <div style={{ color: '#fff' }}>
-              <h2 style={{ color: '#fff', fontSize: 22, marginBottom: 16 }}>Get in Touch</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <p style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.85)', fontSize: 14 }}>
-                  <Phone size={16} weight="fill" /> <a href="tel:+919700104108" style={{ color: '#fff' }}>+91 97001 04108</a>
-                </p>
-                <p style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.85)', fontSize: 14 }}>
-                  <Envelope size={16} /> <a href="mailto:care@jeevanhealthcare.com" style={{ color: '#fff' }}>care@jeevanhealthcare.com</a>
-                </p>
-                <p style={{ display: 'flex', gap: 8, color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
-                  <MapPin size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <span>10-1-128/1/2/D, 1st Floor, Ali Manor Complex, Ambedkar Nagar, Masab Tank, Hyderabad, Telangana 500004.</span>
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{
-                  background: '#25d366', color: '#fff', padding: '10px 20px', borderRadius: 8,
-                  fontWeight: 600, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6,
-                }}>
-                  <Phone size={16} weight="fill" /> WhatsApp
-                </a>
-                <Link to="/contact" style={{
-                  background: 'rgba(255,255,255,0.2)', color: '#fff', padding: '10px 20px', borderRadius: 8,
-                  fontWeight: 600, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6,
-                }}>
-                  Contact Form
-                </Link>
-              </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>Business Hours</div>
-              <div style={{ color: '#fff', fontSize: 14, lineHeight: 1.8 }}>
-                <strong>Consultations:</strong> 8 AM – 10 PM<br />
-                <strong>Medicine Delivery:</strong> 24/7<br />
-                <strong>Lab Collection:</strong> 6 AM – 8 PM<br />
-                <strong>Customer Support:</strong> 24/7
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
 
-function Envelope(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-      <polyline points="22,6 12,13 2,6" />
-    </svg>
-  );
-}
 
-function MapPin(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
