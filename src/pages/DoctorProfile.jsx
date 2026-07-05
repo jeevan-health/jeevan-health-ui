@@ -160,9 +160,24 @@ export default function DoctorProfile() {
                       width: 88, height: 88, borderRadius: '50%',
                       background: 'linear-gradient(135deg, var(--primary-light), #d4e4f7)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      fontSize: 32, fontWeight: 700, color: 'var(--primary)',
+                      overflow: 'hidden', position: 'relative',
                     }}>
-                      {doctor.name?.charAt(0)}
+                      {doctor.image ? (
+                        <img src={doctor.image} alt={doctor.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }} />
+                      ) : null}
+                      <div style={{
+                        display: doctor.image ? 'none' : 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                        position: 'absolute', inset: 0,
+                        fontSize: 32, fontWeight: 700, color: 'var(--primary)',
+                      }}>
+                        {doctor.name?.charAt(0)}
+                      </div>
                     </div>
                     <div style={{ flex: 1 }}>
                       <h2 style={{ fontSize: 20, margin: 0 }}>{doctor.name}</h2>

@@ -82,9 +82,24 @@ export default function DoctorConsultation() {
                 <div style={{
                   width: 72, height: 72, borderRadius: '50%', background: 'var(--primary-light)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  fontSize: 24, fontWeight: 700, color: 'var(--primary)',
+                  overflow: 'hidden', position: 'relative',
                 }}>
-                  {doc.name?.charAt(0)}
+                  {doc.image ? (
+                    <img src={doc.image} alt={doc.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }} />
+                  ) : null}
+                  <div style={{
+                    display: doc.image ? 'none' : 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    position: 'absolute', inset: 0,
+                    fontSize: 24, fontWeight: 700, color: 'var(--primary)',
+                  }}>
+                    {doc.name?.charAt(0)}
+                  </div>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
