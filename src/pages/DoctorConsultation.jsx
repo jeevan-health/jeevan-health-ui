@@ -1,7 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MagnifyingGlass, Star, Clock, CaretRight } from '@phosphor-icons/react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { MagnifyingGlass, Star, Clock, CaretRight, House, VideoCamera, Phone } from '@phosphor-icons/react';
 import { searchDoctors, getSpecialties } from '../services/doctorService';
+
+const consultTypes = [
+  { value: 'home', label: 'Home Visit', icon: House },
+  { value: 'video', label: 'Video Consultation', icon: VideoCamera },
+  { value: 'clinic', label: 'Clinic Visit', icon: Phone },
+];
+
+const allSpecialties = [
+  'Cardiologist', 'Neurologist', 'Pulmonologist', 'Orthopedic Surgeon',
+  'Pediatrician', 'Gynecologist', 'Psychiatrist', 'Dermatologist',
+  'ENT Specialist', 'Ophthalmologist', 'Endocrinologist', 'Diabetologist',
+  'Gastroenterologist', 'Hepatologist', 'Nephrologist', 'Urologist',
+  'Oncologist', 'Rheumatologist', 'Radiologist', 'Anesthesiologist',
+  'General Surgeon', 'Plastic Surgeon', 'Vascular Surgeon',
+  'Infectious Disease Specialist', 'Geriatrician', 'Fertility Specialist',
+  'Neonatologist', 'Pain Management Specialist',
+  'Emergency Medicine Specialist', 'Critical Care Specialist',
+];
 
 export default function DoctorConsultation() {
   const [doctors, setDoctors] = useState([]);
@@ -9,7 +27,16 @@ export default function DoctorConsultation() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [specialty, setSpecialty] = useState('');
+  const [consultType, setConsultType] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const urlSpecialty = searchParams.get('specialty') || '';
+    const urlType = searchParams.get('type') || '';
+    setSpecialty(urlSpecialty);
+    setConsultType(urlType);
+  }, []);
 
   const loadDoctors = async () => {
     setLoading(true);
@@ -32,21 +59,72 @@ export default function DoctorConsultation() {
     return () => clearTimeout(timer);
   }, [search, specialty]);
 
+  const handleSpecialtyClick = (s) => {
+    const next = specialty === s ? '' : s;
+    setSpecialty(next);
+    setSearchParams(next ? { specialty: next } : {});
+  };
+
+  const handleTypeClick = (t) => {
+    const next = consultType === t ? '' : t;
+    setConsultType(next);
+  };
+
   return (
     <section className="page-section">
       <div className="container">
-        <h1>Consult Top Doctors from Home</h1>
-        <p>Video, voice, or chat with verified specialists. No waiting rooms.</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <h1 style={{ margin: 0 }}>Consult Top Doctors from Home</h1>
+          <button onClick={() => { setSpecialty(''); setSearch(''); setSearchParams({}); }}
+            style={{ background: 'none', border: 'none', color: '#0B4FA8', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            View All Doctors
+          </button>
+        </div>
+        <p style={{ marginTop: 4 }}>Video, voice, or chat with verified specialists. No waiting rooms.</p>
 
-        {/* Filters */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '24px 0' }}>
+        {/* Consultation Type Chips */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
+          {consultTypes.map(t => (
+            <button key={t.value} onClick={() => handleTypeClick(t.value)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 18px', borderRadius: 50, fontSize: 13, fontWeight: 600,
+                background: consultType === t.value ? '#0B4FA8' : '#fff',
+                color: consultType === t.value ? '#fff' : 'var(--text-body)',
+                border: `1px solid ${consultType === t.value ? '#0B4FA8' : 'var(--border)'}`,
+                cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+              }}>
+              <t.icon size={16} weight={consultType === t.value ? 'fill' : 'regular'} />
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Specialty Chips */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+          {allSpecialties.map(s => (
+            <button key={s} onClick={() => handleSpecialtyClick(s)}
+              style={{
+                padding: '6px 16px', borderRadius: 50, fontSize: 12, fontWeight: 500,
+                background: specialty === s ? '#0B4FA8' : '#f5f7fa',
+                color: specialty === s ? '#fff' : 'var(--text-body)',
+                border: `1px solid ${specialty === s ? '#0B4FA8' : 'transparent'}`,
+                cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+              }}>
+              {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Search + Filter */}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24 }}>
           <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
             <MagnifyingGlass size={18} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-light)' }} />
             <input type="text" placeholder="Search by doctor name or specialty..."
               value={search} onChange={(e) => setSearch(e.target.value)}
               className="input" style={{ paddingLeft: 38 }} />
           </div>
-          <select value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="input" style={{ width: 'auto', minWidth: 160 }}>
+          <select value={specialty} onChange={(e) => handleSpecialtyClick(e.target.value)} className="input" style={{ width: 'auto', minWidth: 160 }}>
             <option value="">All Specialties</option>
             {specialties.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
@@ -58,7 +136,7 @@ export default function DoctorConsultation() {
         ) : doctors.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center' }}><p style={{ color: 'var(--text-light)' }}>No doctors found. Try different search criteria.</p></div>
         ) : (
-          <div style={{ display: 'grid', gap: 16 }}>
+          <div style={{ display: 'grid', gap: 16, marginTop: 20 }}>
             {doctors.map(doc => (
               <div key={doc.id} style={{
                 background: '#fff', borderRadius: 'var(--radius-lg)',

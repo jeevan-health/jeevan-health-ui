@@ -309,15 +309,15 @@ export default function Home() {
           </div>
           <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
             {['Home Visit', 'Video Consultation', 'Clinic Visit'].map(opt => (
-              <span key={opt} style={{
+              <Link key={opt} to="/doctor-consultation" style={{
                 padding: '6px 16px', background: '#0B4FA8', color: '#fff',
-                borderRadius: 20, fontSize: 13, fontWeight: 500,
-              }}>{opt}</span>
+                borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none',
+              }}>{opt}</Link>
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
             {doctorSpecs.map(s => (
-              <Link key={s.name} to="/doctor-consultation" style={{
+              <Link key={s.name} to={`/doctor-consultation?specialty=${encodeURIComponent(s.name)}`} style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '10px 14px', borderRadius: 8, fontSize: 13,
                 color: 'var(--text-body)', border: '1px solid var(--border)',
