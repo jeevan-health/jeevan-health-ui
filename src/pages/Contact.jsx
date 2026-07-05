@@ -70,6 +70,23 @@ export default function Contact() {
             </select>
           </div>
           <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 4, display: 'block' }}>Upload Prescription</label>
+            <div style={{
+              border: '1px dashed var(--border)', borderRadius: 'var(--radius)',
+              padding: '16px', textAlign: 'center', cursor: 'pointer',
+              background: 'var(--bg-light)', transition: 'border-color 0.2s',
+              fontSize: 13, color: 'var(--text-light)',
+            }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+              onClick={() => document.getElementById('prescription-upload').click()}
+            >
+              <input id="prescription-upload" type="file" accept="image/*,.pdf" style={{ display: 'none' }} />
+              <span style={{ display: 'block', marginBottom: 4, fontSize: 20 }}>📄</span>
+              Click to upload prescription (PDF or image)
+            </div>
+          </div>
+          <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 4, display: 'block' }}>
               Your Message <span style={{ color: 'var(--accent)' }}>*</span>
             </label>
