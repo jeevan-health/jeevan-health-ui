@@ -5,7 +5,7 @@ import {
   Baby, User, Syringe, FirstAidKit, Clock, Heartbeat,
   Phone, Star, Truck, Microscope, Clipboard, Buildings,
   Brain, Eye, Tooth, Ear, Bone, Users, Sparkle,
-  ChatCircle, CheckCircle, CaretRight, CaretLeft,
+  ChatCircle, CheckCircle, CaretRight, CaretLeft, SuitcaseSimple,
 } from '@phosphor-icons/react';
 
 const services = [
@@ -19,7 +19,7 @@ const services = [
   { icon: Syringe, title: 'Vaccination', tag: 'AT HOME', path: '/services' },
   { icon: Monitor, title: 'Home ICU', tag: 'SETUP', path: '/services' },
   { icon: FirstAidKit, title: 'Medical Equipment', tag: 'RENT / BUY', path: '/services' },
-  { icon: Briefcase, title: 'Corporate Healthcare', tag: 'FOR BUSINESS', path: '/services' },
+  { icon: SuitcaseSimple, title: 'Corporate Healthcare', tag: 'FOR BUSINESS', path: '/services' },
   { icon: Shield, title: 'Health Insurance', tag: 'EXPLORE PLANS', path: '/services' },
 ];
 
@@ -56,7 +56,7 @@ const serviceCategories = [
     path: '/pharmacy',
   },
   {
-    icon: Briefcase, title: 'Corporate Healthcare', color: '#7c3aed',
+    icon: SuitcaseSimple, title: 'Corporate Healthcare', color: '#7c3aed',
     items: ['Employee Wellness Programs', 'Industrial Medical Camps', 'Executive Checkups', 'Occupational Health', 'Vaccination Drives', 'School & College Programs'],
     path: '/services',
   },

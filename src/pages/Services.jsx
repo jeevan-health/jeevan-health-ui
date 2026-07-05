@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import {
   Stethoscope, Pill, Flask, User, Users as UsersIcon,
-  Heart, Syringe, Monitor, Briefcase, Baby, Globe,
+  Heart, Syringe, Monitor, SuitcaseSimple, Baby, Globe,
   Shield, Clock, Buildings, Info,
 } from '@phosphor-icons/react';
 
@@ -17,7 +17,7 @@ const categories = [
     ],
   },
   {
-    icon: Briefcase, title: 'Preventive & Corporate Health Services', color: '#4169E1',
+    icon: SuitcaseSimple, title: 'Preventive & Corporate Health Services', color: '#4169E1',
     items: [
       'Pre & Post Employment Health Checkups',
       'Corporate & Occupational Health Services',

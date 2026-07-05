@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   House, StackSimple, Info, User, Pill, Flask, Phone,
   Stethoscope, Syringe, Heart, FirstAidKit, Baby, ChartBar,
-  Briefcase, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
+  SuitcaseSimple, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
   Clock, CaretDown, List, X, Heartbeat, MagnifyingGlass,
   Envelope, Clipboard, Brain, Bone, WhatsappLogo,
 } from '@phosphor-icons/react';
@@ -45,9 +45,9 @@ const serviceGroups = [
     ],
   },
   {
-    label: 'Corporate & Digital Health', icon: Briefcase,
+    label: 'Corporate & Digital Health', icon: SuitcaseSimple,
     items: [
-      { icon: Briefcase, label: 'Corporate Health', path: '/services' },
+      { icon: SuitcaseSimple, label: 'Corporate Health', path: '/services' },
       { icon: Clock, label: 'Annual Plans', path: '/services' },
       { icon: Shield, label: 'Health Insurance', path: '/services' },
       { icon: Monitor, label: 'EMR / EHR', path: '/services' },
@@ -67,7 +67,7 @@ const navLinks = [
   { label: 'Diagnostics', path: '/diagnostics', icon: Flask },
   { label: 'Pharmacy', path: '/pharmacy', icon: Pill },
   { label: 'Health Packages', path: '/services', icon: Heartbeat },
-  { label: 'Corporate Healthcare', path: '/services', icon: Briefcase },
+  { label: 'Corporate Healthcare', path: '/services', icon: SuitcaseSimple },
   { label: 'Health Insurance', path: '/services', icon: Shield },
   { label: 'Blog', path: '/contact', icon: Globe },
   { label: 'Contact & Reach Us', path: '/contact', icon: Phone },
