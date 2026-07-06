@@ -175,7 +175,7 @@ export default function Diagnostics() {
   const load = async () => {
     setLoading(true);
     let filtered = [...seedTests];
-    if (mode === 'packages') {
+    if (mode === 'packages' && !search) {
       filtered = filtered.filter(t => t.subcategory === 'Health Packages');
     } else {
       if (search) filtered = filtered.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
@@ -228,6 +228,7 @@ export default function Diagnostics() {
     setSearch(name);
     setShowSuggestions(false);
     setShowAllTests(true);
+    if (mode !== 'tests') setMode('tests');
     load();
   };
 
@@ -282,6 +283,7 @@ export default function Diagnostics() {
         bookedFor: bookedFor || null,
         paymentMethod: paymentMethod || 'pay_at_collection',
         patientInfo: patientInfo.name ? patientInfo : null,
+        prescriptionFile: prescription?.dataUrl || null,
       });
       const generatedId = 'JHC-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
       setOrderId(generatedId);
@@ -322,7 +324,7 @@ export default function Diagnostics() {
     <>
       {/* Hero */}
       <div style={{
-        position: 'relative', overflow: 'hidden',
+        position: 'relative',
         background: 'linear-gradient(135deg, #0F5DA8 0%, #0C6BC4 100%)',
         padding: '40px 20px 32px', textAlign: 'center',
       }}>
@@ -382,21 +384,20 @@ export default function Diagnostics() {
             {mode === 'tests' ? 'Book diagnostic tests at home â€” accurate reports, doorstep collection' : 'Curated health checkup packages â€” up to 60% off'}
           </p>
 
-          {/* Search bar (tests only) */}
-          {mode === 'tests' && (
-            <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
-              <MagnifyingGlass size={18} style={{ position: 'absolute', left: 18, top: 13, color: '#0F5DA8' }} />
-              <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
-                value={search}
-                onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
-                onFocus={() => { setFocused(true); setShowSuggestions(true); }}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                onKeyDown={e => { if (e.key === 'Enter') { setShowAllTests(true); setShowSuggestions(false); } }}
-                style={{
-                  width: '100%', padding: '12px 16px 12px 48px', borderRadius: 50,
-                  border: 'none', fontSize: 14, outline: 'none', background: '#fff',
-                  fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                }} />
+          {/* Search bar (always visible) */}
+          <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
+            <MagnifyingGlass size={18} style={{ position: 'absolute', left: 18, top: 13, color: '#0F5DA8' }} />
+            <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
+              value={search}
+              onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => { setFocused(true); setShowSuggestions(true); }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onKeyDown={e => { if (e.key === 'Enter') { setShowAllTests(true); setShowSuggestions(false); } }}
+              style={{
+                width: '100%', padding: '12px 16px 12px 48px', borderRadius: 50,
+                border: 'none', fontSize: 14, outline: 'none', background: '#fff',
+                fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              }} />
               {showSuggestions && (
                 <div style={{
                   position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
@@ -446,7 +447,6 @@ export default function Diagnostics() {
                 </div>
               )}
             </div>
-          )}
 
         </div>
       </div>
@@ -564,7 +564,7 @@ export default function Diagnostics() {
                       boxShadow: '0 2px 8px rgba(15,93,168,0.25)',
                     }}>
                     <input ref={prescriptionRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
-                      onChange={e => { const f = e.target.files?.[0]; if (f) { setPrescription(f); if (window?.gtag) window.gtag('event', 'prescription_upload'); } }} />
+                      onChange={e => { const f = e.target.files?.[0]; if (f) { const reader = new FileReader(); reader.onload = () => { setPrescription({ name: f.name, dataUrl: reader.result }); if (window?.gtag) window.gtag('event', 'prescription_upload'); }; reader.readAsDataURL(f); } }} />
                     ðŸ“„ Upload Prescription
                   </button>
                 )}
@@ -692,7 +692,7 @@ export default function Diagnostics() {
                         onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.background = '#fafafa'; }}
                         onClick={() => prescriptionRef.current?.click()}>
                         <input ref={prescriptionRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
-                          onChange={e => { const f = e.target.files?.[0]; if (f) setPrescription(f); }} />
+                          onChange={e => { const f = e.target.files?.[0]; if (f) { const reader = new FileReader(); reader.onload = () => { setPrescription({ name: f.name, dataUrl: reader.result }); }; reader.readAsDataURL(f); } }} />
                         <span style={{ fontSize: 11, color: '#6b7280' }}>ðŸ“„ Click to upload prescription (PDF or image)</span>
                       </div>
                     )}
@@ -1296,4 +1296,5 @@ export default function Diagnostics() {
     </>
   );
 }
+
 
