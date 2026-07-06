@@ -3,23 +3,10 @@ import { useState, useEffect } from 'react';
 import {
   CaretLeft, Flask, CheckCircle, Clock, MapPin, Phone, WhatsappLogo,
   FileText, Heartbeat, Warning, Shield, User, Sparkle, ShoppingCart,
-  Plus, Minus, Star, ArrowRight, X, CaretDown,
+  Plus, Minus, Star, ArrowRight, X, CaretDown, Coin, CreditCard,
 } from '@phosphor-icons/react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
 import { seedTests } from '../data/seedData';
-
-const sectionIcons = {
-  overview: Heartbeat,
-  whoShouldTake: User,
-  parameters: Flask,
-  preparation: Clock,
-  sample: MapPin,
-  reports: FileText,
-  interpretation: Warning,
-  accuracy: Shield,
-  safety: Heartbeat,
-  faq: FileText,
-};
 
 function Section({ icon: Icon, title, children, open, onToggle }) {
   return (
@@ -48,6 +35,15 @@ function ListItems({ items }) {
 
 function Tag({ label, color, bg }) {
   return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: bg || '#e8f0fe', color: color || '#0F5DA8', display: 'inline-block' }}>{label}</span>;
+}
+
+function InfoBox({ children, bg, color, icon: Icon }) {
+  return (
+    <div style={{ marginTop: 8, padding: '8px 12px', background: bg || '#e8f0fe', borderRadius: 8, fontSize: 11, color: color || '#0F5DA8', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+      {Icon && <Icon size={14} weight="fill" style={{ flexShrink: 0, marginTop: 1 }} />}
+      <span>{children}</span>
+    </div>
+  );
 }
 
 export default function TestDetail() {
@@ -106,6 +102,7 @@ export default function TestDetail() {
   }
 
   const toggle = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+  const w = education.whatIsThis;
 
   return (
     <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
@@ -116,7 +113,7 @@ export default function TestDetail() {
           <CaretLeft size={14} /> Back to Diagnostics
         </button>
 
-        {/* Full Name + Abbreviation + Alt Names */}
+        {/* FULL TEST NAME + ABBREVIATION + ALTERNATE NAMES */}
         <div style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1565C0 50%, #1a73e8 100%)', borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span style={{ background: '#FFD54F', color: '#0F5DA8', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>INDIVIDUAL TEST</span>
@@ -137,14 +134,14 @@ export default function TestDetail() {
           )}
         </div>
 
-        {/* Quick Stats */}
+        {/* QUICK STATS */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8, marginBottom: 16 }}>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
             <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Price</span>
             <div style={{ fontSize: 18, fontWeight: 800, color: '#e53935', marginTop: 2 }}>{'\u20B9'}{test.offerPrice || test.price}</div>
           </div>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Report Time</span>
+            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Reports In</span>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#2e7d32', marginTop: 2 }}>{education.reportTime}</div>
           </div>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
@@ -152,97 +149,192 @@ export default function TestDetail() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#0F5DA8', marginTop: 2 }}>Free Home</div>
           </div>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
+            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Duration</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed', marginTop: 2 }}>{education.duration}</div>
+          </div>
+          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
             <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Fasting</span>
             <div style={{ fontSize: 13, fontWeight: 700, color: test.fasting_required ? '#e65100' : '#2e7d32', marginTop: 2 }}>{test.fasting_required ? 'Required' : 'Not Required'}</div>
           </div>
         </div>
 
-        {/* What is this test */}
-        <Section title="What Is This Test?" icon={Heartbeat} open={openSections.whatIs} onToggle={() => toggle('whatIs')}>
-          <p style={{ margin: '0 0 8px' }}>{education.whatIsThis}</p>
-          <p style={{ margin: 0, color: 'var(--text-light)' }}>
-            This test is {test.category?.toLowerCase() || 'a diagnostic'} test that provides valuable insights into your health status.
-            It helps healthcare providers {test.fasting_required ? 'assess specific health markers that require fasting for accurate measurement' : 'evaluate your current health status through non-invasive blood analysis'}.
-          </p>
-        </Section>
-
-        {/* Who Should Take */}
-        <Section title="Who Should Take This Test?" icon={User} open={openSections.who} onToggle={() => toggle('who')}>
-          <ListItems items={education.whoShouldTake} />
-          <div style={{ marginTop: 10, padding: '8px 12px', background: '#e8f0fe', borderRadius: 8, fontSize: 11, color: '#0F5DA8' }}>
-            <strong>Recommendation:</strong> If you identify with any of the above criteria, this test is relevant for you. Consult your doctor for personalized advice.
+        {/* 1. WHAT IS THIS TEST */}
+        <Section icon={Heartbeat} title="What Is This Test?" open={openSections.whatIs} onToggle={() => toggle('whatIs')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{w.purpose}</p>
+          <InfoBox icon={CheckCircle} bg="#e8f0fe" color="#0F5DA8">{w.screeningOrDiagnostic}</InfoBox>
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Why Is This Test Done?</div>
+            <ListItems items={w.whyDone} />
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>What Health Conditions Can It Detect?</div>
+            <ListItems items={w.conditionsDetected} />
           </div>
         </Section>
 
-        {/* Parameters */}
-        <Section title="Parameters Measured" icon={Flask} open={openSections.params} onToggle={() => toggle('params')}>
-          <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--text-light)' }}>The following parameters are analyzed as part of this test:</p>
-          <ListItems items={education.parameters} />
+        {/* 2. WHO SHOULD TAKE THIS TEST */}
+        <Section icon={User} title="Who Should Take This Test?" open={openSections.who} onToggle={() => toggle('who')}>
+          <ListItems items={education.whoShouldTake} />
+          <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
+            Yes, this test is relevant to you if you identify with any of the above criteria. Doctors recommend this test for routine health monitoring.
+          </InfoBox>
         </Section>
 
-        {/* Preparation */}
-        <Section title="Preparation & Fasting Instructions" icon={Clock} open={openSections.prep} onToggle={() => toggle('prep')}>
+        {/* 3. PARAMETERS MEASURED */}
+        <Section icon={Flask} title="What Does This Test Check?" open={openSections.params} onToggle={() => toggle('params')}>
+          <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--text-light)' }}>The following parameters are analyzed as part of this test:</p>
+          <ListItems items={education.parameters} />
+          <InfoBox bg="#f3e8ff" color="#7c3aed" icon={CheckCircle}>
+            Showing transparency in test parameters builds trust. Every parameter is measured using NABL-certified lab equipment.
+          </InfoBox>
+        </Section>
+
+        {/* 4. PREPARATION & FASTING */}
+        <Section icon={Clock} title="Preparation & Fasting Instructions" open={openSections.prep} onToggle={() => toggle('prep')}>
           <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{education.fastingRequired ? 'Fasting Required' : 'No Fasting Required'}</p>
           <p style={{ margin: '0 0 8px' }}>{education.preparation}</p>
           {education.fastingRequired && (
-            <div style={{ padding: '8px 12px', background: '#fff3e0', borderRadius: 8, fontSize: 11, color: '#e65100', marginTop: 8 }}>
-              <strong>Important:</strong> Please follow the preparation instructions carefully to ensure accurate test results. Water is allowed during fasting unless specified otherwise.
-            </div>
+            <InfoBox bg="#fff3e0" color="#e65100" icon={Warning}>
+              Follow fasting instructions carefully for accurate results. Water is allowed during fasting. Avoid tea, coffee, smoking, and food during the fasting period. Continue regular medications unless your doctor advises otherwise.
+            </InfoBox>
+          )}
+          {!education.fastingRequired && (
+            <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
+              No special preparation needed. You can take this test at any time of day without prior fasting. Continue your regular routine.
+            </InfoBox>
           )}
         </Section>
 
-        {/* Sample Collection */}
-        <Section title="Sample Collection Process" icon={MapPin} open={openSections.sample} onToggle={() => toggle('sample')}>
-          <p style={{ margin: '0 0 8px' }}>Your comfort and safety are our priority. Here's how the process works:</p>
+        {/* 5. SAMPLE COLLECTION PROCESS */}
+        <Section icon={MapPin} title="Sample Collection Process" open={openSections.sample} onToggle={() => toggle('sample')}>
+          <p style={{ margin: '0 0 8px' }}>Your comfort and safety are our priority. Here is how the process works:</p>
           <ListItems items={education.sampleProcess} />
-          <div style={{ marginTop: 10, padding: '8px 12px', background: '#e8f5e9', borderRadius: 8, fontSize: 11, color: '#2e7d32', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle size={14} weight="fill" /> Free home sample collection included with every test
-          </div>
+          <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
+            Free home sample collection included with every test. Choose your preferred time slot — morning, afternoon, or evening.
+          </InfoBox>
         </Section>
 
-        {/* Report Timeline */}
-        <Section title="Report Delivery Timeline" icon={FileText} open={openSections.reports} onToggle={() => toggle('reports')}>
-          <p style={{ margin: '0 0 6px' }}><strong>Expected report time:</strong> {education.reportTime}</p>
+        {/* 6. TEST DURATION & CONVENIENCE */}
+        <Section icon={Clock} title="Test Duration & Convenience" open={openSections.duration} onToggle={() => toggle('duration')}>
+          <ListItems items={[
+            `The blood collection takes about ${education.duration}`,
+            'The entire home visit is completed within 15-20 minutes',
+            'Can be completed in a single visit — no repeat appointments needed',
+            'Home sample collection is available at your preferred time slot',
+            'No need to travel or wait in queues — we come to you',
+            'Results delivered digitally on WhatsApp, Email, and App',
+          ]} />
+          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={CheckCircle}>
+            One visit, no waiting, complete convenience. Book online and we take care of the rest.
+          </InfoBox>
+        </Section>
+
+        {/* 7. REPORT DELIVERY */}
+        <Section icon={FileText} title="Report Delivery Timeline" open={openSections.reports} onToggle={() => toggle('reports')}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 700 }}>Expected in:</span>
+            <Tag label={education.reportTime} color="#2e7d32" bg="#e8f5e9" />
+          </div>
           <p style={{ margin: '0 0 8px' }}>{education.reportDelivery}</p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-            <Tag label={`Reports in ${education.reportTime}`} color="#2e7d32" bg="#e8f5e9" />
             <Tag label="WhatsApp Delivery" color="#25d366" bg="#e8f5e9" />
             <Tag label="Email Delivery" color="#0F5DA8" bg="#e8f0fe" />
-            <Tag label="Download PDF" color="#7c3aed" bg="#f5f3ff" />
+            <Tag label="Mobile App" color="#7c3aed" bg="#f5f3ff" />
+            <Tag label="Download PDF" color="#e65100" bg="#fff3e0" />
+            <Tag label="Doctor Reviewed" color="#2e7d32" bg="#e8f5e9" />
           </div>
+          <InfoBox bg="#fff3e0" color="#e65100" icon={Clock}>
+            If your report is delayed beyond the expected time, contact our support team via WhatsApp or phone for an immediate update.
+          </InfoBox>
         </Section>
 
-        {/* Interpretation */}
-        <Section title="Understanding Your Results" icon={Warning} open={openSections.interpretation} onToggle={() => toggle('interpretation')}>
+        {/* 8. INTERPRETATION OF RESULTS */}
+        <Section icon={Warning} title="Understanding Your Results" open={openSections.interpretation} onToggle={() => toggle('interpretation')}>
           <ListItems items={education.interpretation} />
-          <div style={{ marginTop: 10, padding: '8px 12px', background: '#fff3e0', borderRadius: 8, fontSize: 11, color: '#e65100' }}>
-            <strong>Disclaimer:</strong> Test results should always be reviewed by a qualified healthcare provider. Self-diagnosis based on test results is not recommended.
-          </div>
+          <InfoBox bg="#fff3e0" color="#e65100" icon={Warning}>
+            Never self-diagnose based on test results. Always consult a qualified healthcare provider for proper interpretation of your report.
+          </InfoBox>
         </Section>
 
-        {/* Accuracy & Trust */}
-        <Section title="Medical Accuracy & Trust" icon={Shield} open={openSections.accuracy} onToggle={() => toggle('accuracy')}>
+        {/* 9. MEDICAL ACCURACY & TRUST */}
+        <Section icon={Shield} title="Medical Accuracy & Trust" open={openSections.accuracy} onToggle={() => toggle('accuracy')}>
           <p style={{ margin: '0 0 8px' }}>{education.accuracy}</p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
             <Tag label="NABL Certified" color="#0F5DA8" />
             <Tag label="ISO Compliant" color="#2e7d32" bg="#e8f5e9" />
             <Tag label="Doctor Reviewed" color="#7c3aed" bg="#f5f3ff" />
             <Tag label="Digital Reports" color="#e65100" bg="#fff3e0" />
+            <Tag label="Quality Control" color="#0F5DA8" bg="#e8f0fe" />
           </div>
+          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={Shield}>
+            All samples processed at NABL-certified labs with automated analyzers and rigorous quality control protocols for reliable results.
+          </InfoBox>
         </Section>
 
-        {/* Safety */}
-        <Section title="Safety & Comfort" icon={Heartbeat} open={openSections.safety} onToggle={() => toggle('safety')}>
-          <ListItems items={education.safety} />
-        </Section>
-
-        {/* Frequency */}
-        <Section title="How Often Should You Take This Test?" icon={Clock} open={openSections.frequency} onToggle={() => toggle('frequency')}>
+        {/* 10. FREQUENCY OF TESTING */}
+        <Section icon={Clock} title="How Often Should You Take This Test?" open={openSections.frequency} onToggle={() => toggle('frequency')}>
           <p style={{ margin: 0 }}>{education.frequency}</p>
         </Section>
 
-        {/* FAQs */}
-        <Section title={`Frequently Asked Questions`} icon={FileText} open={openSections.faq} onToggle={() => toggle('faq')}>
+        {/* 11. CUSTOMIZATION */}
+        <Section icon={Flask} title="Customization & Test Combinations" open={openSections.customization} onToggle={() => toggle('customization')}>
+          <p style={{ margin: '0 0 6px' }}><strong>Can this test be combined with others?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{education.customization.canCombine}</p>
+          <p style={{ margin: '0 0 6px' }}><strong>Are there advanced versions?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{education.customization.advancedVersions}</p>
+          <p style={{ margin: '0 0 6px' }}><strong>Can a doctor recommend this test?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{education.customization.doctorRecommendation}</p>
+          <p style={{ margin: '0 0 6px' }}><strong>Can I add more parameters?</strong></p>
+          <p style={{ margin: '0 0 6px' }}>{education.customization.addMoreParameters}</p>
+          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={CheckCircle}>
+            Add this test to your cart and browse other tests to build a comprehensive health checkup package.
+          </InfoBox>
+        </Section>
+
+        {/* 12. SAFETY & COMFORT */}
+        <Section icon={Heartbeat} title="Safety & Comfort" open={openSections.safety} onToggle={() => toggle('safety')}>
+          <ListItems items={education.safety} />
+          <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
+            Your safety is our priority. All phlebotomists follow strict hygiene protocols with sterile, single-use equipment.
+          </InfoBox>
+        </Section>
+
+        {/* 13. COST & BOOKING */}
+        <Section icon={Coin} title="Cost & Booking Information" open={openSections.cost} onToggle={() => toggle('cost')}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <span style={{ fontSize: 24, fontWeight: 800, color: '#e53935' }}>{education.cost.price}</span>
+            <Tag label="No Hidden Charges" color="#2e7d32" bg="#e8f5e9" />
+            <Tag label="Free Home Collection" color="#0F5DA8" bg="#e8f0fe" />
+          </div>
+          <p style={{ margin: '0 0 6px' }}><strong>Is home collection free?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{education.cost.homeCollection}</p>
+          <p style={{ margin: '0 0 6px' }}><strong>Why is this test affordable?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{education.cost.whyAffordable}</p>
+          <p style={{ margin: '0 0 6px' }}><strong>How do I book this test?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{education.cost.howToBook}</p>
+          <div style={{ marginTop: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Payment Methods:</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {education.cost.paymentMethods.map((m, i) => (
+                <Tag key={i} label={m} color="#0F5DA8" bg="#e8f0fe" />
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        {/* 14. POST-TEST GUIDANCE */}
+        <Section icon={FileText} title="Post-Test Guidance" open={openSections.postTest} onToggle={() => toggle('postTest')}>
+          <p style={{ margin: '0 0 6px', fontSize: 11, color: 'var(--text-light)' }}>
+            Follow these steps after receiving your test report:
+          </p>
+          <ListItems items={education.postTestGuidance} />
+          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={CheckCircle}>
+            Jeevan HealthCare provides free doctor consultation with every test. We are here to support you through your health journey.
+          </InfoBox>
+        </Section>
+
+        {/* FAQ SECTION */}
+        <Section icon={FileText} title="Frequently Asked Questions" open={openSections.faq} onToggle={() => toggle('faq')}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {education.faqs.map((faq, i) => (
               <div key={i} style={{ border: '1px solid #e8edf2', borderRadius: 8, overflow: 'hidden' }}>
@@ -258,7 +350,7 @@ export default function TestDetail() {
           </div>
         </Section>
 
-        {/* Similar Tests */}
+        {/* RELATED TESTS */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Flask size={16} color="#0F5DA8" /> Related Tests
@@ -274,12 +366,12 @@ export default function TestDetail() {
         </div>
       </div>
 
-      {/* Bottom CTA */}
+      {/* BOTTOM CTA */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', padding: '8px 16px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <a href={`tel:+919700104108`} style={{ width: 40, height: 40, borderRadius: '50%', background: '#0F5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#0F5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Phone size={18} weight="fill" color="#fff" />
         </a>
-        <a href={`https://wa.me/919700104108?text=${encodeURIComponent('Hi! I want to know more about ' + education.fullName + ' (' + education.abbreviation + ') test')}`} target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <a href={`https://wa.me/919700104108?text=${encodeURIComponent('Hi! I want to know more about ' + education.fullName + ' (' + (education.abbreviation || '') + ') test')}`} target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <WhatsappLogo size={18} weight="fill" color="#fff" />
         </a>
         <div style={{ flex: 1 }}>
@@ -287,7 +379,7 @@ export default function TestDetail() {
           <div style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{test.offerPrice || test.price}</div>
         </div>
         <button onClick={() => navigate('/diagnostics')} style={{ padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, background: '#f0f0f0', color: 'var(--text-dark)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
-          View All Tests
+          All Tests
         </button>
         <button onClick={inCart ? removeFromCart : addToCart} style={{ padding: '9px 20px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: inCart ? '#fee2e2' : '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4, boxShadow: inCart ? 'none' : '0 4px 14px rgba(255,59,48,0.3)' }}>
           {inCart ? <><Minus size={14} /> Remove</> : <><Plus size={14} /> Add to Cart</>}

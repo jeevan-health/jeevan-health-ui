@@ -42,6 +42,17 @@ const categoryParamMap = {
   'STD': ['HIV Antibody', 'HBsAg', 'HCV Antibody', 'VDRL/RPR', 'HSV-1 IgG', 'HSV-2 IgG'],
 };
 
+const testDurationMap = {
+  'Hematology': '5-10 minutes',
+  'Diabetes': '5 minutes',
+  'Thyroid': '5-10 minutes',
+  'Cardiac': '5-10 minutes',
+  'Full Body': '10-15 minutes',
+  'Fever': '5-10 minutes',
+  'Pregnancy': '5 minutes',
+  'Cancer': '5-10 minutes',
+};
+
 export function makeSlug(name) {
   return name.toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -52,40 +63,90 @@ export function getTestBySlug(slug) {
   return seedTests.find(t => makeSlug(t.name) === slug) || null;
 }
 
+function getDuration(test) {
+  return testDurationMap[test.category] || '5-10 minutes';
+}
+
+function getWhatIsThis(test) {
+  const n = test.name;
+  const a = test.name.includes('(') ? test.name.match(/\(([^)]+)\)/)?.[1] || '' : '';
+  const cat = test.category?.toLowerCase() || 'diagnostic';
+  return {
+    purpose: `${n} is a ${test.description?.toLowerCase() || `${cat} test that helps evaluate your health status.`}`,
+    whyDone: [
+      `To screen for potential ${cat} conditions before symptoms appear`,
+      `To help diagnose existing symptoms related to ${cat} health`,
+      `To monitor the effectiveness of ongoing treatment`,
+      `As part of routine preventive health checkups`,
+    ],
+    whatItMeasures: `This test ${test.description?.toLowerCase() || `analyzes key markers related to ${cat} function in your body.`}`,
+    conditionsDetected: [
+      `${cat === 'hematology' ? 'Anemia, infections, clotting disorders' : cat === 'diabetes' ? 'Diabetes, prediabetes, insulin resistance' : cat === 'thyroid' ? 'Hypothyroidism, hyperthyroidism, thyroiditis' : cat === 'cardiac' ? 'Heart disease risk, high cholesterol, inflammation' : cat === 'full body' ? 'Liver, kidney, thyroid, diabetes, anemia, and more' : `${test.category} disorders and abnormalities`}`,
+      `Early stage changes before symptoms become noticeable`,
+      `${test.fasting_required ? 'Metabolic and functional changes' : 'Abnormal cellular or molecular activity'}`,
+    ],
+    screeningOrDiagnostic: test.category === 'Full Body' || test.category === 'Cancer' ? 'Primarily a screening test — used to detect potential issues before symptoms appear.' : 'Can be used both for screening (routine checkup) and diagnosis (when symptoms are present).',
+  };
+}
+
+function getCostAndBooking(test, abbr) {
+  return {
+    price: `\u20B9${test.offerPrice || test.price}`,
+    homeCollection: 'Yes, home sample collection is completely free. No additional charges for collection.',
+    whyAffordable: 'Jeevan HealthCare partners directly with NABL-certified labs to offer competitive pricing. No middlemen ensure affordable rates.',
+    howToBook: 'You can book this test online by adding it to your cart and completing the booking form. Select your preferred date, time, and address for home collection.',
+    paymentMethods: ['Pay at Collection (Cash / Card)', 'Online Payment (UPI / Net Banking / Card)'],
+  };
+}
+
+function getPostTestGuidance(test, abbr) {
+  return [
+    'Review your report carefully once received. Compare values with the reference ranges provided.',
+    'Share your report with your doctor for professional interpretation and personalized advice.',
+    'If values are abnormal, your doctor may recommend follow-up tests or lifestyle modifications.',
+    'For chronic conditions, regular monitoring as advised by your healthcare provider is important.',
+    'Maintain a healthy lifestyle — balanced diet, regular exercise, and adequate sleep can improve your results over time.',
+    'Jeevan HealthCare offers free doctor consultation with every test to help you understand your results.',
+  ];
+}
+
+function getCustomization(test) {
+  return {
+    canCombine: `Yes, ${test.name} can be combined with other related tests for a comprehensive health assessment. You can add multiple tests to your cart before booking.`,
+    advancedVersions: test.category === 'Full Body' ? 'Advanced packages with additional parameters like vitamin profiles, tumor markers, and hormone panels are available under Health Packages.' : 'Advanced panels with additional parameters are available. Check our Health Packages section for comprehensive options.',
+    doctorRecommendation: 'Doctors commonly recommend this test based on symptoms, risk factors, family history, and routine health screening protocols.',
+    addMoreParameters: test.category === 'Full Body' || test.category === 'Cardiac' || test.category === 'Thyroid' ? 'Yes, additional parameters can be added. Consult with our team or your doctor for the most appropriate combination.' : 'This test focuses on specific markers. For a broader assessment, consider adding related tests to your cart.',
+  };
+}
+
 export function getTestEducation(test) {
   if (!test) return null;
   const known = altNames[test.name] || { abbr: '', alt: [] };
   const abbr = known.abbr || (test.name.includes('(') ? test.name.match(/\(([^)]+)\)/)?.[1] || '' : '');
   const altList = known.alt.length > 0 ? known.alt : generateAltNames(test);
   const params = categoryParamMap[test.category] || generateParams(test);
+  const whatIs = getWhatIsThis(test);
+  const cost = getCostAndBooking(test, abbr);
+  const guidance = getPostTestGuidance(test, abbr);
+  const customization = getCustomization(test);
 
   return {
     fullName: test.name.replace(/\([^)]*\)/g, '').trim(),
     abbreviation: abbr,
     alternateNames: altList,
-    whatIsThis: `A ${test.name} is a medical laboratory test that ${test.description?.toLowerCase() || `helps evaluate ${test.category.toLowerCase()} health.`}`,
-    whyTake: [
-      `To screen for ${test.category.toLowerCase()}-related conditions`,
-      test.fasting_required ? 'As part of a routine health checkup' : 'To monitor existing health conditions',
-      `When recommended by your doctor based on symptoms or risk factors`,
-      'For preventive healthcare and early detection',
-    ],
-    whoShouldTake: [
-      `Anyone looking for routine ${test.category.toLowerCase()} screening`,
-      `People with family history of ${test.category.toLowerCase()} disorders`,
-      `Individuals experiencing symptoms related to ${test.category.toLowerCase()} health`,
-      `Those on medication that requires ${test.category.toLowerCase()} monitoring`,
-      'As part of annual preventive health checkups',
-    ],
+    whatIsThis: whatIs,
+    whoShouldTake: generateWhoShouldTake(test),
     parameters: params,
     preparation: test.preparation_instructions || 'No special preparation required.',
     fastingRequired: test.fasting_required,
+    duration: getDuration(test),
     sampleProcess: [
-      'A trained phlebotomist visits your home at the scheduled time',
-      'A small blood sample is drawn from your arm vein using sterile equipment',
-      'The sample is safely transported to our NABL-certified lab',
-      'Advanced analyzers process the sample for accurate results',
-      'Results are digitally verified before release',
+      'A trained phlebotomist visits your home at your preferred time slot',
+      'A small blood sample is drawn from your arm vein using sterile, single-use equipment',
+      'The collection process takes just 5-10 minutes',
+      'The sample is safely transported to our NABL-certified lab in temperature-controlled conditions',
+      'Advanced automated analyzers process the sample with rigorous quality control',
+      'Results are reviewed by qualified lab professionals before digital release',
     ],
     reportTime: test.report_time || '24-48 hours',
     reportDelivery: 'Reports are delivered via WhatsApp, Email, and the Jeevan HealthCare mobile app. You can also download PDF reports from your account dashboard.',
@@ -95,20 +156,15 @@ export function getTestEducation(test) {
       'Results should always be interpreted by a qualified healthcare provider',
       'Single abnormal values do not necessarily mean disease — clinical context matters',
       'Your doctor may recommend follow-up tests for confirmation',
+      'Results can change over time based on lifestyle, medication, and health status',
     ],
     accuracy: 'All tests are processed at NABL-certified laboratories using automated analyzers with rigorous quality control protocols. Results are reviewed by qualified lab professionals before release.',
-    frequency: test.category === 'Full Body' ? 'Annually as part of preventive health checkup, or as recommended by your doctor based on your health status and risk factors.'
-      : test.fasting_required ? 'As recommended by your doctor. Typically annually for screening or more frequently for monitoring known conditions.'
-      : 'As needed based on symptoms, doctor recommendation, or routine health monitoring. Annual testing is recommended for preventive care.',
-    safety: [
-      'The test is completely safe with minimal discomfort',
-      'Only sterile, single-use equipment is used for blood collection',
-      'Our phlebotomists are trained and experienced professionals',
-      'Safe for all age groups including elderly and children',
-      'No radiation exposure or significant side effects',
-    ],
-    cost: `\u20B9${test.offerPrice || test.price}`,
-    faqs: generateFaqs(test, abbr),
+    frequency: generateFrequency(test),
+    safety: generateSafety(test),
+    cost: cost,
+    customization: customization,
+    postTestGuidance: guidance,
+    faqs: generateFaqsFull(test, abbr, whatIs, cost, customization),
   };
 }
 
@@ -118,7 +174,7 @@ function generateAltNames(test) {
   if (test.category) names.push(`${test.category} Evaluation Test`);
   if (test.subcategory) names.push(`${test.subcategory} Screening Test`);
   names.push(`${base} Lab Test`);
-  names.push(`Serum ${base} Test`);
+  if (!base.toLowerCase().includes('serum')) names.push(`Serum ${base} Test`);
   return [...new Set(names)].slice(0, 4);
 }
 
@@ -133,21 +189,68 @@ function generateParams(test) {
   return [`${cat} Parameters`, 'Related Health Markers'];
 }
 
-function generateFaqs(test, abbr) {
+function generateWhoShouldTake(test) {
+  const cat = test.category?.toLowerCase() || 'health';
+  return [
+    `Anyone looking for routine ${cat} screening as part of preventive healthcare`,
+    `People with family history of ${cat} disorders`,
+    `Individuals experiencing symptoms like fatigue, weakness, or discomfort related to ${cat}`,
+    `Those on medication that requires ${cat} function monitoring`,
+    `Adults and seniors as part of annual health checkups (suitable for children when recommended by a doctor)`,
+    `Doctors commonly recommend this test for regular health assessment`,
+  ];
+}
+
+function generateFrequency(test) {
+  if (test.category === 'Full Body') return 'Annually as part of your preventive health checkup. Your doctor may recommend more frequent testing based on your health status and risk factors.';
+  if (test.category === 'Diabetes') return 'Every 3-6 months for diabetic patients to monitor blood sugar control. Annually for screening if you have risk factors like obesity or family history.';
+  if (test.category === 'Cardiac') return 'Annually for adults over 30, or more frequently if you have heart disease risk factors like high BP, diabetes, or smoking.';
+  if (test.category === 'Thyroid') return 'Annually for routine screening. Every 6-12 months if you are on thyroid medication to monitor dosage effectiveness.';
+  if (test.fasting_required) return 'As recommended by your doctor. Typically annually for screening or more frequently for monitoring known conditions.';
+  return 'As needed based on symptoms, doctor recommendation, or routine health monitoring. Annual testing is recommended for preventive care.';
+}
+
+function generateSafety(test) {
+  return [
+    'The test is completely safe with minimal discomfort — just a quick prick sensation',
+    'Only sterile, single-use equipment is used for blood collection, eliminating infection risk',
+    'Our phlebotomists are trained, experienced professionals following strict hygiene protocols',
+    'Safe for all age groups including elderly, children, and pregnant women',
+    'No radiation exposure, no significant side effects, and no recovery time needed',
+    'You can resume normal activities immediately after sample collection',
+  ];
+}
+
+function generateFaqsFull(test, abbr, whatIs, cost, customization) {
   const n = test.name;
   const a = abbr || n;
+  const cat = test.category?.toLowerCase() || 'health';
   return [
-    { q: `What is ${n}?`, a: `${n} is a diagnostic test that ${test.description?.toLowerCase() || `helps evaluate ${test.category?.toLowerCase() || 'health'} status.`} It measures key health markers to provide insights into your body's functioning.` },
-    { q: `Why is ${n} done?`, a: `This test is done to screen for, diagnose, or monitor ${test.category?.toLowerCase() || 'health'} conditions. It helps doctors make informed decisions about your treatment and preventive care.` },
-    { q: `Who should take ${n}?`, a: `Anyone with symptoms related to ${test.category?.toLowerCase() || 'health'} issues, those with family history, or anyone wanting a routine health assessment. Your doctor may also recommend this test based on your health profile.` },
-    { q: `Do I need fasting before ${n}?`, a: test.fasting_required ? `Yes, fasting is recommended. ${test.preparation_instructions || 'Fasting for 8-10 hours is required. Water is allowed.'}` : `No, fasting is not required for this test. ${test.preparation_instructions || 'You can take the test at any time of day.'}` },
-    { q: `How is ${n} performed?`, a: 'A blood sample is collected by a trained phlebotomist from a vein in your arm. The process takes about 5 minutes and is performed at your home for your convenience.' },
-    { q: `Is ${n} safe?`, a: 'Yes, this test is completely safe. Only sterile, single-use equipment is used, and our phlebotomists follow strict hygiene protocols.' },
-    { q: `How long does it take to get ${a} results?`, a: `Reports are typically delivered within ${test.report_time || '24-48 hours'} via WhatsApp, Email, and our mobile app. Some tests may take longer depending on complexity.` },
-    { q: `What is the price of ${n}?`, a: `The ${n} costs \u20B9${test.offerPrice || test.price}. Home sample collection is free, and there are no hidden charges.` },
-    { q: `Can ${n} be done at home?`, a: 'Yes, home sample collection is completely free. A trained phlebotomist will visit your home at your preferred time slot.' },
-    { q: `How often should I take ${n}?`, a: test.category === 'Full Body' ? 'Annually as part of your preventive health checkup, or as recommended by your doctor.' : 'As recommended by your healthcare provider based on your age, risk factors, and health status.' },
-    { q: `What do ${a} results mean?`, a: 'Normal results indicate your parameters are within healthy range. Abnormal results may require follow-up with a doctor for proper interpretation and action plan.' },
-    { q: `Is ${a} covered by health insurance?`, a: 'Many health insurance plans cover diagnostic tests. Please check with your insurance provider for coverage details and any applicable co-pay or deductible.' },
+    { q: `What is ${n}?`, a: `${n} is a diagnostic test that ${test.description?.toLowerCase() || `helps evaluate ${cat} health.`} It measures key health markers to provide insights into your body's functioning.` },
+    { q: `Why is ${n} done?`, a: whatIs.whyDone.join(' It is also done ') + '.' },
+    { q: `Who should take ${n}?`, a: `Anyone with ${cat} health concerns, those with family history of ${cat} disorders, individuals experiencing related symptoms, or anyone wanting a routine health assessment. Doctors often recommend this test as part of regular checkups.` },
+    { q: `What does ${n} check?`, a: `This test measures ${cat === 'hematology' ? 'hemoglobin, WBC, RBC, platelets, and other blood cell parameters' : cat === 'diabetes' ? 'blood glucose levels and glycated hemoglobin (HbA1c)' : cat === 'thyroid' ? 'TSH, T3, and T4 hormone levels' : cat === 'cardiac' ? 'cholesterol, triglycerides, and cardiac risk markers' : cat === 'full body' ? 'multiple organ function markers including liver, kidney, blood, and metabolic parameters' : 'key markers related to ' + cat + ' health'} to give a comprehensive picture of your health.` },
+    { q: `Do I need fasting before ${n}?`, a: test.fasting_required ? `Yes, fasting is required. ${test.preparation_instructions || 'Fasting for 8-10 hours is recommended. Water is allowed during fasting.'} Please avoid food, tea, coffee, and smoking during the fasting period.` : `No, fasting is not required for this test. ${test.preparation_instructions || 'You can take the test at any time of day. However, follow any specific instructions provided by your doctor.'}` },
+    { q: `Can I drink water before ${n}?`, a: test.fasting_required ? 'Yes, plain drinking water is allowed and encouraged during fasting. Avoid sweetened drinks, tea, coffee, and milk.' : 'Yes, you can drink water normally before this test.' },
+    { q: `Can I take medicines before ${n}?`, a: 'Continue your regular medications unless your doctor specifically advises otherwise. Inform the lab about any medications you are taking as some may affect test results.' },
+    { q: `How is ${n} performed?`, a: 'A blood sample is collected by a trained phlebotomist from a vein in your arm using a sterile needle. The process takes about 5 minutes and is performed at your home for your convenience and comfort.' },
+    { q: `Is ${n} painful?`, a: 'You may feel a mild pinch or prick when the needle is inserted, but the discomfort is minimal and lasts only a few seconds. Most patients find it very tolerable.' },
+    { q: `How long does the ${a} test take?`, a: `The blood collection process takes about ${getDuration(test)}. The entire home visit is typically completed within 15-20 minutes from arrival to departure.` },
+    { q: `Can ${n} be done at home?`, a: 'Yes, absolutely. Home sample collection is completely free. A trained phlebotomist will visit your home at your preferred time slot. You can choose morning, afternoon, or evening collection.' },
+    { q: `How long for ${a} results?`, a: `Reports are typically delivered within ${test.report_time || '24-48 hours'} via WhatsApp, Email, and our mobile app. Some specialized tests may take longer depending on complexity.` },
+    { q: `How will I receive ${a} reports?`, a: 'Reports are delivered through multiple channels — WhatsApp message, Email, and the Jeevan HealthCare mobile app. You can also download PDF copies from your account dashboard anytime.' },
+    { q: `What do ${a} results mean?`, a: 'Normal results indicate your parameters are within the healthy reference range. Abnormal results may indicate the need for further evaluation by a doctor. Always consult a healthcare provider for proper interpretation.' },
+    { q: `What if ${a} values are high or low?`, a: 'Abnormal values do not always mean disease. Results can be affected by diet, medications, stress, and other factors. Your doctor will consider your clinical history along with lab results for an accurate assessment.' },
+    { q: `Should I consult a doctor after ${a} results?`, a: 'Yes, it is recommended to share your report with a doctor for professional interpretation. Jeevan HealthCare offers free doctor consultation with every test to help you understand your results.' },
+    { q: `How accurate is ${n}?`, a: 'All tests are processed at NABL-certified laboratories using automated analyzers with strict quality control. Results are reviewed by qualified lab professionals, ensuring high accuracy and reliability.' },
+    { q: `Is ${n} safe for elderly or pregnant women?`, a: 'Yes, this test is safe for all age groups including elderly, pregnant women, and children. Our phlebotomists are trained to handle all patient types with care and sensitivity.' },
+    { q: `How often should I take ${n}?`, a: generateFrequency(test) },
+    { q: `Can ${n} be combined with other tests?`, a: customization.canCombine },
+    { q: `What is the price of ${n}?`, a: `The ${n} costs ${cost.price}. Home sample collection is free with no hidden charges. We offer competitive pricing by partnering directly with NABL-certified labs.` },
+    { q: `Is home collection free for ${n}?`, a: 'Yes, home sample collection is completely free across Hyderabad and surrounding areas. A trained phlebotomist will visit your home at your scheduled time.' },
+    { q: `What payment methods are available?`, a: 'You can pay at collection (cash or card) at the time of sample collection, or pay online via UPI, Net Banking, or Credit/Debit Card during booking.' },
+    { q: `What should I do after receiving ${a} report?`, a: 'Review your report, share it with your doctor for interpretation, and follow their recommendations. Maintain a healthy lifestyle. If values are abnormal, schedule a follow-up as advised.' },
+    { q: `Will I get doctor consultation after ${n}?`, a: 'Yes, Jeevan HealthCare provides free doctor consultation with every test to help you understand your results and guide you on next steps.' },
+    { q: `Can lifestyle changes improve ${a} results?`, a: 'Yes, many health parameters can be improved through balanced diet, regular exercise, adequate sleep, stress management, and medication adherence as prescribed by your doctor.' },
   ];
 }
