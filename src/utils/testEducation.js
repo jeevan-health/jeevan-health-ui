@@ -3,6 +3,8 @@ const homeCollection = 'Yes, our trained phlebotomist visits your home at your s
 
 const categoryPatterns = {
   Hematology: {
+    gender: 'Men & Women',
+    age: 'All age groups — from infants to elderly',
     whatIs: t => `${t.name || 'This test'} evaluates key components of your blood including red blood cells, white blood cells, hemoglobin, and platelets to assess overall blood health.`,
     whyDone: t => `To screen for anaemia, infection, clotting disorders, and other blood-related conditions. It's one of the most commonly ordered routine tests.`,
     whoNeeds: ['Anyone during a routine health checkup', 'People experiencing fatigue, weakness, or paleness', 'Pre-surgery assessment', 'Patients on medications that affect blood counts', 'Monitoring chronic conditions like kidney disease'],
@@ -11,6 +13,8 @@ const categoryPatterns = {
     diseasesDetected: ['Anaemia (iron deficiency, B12 deficiency)', 'Infections (bacterial/viral)', 'Leukemia and blood cancers', 'Clotting disorders', 'Thalassemia trait'],
   },
   Diabetes: {
+    gender: 'Men & Women (Gestational variants for pregnant women)',
+    age: 'Adults 35+ for screening; all ages if symptomatic or at risk',
     whatIs: t => `${t.name || 'This test'} measures your blood sugar levels to evaluate how well your body processes glucose and to screen for diabetes.`,
     whyDone: t => `To diagnose diabetes or prediabetes, monitor blood sugar control, and prevent complications like nerve damage, kidney disease, and heart problems.`,
     whoNeeds: ['Anyone 35+ years old (routine screening)', 'Overweight or obese individuals', 'Family history of diabetes', 'Women with PCOS or gestational diabetes history', 'Known diabetic patients for monitoring'],
@@ -25,6 +29,8 @@ const categoryPatterns = {
     diseasesDetected: ['Type 1 Diabetes', 'Type 2 Diabetes', 'Prediabetes', 'Gestational Diabetes', 'Insulin Resistance'],
   },
   Thyroid: {
+    gender: 'Women more commonly affected; recommended for both genders',
+    age: 'Adults 18+ for routine screening; all ages if symptomatic',
     whatIs: t => `${t.name || 'This test'} measures thyroid hormone levels in your blood to evaluate how well your thyroid gland is functioning.`,
     whyDone: t => `To screen for thyroid disorders like hypothyroidism (underactive thyroid), hyperthyroidism (overactive thyroid), and autoimmune thyroid conditions.`,
     whoNeeds: ['Anyone with unexplained weight changes, fatigue, or mood swings', 'Women planning pregnancy or postpartum', 'People with family history of thyroid disease', 'Patients on thyroid medication for dose monitoring', 'Annual health checkups (especially women)'],
@@ -40,6 +46,8 @@ const categoryPatterns = {
     diseasesDetected: ['Hypothyroidism (low thyroid function)', 'Hyperthyroidism (excess thyroid function)', 'Hashimoto\'s thyroiditis (autoimmune)', 'Graves\' disease', 'Thyroid nodules / goiter'],
   },
   Cardiac: {
+    gender: 'Men & Women',
+    age: 'Adults 30+ for baseline screening; earlier if risk factors present',
     whatIs: t => `${t.name || 'This test'} evaluates your heart health and cardiovascular risk by measuring key markers in your blood.`,
     whyDone: t => `To assess your risk of heart disease, stroke, and other cardiovascular conditions by measuring cholesterol, triglycerides, and other cardiac markers.`,
     whoNeeds: ['Anyone 30+ years for baseline screening', 'Family history of heart disease', 'High BP, diabetes, or obesity', 'Smokers and sedentary individuals', 'Known heart patients for monitoring'],
@@ -59,6 +67,8 @@ const categoryPatterns = {
     diseasesDetected: ['High cholesterol / hyperlipidemia', 'Coronary artery disease', 'Heart attack risk', 'Heart failure', 'Atherosclerosis'],
   },
   Liver: {
+    gender: 'Men & Women',
+    age: 'Adults 18+; children if clinically indicated',
     whatIs: t => `${t.name || 'This test'} assesses your liver function by measuring enzymes, proteins, and other substances produced or processed by the liver.`,
     whyDone: t => `To screen for liver damage, hepatitis, fatty liver, and monitor liver function in patients on certain medications or with liver conditions.`,
     whoNeeds: ['People with jaundice or yellowing of skin/eyes', 'Heavy alcohol consumers', 'Patients on medications that affect the liver', 'Those with fatty liver or hepatitis', 'Annual health checkup'],
@@ -75,6 +85,8 @@ const categoryPatterns = {
     diseasesDetected: ['Hepatitis (viral/alcoholic)', 'Fatty liver disease (NAFLD)', 'Cirrhosis (liver scarring)', 'Bile duct obstruction', 'Liver cancer'],
   },
   Kidney: {
+    gender: 'Men & Women',
+    age: 'Adults 18+; earlier if diabetic or hypertensive',
     whatIs: t => `${t.name || 'This test'} evaluates how well your kidneys are filtering waste products from your blood and maintaining electrolyte balance.`,
     whyDone: t => `To screen for kidney disease, monitor known kidney conditions, and check for complications of diabetes and high blood pressure that affect the kidneys.`,
     whoNeeds: ['Diabetic patients (annual screening)', 'Hypertension patients', 'Family history of kidney disease', 'Patients on medications affecting kidneys', 'Routine health checkup'],
@@ -91,6 +103,8 @@ const categoryPatterns = {
     diseasesDetected: ['Chronic Kidney Disease (CKD)', 'Acute Kidney Injury (AKI)', 'Diabetic nephropathy', 'Kidney stones', 'Urinary tract infections'],
   },
   Anemia: {
+    gender: 'Women more commonly affected (menstruation/pregnancy); both genders',
+    age: 'All age groups — children, adults, and elderly',
     whatIs: t => `${t.name || 'This test'} evaluates iron levels and other markers related to red blood cell production and oxygen-carrying capacity.`,
     whyDone: t => `To diagnose different types of anaemia (iron deficiency, B12 deficiency, etc.) and identify the root cause of fatigue, paleness, or weakness.`,
     whoNeeds: ['People with chronic fatigue or weakness', 'Women with heavy menstrual bleeding', 'Pregnant women', 'Vegetarians/vegans (B12/Folate risk)', 'Those with paleness, breathlessness, or dizziness'],
@@ -108,6 +122,8 @@ const categoryPatterns = {
     diseasesDetected: ['Iron Deficiency Anaemia', 'Vitamin B12 Deficiency Anaemia', 'Folate Deficiency Anaemia', 'Anaemia of Chronic Disease', 'Hemolytic Anaemia', 'Thalassemia trait'],
   },
   Vitamins: {
+    gender: 'Men & Women',
+    age: 'All age groups; older adults and vegans at higher risk',
     whatIs: t => `${t.name || 'This test'} measures your vitamin levels to detect deficiencies or excesses that can affect your overall health.`,
     whyDone: t => `To check for vitamin deficiencies that can cause fatigue, bone problems, nerve issues, and weakened immunity.`,
     whoNeeds: ['People with chronic fatigue', 'Vegans and vegetarians (B12 risk)', 'Older adults (Vitamin D/B12)', 'Those with limited sun exposure (D)', 'People with bone pain or fractures', 'Digestive disorders affecting absorption'],
@@ -125,6 +141,8 @@ const categoryPatterns = {
     diseasesDetected: ['Vitamin D deficiency / insufficiency', 'Vitamin B12 deficiency', 'Folate deficiency', 'Vitamin A deficiency', 'Vitamin E deficiency'],
   },
   Hormones: {
+    gender: 'Varies by hormone — some are gender-specific (FSH/LH/Estradiol for women, Testosterone for men), others for both',
+    age: 'Adults 18+; reproductive hormones relevant during reproductive years',
     whatIs: t => `${t.name || 'This test'} measures hormone levels in your blood to evaluate your endocrine (gland) system function.`,
     whyDone: t => `To diagnose hormonal imbalances that can affect metabolism, reproduction, growth, mood, and overall health.`,
     whoNeeds: ['People with unexplained weight changes', 'Women with irregular periods or PCOS', 'Men with low libido or erectile dysfunction', 'Anyone with infertility concerns', 'People with fatigue, mood swings, or sleep issues'],
@@ -153,6 +171,8 @@ const categoryPatterns = {
     diseasesDetected: ['Hypogonadism (low sex hormones)', 'PCOS (hormonal imbalance)', 'Adrenal insufficiency', 'Pituitary disorders', 'Menopause related hormonal changes'],
   },
   Fever: {
+    gender: 'Men & Women',
+    age: 'All age groups — infants to elderly',
     whatIs: t => `${t.name || 'This test'} helps identify the cause of your fever by detecting specific pathogens (viruses, bacteria, or parasites) in your blood.`,
     whyDone: t => `To diagnose the underlying infection causing fever, enabling targeted treatment rather than broad-spectrum antibiotics.`,
     whoNeeds: ['Anyone with persistent or high-grade fever', 'Fever with chills, body ache, or headache', 'Fever lasting more than 3 days', 'Suspected dengue, malaria, typhoid based on symptoms', 'Fever with travel history to endemic areas'],
@@ -184,6 +204,8 @@ const categoryPatterns = {
     diseasesDetected: ['Dengue Fever', 'Malaria', 'Typhoid Fever', 'Chikungunya', 'Leptospirosis', 'Scrub Typhus', 'Tuberculosis (TB)', 'Epstein-Barr Virus', 'Bacterial vs Viral infections'],
   },
   STD: {
+    gender: 'Men & Women (pregnant women should also be screened)',
+    age: 'Sexually active individuals of any age; all pregnant women',
     whatIs: t => `${t.name || 'This test'} screens for sexually transmitted infections (STIs) by detecting specific markers in your blood or other samples.`,
     whyDone: t => `To detect STIs early, prevent complications, protect your partner, and receive appropriate treatment. Many STIs can be asymptomatic.`,
     whoNeeds: ['Sexually active individuals (routine screening)', 'People with multiple partners', 'Pregnant women (to prevent mother-to-child transmission)', 'People with symptoms like discharge, sores, or pain', 'Needle-sharing or blood exposure history'],
@@ -198,6 +220,8 @@ const categoryPatterns = {
     diseasesDetected: ['HIV/AIDS', 'Hepatitis B', 'Hepatitis C', 'Syphilis'],
   },
   Pregnancy: {
+    gender: 'Primarily women (pregnancy/fertility); men for semen analysis',
+    age: 'Women of reproductive age (18-45); men for fertility any age',
     whatIs: t => `${t.name || 'This test'} is related to pregnancy monitoring, fertility assessment, or prenatal screening.`,
     whyDone: t => `To confirm pregnancy, monitor foetal health, screen for genetic conditions, assess fertility, and ensure a healthy pregnancy.`,
     whoNeeds: ['Women trying to conceive', 'Pregnant women (routine prenatal care)', 'Women with fertility concerns', 'Couples with family history of genetic disorders'],
@@ -216,6 +240,8 @@ const categoryPatterns = {
     diseasesDetected: ['Pregnancy confirmation', 'Ectopic pregnancy', 'Down syndrome / Trisomy 21', 'Neural tube defects', 'Fertility disorders'],
   },
   Cancer: {
+    gender: 'Varies by cancer type — some gender-specific (PSA for men, CA-125/HE4/PAP for women), others for both',
+    age: 'Adults 40+ for routine screening; earlier if family history or symptoms',
     whatIs: t => `${t.name || 'This test'} screens for or monitors cancer by measuring specific tumour markers or detecting abnormal cells in the body.`,
     whyDone: t => `For early cancer detection, monitoring treatment response, checking for recurrence, and screening high-risk individuals.`,
     whoNeeds: ['People with family history of cancer', 'Age-appropriate screening (e.g., PAP for cervical cancer)', 'Known cancer patients for treatment monitoring', 'People with suspicious symptoms or lumps', 'Annual health checkup packages'],
@@ -243,6 +269,8 @@ const categoryPatterns = {
     diseasesDetected: ['Ovarian Cancer (CA-125, HE4)', 'Prostate Cancer (PSA)', 'Cervical Cancer (PAP Smear)', 'Pancreatic Cancer (CA 19-9)', 'Breast Cancer (CA 15-3)', 'Lung Cancer (NSE, Cyfra 21-1, SCC)', 'Liver Cancer (AFP)', 'Colorectal Cancer (FOBT/FIT)'],
   },
   Arthritis: {
+    gender: 'Affects both genders; some conditions more common in women (lupus, RA)',
+    age: 'Adults 18+; all ages if symptoms present',
     whatIs: t => `${t.name || 'This test'} helps diagnose and monitor autoimmune and inflammatory conditions affecting the joints and connective tissues.`,
     whyDone: t => `To differentiate between types of arthritis (rheumatoid vs osteoarthritis), detect autoimmune diseases, and monitor treatment response.`,
     whoNeeds: ['People with joint pain, stiffness, or swelling', 'Morning stiffness lasting more than 30 minutes', 'Family history of autoimmune disease', 'Unexplained inflammation or fever', 'Skin rashes with joint pain (lupus suspicion)'],
@@ -268,6 +296,8 @@ const categoryPatterns = {
     diseasesDetected: ['Rheumatoid Arthritis', 'Gout', 'Systemic Lupus Erythematosus (Lupus)', 'Ankylosing Spondylitis', 'Sjogren Syndrome', 'Scleroderma / Systemic Sclerosis', 'Vasculitis', 'Antiphospholipid Syndrome'],
   },
   Allergy: {
+    gender: 'Men & Women',
+    age: 'All age groups — can start in childhood',
     whatIs: t => `${t.name || 'This test'} identifies what substances (allergens) you may be allergic to by measuring your immune system's response.`,
     whyDone: t => `To identify specific triggers causing allergic reactions like sneezing, rashes, breathing difficulty, or digestive issues, enabling targeted avoidance and treatment.`,
     whoNeeds: ['People with seasonal allergies (pollen, dust)', 'Those with unexplained rashes or hives', 'Food allergy suspicions (after certain meals)', 'Asthma or eczema patients', 'Recurrent sinusitis or respiratory issues'],
@@ -282,6 +312,8 @@ const categoryPatterns = {
     diseasesDetected: ['Seasonal Allergies (hay fever)', 'Food Allergies', 'Dust Mite Allergy', 'Pet Dander Allergy', 'Contact Dermatitis'],
   },
   FullBody: {
+    gender: 'Men & Women',
+    age: 'Adults 18+; annual screening recommended for 40+',
     whatIs: t => `${t.name || 'This test'} is a comprehensive assessment that evaluates multiple organ systems and overall health markers.`,
     whyDone: t => `For a complete health checkup, screening for hidden conditions, establishing baseline values, and identifying risk factors early.`,
     whoNeeds: ['Annual health checkup seekers', 'Pre-employment or insurance medicals', 'People 40+ for preventive screening', 'Those with multiple health concerns', 'Baseline assessment before starting new medications'],
@@ -326,6 +358,8 @@ const getCategoryInfo = (test) => {
     if (name.toLowerCase().includes(key.toLowerCase())) return val;
   }
   return {
+    gender: 'Men & Women',
+    age: 'As recommended by your doctor',
     whatIs: () => `${name || 'This test'} measures specific markers in your body to help evaluate your health and detect potential issues.`,
     whyDone: () => `To screen for, diagnose, or monitor health conditions based on the specific markers measured by ${name || 'this test'}.`,
     whoNeeds: ['Recommended by your doctor based on your symptoms, age, risk factors, or medical history', 'Part of routine health checkups or specific diagnostic evaluation', 'Individuals with relevant family history or lifestyle risk factors'],
@@ -392,7 +426,8 @@ export function getTestEducation(test) {
       color: '#2e7d32',
       items: [
         { q: 'Who needs this test?', a: info.whoNeeds.map((w, i) => `${i + 1}. ${w}`).join('\n') },
-        { q: 'Is this test for adults, children, or elderly?', a: info.whoNeeds.some(w => /child|pediatric/i.test(w)) ? 'Suitable for all age groups including children and elderly.' : 'Primarily for adults and elderly. Consult your doctor if this test is needed for children.' },
+        { q: 'Is this test suitable for men or women?', a: info.gender || 'Men & Women' },
+        { q: 'Which age groups should take this test?', a: info.age || 'As recommended by your doctor — consult your doctor for age-specific guidance.' },
         { q: 'Can healthy people take this test for screening?', a: info.whoNeeds.some(w => /routine|annual|health checkup|screening/i.test(w)) ? 'Yes, this test is suitable for preventive health screening.' : 'Yes, but mainly recommended if you have specific risk factors or symptoms.' },
         { q: 'How often should this test be done?', a: getFrequency() },
       ]
