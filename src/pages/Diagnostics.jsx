@@ -93,6 +93,7 @@ export default function Diagnostics() {
   const [faqOpen, setFaqOpen] = useState({});
   const [packagesByAxis, setPackagesByAxis] = useState({});
   const [packageSearch, setPackageSearch] = useState('');
+  const [showPackageSuggestions, setShowPackageSuggestions] = useState(false);
   const packagesRef = useRef(null);
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
 
@@ -808,6 +809,16 @@ const seedTests = [
     load();
   };
 
+  const allPackagesList = Object.values(packagesByAxis).flat();
+  const packageSuggestions = packageSearch.trim()
+    ? allPackagesList.filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase()) || p.desc?.toLowerCase().includes(packageSearch.toLowerCase())).slice(0, 8)
+    : [];
+
+  const handlePackageSuggestionClick = (pkg) => {
+    setPackageSearch(pkg.name);
+    setShowPackageSuggestions(false);
+  };
+
   const addToCart = (test) => {
     setCart(prev => {
       if (prev.find(i => i.id === test.id)) return prev;
@@ -1475,17 +1486,61 @@ const seedTests = [
                 </div>
                 {/* Package search */}
                 <div style={{ marginBottom: 16, position: 'relative' }}>
-                  <MagnifyingGlass size={18} color="#aaa" style={{ position: 'absolute', left: 14, top: 12 }} />
+                  <MagnifyingGlass size={18} color="#aaa" style={{ position: 'absolute', left: 14, top: 12, zIndex: 1 }} />
                   <input type="text" placeholder="Search packages by name or category..."
-                    value={packageSearch} onChange={e => setPackageSearch(e.target.value)}
+                    value={packageSearch}
+                    onChange={e => { setPackageSearch(e.target.value); setShowPackageSuggestions(true); }}
+                    onFocus={e => { e.target.style.borderColor = '#22C55E'; setShowPackageSuggestions(true); }}
+                    onBlur={e => { e.target.style.borderColor = 'var(--border)'; setTimeout(() => setShowPackageSuggestions(false), 200); }}
                     style={{
                       width: '100%', padding: '10px 14px 10px 40px', borderRadius: 10,
                       border: '1px solid var(--border)', fontSize: 14, fontFamily: 'inherit',
                       outline: 'none', boxSizing: 'border-box',
                       transition: 'border-color 0.2s',
-                    }}
-                    onFocus={e => e.target.style.borderColor = '#22C55E'}
-                    onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+                    }} />
+                  {showPackageSuggestions && (
+                    <div style={{
+                      position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+                      background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                      border: '1px solid #e8edf2', overflow: 'hidden', zIndex: 999, textAlign: 'left',
+                    }}>
+                      {packageSearch.trim() && packageSuggestions.length > 0 ? (
+                        packageSuggestions.map(pkg => (
+                          <button key={pkg.slug} onMouseDown={() => handlePackageSuggestionClick(pkg)}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '11px 16px',
+                              border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit',
+                              borderBottom: '1px solid #f5f5f5', transition: 'background 0.1s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                            <Gift size={16} color="#22C55E" />
+                            <div style={{ textAlign: 'left', flex: 1 }}>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>{pkg.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{pkg.testCount} tests • ₹{pkg.bundlePrice?.toLocaleString()}</div>
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: '#fff', background: 'linear-gradient(135deg, #22C55E, #16a34a)', padding: '2px 8px', borderRadius: 4 }}>{pkg.discountPct}% off</span>
+                          </button>
+                        ))
+                      ) : !packageSearch.trim() ? (
+                        <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--text-light)' }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Popular Categories</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            {['Full Body', 'Heart', 'Diabetes', 'Thyroid', 'Vitamin', 'Liver', 'Kidney'].map(cat => (
+                              <button key={cat} onMouseDown={() => { setPackageSearch(cat); }}
+                                style={{ padding: '5px 12px', borderRadius: 16, fontSize: 12, fontWeight: 500, background: '#e8f5e9', color: '#2e7d32', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ padding: '16px 18px', fontSize: 13, color: 'var(--text-light)', textAlign: 'center' }}>
+                          No packages match "<strong>{packageSearch}</strong>"
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Package cards — all 117 by axis */}
