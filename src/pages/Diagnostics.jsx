@@ -9,6 +9,7 @@ import {
 import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
 import { getFamilyMembers } from '../services/authService';
+import { searchTests, placeDiagnosticOrder } from '../services/diagnosticsService';
 
 const categoryList = [
   { name: 'Full Body', icon: User, color: '#0F5DA8' },
@@ -146,6 +147,39 @@ export default function Diagnostics() {
     'Kidney Function Test (KFT)': { name: 'Organ Health Pack', saveLabel: 'Save ₹301', tests: ['Liver Function Test (LFT)', 'Lipid Profile'], comboPrice: 1499 },
   };
 
+  const seedTests = [
+    { id: 1, name: 'Complete Blood Count (CBC)', category: 'Hematology', subcategory: 'Complete Blood Count', price: 399, description: 'Measures red blood cells, white blood cells, hemoglobin, platelets, and more to assess overall health.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 2, name: 'HbA1c', category: 'Diabetes', subcategory: 'Diabetes', price: 599, description: 'Measures average blood sugar levels over the past 2-3 months to monitor diabetes control.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required. Continue regular medication.' },
+    { id: 3, name: 'Thyroid Profile (T3, T4, TSH)', category: 'Thyroid', subcategory: 'Thyroid Profile', price: 499, description: 'Evaluates thyroid gland function by measuring T3, T4, and TSH hormone levels.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8-10 hours recommended.' },
+    { id: 4, name: 'Lipid Profile', category: 'Cardiac', subcategory: 'Lipid Profile', price: 449, description: 'Measures cholesterol, HDL, LDL, and triglycerides to assess heart disease risk.', fasting_required: true, report_time: '12 hrs', preparation_instructions: 'Fasting for 9-12 hours required. Water is allowed.' },
+    { id: 5, name: 'Vitamin D Total', category: 'Vitamins', subcategory: 'Vitamin D', price: 799, description: 'Measures 25-hydroxyvitamin D levels to assess vitamin D deficiency or excess.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required.' },
+    { id: 6, name: 'Blood Sugar (Fasting)', category: 'Diabetes', subcategory: 'Diabetes', price: 199, description: 'Measures blood glucose levels after an overnight fast to screen for diabetes.', fasting_required: true, report_time: '6 hrs', preparation_instructions: 'Fasting for 8-12 hours required. Only water permitted.' },
+    { id: 7, name: 'Liver Function Test (LFT)', category: 'Full Body', subcategory: 'Liver Function', price: 549, description: 'Measures enzymes, proteins, and bilirubin to evaluate liver health and function.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8-10 hours recommended.' },
+    { id: 8, name: 'Kidney Function Test (KFT)', category: 'Full Body', subcategory: 'Kidney Function', price: 499, description: 'Measures creatinine, BUN, uric acid, and electrolytes to assess kidney function.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8 hours recommended.' },
+    { id: 9, name: 'Iron Studies', category: 'Anemia', subcategory: 'Iron Studies', price: 699, description: 'Measures serum iron, ferritin, TIBC, and transferrin saturation to evaluate iron status.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 10-12 hours required.' },
+    { id: 10, name: 'Vitamin B12', category: 'Vitamins', subcategory: 'Vitamin B12', price: 699, description: 'Measures vitamin B12 levels to detect deficiency causing anemia or neurological issues.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required.' },
+    { id: 11, name: 'TSH', category: 'Thyroid', subcategory: 'Thyroid', price: 349, description: 'Measures thyroid-stimulating hormone as a first-line screening for thyroid disorders.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 12, name: 'Total Cholesterol', category: 'Cardiac', subcategory: 'Lipid Profile', price: 249, description: 'Measures total cholesterol levels as part of heart health assessment.', fasting_required: true, report_time: '12 hrs', preparation_instructions: 'Fasting for 9-12 hours recommended.' },
+    { id: 13, name: 'hs-CRP', category: 'Cardiac', subcategory: 'Cardiac Risk', price: 549, description: 'High-sensitivity C-reactive protein test detects low-level inflammation and heart disease risk.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required.' },
+    { id: 14, name: 'Uric Acid', category: 'Arthritis', subcategory: 'Uric Acid', price: 299, description: 'Measures uric acid levels to diagnose gout and monitor kidney function.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8 hours recommended.' },
+    { id: 15, name: 'Serum Calcium', category: 'Full Body', subcategory: 'Minerals', price: 249, description: 'Measures calcium levels essential for bones, muscles, and nerve function.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required.' },
+    { id: 16, name: 'Dengue NS1 Antigen', category: 'Fever', subcategory: 'Infections', price: 899, description: 'Detects dengue virus antigen in early stages of infection (1-5 days of fever).', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 17, name: 'Malaria Antigen', category: 'Fever', subcategory: 'Infections', price: 499, description: 'Detects malaria parasite antigens in blood for rapid diagnosis.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 18, name: 'Typhoid IgM/IgG', category: 'Fever', subcategory: 'Infections', price: 449, description: 'Detects antibodies against Salmonella typhi for typhoid fever diagnosis.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 19, name: 'Chikungunya IgM', category: 'Fever', subcategory: 'Infections', price: 799, description: 'Detects IgM antibodies against Chikungunya virus for recent infection diagnosis.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 20, name: 'PAP Smear', category: 'Cancer', subcategory: 'Cancer Screening', price: 1499, description: 'Screens for cervical cancer by detecting abnormal cells in the cervix.', fasting_required: false, report_time: '5-7 days', preparation_instructions: 'Avoid intercourse, douching, or vaginal creams for 48 hours before.' },
+    { id: 21, name: 'CA 125', category: 'Cancer', subcategory: 'Tumor Markers', price: 1199, description: 'Tumor marker primarily used to monitor ovarian cancer treatment response.', fasting_required: false, report_time: '48 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 22, name: 'PSA (Prostate Specific Antigen)', category: 'Cancer', subcategory: 'Tumor Markers', price: 999, description: 'Screens for prostate cancer by measuring prostate-specific antigen levels.', fasting_required: false, report_time: '48 hrs', preparation_instructions: 'Avoid ejaculation for 48 hours before the test.' },
+    { id: 23, name: 'Prolactin', category: 'Hormones', subcategory: 'Hormones', price: 599, description: 'Measures prolactin hormone levels to evaluate pituitary function and reproductive health.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8 hours recommended. Avoid stress before collection.' },
+    { id: 24, name: 'Cortisol (Morning)', category: 'Hormones', subcategory: 'Hormones', price: 799, description: 'Measures morning cortisol levels to assess adrenal gland function.', fasting_required: true, report_time: '48 hrs', preparation_instructions: 'Fasting for 8 hours. Sample collected between 6-9 AM.' },
+    { id: 25, name: 'Testosterone (Total)', category: 'Hormones', subcategory: 'Hormones', price: 899, description: 'Measures total testosterone levels for evaluating hypogonadism and hormone health.', fasting_required: true, report_time: '48 hrs', preparation_instructions: 'Fasting for 8 hours. Sample collected before 10 AM.' },
+    { id: 26, name: 'Allergy Panel (Food)', category: 'Allergy', subcategory: 'Allergy', price: 2499, description: 'Tests for IgE antibodies against common food allergens including milk, egg, peanut, wheat, soy.', fasting_required: false, report_time: '5-7 days', preparation_instructions: 'No special preparation required.' },
+    { id: 27, name: 'Allergy Panel (Inhalant)', category: 'Allergy', subcategory: 'Allergy', price: 2799, description: 'Tests for IgE antibodies against common inhaled allergens like pollen, dust, mold, pet dander.', fasting_required: false, report_time: '5-7 days', preparation_instructions: 'No special preparation required.' },
+    { id: 28, name: 'Rheumatoid Factor (RF)', category: 'Arthritis', subcategory: 'Arthritis', price: 499, description: 'Detects rheumatoid factor antibodies to aid in rheumatoid arthritis diagnosis.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 29, name: 'Vitamin B12 & Folate', category: 'Anemia', subcategory: 'Anemia', price: 999, description: 'Measures vitamin B12 and folate levels to identify causes of anemia.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8-10 hours recommended.' },
+    { id: 30, name: 'Pregnancy Test (hCG)', category: 'Pregnancy', subcategory: 'Pregnancy', price: 299, description: 'Detects human chorionic gonadotropin (hCG) for early pregnancy detection.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'Best taken after a missed period. First morning urine preferred.' },
+  ];
+
   const getComboForTest = (test) => {
     if (!test || !comboData[test.name]) return null;
     const combo = comboData[test.name];
@@ -163,8 +197,8 @@ export default function Diagnostics() {
       if (search) params.name = search;
       if (category) params.category = category;
       const { data } = await searchTests(params);
-      setTests(data);
-    } catch {} finally { setLoading(false); }
+      setTests(data && data.length ? data : seedTests);
+    } catch { setTests(seedTests); } finally { setLoading(false); }
   };
 
   useEffect(() => {
