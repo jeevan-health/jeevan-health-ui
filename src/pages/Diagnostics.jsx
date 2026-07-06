@@ -545,7 +545,16 @@ export default function Diagnostics() {
     { id: 395, name: 'Alcohol Biomarkers: PEth (Phosphatidylethanol)', category: 'Full Body', subcategory: 'Toxicology', price: 2999, description: 'Direct alcohol biomarker detecting consumption over past 2-3 weeks with high sensitivity.', fasting_required: false, report_time: '5-7 days', preparation_instructions: 'No special preparation required.' },
     { id: 396, name: 'Alcohol Biomarkers: EtG (Ethyl Glucuronide)', category: 'Full Body', subcategory: 'Toxicology', price: 1999, description: 'Urinary alcohol biomarker detecting consumption over past 3-5 days.', fasting_required: false, report_time: '48 hrs', preparation_instructions: 'Urine sample. Avoid alcohol-based hand sanitizers before collection.' },
     { id: 397, name: 'EtS (Ethyl Sulfate) Urine', category: 'Full Body', subcategory: 'Toxicology', price: 1999, description: 'Confirmatory alcohol biomarker used alongside EtG to rule out false positives.', fasting_required: false, report_time: '48 hrs', preparation_instructions: 'Urine sample.' },
-  ];
+  ].map(t => {
+    let mrp;
+    if (t.price <= 299) mrp = Math.round(t.price * 2.5);
+    else if (t.price <= 599) mrp = Math.round(t.price * 2.2);
+    else if (t.price <= 999) mrp = Math.round(t.price * 2.0);
+    else if (t.price <= 1999) mrp = Math.round(t.price * 1.8);
+    else if (t.price <= 4999) mrp = Math.round(t.price * 1.6);
+    else mrp = Math.round(t.price * 1.4);
+    return { ...t, mrp, offerPrice: t.price };
+  });
 
   const getComboForTest = (test) => {
     if (!test || !comboData[test.name]) return null;
@@ -729,7 +738,7 @@ export default function Diagnostics() {
                       <MagnifyingGlass size={16} color="#0F5DA8" />
                       <div style={{ textAlign: 'left' }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>{t.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{t.category} • ₹{t.price}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{t.category} • ₹{t.offerPrice || t.price} {t.mrp ? <span style={{ textDecoration: 'line-through', marginLeft: 2, color: '#bbb' }}>₹{t.mrp}</span> : null}</div>
                       </div>
                     </button>
                   ))
@@ -1207,7 +1216,13 @@ export default function Diagnostics() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-light)' }}><Clock size={14} /> {test.report_time}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>₹{test.price}</span>
+                      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>₹{test.offerPrice || test.price}</span>
+                      {test.mrp && test.mrp > (test.offerPrice || test.price) && (
+                        <span style={{ fontSize: 12, color: 'var(--text-light)', textDecoration: 'line-through', marginLeft: 4 }}>₹{test.mrp}</span>
+                      )}
+                      {test.mrp && (
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', padding: '2px 6px', borderRadius: 4, marginLeft: 6, letterSpacing: 0.3 }}>{Math.round((1 - (test.offerPrice || test.price) / test.mrp) * 100)}% off</span>
+                      )}
                       {inCart ? (
                         <button onClick={() => removeFromCart(test.id)}
                           style={{ padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#fbe9e7', color: '#c62828', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>

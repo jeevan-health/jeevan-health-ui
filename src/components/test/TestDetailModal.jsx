@@ -128,7 +128,12 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
                 {combo.items.map((item, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
                     <span style={{ color: '#0F5DA8', fontWeight: 600 }}>{item.name}</span>
-                    <span style={{ fontWeight: 600, color: i === 0 ? '#0F5DA8' : 'var(--text-dark)' }}>₹{item.price}</span>
+                    <span>
+                      <span style={{ fontWeight: 600, color: i === 0 ? '#0F5DA8' : 'var(--text-dark)' }}>₹{item.offerPrice || item.price}</span>
+                      {item.mrp && item.mrp > (item.offerPrice || item.price) && (
+                        <span style={{ fontSize: 11, color: 'var(--text-light)', textDecoration: 'line-through', marginLeft: 3 }}>₹{item.mrp}</span>
+                      )}
+                    </span>
                   </div>
                 ))}
                 <div style={{ borderTop: '1px dashed #ddd', marginTop: 4, paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
@@ -169,7 +174,12 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
                   onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
                   <Plus size={14} weight="bold" />
                   {item.name}
-                  <span style={{ fontWeight: 700 }}>₹{item.price}</span>
+                  <span>
+                    <span style={{ fontWeight: 700 }}>₹{item.offerPrice || item.price}</span>
+                    {item.mrp && item.mrp > (item.offerPrice || item.price) && (
+                      <span style={{ fontSize: 11, color: 'var(--text-light)', textDecoration: 'line-through', marginLeft: 3 }}>₹{item.mrp}</span>
+                    )}
+                  </span>
                 </button>
               ))}
             </div>
