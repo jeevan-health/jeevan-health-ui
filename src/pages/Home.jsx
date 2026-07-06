@@ -279,21 +279,28 @@ export default function Home() {
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Health Packages</h2>
-            <Link to="/services" className="section-link">View All Packages</Link>
+            <Link to="/health-packages" className="section-link">View All Packages</Link>
           </div>
           <div style={{ position: 'relative' }}>
             <div className="scroll-row">
-              {healthPackages.map(pkg => (
-                <div key={pkg.name} className="test-card">
-                  <h4 style={{ fontSize: 13 }}>{pkg.name}</h4>
-                  <div className="tests-count">{pkg.tests}</div>
-                  <div className="pricing">
-                    <span className="price-current">₹{pkg.price}</span>
-                    <span className="price-old">₹{pkg.oldPrice}</span>
-                    <span className="discount">60% off</span>
+              {[
+                { ...healthPackages[0], slug: 'full-body-master' },
+                { ...healthPackages[1], slug: 'full-body-master' },
+                { ...healthPackages[2], slug: 'diabetes-care' },
+                { ...healthPackages[3], slug: 'corporate-wellness' },
+              ].map(pkg => (
+                <Link key={pkg.name} to={`/package/${pkg.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="test-card">
+                    <h4 style={{ fontSize: 13 }}>{pkg.name}</h4>
+                    <div className="tests-count">{pkg.tests}</div>
+                    <div className="pricing">
+                      <span className="price-current">₹{pkg.price}</span>
+                      <span className="price-old">₹{pkg.oldPrice}</span>
+                      <span className="discount">60% off</span>
+                    </div>
+                    <button className="add-btn">Book Now</button>
                   </div>
-                  <button className="add-btn">Book Now</button>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

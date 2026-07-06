@@ -11,6 +11,7 @@ import useAuthStore from '../store/authStore';
 import { getFamilyMembers } from '../services/authService';
 import { searchTests, placeDiagnosticOrder } from '../services/diagnosticsService';
 import { getTestEducation, getPackageEducation } from '../utils/testEducation';
+import { getPackagesByAxis } from '../utils/packageGenerator';
 
 const categoryList = [
   { name: 'Full Body', icon: User, color: '#0F5DA8' },
@@ -600,6 +601,10 @@ export default function Diagnostics() {
     else mrp = Math.round(t.price * 1.4);
     return { ...t, mrp, offerPrice: t.price };
   });
+
+  // Expose tests and packages globally for HealthPackages / PackageDetail pages
+  window.__allTests = seedTests;
+  window.__packagesByAxis = getPackagesByAxis(seedTests);
 
   const getComboForTest = (test) => {
     if (!test || !comboData[test.name]) return null;
