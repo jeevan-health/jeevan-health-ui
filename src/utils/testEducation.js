@@ -135,6 +135,7 @@ const categoryPatterns = {
       if (/Folate|Folic/i.test(t.name)) return ['Folate (Folic Acid) levels'];
       if (/CoQ10|Ubiquinone/i.test(t.name)) return ['Coenzyme Q10 levels'];
       if (/MMA|Methylmalonic/i.test(t.name)) return ['Methylmalonic Acid — sensitive B12 deficiency marker'];
+      if (/B5|Pantothenic/i.test(t.name)) return ['Vitamin B5 (Pantothenic Acid) — coenzyme A synthesis'];
       return ['Vitamin levels in blood'];
     },
     organsChecked: ['Bones (Vitamin D)', 'Nervous system (B vitamins)', 'Immune system'],
@@ -165,6 +166,10 @@ const categoryPatterns = {
       if (/ACTH/i.test(t.name)) return ['ACTH (pituitary-adrenal axis function)'];
       if (/Androstenedione/i.test(t.name)) return ['Androstenedione (adrenal/ovarian androgen)'];
       if (/Pregnenolone/i.test(t.name)) return ['Pregnenolone (neurosteroid, memory & mood)'];
+      if (/Leptin/i.test(t.name)) return ['Leptin (satiety hormone, metabolic regulation)'];
+      if (/Adiponectin/i.test(t.name)) return ['Adiponectin (insulin-sensitizing adipokine)'];
+      if (/ACTH.*Stim|Synacthen/i.test(t.name)) return ['Cortisol response to ACTH stimulation (adrenal reserve)'];
+      if (/Dexamethasone.*Suppress|DST|Overnight.*Dexa/i.test(t.name)) return ['Cortisol suppression after dexamethasone (Cushing screen)'];
       return ['Hormone levels'];
     },
     organsChecked: ['Pituitary gland (master gland)', 'Thyroid gland', 'Adrenal glands', 'Ovaries (female)', 'Testes (male)'],
@@ -181,6 +186,7 @@ const categoryPatterns = {
       if (/Malaria/i.test(t.name)) return ['Malaria parasite antigen (P. falciparum, P. vivax)'];
       if (/Typhoid/i.test(t.name)) return ['Salmonella typhi antibodies (O and H antigens)'];
       if (/Chikungunya/i.test(t.name)) return ['Chikungunya virus IgM antibodies'];
+      if (/COVID|SARS|CoV/i.test(t.name)) { if (/PCR/i.test(t.name)) return ['SARS-CoV-2 RNA via RT-PCR (gold standard)']; if (/Antigen/i.test(t.name)) return ['SARS-CoV-2 nucleocapsid protein antigen (rapid)']; if (/Antibody|IgG|IgM/i.test(t.name)) return ['SARS-CoV-2 IgG/IgM antibodies (past infection/vaccine response)']; return ['SARS-CoV-2 specific markers']; }
       if (/EBV|Epstein/i.test(t.name)) return ['EBV antibodies (VCA, EA, EBNA) for glandular fever'];
       if (/Leptospira|Lepto/i.test(t.name)) return ['Leptospira IgM antibodies'];
       if (/Scrub Typhus/i.test(t.name)) return ['Orientia tsutsugamushi IgM antibodies'];
@@ -201,7 +207,7 @@ const categoryPatterns = {
       return ['Infection-specific markers (pathogen antigens/antibodies)'];
     },
     organsChecked: ['Immune system response', 'Potentially affected organs based on infection type'],
-    diseasesDetected: ['Dengue Fever', 'Malaria', 'Typhoid Fever', 'Chikungunya', 'Leptospirosis', 'Scrub Typhus', 'Tuberculosis (TB)', 'Epstein-Barr Virus', 'Bacterial vs Viral infections'],
+    diseasesDetected: ['Dengue Fever', 'Malaria', 'Typhoid Fever', 'Chikungunya', 'Leptospirosis', 'Scrub Typhus', 'Tuberculosis (TB)', 'Epstein-Barr Virus', 'COVID-19', 'Bacterial vs Viral infections'],
   },
   STD: {
     gender: 'Men & Women (pregnant women should also be screened)',
@@ -338,9 +344,14 @@ const categoryPatterns = {
       if (/Elastase/i.test(t.name)) return ['Pancreatic elastase (pancreatic function)'];
       if (/Lactoferrin|Calprotectin/i.test(t.name)) return ['Stool inflammatory markers'];
       if (/Lactose|SIBO|Breath.*Test|Celiac|tTG|Gliadin|EMA|Endomysial|DGP|HLA.DQ/i.test(t.name)) return ['GI function and malabsorption markers'];
+      if (/Fecal Fat/i.test(t.name)) return ['Fat content in stool (malabsorption)'];
       if (/MMA|Methylmalonic/i.test(t.name)) return ['MMA (vitamin B12 status)'];
       if (/Carnitine/i.test(t.name)) return ['Carnitine (energy metabolism)'];
       if (/Amino Acid|Organic Acid/i.test(t.name)) return ['Comprehensive metabolic screening'];
+      if (/Kt\/V|Dialysis|Urea Reduction/i.test(t.name)) return ['Dialysis adequacy markers'];
+      if (/Gastrin/i.test(t.name)) return ['Gastrin levels (GI hormone)'];
+      if (/C1.*Esterase|C1.*INH/i.test(t.name)) return ['C1 inhibitor level and function'];
+      if (/Health Checkup|Health Package|Wellness/i.test(t.name)) return ['Multi-parameter health screening covering major organ systems'];
       return ['Comprehensive health markers'];
     },
     organsChecked: ['Multiple — varies by test'],
