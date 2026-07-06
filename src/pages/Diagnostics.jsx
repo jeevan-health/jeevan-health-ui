@@ -2,19 +2,17 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { seedTests } from '../data/seedData';
 import {
-  MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
-  Heartbeat, Heart, Drop, Shield, Bone, Baby, User, Warning,
-  Microscope, Truck, Sparkle, Gear,
-  CaretRight, CaretDown, FileText, CalendarDots, ChatCircle, Gift,
+  MagnifyingGlass, Flask, ShoppingCart, Trash, CheckCircle, Clock, MapPin,
+  Heartbeat, Heart, Drop, Shield, Baby, User, Warning,
+  Truck, Sparkle,
+  CaretDown, FileText, CalendarDots, Gift,
   Lightbulb, Suitcase, Pill, Cloud, ForkKnife, Airplane, Briefcase, Coin, Moon, Leaf,
   Syringe, FirstAid, Globe, Lightning,
   Phone, WhatsappLogo, Star, ArrowRight, X,
 } from '@phosphor-icons/react';
-import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
 import { getFamilyMembers } from '../services/authService';
-import { searchTests, placeDiagnosticOrder } from '../services/diagnosticsService';
-import { getTestEducation, getPackageEducation } from '../utils/testEducation';
+import { placeDiagnosticOrder } from '../services/diagnosticsService';
 import { getPackagesByAxis } from '../utils/packageGenerator';
 
 const popularCategories = ['Full Body', 'Heart', 'Diabetes', 'Thyroid', 'Vitamin', 'Women Health', 'Senior Citizen', 'Corporate Health'];
@@ -93,6 +91,7 @@ export default function Diagnostics() {
   const [patientInfo, setPatientInfo] = useState({ name: '', age: '', gender: '' });
   const [prescription, setPrescription] = useState(null);
   const prescriptionRef = useRef(null);
+  const addressTimer = useRef(null);
   const nextSlot = ['2:00 PM', '4:00 PM', '6:00 PM', 'Tomorrow 8:00 AM'][cart.length % 4];
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -112,9 +111,6 @@ export default function Diagnostics() {
   };
 
   const mostBookedTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total', 'Blood Sugar (Fasting)', 'Blood Sugar (Postprandial / Post Lunch - 2 HR)', 'Random Blood Sugar (RBS)', 'Liver Function Test (LFT)', 'Kidney Function Test (KFT)'];
-
-  window.__allTests = seedTests;
-  window.__packagesByAxis = getPackagesByAxis(seedTests);
 
   const load = async () => {
     setLoading(true);
@@ -137,6 +133,8 @@ export default function Diagnostics() {
   };
 
   useEffect(() => {
+    window.__allTests = seedTests;
+    window.__packagesByAxis = getPackagesByAxis(seedTests);
     load();
     const checkPkg = () => {
       const data = window.__packagesByAxis;
@@ -144,7 +142,7 @@ export default function Diagnostics() {
       return false;
     };
     if (!checkPkg()) {
-      const t = setInterval(() => { checkPkg(); }, 200);
+      const t = setInterval(() => { if (checkPkg()) clearInterval(t); }, 200);
       setTimeout(() => clearInterval(t), 10000);
     }
   }, []);
@@ -187,11 +185,10 @@ export default function Diagnostics() {
     });
   };
 
-  let addressTimer;
   const searchAddress = (q) => {
-    clearTimeout(addressTimer);
+    clearTimeout(addressTimer.current);
     if (!q.trim()) { setAddressSuggestions([]); setShowAddressSuggestions(false); return; }
-    addressTimer = setTimeout(async () => {
+    addressTimer.current = setTimeout(async () => {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`);
         const data = await res.json();
@@ -309,14 +306,14 @@ export default function Diagnostics() {
                         <div style={{ fontSize: 12, fontWeight: 600 }}>{item.name}</div>
                         <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{item.category}</div>
                       </div>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>\u20B9{item.price}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{'\u20B9'}{item.price}</span>
                       <button onClick={() => removeFromCart(item.id)} style={{ color: '#999', padding: 4, background: 'none', border: 'none', cursor: 'pointer' }}><Trash size={14} /></button>
                     </div>
                   ))}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: '2px solid #0F5DA8', marginBottom: 12 }}>
                   <span style={{ fontSize: 14, fontWeight: 700 }}>Total</span>
-                  <span style={{ fontSize: 17, fontWeight: 800, color: '#0F5DA8' }}>\u20B9{cartTotal}</span>
+                  <span style={{ fontSize: 17, fontWeight: 800, color: '#0F5DA8' }}>{'\u20B9'}{cartTotal}</span>
                 </div>
                 <button onClick={() => setBookingStep(2)} style={{ width: '100%', padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Continue</button>
               </>
@@ -538,7 +535,7 @@ export default function Diagnostics() {
                 {search.trim() && suggestions.length > 0 ? suggestions.map(t => (
                   <button key={t.id} onMouseDown={() => handleSuggestionClick(t.name)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 14px', border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', borderBottom: '1px solid #f5f5f5' }}>
                     <MagnifyingGlass size={14} color="#0F5DA8" />
-                    <div><div style={{ fontSize: 13, fontWeight: 600 }}>{t.name}</div><div style={{ fontSize: 10, color: 'var(--text-light)' }}>{t.category} \u2022 \u20B9{t.offerPrice || t.price}</div></div>
+                    <div><div style={{ fontSize: 13, fontWeight: 600 }}>{t.name}</div><div style={{ fontSize: 10, color: 'var(--text-light)' }}>{t.category} {'\u2022'} {'\u20B9'}{t.offerPrice || t.price}</div></div>
                   </button>
                 )) : !search.trim() && focused ? (
                   <div style={{ padding: '10px 14px' }}>
@@ -578,7 +575,7 @@ export default function Diagnostics() {
                 <div style={{ padding: '10px 14px' }}>
                   <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 4, lineHeight: 1.3 }}>{pkg.tests}</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <div><span style={{ fontSize: 16, fontWeight: 800, color: '#e53935' }}>\u20B9{pkg.price}</span><span style={{ fontSize: 11, color: '#bbb', textDecoration: 'line-through', marginLeft: 4 }}>\u20B9{pkg.mrp}</span></div>
+                    <div><span style={{ fontSize: 16, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{pkg.price}</span><span style={{ fontSize: 11, color: '#bbb', textDecoration: 'line-through', marginLeft: 4 }}>{'\u20B9'}{pkg.mrp}</span></div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 11, fontWeight: 600, color: '#FF8A00' }}><Star size={10} weight="fill" color="#FF8A00" /> {pkg.rating}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -656,7 +653,7 @@ export default function Diagnostics() {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, padding: '8px 12px', background: '#fff', borderRadius: 10, border: '1px solid var(--border)' }}>
             <ShoppingCart size={16} color="var(--primary)" />
             <span style={{ fontSize: 12, fontWeight: 600 }}>{cart.length} test{cart.length !== 1 ? 's' : ''}</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>\u20B9{cartTotal}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>{'\u20B9'}{cartTotal}</span>
             <button onClick={() => setShowCart(!showCart)} style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{showCart ? 'Hide' : 'View'} Cart</button>
             {cart.length > 0 && (
               <button onClick={openBooking} style={{ padding: '5px 14px', borderRadius: 7, fontSize: 11, fontWeight: 700, background: '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -670,7 +667,7 @@ export default function Diagnostics() {
                 <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
                   <Flask size={16} color="var(--primary)" />
                   <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 12, fontWeight: 600 }}>{item.name}</div><div style={{ fontSize: 10, color: 'var(--text-light)' }}>{item.category}</div></div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>\u20B9{item.price}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>{'\u20B9'}{item.price}</span>
                   <button onClick={() => removeFromCart(item.id)} style={{ color: '#999', padding: 3, background: 'none', border: 'none', cursor: 'pointer' }}><Trash size={13} /></button>
                 </div>
               ))}
@@ -724,8 +721,8 @@ export default function Diagnostics() {
                           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 1 }}>{test.name}</div>
                           <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 2 }}>{test.category}{test.fasting_required ? ' \u2022 Fasting' : ''}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>\u20B9{test.offerPrice || test.price}</span>
-                            {test.mrp ? <span style={{ fontSize: 10, color: '#bbb', textDecoration: 'line-through' }}>\u20B9{test.mrp}</span> : null}
+                            <span style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{test.offerPrice || test.price}</span>
+                            {test.mrp ? <span style={{ fontSize: 10, color: '#bbb', textDecoration: 'line-through' }}>{'\u20B9'}{test.mrp}</span> : null}
                             {count ? <span style={{ fontSize: 9, color: '#22C55E', fontWeight: 600 }}>{count} booked</span> : null}
                           </div>
                         </div>
@@ -778,11 +775,11 @@ export default function Diagnostics() {
                                   <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 1 }}>{pkg.name}</div>
                                   <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 2 }}>{pkg.desc?.slice(0, 70)}{pkg.desc?.length > 70 ? '\u2026' : ''}</div>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>\u20B9{pkg.bundlePrice?.toLocaleString()}</span>
-                                    <span style={{ fontSize: 10, color: '#bbb', textDecoration: 'line-through' }}>\u20B9{pkg.mrpPrice?.toLocaleString()}</span>
+                                    <span style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{pkg.bundlePrice?.toLocaleString()}</span>
+                                    <span style={{ fontSize: 10, color: '#bbb', textDecoration: 'line-through' }}>{'\u20B9'}{pkg.mrpPrice?.toLocaleString()}</span>
                                     <span style={{ fontSize: 9, fontWeight: 600, color: '#fff', background: '#22C55E', padding: '1px 6px', borderRadius: 4 }}>{pkg.discountPct}% off</span>
                                   </div>
-                                  <div style={{ fontSize: 9, color: 'var(--text-light)', marginTop: 1 }}>{pkg.testCount} tests \u2022 Home Collection</div>
+                                  <div style={{ fontSize: 9, color: 'var(--text-light)', marginTop: 1 }}>{pkg.testCount} tests {'\u2022'} Home Collection</div>
                                 </div>
                                 <button onClick={() => navigate(`/package/${pkg.slug}`)} style={{ padding: '6px 12px', borderRadius: 7, fontSize: 10, fontWeight: 700, background: '#22C55E', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Details</button>
                               </div>
@@ -851,7 +848,7 @@ export default function Diagnostics() {
         </a>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 10, color: 'var(--text-light)' }}>{cart.length} test{cart.length !== 1 ? 's' : ''} selected</div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#e53935' }}>\u20B9{cartTotal}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#e53935' }}>{'\u20B9'}{cartTotal}</div>
         </div>
         <button onClick={openBooking} style={{ padding: '9px 24px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: cart.length > 0 ? '#FF3B30' : '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: cart.length > 0 ? '0 4px 14px rgba(255,59,48,0.3)' : 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Sparkle size={14} weight="fill" /> {cart.length > 0 ? 'Book Now' : 'Start Booking'}
