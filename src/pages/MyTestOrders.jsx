@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CaretLeft, Flask, Clock, MapPin, CheckCircle, Truck, XCircle, WhatsappLogo, Phone } from '@phosphor-icons/react';
+import { CaretLeft, Flask, Clock, MapPin, CheckCircle, Truck, XCircle, WhatsappLogo } from '@phosphor-icons/react';
 import { getOrders, cancelOrder, updateOrder } from '../services/localOrderService';
 
 const statusConfig = {
@@ -84,6 +84,9 @@ export default function MyTestOrders() {
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button onClick={() => navigate('/diagnostics')} style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <Flask size={12} /> Re-Book
+                    </button>
                     {order.status === 'results_ready' && (
                       <button onClick={() => navigate(`/test-results/${order.id}`)} style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#2e7d32', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
                         View Results

@@ -2,8 +2,20 @@ import { Link } from 'react-router-dom';
 import {
   Stethoscope, Pill, Flask, User, Users as UsersIcon,
   Heart, Syringe, Monitor, SuitcaseSimple, Baby, Globe,
-  Shield, Clock, Buildings, Info,
+  Shield, Clock, Buildings, Sparkle, CheckCircle, Phone, WhatsappLogo,
+  MagnifyingGlass, Truck, FileText, ArrowRight,
 } from '@phosphor-icons/react';
+
+const quickActions = [
+  { icon: Stethoscope, label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/doctor-consultation', color: '#0F5DA8', tag: 'Available' },
+  { icon: Flask, label: 'Lab Tests', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#22C55E', tag: 'Popular' },
+  { icon: Heart, label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/health-packages', color: '#e53935', tag: 'Save 60%' },
+  { icon: Pill, label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },
+  { icon: User, label: 'Nursing Care', desc: 'Trained nurses at home', path: '/book-appointment', color: '#0891b2', tag: 'New' },
+  { icon: Heart, label: 'Physiotherapy', desc: 'Rehab & recovery at home', path: '/book-appointment', color: '#059669', tag: 'Book' },
+  { icon: Syringe, label: 'Vaccination', desc: 'All age groups & travel', path: '/book-appointment', color: '#2563eb', tag: 'Home' },
+  { icon: Monitor, label: 'Medical Equipment', desc: 'Rent or buy', path: '/book-appointment', color: '#e65100', tag: 'Rent' },
+];
 
 const categories = [
   {
@@ -31,12 +43,9 @@ const categories = [
       'Real-Time Service Booking & Tracking via App',
       'Integration with Health Records (EMR/EHR)',
       'Health Trackers & Remote Monitoring Devices',
-      'Health Monitors (BP, Glucose, ECG, Pulse Oximetry & More)',
       'Health Insurance Sales & Assistance',
-      'Digital Tools & Apps (Symptom Checker, e-Prescriptions, Health Wallet, Reminders)',
+      'Symptom Checker, e-Prescriptions, Health Wallet, Reminders',
       'Smart Home Health Devices (Smart Weighing Scale, Thermometer, CGM, Pill Dispensers)',
-      'Health Risk Assessment & Predictive Analytics',
-      'Supportive Services Tools (Mental Health Screening, Diet Plans, Wellness Education)',
     ],
   },
   {
@@ -94,40 +103,106 @@ const categories = [
 
 export default function Services() {
   return (
-    <section className="page-section">
-      <div className="container">
-        <h1>Our Complete Range of Services</h1>
-        <p>Jeevan HealthCare at Home offers a comprehensive suite of healthcare services delivered safely at your doorstep. Browse our service categories below.</p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, marginTop: 40 }}>
-          {categories.map(cat => (
-            <div key={cat.title} style={{
-              background: '#fff', borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-light)', overflow: 'hidden',
-              boxShadow: 'var(--shadow)',
-            }}>
-              <div style={{
-                background: cat.color, color: '#fff', padding: '16px 24px',
-                display: 'flex', alignItems: 'center', gap: 10,
-              }}>
-                <cat.icon size={24} weight="fill" />
-                <h3 style={{ color: '#fff', margin: 0, fontSize: 18 }}>{cat.title}</h3>
-              </div>
-              <div style={{ padding: '16px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8 }}>
-                {cat.items.map(item => (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', fontSize: 14, color: '#444' }}>
-                    <span style={{ color: cat.color, fontSize: 16 }}>•</span> {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <Link to="/book-appointment" className="btn-primary">Book a Service Now</Link>
+    <div style={{ paddingBottom: 80 }}>
+      {/* Hero */}
+      <div style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1565C0 50%, #1a73e8 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: '0 0 8px', letterSpacing: -0.5 }}>
+            Complete Healthcare at Your Doorstep
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '0 0 16px', lineHeight: 1.5 }}>
+            Doctor consultations, lab tests, pharmacy, nursing, physiotherapy, vaccinations & more — all from one trusted platform.
+          </p>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/diagnostics" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: '#FF3B30', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Flask size={14} weight="fill" /> Book Lab Test
+            </Link>
+            <Link to="/doctor-consultation" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: 'rgba(255,255,255,0.15)', color: '#fff', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Stethoscope size={14} /> Consult Doctor
+            </Link>
+            <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: '#25d366', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <WhatsappLogo size={14} weight="fill" /> WhatsApp
+            </a>
+          </div>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 14, flexWrap: 'wrap' }}>
+            {['NABL Labs', 'Free Home Collection', 'Digital Reports', '24×7 Support'].map(b => (
+              <span key={b} style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <CheckCircle size={9} weight="fill" color="#81C784" /> {b}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+
+      {/* Quick Actions */}
+      <div style={{ maxWidth: 720, margin: '-16px auto 0', padding: '0 16px', position: 'relative', zIndex: 2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
+          {quickActions.map((q, i) => (
+            <Link key={i} to={q.path} style={{
+              background: '#fff', borderRadius: 14, padding: '14px 12px', textDecoration: 'none',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, textAlign: 'center',
+              transition: 'all 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = q.color; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'; }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${q.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <q.icon size={20} color={q.color} weight="fill" />
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>{q.label}</div>
+              <span style={{ fontSize: 8, fontWeight: 700, color: '#fff', background: q.color, padding: '1px 8px', borderRadius: 6 }}>{q.tag}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Categories */}
+      <div style={{ padding: '24px 16px 0' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>All Services</h2>
+            <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 4 }}>Comprehensive healthcare, delivered to your home</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {categories.map(cat => (
+              <div key={cat.title} style={{
+                background: '#fff', borderRadius: 14,
+                border: '1px solid #e8edf2', overflow: 'hidden',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+              }}>
+                <div style={{
+                  background: cat.color, color: '#fff', padding: '12px 16px',
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <cat.icon size={18} weight="fill" />
+                  <h3 style={{ color: '#fff', margin: 0, fontSize: 14, fontWeight: 700 }}>{cat.title}</h3>
+                </div>
+                <div style={{ padding: '10px 16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 4 }}>
+                  {cat.items.map(item => (
+                    <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 6px', fontSize: 12, color: '#444' }}>
+                      <CheckCircle size={10} weight="fill" color={cat.color} /> {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Need help choosing a service?</h3>
+        <p style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 16 }}>Call us or WhatsApp for free guidance</p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a href="tel:+919700104108" style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Phone size={16} weight="fill" /> Call +91 97001 04108
+          </a>
+          <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: '#25d366', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <WhatsappLogo size={16} weight="fill" /> WhatsApp Now
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }
