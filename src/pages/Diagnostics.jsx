@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
   Heartbeat, Heart, Drop, Shield, Bone, Baby, User, Warning,
@@ -7,6 +7,7 @@ import {
   CaretRight, CaretDown, FileText, CalendarDots, ChatCircle, Gift,
   Lightbulb, Suitcase, Pill, Cloud, ForkKnife, Airplane, Briefcase, Coin, Moon, Leaf,
   Syringe, FirstAid, Globe, Lightning,
+  Phone, WhatsappLogo,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
@@ -56,10 +57,11 @@ const testimonials = [
 
 export default function Diagnostics() {
   const navigate = useNavigate();
+  const location = useLocation();
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState('tests'); // 'tests' | 'packages'
+  const [mode, setMode] = useState(location.pathname.includes('health-packages') ? 'packages' : 'tests');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [cart, setCart] = useState([]);
@@ -90,6 +92,9 @@ export default function Diagnostics() {
   const [sortBy, setSortBy] = useState('popular');
   const [faqOpen, setFaqOpen] = useState({});
   const [packagesByAxis, setPackagesByAxis] = useState({});
+  const [packageSearch, setPackageSearch] = useState('');
+  const packagesRef = useRef(null);
+  const [bookingSubmitted, setBookingSubmitted] = useState(false);
 
   const sortOptions = [
     { value: 'popular', label: 'Popular' },
@@ -845,13 +850,41 @@ const seedTests = [
         paymentMethod: paymentMethod || 'pay_at_collection',
         patientInfo: patientInfo.name ? patientInfo : null,
       });
-      const generatedId = 'JH' + Date.now().toString(36).toUpperCase();
+      const generatedId = 'JHC-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
       setOrderId(generatedId);
       setBookingStep(5);
+      setBookingSubmitted(true);
     } catch {} finally { setPlacing(false); }
   };
 
-  
+  if (bookingSubmitted) {
+    return (
+      <div className="page-wrapper" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-light)', padding: 40 }}>
+        <div style={{ maxWidth: 480, width: '100%', textAlign: 'center' }}>
+          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 4px 20px rgba(46,125,50,0.2)' }}>
+            <CheckCircle size={48} weight="fill" color="#2e7d32" />
+          </div>
+          <h1 style={{ fontSize: 26, marginBottom: 6 }}>Booking Confirmed!</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-light)', marginBottom: 20 }}>Our healthcare team will contact you within 15-30 minutes.</p>
+          <div style={{ background: 'linear-gradient(135deg, #e8f0fe, #d4e4f7)', borderRadius: 12, padding: '12px 20px', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#0F5DA8', fontWeight: 700, marginBottom: 24 }}>
+            <CheckCircle size={18} weight="fill" /> Booking ID: {orderId || 'JHC-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase()}
+          </div>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="tel:+919700104108" style={{ background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)', color: '#fff', padding: '12px 24px', borderRadius: 10, fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', boxShadow: '0 4px 14px rgba(10,94,176,0.3)' }}>
+              <Phone size={18} weight="fill" /> Call Now
+            </a>
+            <a href={`https://wa.me/919700104108?text=${encodeURIComponent('Hi! I\'ve booked tests on Jeevan HealthCare. Order ID: ' + (orderId || ''))}`} target="_blank" rel="noopener noreferrer" style={{ background: '#25d366', color: '#fff', padding: '12px 24px', borderRadius: 10, fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', boxShadow: '0 4px 14px rgba(37,211,102,0.3)' }}>
+              <WhatsappLogo size={18} weight="fill" /> WhatsApp
+            </a>
+            <button onClick={() => { setBookingSubmitted(false); setBookingStep(1); setCart([]); setShowForm(false); setOrderId(null); navigate('/'); }} style={{ padding: '12px 24px', borderRadius: 10, fontWeight: 600, fontSize: 14, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Hero */}
@@ -987,7 +1020,7 @@ const seedTests = [
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
               <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Starting at ₹799</span>
               <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-              <button onClick={() => navigate('/health-packages')}
+              <button onClick={() => packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 style={{
                   padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
                   background: 'rgba(255,255,255,0.15)', color: '#fff',
@@ -995,6 +1028,16 @@ const seedTests = [
                   transition: 'all 0.15s',
                 }}>
                 Browse All Packages
+              </button>
+              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+              <button onClick={() => { setMode('tests'); setSearch(''); setCategory(''); }}
+                style={{
+                  padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  background: 'rgba(255,255,255,0.15)', color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.15s',
+                }}>
+                Browse All Tests
               </button>
             </div>
           )}
@@ -1432,50 +1475,13 @@ const seedTests = [
             </div>
           )}
 
-          {/* Confirmation */}
-          {showForm && bookingStep === 5 && (
-            <div style={{ padding: '32px 20px', textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
-              <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <CheckCircle size={32} weight="fill" color="#2e7d32" />
-              </div>
-              <h2>Order Confirmed!</h2>
-              {orderId && <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 4 }}>Order ID: <strong>{orderId}</strong></p>}
-              {paymentMethod === 'pay_at_collection' ? (
-                <p style={{ fontSize: 13, color: '#e65100', marginTop: 8, fontWeight: 500 }}>Pay ₹{cartTotal} at the time of collection</p>
-              ) : (
-                <p style={{ fontSize: 13, color: '#22C55E', marginTop: 8, fontWeight: 500 }}>Payment of ₹{cartTotal} received ✓</p>
-              )}
-              <p style={{ color: 'var(--text-light)', marginTop: 8 }}>We'll send you a confirmation via WhatsApp.</p>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
-                <button onClick={() => {
-                  const msg = encodeURIComponent(`Hi! I've booked tests on Jeevan HealthCare. Order ID: ${orderId}. Total: ₹${cartTotal}.`);
-                  window.open(`https://wa.me/?text=${msg}`, '_blank');
-                }} style={{
-                  padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                  background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer',
-                  fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 8,
-                }}>
-                  Share on WhatsApp
-                </button>
-                <button onClick={() => navigate('/my-test-orders')} style={{
-                  padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                  background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}>
-                  Track Order
-                </button>
-                <button onClick={() => { setBookingStep(1); setCart([]); setShowForm(false); setOrderId(null); setPaymentMethod(''); }} className="btn-outline">
-                  Book More Tests
-                </button>
-              </div>
-            </div>
-          )}
+
 
           {mode === 'packages' && (
             <div style={{ padding: '20px 0' }}>
               <div className="container">
                 {/* Section intro */}
-                <div style={{
+                <div ref={packagesRef} style={{
                   background: 'linear-gradient(135deg, #e8f5e9, #f1f8e9)',
                   borderRadius: 16, padding: '20px 24px', marginBottom: 20,
                   display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
@@ -1492,17 +1498,29 @@ const seedTests = [
                     <h2 style={{ fontSize: 18, fontWeight: 700, color: '#166534', margin: 0 }}>Health Packages</h2>
                     <p style={{ fontSize: 13, color: '#4a7c59', margin: '2px 0 0' }}>Curated checkup bundles — more tests, less spend</p>
                   </div>
-                  <button onClick={() => navigate('/health-packages')}
+                  <button onClick={() => packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                     style={{
                       padding: '8px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
                       background: '#fff', color: '#22C55E', border: '1px solid #22C55E',
                       cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
                       transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#22C55E'; e.currentTarget.style.color = '#fff'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#22C55E'; }}>
-                    View All 117 →
+                    }}>
+                    All 117 Packages
                   </button>
+                </div>
+                {/* Package search */}
+                <div style={{ marginBottom: 16, position: 'relative' }}>
+                  <MagnifyingGlass size={18} color="#aaa" style={{ position: 'absolute', left: 14, top: 12 }} />
+                  <input type="text" placeholder="Search packages by name or category..."
+                    value={packageSearch} onChange={e => setPackageSearch(e.target.value)}
+                    style={{
+                      width: '100%', padding: '10px 14px 10px 40px', borderRadius: 10,
+                      border: '1px solid var(--border)', fontSize: 14, fontFamily: 'inherit',
+                      outline: 'none', boxSizing: 'border-box',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#22C55E'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'} />
                 </div>
 
                 {/* Package cards — all 117 by axis */}
@@ -1543,7 +1561,26 @@ const seedTests = [
                       ethnicity: { label: 'Ethnicity / Region', icon: Globe, color: '#ab47bc' },
                       fertility: { label: 'Fertility & Reproductive', icon: Heart, color: '#ec407a' },
                     };
-                    return axisOrder.filter(a => packagesByAxis[a]).map(axis => {
+                    const q = packageSearch.toLowerCase().trim();
+                    const hasSearch = q.length > 0;
+                    const matchedAxes = axisOrder.filter(a => {
+                      if (!packagesByAxis[a]) return false;
+                      if (!hasSearch) return true;
+                      return packagesByAxis[a].some(p => p.name.toLowerCase().includes(q) || p.desc?.toLowerCase().includes(q) || a.toLowerCase().includes(q));
+                    });
+                    if (matchedAxes.length === 0) {
+                      return (
+                        <div style={{ textAlign: 'center', padding: '30px 20px', color: 'var(--text-light)' }}>
+                          <p style={{ fontSize: 14 }}>No packages match "<strong>{packageSearch}</strong>"</p>
+                          <button onClick={() => setPackageSearch('')} style={{
+                            marginTop: 10, padding: '6px 16px', borderRadius: 8, fontSize: 12,
+                            background: '#f0fdf4', color: '#22C55E', border: '1px solid #b7e4c7',
+                            cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
+                          }}>Clear search</button>
+                        </div>
+                      );
+                    }
+                    return matchedAxes.map(axis => {
                       const meta = axisMeta[axis] || { label: axis, icon: Heartbeat, color: '#888' };
                       const Icon = meta.icon;
                       const pkgs = packagesByAxis[axis];
@@ -1597,7 +1634,7 @@ const seedTests = [
                   <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '6px 0 14px' }}>
                     Browse all 117 health packages across 28 categories
                   </p>
-                  <button onClick={() => navigate('/health-packages')}
+                  <button onClick={() => { setMode('packages'); setPackageSearch(''); packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
                     style={{
                       padding: '10px 32px', borderRadius: 12, fontSize: 14, fontWeight: 700,
                       background: '#fff', color: '#0F5DA8', border: 'none', cursor: 'pointer',

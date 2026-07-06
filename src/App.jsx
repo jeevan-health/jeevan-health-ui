@@ -26,7 +26,7 @@ import FamilyList from './pages/FamilyList';
 import AddFamily from './pages/AddFamily';
 import WellnessHub from './pages/WellnessHub';
 import FoodDiary from './pages/FoodDiary';
-import HealthPackages from './pages/HealthPackages';
+
 import PackageDetail from './pages/PackageDetail';
 import BookAppointment from './pages/BookAppointment';
 import './data/initGlobals'; // initialize __packagesByAxis when __allTests is ready
@@ -73,7 +73,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/wellness" element={<WellnessHub />} />
           <Route path="/food-diary" element={<ProtectedRoute><FoodDiary /></ProtectedRoute>} />
-          <Route path="/health-packages" element={<HealthPackages />} />
+          <Route path="/health-packages" element={<Diagnostics />} />
           <Route path="/package/:slug" element={<PackageDetail />} />
         </Route>
         <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
