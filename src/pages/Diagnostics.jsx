@@ -355,7 +355,7 @@ export default function Diagnostics() {
                   <p style={{ fontSize: 11, fontWeight: 600, marginBottom: 4 }}><FileText size={12} color="#0F5DA8" /> Upload Prescription (optional)</p>
                   {prescription ? (
                     <div style={{ border: '1px solid #d1d5db', borderRadius: 7, padding: '8px 10px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span>\u{1F4CE}</span>
+                      <span>{'\u{1F4CE}'}</span>
                       <div style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prescription.name}</div>
                       <span style={{ fontSize: 10, color: '#2e7d32' }}><CheckCircle size={10} weight="fill" /> Uploaded</span>
                       <button onClick={() => { setPrescription(null); if (prescriptionRef.current) prescriptionRef.current.value = ''; }} style={{ background: '#fee2e2', border: 'none', borderRadius: 3, padding: '2px 6px', fontSize: 10, color: '#dc2626', cursor: 'pointer', fontWeight: 500 }}>Remove</button>
@@ -364,7 +364,7 @@ export default function Diagnostics() {
                     <div style={{ border: '1px dashed #d1d5db', borderRadius: 7, padding: '10px', textAlign: 'center', cursor: 'pointer', background: '#fafafa' }} onClick={() => prescriptionRef.current?.click()}>
                       <input ref={prescriptionRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
                         onChange={e => { const f = e.target.files?.[0]; if (f) { const reader = new FileReader(); reader.onload = () => { setPrescription({ name: f.name, dataUrl: reader.result }); }; reader.readAsDataURL(f); } }} />
-                      <span style={{ fontSize: 10, color: '#6b7280' }}>\u{1F4C4} Click to upload prescription (PDF or image)</span>
+                      <span style={{ fontSize: 10, color: '#6b7280' }}>{'\u{1F4C4}'} Click to upload prescription (PDF or image)</span>
                     </div>
                   )}
                 </div>
@@ -490,7 +490,7 @@ export default function Diagnostics() {
   return (
     <div style={{ paddingBottom: 80, position: 'relative' }}>
       {/* ─── HERO BANNER ─── */}
-      <div style={{ position: 'relative', background: 'linear-gradient(135deg, #0F5DA8 0%, #1565C0 50%, #1a73e8 100%)', padding: '20px 16px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', background: 'linear-gradient(135deg, #0F5DA8 0%, #1565C0 50%, #1a73e8 100%)', padding: '20px 16px 24px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'absolute', bottom: -60, left: -60, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
