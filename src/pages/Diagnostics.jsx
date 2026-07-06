@@ -13,6 +13,7 @@ import {
 import useAuthStore from '../store/authStore';
 import { getFamilyMembers } from '../services/authService';
 import { placeDiagnosticOrder } from '../services/diagnosticsService';
+import { createOrder as saveOrderLocally } from '../services/localOrderService';
 import { getPackagesByAxis } from '../utils/packageGenerator';
 
 const popularCategories = ['Full Body', 'Heart', 'Diabetes', 'Thyroid', 'Vitamin', 'Women Health', 'Senior Citizen', 'Corporate Health'];
@@ -202,23 +203,23 @@ export default function Diagnostics() {
 
   const handlePlace = async () => {
     setPlacing(true);
-    try {
-      await placeDiagnosticOrder({
-        tests: cart.map(i => ({ testId: i.id, name: i.name, price: i.price })),
-        totalAmount: cartTotal,
-        collectionDate: collectionDate || null,
-        collectionTime: collectionTime || null,
-        collectionAddress: address.city ? address : null,
-        bookedFor: bookedFor || null,
-        paymentMethod: paymentMethod || 'pay_at_collection',
-        patientInfo: patientInfo.name ? patientInfo : null,
-        prescriptionFile: prescription?.dataUrl || null,
-      });
-      const generatedId = 'JHC-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
-      setOrderId(generatedId);
-      setBookingSubmitted(true);
-      setBookingStep(5);
-    } catch {} finally { setPlacing(false); }
+    const orderData = {
+      tests: cart.map(i => ({ testId: i.id, name: i.name, price: i.price })),
+      totalAmount: cartTotal,
+      collectionDate: collectionDate || null,
+      collectionTime: collectionTime || null,
+      collectionAddress: address.city ? address : null,
+      bookedFor: bookedFor || null,
+      paymentMethod: paymentMethod || 'pay_at_collection',
+      patientInfo: patientInfo.name ? patientInfo : null,
+      prescriptionFile: prescription?.dataUrl || null,
+    };
+    const local = saveOrderLocally(orderData);
+    setOrderId(local.id);
+    setBookingSubmitted(true);
+    setBookingStep(5);
+    try { await placeDiagnosticOrder(orderData); } catch {}
+    setPlacing(false);
   };
 
   const renderBookingPanel = () => (
@@ -838,6 +839,9 @@ export default function Diagnostics() {
         <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 10px rgba(37,211,102,0.3)' }}>
           <WhatsappLogo size={20} weight="fill" color="#fff" />
         </a>
+        <button onClick={() => navigate('/my-test-orders')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px', fontSize: 10, color: '#0F5DA8', fontWeight: 600, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Clock size={11} /> My Bookings
+        </button>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 10, color: 'var(--text-light)' }}>{cart.length} test{cart.length !== 1 ? 's' : ''} selected</div>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#e53935' }}>{'\u20B9'}{cartTotal}</div>

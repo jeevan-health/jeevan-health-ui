@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CaretLeft, Flask, Clock, MapPin, CheckCircle, Truck, XCircle } from '@phosphor-icons/react';
-import { getDiagnosticOrders, scheduleCollection } from '../services/diagnosticsService';
+import { CaretLeft, Flask, Clock, MapPin, CheckCircle, Truck, XCircle, WhatsappLogo, Phone } from '@phosphor-icons/react';
+import { getOrders, cancelOrder, updateOrder } from '../services/localOrderService';
 
 const statusConfig = {
   pending: { icon: Clock, color: '#e65100', bg: '#fff3e0', label: 'Pending' },
@@ -16,36 +16,27 @@ const statusConfig = {
 export default function MyTestOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [scheduling, setScheduling] = useState(null);
   const navigate = useNavigate();
 
-  const load = async () => {
-    try { const { data } = await getDiagnosticOrders(); setOrders(data); } catch {} finally { setLoading(false); }
+  const load = () => {
+    setOrders(getOrders());
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const handleSchedule = async (orderId) => {
-    try {
-      await scheduleCollection(orderId, scheduling);
-      setScheduling(null);
-      load();
-    } catch {}
-  };
-
-  const getMinDate = () => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
-  };
-
   return (
     <div className="page-section">
       <div className="container">
-        <button onClick={() => navigate('/diagnostics')} className="flex items-center gap-1.5 text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+        <button onClick={() => navigate('/diagnostics')} className="flex items-center gap-1.5 text-sm mb-4" style={{ color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
           <CaretLeft size={16} /> Back to Diagnostics
         </button>
-        <h1>My Test Orders</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <h1 style={{ margin: 0 }}>My Bookings</h1>
+          <button onClick={() => navigate('/diagnostics')} style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+            Book New Test
+          </button>
+        </div>
 
         {loading ? (
           <div className="card p-10 text-center" style={{ marginTop: 20 }}>Loading...</div>
@@ -56,75 +47,57 @@ export default function MyTestOrders() {
             <button onClick={() => navigate('/diagnostics')} className="btn-primary" style={{ marginTop: 16 }}>Book a Test</button>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
             {orders.map(order => {
               const st = statusConfig[order.status] || statusConfig.pending;
               const Icon = st.icon;
-              const isPending = order.status === 'pending';
+              const canCancel = ['pending', 'confirmed'].includes(order.status);
 
               return (
-                <div key={order.id} className="card" style={{ padding: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+                <div key={order.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 13, color: 'var(--text-light)' }}>Order #{order.id}</span>
-                      <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: st.bg, color: st.color, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Icon size={14} /> {st.label}
+                      <span style={{ fontSize: 11, color: 'var(--text-light)' }}>#{order.id}</span>
+                      <span style={{ padding: '2px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: st.bg, color: st.color, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Icon size={13} /> {st.label}
                       </span>
                     </div>
-                    <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--primary)' }}>₹{order.total_amount}</span>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{order.totalAmount}</span>
                   </div>
-                  <div style={{ marginTop: 8 }}>
+
+                  <div style={{ marginBottom: 6 }}>
                     {order.tests?.map((t, i) => (
-                      <div key={i} style={{ fontSize: 13, padding: '3px 0', color: 'var(--text-body)' }}>
-                        <Flask size={14} style={{ marginRight: 6 }} />{t.name} — ₹{t.price}
+                      <div key={i} style={{ fontSize: 12, padding: '2px 0', color: 'var(--text-body)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Flask size={12} color="#0F5DA8" /> {t.name} — {'\u20B9'}{t.price}
                       </div>
                     ))}
                   </div>
-                  {order.collection_date && (
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
-                      <MapPin size={14} /> Collection: {new Date(order.collection_date).toLocaleDateString('en-IN')} at {order.collection_time}
-                    </p>
-                  )}
-                  <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 4 }}>
-                    Ordered: {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                  </p>
 
-                  {/* Schedule if pending */}
-                  {isPending && scheduling?.id === order.id ? (
-                    <div style={{ marginTop: 10, padding: 12, background: '#f5f7fa', borderRadius: 8 }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
-                        <input type="date" min={getMinDate()} value={scheduling.collectionDate || ''}
-                          onChange={e => setScheduling({ ...scheduling, collectionDate: e.target.value })}
-                          className="input" style={{ padding: '6px 10px', fontSize: 12 }} placeholder="Date" />
-                        <select value={scheduling.collectionTime || ''}
-                          onChange={e => setScheduling({ ...scheduling, collectionTime: e.target.value })}
-                          className="input" style={{ padding: '6px 10px', fontSize: 12 }}>
-                          <option value="">Time</option>
-                          {['6:00 AM - 8:00 AM', '8:00 AM - 10:00 AM', '10:00 AM - 12:00 PM', '12:00 PM - 2:00 PM', '2:00 PM - 4:00 PM', '4:00 PM - 6:00 PM'].map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <input placeholder="Address" value={scheduling.collectionAddress?.line1 || ''}
-                        onChange={e => setScheduling({ ...scheduling, collectionAddress: { ...scheduling.collectionAddress, line1: e.target.value } })}
-                        className="input" style={{ padding: '6px 10px', fontSize: 12, marginBottom: 8 }} />
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => handleSchedule(order.id)} className="btn-primary" style={{ padding: '6px 14px', fontSize: 12 }}>Confirm</button>
-                        <button onClick={() => setScheduling(null)} style={{ padding: '6px 14px', fontSize: 12, color: 'var(--text-light)', background: 'none' }}>Cancel</button>
-                      </div>
+                  {order.collectionDate && (
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <MapPin size={12} /> {new Date(order.collectionDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}{order.collectionTime ? ` at ${order.collectionTime}` : ''}
                     </div>
-                  ) : isPending && (
-                    <button onClick={() => setScheduling({ id: order.id, collectionDate: '', collectionTime: '', collectionAddress: { line1: '' } })}
-                      className="btn-primary" style={{ marginTop: 8, padding: '6px 14px', fontSize: 12 }}>
-                      Schedule Collection
-                    </button>
                   )}
 
-                  {(order.status === 'results_ready' || order.status === 'completed') && (
-                    <button onClick={() => navigate(`/test-results/${order.id}`)} className="btn-primary" style={{ marginTop: 8, padding: '6px 14px', fontSize: 12 }}>
-                      View Results
-                    </button>
-                  )}
+                  <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 10 }}>
+                    Booked: {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {order.status === 'results_ready' && (
+                      <button onClick={() => navigate(`/test-results/${order.id}`)} style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#2e7d32', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        View Results
+                      </button>
+                    )}
+                    <a href={`https://wa.me/919700104108?text=${encodeURIComponent('Hi! I have a query about my order: ' + order.id)}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#25d366', color: '#fff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <WhatsappLogo size={12} weight="fill" /> Support
+                    </a>
+                    {canCancel && (
+                      <button onClick={() => { cancelOrder(order.id); load(); }} style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#fee2e2', color: '#dc2626', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
