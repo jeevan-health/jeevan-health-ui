@@ -77,13 +77,16 @@ export default function Diagnostics() {
   const [city, setCity] = useState('Hyderabad');
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [placing, setPlacing] = useState(false);
-  const [placed, setPlaced] = useState(false);
   const [showAllTests, setShowAllTests] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [bookedFor, setBookedFor] = useState(null);
   const [locating, setLocating] = useState(false);
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [bookingStep, setBookingStep] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [orderId, setOrderId] = useState(null);
+  const [patientInfo, setPatientInfo] = useState({ name: '', age: '', gender: '' });
   const nextSlot = ['2:00 PM', '4:00 PM', '6:00 PM', 'Tomorrow 8:00 AM'][cart.length % 4];
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -234,25 +237,16 @@ export default function Diagnostics() {
         collectionTime: collectionTime || null,
         collectionAddress: address.city ? address : null,
         bookedFor: bookedFor || null,
+        paymentMethod: paymentMethod || 'pay_at_collection',
+        patientInfo: patientInfo.name ? patientInfo : null,
       });
-      setPlaced(true);
+      const generatedId = 'JH' + Date.now().toString(36).toUpperCase();
+      setOrderId(generatedId);
+      setBookingStep(5);
     } catch {} finally { setPlacing(false); }
   };
 
-  if (placed) return (
-    <section style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
-      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-        <CheckCircle size={32} weight="fill" color="#2e7d32" />
-      </div>
-      <h2>Test Booked Successfully!</h2>
-      <p style={{ color: 'var(--text-light)', marginTop: 8 }}>Your home sample collection has been scheduled.</p>
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
-        <button onClick={() => navigate('/my-test-orders')} className="btn-primary">Track Order</button>
-        <button onClick={() => { setPlaced(false); setCart([]); setShowForm(false); }} className="btn-outline">Book More Tests</button>
-      </div>
-    </section>
-  );
-
+  
   return (
     <>
       {/* Hero */}
@@ -515,7 +509,7 @@ export default function Diagnostics() {
                   {showCart ? 'Hide' : 'View'} Cart
                 </button>
                 {cart.length > 0 && (
-                  <button onClick={() => isAuthenticated ? setShowForm(true) : navigate('/signup')}
+                  <button onClick={() => isAuthenticated ? (setShowForm(true), setBookingStep(1)) : navigate('/signup')}
                     className="btn-accent" style={{ padding: '6px 16px', fontSize: 13, marginLeft: 'auto', width: 'auto' }}>
                     Book Tests
                   </button>
@@ -539,20 +533,59 @@ export default function Diagnostics() {
                 </div>
               )}
 
-              {/* Booking Form */}
-              {showForm && (
+              {/* Booking Form — Multi Step */}
+              {showForm && bookingStep < 5 && (
                 <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 20, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 15, marginBottom: 4 }}>Schedule Home Collection</h3>
-                  <p style={{ fontSize: 12, color: '#e65100', fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Clock size={14} weight="fill" color="#FF8A00" />
-                    Next available slot: {nextSlot} — Limited slots
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {isAuthenticated && (
-                      <div>
+                  {/* Step indicator */}
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto' }}>
+                    {['Review', 'Patient', 'Address', 'Payment'].map((label, i) => (
+                      <button key={label} onClick={() => bookingStep > i && setBookingStep(i + 1)}
+                        style={{
+                          flex: 1, minWidth: 0, padding: '6px 4px', borderRadius: 6,
+                          fontSize: 11, fontWeight: 600, border: 'none', cursor: bookingStep > i ? 'pointer' : 'default',
+                          background: bookingStep >= i + 1 ? '#0F5DA8' : '#f0f0f0',
+                          color: bookingStep >= i + 1 ? '#fff' : '#999',
+                          fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.15s',
+                        }}>
+                        {bookingStep > i + 1 ? '✓ ' : ''}{i + 1}. {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Step 1: Review Order */}
+                  {bookingStep === 1 && (
+                    <>
+                      <h3 style={{ fontSize: 15, marginBottom: 12 }}>Review Your Order</h3>
+                      {cart.map(item => (
+                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+                          <Flask size={20} color="var(--primary)" />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 13, fontWeight: 600 }}>{item.name}</p>
+                            <p style={{ fontSize: 11, color: 'var(--text-light)' }}>{item.category} • Qty: {item.qty || 1}</p>
+                          </div>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--primary)' }}>₹{item.price}</span>
+                          <button onClick={() => removeFromCart(item.id)} style={{ color: 'var(--text-light)', padding: 4, background: 'none', border: 'none', cursor: 'pointer' }}><Trash size={16} /></button>
+                        </div>
+                      ))}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: '2px solid var(--primary)' }}>
+                        <span style={{ fontSize: 15, fontWeight: 700 }}>Total</span>
+                        <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--primary)' }}>₹{cartTotal}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <button onClick={() => setShowForm(false)} className="btn-outline" style={{ flex: 1 }}>Back to Tests</button>
+                        <button onClick={() => setBookingStep(2)} className="btn-accent" style={{ flex: 1 }}>Continue</button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Step 2: Patient Details */}
+                  {bookingStep === 2 && (
+                    <>
+                      <h3 style={{ fontSize: 15, marginBottom: 12 }}>Patient Details</h3>
+                      <div style={{ marginBottom: 12 }}>
                         <label style={{ fontSize: 12 }}>Booking for</label>
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          <button onClick={() => setBookedFor(null)}
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                          <button onClick={() => { setBookedFor(null); setPatientInfo({ name: '', age: '', gender: '' }); }}
                             style={{
                               padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500,
                               background: !bookedFor ? '#0F5DA8' : '#f0f0f0',
@@ -562,7 +595,7 @@ export default function Diagnostics() {
                             <User size={14} style={{ marginRight: 4 }} /> Myself
                           </button>
                           {familyMembers.map(m => (
-                            <button key={m.id} onClick={() => setBookedFor(m)}
+                            <button key={m.id} onClick={() => { setBookedFor(m); setPatientInfo({ name: m.name || '', age: m.age || '', gender: m.gender || '' }); }}
                               style={{
                                 padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500,
                                 background: bookedFor?.id === m.id ? '#0F5DA8' : '#f0f0f0',
@@ -582,120 +615,240 @@ export default function Diagnostics() {
                           </button>
                         </div>
                       </div>
-                    )}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      <div>
-                        <label style={{ fontSize: 12 }}>Collection Date</label>
-                        <input type="date" value={collectionDate} min={new Date().toISOString().split('T')[0]}
-                          onChange={e => setCollectionDate(e.target.value)} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: 12 }}>Preferred Time</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 4 }}>
-                          {[
-                            { slot: '6:00 AM - 7:00 AM', status: 'available' },
-                            { slot: '7:00 AM - 8:00 AM', status: 'available' },
-                            { slot: '8:00 AM - 9:00 AM', status: 'limited' },
-                            { slot: '9:00 AM - 10:00 AM', status: 'available' },
-                            { slot: '10:00 AM - 11:00 AM', status: 'available' },
-                            { slot: '11:00 AM - 12:00 PM', status: 'limited' },
-                            { slot: '12:00 PM - 1:00 PM', status: 'full' },
-                            { slot: '1:00 PM - 2:00 PM', status: 'full' },
-                            { slot: '2:00 PM - 3:00 PM', status: 'available' },
-                            { slot: '3:00 PM - 4:00 PM', status: 'available' },
-                            { slot: '4:00 PM - 5:00 PM', status: 'limited' },
-                            { slot: '5:00 PM - 6:00 PM', status: 'available' },
-                            { slot: '6:00 PM - 7:00 PM', status: 'full' },
-                            { slot: '7:00 PM - 8:00 PM', status: 'full' },
-                          ].map(t => {
-                            const isSelected = collectionTime === t.slot;
-                            const isFull = t.status === 'full';
-                            return (
-                              <button key={t.slot} onClick={() => !isFull && setCollectionTime(isSelected ? '' : t.slot)}
-                                disabled={isFull}
-                                style={{
-                                  padding: '8px 6px', borderRadius: 8, fontSize: 11, fontWeight: 500,
-                                  background: isSelected ? '#0F5DA8' : isFull ? '#f5f5f5' : '#fff',
-                                  color: isSelected ? '#fff' : isFull ? '#ccc' : 'var(--text-dark)',
-                                  border: `1px solid ${isSelected ? '#0F5DA8' : isFull ? '#eee' : 'var(--border)'}`,
-                                  cursor: isFull ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
-                                  textAlign: 'center', transition: 'all 0.15s', position: 'relative',
-                                }}>
-                                <div style={{ fontSize: 11 }}>{t.slot.replace(' - ', '\n')}</div>
-                                <span style={{
-                                  display: 'inline-block', fontSize: 9, fontWeight: 700, marginTop: 2,
-                                  color: isSelected ? 'rgba(255,255,255,0.8)' : 
-                                    isFull ? '#ccc' : t.status === 'available' ? '#22C55E' : '#FF8A00',
-                                }}>
-                                  {isFull ? 'Full' : t.status === 'available' ? 'Available' : 'Limited'}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, position: 'relative' }}>
-                      <input placeholder="Type your address..." value={address.line1}
-                        onChange={e => { setAddress({ ...address, line1: e.target.value }); searchAddress(e.target.value); }}
-                        onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
-                        onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
-                        className="input" style={{ padding: '8px 10px', fontSize: 13, flex: 1 }} />
-                      {showAddressSuggestions && addressSuggestions.length > 0 && (
-                        <div style={{
-                          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 10,
-                          background: '#fff', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                          border: '1px solid var(--border)', maxHeight: 200, overflowY: 'auto',
-                        }}>
-                          {addressSuggestions.map((s, i) => (
-                            <button key={i} onMouseDown={() => {
-                              setAddress({ line1: s.display, city: s.city, pincode: s.pincode });
-                              setShowAddressSuggestions(false);
-                            }}
-                              style={{
-                                display: 'block', width: '100%', padding: '10px 14px', fontSize: 13,
-                                textAlign: 'left', border: 'none', background: '#fff', cursor: 'pointer',
-                                fontFamily: 'inherit', borderBottom: i < addressSuggestions.length - 1 ? '1px solid #f5f5f5' : 'none',
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
-                              onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-                              <MapPin size={12} style={{ marginRight: 6, color: '#0F5DA8', flexShrink: 0 }} />
-                              {s.display}
-                            </button>
-                          ))}
+                      {!bookedFor && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                          <input placeholder="Your Name" value={patientInfo.name}
+                            onChange={e => setPatientInfo({ ...patientInfo, name: e.target.value })}
+                            className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
+                          <select value={patientInfo.gender}
+                            onChange={e => setPatientInfo({ ...patientInfo, gender: e.target.value })}
+                            className="input" style={{ padding: '8px 10px', fontSize: 13 }}>
+                            <option value="">Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
                         </div>
                       )}
-                      <button onClick={() => {
-                        if (!navigator.geolocation) return;
-                        setLocating(true);
-                        navigator.geolocation.getCurrentPosition(async (pos) => {
-                          try {
-                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
-                            const data = await res.json();
-                            const addr = data.address || {};
-                            setAddress({
-                              line1: [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean).join(', ') || '📍 Current location',
-                              city: addr.city || addr.town || addr.village || addr.state_district || '',
-                              pincode: addr.postcode || '',
-                            });
-                          } catch {}
-                          setLocating(false);
-                        }, () => setLocating(false), { enableHighAccuracy: true });
-                      }}
-                        style={{
-                          padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                          background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
-                          fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4,
-                        }}>
-                        <MapPin size={14} weight="fill" /> {locating ? 'Locating...' : 'Use my location'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      <input placeholder="City" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
-                      <input placeholder="PIN Code" value={address.pincode} onChange={e => setAddress({ ...address, pincode: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
-                    </div>
-                    <button onClick={handlePlace} disabled={placing} className="btn btn-accent" style={{ marginTop: 8 }}>
-                      {placing ? 'Booking...' : `Book ${cart.length} Test${cart.length > 1 ? 's' : ''} — ₹${cartTotal}`}
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <button onClick={() => setBookingStep(1)} className="btn-outline" style={{ flex: 1 }}>Back</button>
+                        <button onClick={() => {
+                          if (!bookedFor && !patientInfo.name.trim()) return;
+                          setBookingStep(3);
+                        }} className="btn-accent" style={{ flex: 1 }}>Continue</button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Step 3: Address + Date/Time */}
+                  {bookingStep === 3 && (
+                    <>
+                      <h3 style={{ fontSize: 15, marginBottom: 4 }}>Schedule Home Collection</h3>
+                      <p style={{ fontSize: 12, color: '#e65100', fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Clock size={14} weight="fill" color="#FF8A00" />
+                        Next available slot: {nextSlot} — Limited slots
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          <div>
+                            <label style={{ fontSize: 12 }}>Collection Date</label>
+                            <input type="date" value={collectionDate} min={new Date().toISOString().split('T')[0]}
+                              onChange={e => setCollectionDate(e.target.value)} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 12 }}>Preferred Time</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 4 }}>
+                              {[
+                                { slot: '6:00 AM - 7:00 AM', status: 'available' },
+                                { slot: '7:00 AM - 8:00 AM', status: 'available' },
+                                { slot: '8:00 AM - 9:00 AM', status: 'limited' },
+                                { slot: '9:00 AM - 10:00 AM', status: 'available' },
+                                { slot: '10:00 AM - 11:00 AM', status: 'available' },
+                                { slot: '11:00 AM - 12:00 PM', status: 'limited' },
+                                { slot: '12:00 PM - 1:00 PM', status: 'full' },
+                                { slot: '1:00 PM - 2:00 PM', status: 'full' },
+                                { slot: '2:00 PM - 3:00 PM', status: 'available' },
+                                { slot: '3:00 PM - 4:00 PM', status: 'available' },
+                                { slot: '4:00 PM - 5:00 PM', status: 'limited' },
+                                { slot: '5:00 PM - 6:00 PM', status: 'available' },
+                                { slot: '6:00 PM - 7:00 PM', status: 'full' },
+                                { slot: '7:00 PM - 8:00 PM', status: 'full' },
+                              ].map(t => {
+                                const isSelected = collectionTime === t.slot;
+                                const isFull = t.status === 'full';
+                                return (
+                                  <button key={t.slot} onClick={() => !isFull && setCollectionTime(isSelected ? '' : t.slot)}
+                                    disabled={isFull}
+                                    style={{
+                                      padding: '8px 6px', borderRadius: 8, fontSize: 11, fontWeight: 500,
+                                      background: isSelected ? '#0F5DA8' : isFull ? '#f5f5f5' : '#fff',
+                                      color: isSelected ? '#fff' : isFull ? '#ccc' : 'var(--text-dark)',
+                                      border: `1px solid ${isSelected ? '#0F5DA8' : isFull ? '#eee' : 'var(--border)'}`,
+                                      cursor: isFull ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
+                                      textAlign: 'center', transition: 'all 0.15s', position: 'relative',
+                                    }}>
+                                    <div style={{ fontSize: 11 }}>{t.slot.replace(' - ', '\n')}</div>
+                                    <span style={{
+                                      display: 'inline-block', fontSize: 9, fontWeight: 700, marginTop: 2,
+                                      color: isSelected ? 'rgba(255,255,255,0.8)' : 
+                                        isFull ? '#ccc' : t.status === 'available' ? '#22C55E' : '#FF8A00',
+                                    }}>
+                                      {isFull ? 'Full' : t.status === 'available' ? 'Available' : 'Limited'}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                        <label style={{ fontSize: 12 }}>Collection Address</label>
+                        <div style={{ display: 'flex', gap: 8, position: 'relative' }}>
+                          <input placeholder="Type your address..." value={address.line1}
+                            onChange={e => { setAddress({ ...address, line1: e.target.value }); searchAddress(e.target.value); }}
+                            onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
+                            className="input" style={{ padding: '8px 10px', fontSize: 13, flex: 1 }} />
+                          {showAddressSuggestions && addressSuggestions.length > 0 && (
+                            <div style={{
+                              position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 10,
+                              background: '#fff', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                              border: '1px solid var(--border)', maxHeight: 200, overflowY: 'auto',
+                            }}>
+                              {addressSuggestions.map((s, i) => (
+                                <button key={i} onMouseDown={() => {
+                                  setAddress({ line1: s.display, city: s.city, pincode: s.pincode });
+                                  setShowAddressSuggestions(false);
+                                }}
+                                  style={{
+                                    display: 'block', width: '100%', padding: '10px 14px', fontSize: 13,
+                                    textAlign: 'left', border: 'none', background: '#fff', cursor: 'pointer',
+                                    fontFamily: 'inherit', borderBottom: i < addressSuggestions.length - 1 ? '1px solid #f5f5f5' : 'none',
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
+                                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                                  <MapPin size={12} style={{ marginRight: 6, color: '#0F5DA8', flexShrink: 0 }} />
+                                  {s.display}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <button onClick={() => {
+                            if (!navigator.geolocation) return;
+                            setLocating(true);
+                            navigator.geolocation.getCurrentPosition(async (pos) => {
+                              try {
+                                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+                                const data = await res.json();
+                                const addr = data.address || {};
+                                setAddress({
+                                  line1: [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean).join(', ') || '📍 Current location',
+                                  city: addr.city || addr.town || addr.village || addr.state_district || '',
+                                  pincode: addr.postcode || '',
+                                });
+                              } catch {}
+                              setLocating(false);
+                            }, () => setLocating(false), { enableHighAccuracy: true });
+                          }}
+                            style={{
+                              padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                              background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                              fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4,
+                            }}>
+                            <MapPin size={14} weight="fill" /> {locating ? 'Locating...' : 'Use my location'}
+                          </button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          <input placeholder="City" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
+                          <input placeholder="PIN Code" value={address.pincode} onChange={e => setAddress({ ...address, pincode: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                          <button onClick={() => setBookingStep(2)} className="btn-outline" style={{ flex: 1 }}>Back</button>
+                          <button onClick={() => setBookingStep(4)} className="btn-accent" style={{ flex: 1 }}>
+                            Continue — ₹{cartTotal}
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Step 4: Payment */}
+                  {bookingStep === 4 && (
+                    <>
+                      <h3 style={{ fontSize: 15, marginBottom: 12 }}>Choose Payment Method</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {[
+                          { value: 'phonepe', label: 'PhonePe / Google Pay / UPI', icon: '📱', desc: 'Pay via any UPI app' },
+                          { value: 'card', label: 'Credit / Debit Card', icon: '💳', desc: 'Visa, Mastercard, RuPay' },
+                          { value: 'pay_at_collection', label: 'Pay at Collection', icon: '💵', desc: 'Cash or card at your doorstep' },
+                        ].map(opt => (
+                          <button key={opt.value} onClick={() => setPaymentMethod(opt.value)}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+                              borderRadius: 12, border: `2px solid ${paymentMethod === opt.value ? '#0F5DA8' : 'var(--border)'}`,
+                              background: paymentMethod === opt.value ? '#e8f0fe' : '#fff',
+                              cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
+                            }}>
+                            <span style={{ fontSize: 24 }}>{opt.icon}</span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 14, fontWeight: 600 }}>{opt.label}</div>
+                              <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{opt.desc}</div>
+                            </div>
+                            <div style={{
+                              width: 20, height: 20, borderRadius: '50%',
+                              border: `2px solid ${paymentMethod === opt.value ? '#0F5DA8' : '#ccc'}`,
+                              background: paymentMethod === opt.value ? '#0F5DA8' : 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              {paymentMethod === opt.value && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                        <button onClick={() => setBookingStep(3)} className="btn-outline" style={{ flex: 1 }}>Back</button>
+                        <button onClick={handlePlace} disabled={placing || !paymentMethod} className="btn-accent" style={{ flex: 1 }}>
+                          {placing ? 'Placing Order...' : `Pay ₹${cartTotal}`}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Confirmation */}
+              {showForm && bookingStep === 5 && (
+                <div style={{ padding: '32px 20px', textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
+                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                    <CheckCircle size={32} weight="fill" color="#2e7d32" />
+                  </div>
+                  <h2>Order Confirmed!</h2>
+                  {orderId && <p style={{ fontSize: 13, color: 'var(--text-light)', marginTop: 4 }}>Order ID: <strong>{orderId}</strong></p>}
+                  {paymentMethod === 'pay_at_collection' ? (
+                    <p style={{ fontSize: 13, color: '#e65100', marginTop: 8, fontWeight: 500 }}>Pay ₹{cartTotal} at the time of collection</p>
+                  ) : (
+                    <p style={{ fontSize: 13, color: '#22C55E', marginTop: 8, fontWeight: 500 }}>Payment of ₹{cartTotal} received ✓</p>
+                  )}
+                  <p style={{ color: 'var(--text-light)', marginTop: 8 }}>We'll send you a confirmation via WhatsApp.</p>
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
+                    <button onClick={() => {
+                      const msg = encodeURIComponent(`Hi! I've booked tests on Jeevan HealthCare. Order ID: ${orderId}. Total: ₹${cartTotal}.`);
+                      window.open(`https://wa.me/?text=${msg}`, '_blank');
+                    }} style={{
+                      padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                      background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer',
+                      fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 8,
+                    }}>
+                      Share on WhatsApp
+                    </button>
+                    <button onClick={() => navigate('/my-test-orders')} style={{
+                      padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                      background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}>
+                      Track Order
+                    </button>
+                    <button onClick={() => { setBookingStep(1); setCart([]); setShowForm(false); setOrderId(null); setPaymentMethod(''); }} className="btn-outline">
+                      Book More Tests
                     </button>
                   </div>
                 </div>
