@@ -1,7 +1,7 @@
-import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield } from '@phosphor-icons/react';
+import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield, ShoppingCart, Plus } from '@phosphor-icons/react';
 import testDetailData from './testDetailData';
 
-const TestDetailModal = ({ test, onClose }) => {
+const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = [], onAddAlsoBooked }) => {
   if (!test) return null;
   const data = testDetailData[test.name] || null;
 
@@ -111,6 +111,66 @@ const TestDetailModal = ({ test, onClose }) => {
                   <span style={{ color: '#1565c0', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
                   <span style={{ color: 'var(--text-body)' }}>{w}</span>
                 </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* Combo Upsell */}
+        {combo && combo.items.length >= 2 && (
+          <Section title="FREQUENTLY BOOKED TOGETHER" icon={ShoppingCart} color="#FF8A00">
+            <div style={{ background: '#fff8e1', borderRadius: 12, padding: 16, border: '1px solid #ffecb3' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#e65100' }}>{combo.name}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#2e7d32', background: '#c8e6c9', padding: '2px 8px', borderRadius: 4 }}>{combo.saveLabel}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+                {combo.items.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+                    <span style={{ color: '#0F5DA8', fontWeight: 600 }}>{item.name}</span>
+                    <span style={{ fontWeight: 600, color: i === 0 ? '#0F5DA8' : 'var(--text-dark)' }}>₹{item.price}</span>
+                  </div>
+                ))}
+                <div style={{ borderTop: '1px dashed #ddd', marginTop: 4, paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span style={{ fontWeight: 700, color: 'var(--text-dark)' }}>Combo Price</span>
+                  <span style={{ fontWeight: 700, color: '#e65100' }}>₹{combo.comboPrice}</span>
+                </div>
+                {combo.savings > 0 && (
+                  <div style={{ fontSize: 12, color: '#2e7d32', fontWeight: 600 }}>
+                    You save ₹{combo.savings}
+                  </div>
+                )}
+              </div>
+              <button onClick={() => addComboToCart(combo.items)}
+                style={{
+                  width: '100%', padding: '10px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                  background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
+                  border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                }}>
+                Add All to Cart — ₹{combo.comboPrice}
+              </button>
+            </div>
+          </Section>
+        )}
+
+        {/* Also Booked */}
+        {alsoBooked.length > 0 && (
+          <Section title="ALSO BOOKED BY OTHERS" icon={Plus} color="#0F5DA8">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {alsoBooked.map((item, i) => (
+                <button key={i} onClick={() => onAddAlsoBooked(item)}
+                  style={{
+                    padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                    background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                    fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6,
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#d0e2ff'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
+                  <Plus size={14} weight="bold" />
+                  {item.name}
+                  <span style={{ fontWeight: 700 }}>₹{item.price}</span>
+                </button>
               ))}
             </div>
           </Section>

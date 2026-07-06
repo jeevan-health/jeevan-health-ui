@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info,
+  MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
   Heartbeat, Heart, Drop, Shield, Bone, Baby, User,
   Microscope, Truck, Sparkle,
   CaretRight, FileText, CalendarDots, ChatCircle,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
+import { getFamilyMembers } from '../services/authService';
 
 const categoryList = [
   { name: 'Full Body', icon: User, color: '#0F5DA8' },
@@ -73,9 +74,84 @@ export default function Diagnostics() {
   const [collectionDate, setCollectionDate] = useState('');
   const [collectionTime, setCollectionTime] = useState('');
   const [address, setAddress] = useState({ line1: '', city: '', pincode: '' });
+  const [city, setCity] = useState('Hyderabad');
+  const [showCityPicker, setShowCityPicker] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [showAllTests, setShowAllTests] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [bookedFor, setBookedFor] = useState(null);
+  const [locating, setLocating] = useState(false);
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const nextSlot = ['2:00 PM', '4:00 PM', '6:00 PM', 'Tomorrow 8:00 AM'][cart.length % 4];
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [sortBy, setSortBy] = useState('popular');
+
+  const sortOptions = [
+    { value: 'popular', label: 'Popular' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'name', label: 'Name: A-Z' },
+  ];
+
+  const totalBookedToday = 247;
+  const dailyBookings = {
+    'Complete Blood Count (CBC)': 89,
+    'HbA1c': 124,
+    'Thyroid Profile (T3, T4, TSH)': 76,
+    'Lipid Profile': 93,
+    'Vitamin D Total': 58,
+    'Blood Sugar (Fasting)': 67,
+    'Liver Function Test (LFT)': 42,
+    'Kidney Function Test (KFT)': 38,
+  };
+
+  const popularTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total'];
+  const mostBookedTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total', 'Blood Sugar (Fasting)', 'Liver Function Test (LFT)', 'Kidney Function Test (KFT)'];
+  const bookingCounts = {
+    'Complete Blood Count (CBC)': '2,847',
+    'HbA1c': '4,216',
+    'Thyroid Profile (T3, T4, TSH)': '3,591',
+    'Lipid Profile': '3,128',
+    'Vitamin D Total': '2,964',
+    'Blood Sugar (Fasting)': '1,873',
+    'Liver Function Test (LFT)': '1,652',
+    'Kidney Function Test (KFT)': '1,449',
+  };
+
+  const relatedSuggestions = {
+    'Complete Blood Count (CBC)': ['Iron Studies', 'Vitamin B12'],
+    'HbA1c': ['Blood Sugar (Fasting)', 'Lipid Profile'],
+    'Thyroid Profile (T3, T4, TSH)': ['TSH', 'Lipid Profile'],
+    'Lipid Profile': ['Blood Sugar (Fasting)', 'hs-CRP'],
+    'Vitamin D Total': ['Vitamin B12', 'Calcium'],
+    'Blood Sugar (Fasting)': ['HbA1c', 'Lipid Profile'],
+    'Liver Function Test (LFT)': ['Kidney Function Test (KFT)', 'Lipid Profile'],
+    'Kidney Function Test (KFT)': ['Liver Function Test (LFT)', 'Uric Acid'],
+  };
+
+  const comboData = {
+    'HbA1c': { name: 'Diabetes Care Pack', saveLabel: 'Save ₹271', tests: ['Blood Sugar (Fasting)', 'Lipid Profile'], comboPrice: 999 },
+    'Blood Sugar (Fasting)': { name: 'Diabetes Care Pack', saveLabel: 'Save ₹271', tests: ['HbA1c', 'Lipid Profile'], comboPrice: 999 },
+    'Complete Blood Count (CBC)': { name: 'Anaemia Checkup', saveLabel: 'Save ₹600', tests: ['Iron Studies', 'Vitamin B12'], comboPrice: 1799 },
+    'Thyroid Profile (T3, T4, TSH)': { name: 'Complete Thyroid', saveLabel: 'Save ₹151', tests: ['TSH'], comboPrice: 899 },
+    'Lipid Profile': { name: 'Heart Health Pack', saveLabel: 'Save ₹201', tests: ['Total Cholesterol', 'hs-CRP'], comboPrice: 749 },
+    'Vitamin D Total': { name: 'Bone Health Pack', saveLabel: 'Save ₹401', tests: ['Vitamin B12', 'Serum Calcium'], comboPrice: 1799 },
+    'Liver Function Test (LFT)': { name: 'Organ Health Pack', saveLabel: 'Save ₹301', tests: ['Kidney Function Test (KFT)', 'Lipid Profile'], comboPrice: 1499 },
+    'Kidney Function Test (KFT)': { name: 'Organ Health Pack', saveLabel: 'Save ₹301', tests: ['Liver Function Test (LFT)', 'Lipid Profile'], comboPrice: 1499 },
+  };
+
+  const getComboForTest = (test) => {
+    if (!test || !comboData[test.name]) return null;
+    const combo = comboData[test.name];
+    const comboItems = combo.tests.map(name => tests.find(t => t.name === name)).filter(Boolean);
+    const total = (test.price || 0) + comboItems.reduce((s, t) => s + (t?.price || 0), 0);
+    return { ...combo, items: [test, ...comboItems], total, savings: total - combo.comboPrice };
+  };
+
+  let allTests = [];
 
   const load = async () => {
     setLoading(true);
@@ -93,13 +169,55 @@ export default function Diagnostics() {
 
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      getFamilyMembers().then(({ data }) => setFamilyMembers(data || [])).catch(() => {});
+    }
+  }, [isAuthenticated]);
+
   useEffect(() => { const t = setTimeout(load, 300); return () => clearTimeout(t); }, [search, category]);
+
+  const sortedTests = [...tests].sort((a, b) => {
+    if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
+    if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
+    if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
+    return (bookingCounts[b.name] ? parseInt(bookingCounts[b.name].replace(/,/g, '')) : 0) - (bookingCounts[a.name] ? parseInt(bookingCounts[a.name].replace(/,/g, '')) : 0);
+  });
+
+  const suggestions = search.trim()
+    ? tests.filter(t => t.name.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
+    : [];
+
+  const handleSuggestionClick = (name) => {
+    setSearch(name);
+    setShowSuggestions(false);
+    load();
+  };
 
   const addToCart = (test) => {
     setCart(prev => {
       if (prev.find(i => i.id === test.id)) return prev;
       return [...prev, { ...test, qty: 1 }];
     });
+  };
+
+  let addressTimer;
+  const searchAddress = (q) => {
+    clearTimeout(addressTimer);
+    if (!q.trim()) { setAddressSuggestions([]); setShowAddressSuggestions(false); return; }
+    addressTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`);
+        const data = await res.json();
+        setAddressSuggestions(data.map(d => ({
+          display: d.display_name,
+          city: d.address?.city || d.address?.town || d.address?.village || d.address?.state_district || '',
+          pincode: d.address?.postcode || '',
+          lat: d.lat, lon: d.lon,
+        })));
+        setShowAddressSuggestions(true);
+      } catch {}
+    }, 400);
   };
 
   const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id));
@@ -115,6 +233,7 @@ export default function Diagnostics() {
         collectionDate: collectionDate || null,
         collectionTime: collectionTime || null,
         collectionAddress: address.city ? address : null,
+        bookedFor: bookedFor || null,
       });
       setPlaced(true);
     } catch {} finally { setPlacing(false); }
@@ -146,16 +265,126 @@ export default function Diagnostics() {
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24 }}>
             Book diagnostic tests at home — accurate reports, doorstep collection
           </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative' }}>
+              <button onClick={() => setShowCityPicker(!showCityPicker)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px',
+                  borderRadius: 20, background: 'rgba(255,255,255,0.15)', color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 13,
+                  fontFamily: 'inherit', fontWeight: 500, backdropFilter: 'blur(4px)',
+                }}>
+                <MapPin size={14} weight="fill" />
+                {city}
+                <span style={{ fontSize: 10, marginLeft: 2 }}>▾</span>
+              </button>
+              {showCityPicker && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, minWidth: 160,
+                  background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                  overflow: 'hidden', zIndex: 10, textAlign: 'left',
+                }}>
+                  {['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow'].map(c => (
+                    <button key={c} onMouseDown={() => { setCity(c); setShowCityPicker(false); }}
+                      style={{
+                        display: 'block', width: '100%', padding: '10px 16px', fontSize: 13,
+                        border: 'none', background: city === c ? '#e8f0fe' : '#fff',
+                        color: city === c ? '#0F5DA8' : 'var(--text-dark)', cursor: 'pointer',
+                        fontFamily: 'inherit', fontWeight: city === c ? 600 : 400,
+                        textAlign: 'left', transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
+                      onMouseLeave={e => e.currentTarget.style.background = city === c ? '#e8f0fe' : '#fff'}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>Home collection available</span>
+          </div>
           <div style={{ position: 'relative', maxWidth: 600, margin: '0 auto' }}>
             <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0F5DA8' }} />
             <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
-              value={search} onChange={e => setSearch(e.target.value)}
+              value={search}
+              onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => { setFocused(true); setShowSuggestions(true); }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               style={{
                 width: '100%', padding: '14px 16px 14px 48px', borderRadius: 50,
                 border: 'none', fontSize: 15, outline: 'none', background: '#fff',
                 fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
               }} />
+            {/* Suggestions dropdown */}
+            {showSuggestions && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                background: '#fff', borderRadius: 16, boxShadow: '0 12px 48px rgba(0,0,0,0.12)',
+                border: '1px solid var(--border)', overflow: 'hidden', zIndex: 999, textAlign: 'left',
+              }}>
+                {search.trim() && suggestions.length > 0 ? (
+                  suggestions.map(t => (
+                    <button key={t.id} onMouseDown={() => handleSuggestionClick(t.name)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 18px',
+                        border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit',
+                        borderBottom: '1px solid #f5f5f5', transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                      <MagnifyingGlass size={16} color="#0F5DA8" />
+                      <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>{t.name}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{t.category} • ₹{t.price}</div>
+                      </div>
+                    </button>
+                  ))
+                ) : !search.trim() && focused ? (
+                  <div style={{ padding: '12px 18px' }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Popular Tests</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {popularTests.map(name => (
+                        <button key={name} onMouseDown={() => handleSuggestionClick(name)}
+                          style={{
+                            padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+                            background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                            fontFamily: 'inherit', transition: 'background 0.15s',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#d0e2ff'}
+                          onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : search.trim() && suggestions.length === 0 ? (
+                  <div style={{ padding: '16px 18px', fontSize: 13, color: 'var(--text-light)', textAlign: 'center' }}>
+                    No tests found — try a different name
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* Urgency banner */}
+      <div style={{ background: 'linear-gradient(90deg, #fff8e1, #fff3e0)', borderBottom: '1px solid #ffecb3', padding: '10px 20px' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, flexWrap: 'wrap', fontSize: 13 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#e65100', fontWeight: 600 }}>
+            <Clock size={16} weight="fill" color="#FF8A00" />
+            <strong style={{ fontSize: 16 }}>{totalBookedToday}</strong> tests booked today
+          </span>
+          <span style={{ color: '#888' }}>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#2e7d32', fontWeight: 500 }}>
+            <CheckCircle size={14} weight="fill" color="#22C55E" />
+            Free home collection
+          </span>
+          <span style={{ color: '#888' }}>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#0F5DA8', fontWeight: 500 }}>
+            <MapPin size={14} weight="fill" />
+            Available in {city}
+          </span>
         </div>
       </div>
 
@@ -313,8 +542,47 @@ export default function Diagnostics() {
               {/* Booking Form */}
               {showForm && (
                 <div style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 20, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 15, marginBottom: 12 }}>Schedule Home Collection</h3>
+                  <h3 style={{ fontSize: 15, marginBottom: 4 }}>Schedule Home Collection</h3>
+                  <p style={{ fontSize: 12, color: '#e65100', fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Clock size={14} weight="fill" color="#FF8A00" />
+                    Next available slot: {nextSlot} — Limited slots
+                  </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {isAuthenticated && (
+                      <div>
+                        <label style={{ fontSize: 12 }}>Booking for</label>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          <button onClick={() => setBookedFor(null)}
+                            style={{
+                              padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                              background: !bookedFor ? '#0F5DA8' : '#f0f0f0',
+                              color: !bookedFor ? '#fff' : 'var(--text-dark)',
+                              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                            }}>
+                            <User size={14} style={{ marginRight: 4 }} /> Myself
+                          </button>
+                          {familyMembers.map(m => (
+                            <button key={m.id} onClick={() => setBookedFor(m)}
+                              style={{
+                                padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                                background: bookedFor?.id === m.id ? '#0F5DA8' : '#f0f0f0',
+                                color: bookedFor?.id === m.id ? '#fff' : 'var(--text-dark)',
+                                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                              }}>
+                              <User size={14} style={{ marginRight: 4 }} /> {m.name}
+                            </button>
+                          ))}
+                          <button onClick={() => navigate('/add-family')}
+                            style={{
+                              padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                              background: '#e8f0fe', color: '#0F5DA8', border: '1px dashed #0F5DA8',
+                              cursor: 'pointer', fontFamily: 'inherit',
+                            }}>
+                            + Add Member
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       <div>
                         <label style={{ fontSize: 12 }}>Collection Date</label>
@@ -323,15 +591,105 @@ export default function Diagnostics() {
                       </div>
                       <div>
                         <label style={{ fontSize: 12 }}>Preferred Time</label>
-                        <select value={collectionTime} onChange={e => setCollectionTime(e.target.value)} className="input" style={{ padding: '8px 10px', fontSize: 13 }}>
-                          <option value="">Select time</option>
-                          {['6:00 AM - 8:00 AM', '8:00 AM - 10:00 AM', '10:00 AM - 12:00 PM', '12:00 PM - 2:00 PM', '2:00 PM - 4:00 PM', '4:00 PM - 6:00 PM', '6:00 PM - 8:00 PM'].map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 4 }}>
+                          {[
+                            { slot: '6:00 AM - 7:00 AM', status: 'available' },
+                            { slot: '7:00 AM - 8:00 AM', status: 'available' },
+                            { slot: '8:00 AM - 9:00 AM', status: 'limited' },
+                            { slot: '9:00 AM - 10:00 AM', status: 'available' },
+                            { slot: '10:00 AM - 11:00 AM', status: 'available' },
+                            { slot: '11:00 AM - 12:00 PM', status: 'limited' },
+                            { slot: '12:00 PM - 1:00 PM', status: 'full' },
+                            { slot: '1:00 PM - 2:00 PM', status: 'full' },
+                            { slot: '2:00 PM - 3:00 PM', status: 'available' },
+                            { slot: '3:00 PM - 4:00 PM', status: 'available' },
+                            { slot: '4:00 PM - 5:00 PM', status: 'limited' },
+                            { slot: '5:00 PM - 6:00 PM', status: 'available' },
+                            { slot: '6:00 PM - 7:00 PM', status: 'full' },
+                            { slot: '7:00 PM - 8:00 PM', status: 'full' },
+                          ].map(t => {
+                            const isSelected = collectionTime === t.slot;
+                            const isFull = t.status === 'full';
+                            return (
+                              <button key={t.slot} onClick={() => !isFull && setCollectionTime(isSelected ? '' : t.slot)}
+                                disabled={isFull}
+                                style={{
+                                  padding: '8px 6px', borderRadius: 8, fontSize: 11, fontWeight: 500,
+                                  background: isSelected ? '#0F5DA8' : isFull ? '#f5f5f5' : '#fff',
+                                  color: isSelected ? '#fff' : isFull ? '#ccc' : 'var(--text-dark)',
+                                  border: `1px solid ${isSelected ? '#0F5DA8' : isFull ? '#eee' : 'var(--border)'}`,
+                                  cursor: isFull ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
+                                  textAlign: 'center', transition: 'all 0.15s', position: 'relative',
+                                }}>
+                                <div style={{ fontSize: 11 }}>{t.slot.replace(' - ', '\n')}</div>
+                                <span style={{
+                                  display: 'inline-block', fontSize: 9, fontWeight: 700, marginTop: 2,
+                                  color: isSelected ? 'rgba(255,255,255,0.8)' : 
+                                    isFull ? '#ccc' : t.status === 'available' ? '#22C55E' : '#FF8A00',
+                                }}>
+                                  {isFull ? 'Full' : t.status === 'available' ? 'Available' : 'Limited'}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-                    <input placeholder="Address" value={address.line1} onChange={e => setAddress({ ...address, line1: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
+                    <div style={{ display: 'flex', gap: 8, position: 'relative' }}>
+                      <input placeholder="Type your address..." value={address.line1}
+                        onChange={e => { setAddress({ ...address, line1: e.target.value }); searchAddress(e.target.value); }}
+                        onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
+                        className="input" style={{ padding: '8px 10px', fontSize: 13, flex: 1 }} />
+                      {showAddressSuggestions && addressSuggestions.length > 0 && (
+                        <div style={{
+                          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 10,
+                          background: '#fff', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                          border: '1px solid var(--border)', maxHeight: 200, overflowY: 'auto',
+                        }}>
+                          {addressSuggestions.map((s, i) => (
+                            <button key={i} onMouseDown={() => {
+                              setAddress({ line1: s.display, city: s.city, pincode: s.pincode });
+                              setShowAddressSuggestions(false);
+                            }}
+                              style={{
+                                display: 'block', width: '100%', padding: '10px 14px', fontSize: 13,
+                                textAlign: 'left', border: 'none', background: '#fff', cursor: 'pointer',
+                                fontFamily: 'inherit', borderBottom: i < addressSuggestions.length - 1 ? '1px solid #f5f5f5' : 'none',
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
+                              onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                              <MapPin size={12} style={{ marginRight: 6, color: '#0F5DA8', flexShrink: 0 }} />
+                              {s.display}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <button onClick={() => {
+                        if (!navigator.geolocation) return;
+                        setLocating(true);
+                        navigator.geolocation.getCurrentPosition(async (pos) => {
+                          try {
+                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+                            const data = await res.json();
+                            const addr = data.address || {};
+                            setAddress({
+                              line1: [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean).join(', ') || '📍 Current location',
+                              city: addr.city || addr.town || addr.village || addr.state_district || '',
+                              pincode: addr.postcode || '',
+                            });
+                          } catch {}
+                          setLocating(false);
+                        }, () => setLocating(false), { enableHighAccuracy: true });
+                      }}
+                        style={{
+                          padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                          background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                          fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4,
+                        }}>
+                        <MapPin size={14} weight="fill" /> {locating ? 'Locating...' : 'Use my location'}
+                      </button>
+                    </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       <input placeholder="City" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
                       <input placeholder="PIN Code" value={address.pincode} onChange={e => setAddress({ ...address, pincode: e.target.value })} className="input" style={{ padding: '8px 10px', fontSize: 13 }} />
@@ -343,20 +701,50 @@ export default function Diagnostics() {
                 </div>
               )}
 
+              {/* Sort bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 600 }}>Sort by:</span>
+                {sortOptions.map(opt => (
+                  <button key={opt.value} onClick={() => setSortBy(opt.value)}
+                    style={{
+                      padding: '5px 12px', borderRadius: 16, fontSize: 12, fontWeight: 500,
+                      background: sortBy === opt.value ? '#0F5DA8' : '#f0f0f0',
+                      color: sortBy === opt.value ? '#fff' : 'var(--text-dark)',
+                      border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                      transition: 'all 0.15s',
+                    }}>
+                    {opt.label}
+                  </button>
+                ))}
+                <span style={{ fontSize: 11, color: 'var(--text-light)', marginLeft: 'auto' }}>
+                  {tests.length} tests found
+                </span>
+              </div>
+
               {/* Test Grid */}
               {loading ? (
                 <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-light)' }}>Loading tests...</div>
-              ) : tests.length === 0 ? (
+              ) : sortedTests.length === 0 ? (
                 <div style={{ padding: 40, textAlign: 'center' }}>
                   <Flask size={32} style={{ color: 'var(--text-light)', marginBottom: 8 }} />
                   <p style={{ color: 'var(--text-light)' }}>No tests found.</p>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
-                  {tests.map(test => {
+                  {sortedTests.map(test => {
                     const inCart = cart.find(i => i.id === test.id);
                     return (
-                       <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16 }}>
+                       <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16, position: 'relative' }}>
+                        {mostBookedTests.includes(test.name) && (
+                          <span style={{
+                            position: 'absolute', top: 8, right: 8,
+                            background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
+                            fontSize: 9, fontWeight: 700, padding: '2px 10px', borderRadius: 4,
+                            textTransform: 'uppercase', letterSpacing: 0.3,
+                          }}>
+                            Most Booked
+                          </span>
+                        )}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <h3 style={{ fontSize: 14, margin: 0, cursor: 'pointer', color: '#0F5DA8' }} onClick={() => setSelectedTest(test)}>{test.name}</h3>
@@ -364,9 +752,23 @@ export default function Diagnostics() {
                           </div>
                         </div>
                         <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 6, lineHeight: 1.4 }}>{test.description}</p>
+                        {bookingCounts[test.name] && (
+                          <p style={{ fontSize: 11, color: '#22C55E', fontWeight: 600, marginTop: 4 }}>
+                            {bookingCounts[test.name]} booked this month
+                            {dailyBookings[test.name] && <span style={{ color: '#FF8A00', marginLeft: 8 }}>{dailyBookings[test.name]} today</span>}
+                          </p>
+                        )}
                         <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-secondary)' }}>
-                          {test.fasting_required && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> Fasting required</span>}
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {test.report_time}</span>
+                          {test.fasting_required ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#e65100', fontWeight: 600 }}>
+                              <WarningCircle size={14} weight="fill" color="#e65100" /> Fasting required
+                            </span>
+                          ) : (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#22C55E', fontWeight: 600 }}>
+                              <CheckCircle size={14} weight="fill" color="#22C55E" /> No fasting
+                            </span>
+                          )}
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-light)' }}><Clock size={14} /> {test.report_time}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
                           <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>₹{test.price}</span>
@@ -386,6 +788,30 @@ export default function Diagnostics() {
                           <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 6, padding: '6px 8px', background: '#fff8e1', borderRadius: 4 }}>
                             <Info size={12} /> {test.preparation_instructions}
                           </p>
+                        )}
+                        {relatedSuggestions[test.name] && (
+                          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f0f0f0' }}>
+                            <div style={{ fontSize: 10, color: 'var(--text-light)', fontWeight: 600, marginBottom: 4 }}>Also booked</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                              {relatedSuggestions[test.name].map(name => {
+                                const relatedTest = tests.find(t => t.name === name);
+                                if (!relatedTest) return null;
+                                const inCart = cart.find(i => i.id === relatedTest.id);
+                                return (
+                                  <button key={name} onClick={(e) => { e.stopPropagation(); addToCart(relatedTest); }}
+                                    style={{
+                                      padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 500,
+                                      background: inCart ? '#e8f5e9' : '#f0f5ff',
+                                      color: inCart ? '#2e7d32' : '#0F5DA8',
+                                      border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                      transition: 'all 0.15s', whiteSpace: 'nowrap',
+                                    }}>
+                                    {inCart ? `✓ ${name}` : `+ ${name}`}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
                         )}
                       </div>
                     );
@@ -410,7 +836,14 @@ export default function Diagnostics() {
         </div>
       </div>
 
-      <TestDetailModal test={selectedTest} onClose={() => setSelectedTest(null)} />
+      <TestDetailModal test={selectedTest} onClose={() => setSelectedTest(null)}
+        combo={selectedTest ? getComboForTest(selectedTest) : null}
+        addComboToCart={(items) => { items.forEach(t => addToCart(t)); setSelectedTest(null); }}
+        alsoBooked={selectedTest && relatedSuggestions[selectedTest.name]
+          ? relatedSuggestions[selectedTest.name].map(name => tests.find(t => t.name === name)).filter(Boolean)
+          : []}
+        onAddAlsoBooked={(item) => { addToCart(item); }} />
     </>
   );
 }
+
