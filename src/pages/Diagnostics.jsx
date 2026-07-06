@@ -157,7 +157,7 @@ export default function Diagnostics() {
     'Kidney Function Test (KFT)': { name: 'Organ Health Pack', saveLabel: 'Save ₹301', tests: ['Liver Function Test (LFT)', 'Lipid Profile'], comboPrice: 1499 },
   };
 
-  const seedTests = [
+const seedTests = [
     { id: 1, name: 'Complete Blood Count (CBC)', category: 'Hematology', subcategory: 'Complete Blood Count', price: 399, description: 'Measures red blood cells, white blood cells, hemoglobin, platelets, and more to assess overall health.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation required.' },
     { id: 2, name: 'HbA1c', category: 'Diabetes', subcategory: 'Diabetes', price: 599, description: 'Measures average blood sugar levels over the past 2-3 months to monitor diabetes control.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required. Continue regular medication.' },
     { id: 3, name: 'Thyroid Profile (T3, T4, TSH)', category: 'Thyroid', subcategory: 'Thyroid Profile', price: 499, description: 'Evaluates thyroid gland function by measuring T3, T4, and TSH hormone levels.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 8-10 hours recommended.' },

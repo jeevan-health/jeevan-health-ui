@@ -28,6 +28,7 @@ import WellnessHub from './pages/WellnessHub';
 import FoodDiary from './pages/FoodDiary';
 import HealthPackages from './pages/HealthPackages';
 import PackageDetail from './pages/PackageDetail';
+import './data/initGlobals'; // initialize __packagesByAxis when __allTests is ready
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);

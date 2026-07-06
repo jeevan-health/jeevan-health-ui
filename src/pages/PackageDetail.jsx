@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Heartbeat, Warning, Shield, User, Heart, Lightbulb, Baby, Suitcase, Pill, Cloud, ForkKnife,
   Airplane, Briefcase, Coin, Moon, Leaf, Syringe, FirstAid, Globe, Lightning, Clock,
@@ -111,13 +111,40 @@ const packageContent = {
 const PackageDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const allPackages = window.__packagesByAxis ? Object.values(window.__packagesByAxis).flat() : [];
-  const pkg = allPackages.find(p => p.slug === slug) || null;
-  const tests = window.__allTests || [];
+  const [pkg, setPkg] = useState(null);
+  const [tests, setTests] = useState([]);
+  const [ready, setReady] = useState(false);
   const content = packageContent[slug] || {};
+  const [inCart, setInCart] = useState({});
+
+  useEffect(() => {
+    const check = () => {
+      const allPkgs = window.__packagesByAxis ? Object.values(window.__packagesByAxis).flat() : [];
+      const found = allPkgs.find(p => p.slug === slug) || null;
+      if (found) {
+        setPkg(found);
+        setTests(window.__allTests || []);
+        setReady(true);
+        return true;
+      }
+      return false;
+    };
+    if (check()) return;
+    const t = setInterval(() => { if (check()) clearInterval(t); }, 200);
+    return () => clearInterval(t);
+  }, [slug]);
+
   const meta = axisMeta[pkg?.axis] || {};
   const Icon = meta.icon || Heartbeat;
-  const [inCart, setInCart] = useState({});
+
+  if (!ready) {
+    return (
+      <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-light)', fontSize: 14 }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>⚕️</div>
+        Loading package details...
+      </div>
+    );
+  }
 
   if (!pkg) {
     return (

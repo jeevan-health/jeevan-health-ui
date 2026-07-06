@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heartbeat, Warning, Shield, User, Heart, Lightbulb, Baby, Suitcase, Pill, Cloud, ForkKnife, Airplane, Briefcase, Coin, Moon, Leaf, Syringe, FirstAid, Globe, Lightning, Clock, CaretRight } from '@phosphor-icons/react';
 
@@ -34,12 +35,28 @@ const axisMeta = {
 
 const HealthPackages = () => {
   const navigate = useNavigate();
-  const grouped = window.__packagesByAxis || {};
+  const [grouped, setGrouped] = useState({});
+
+  useEffect(() => {
+    const check = () => {
+      const data = window.__packagesByAxis;
+      if (data && Object.keys(data).length > 0) {
+        setGrouped(data);
+        return true;
+      }
+      return false;
+    };
+    if (check()) return;
+    const t = setInterval(() => { if (check()) clearInterval(t); }, 200);
+    return () => clearInterval(t);
+  }, []);
 
   if (Object.keys(grouped).length === 0) {
     return (
-      <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-light)', fontSize: 14 }}>
-        Loading packages...
+      <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-light)', fontSize: 14 }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>⚕️</div>
+        Loading health packages...
+        <div style={{ fontSize: 12, marginTop: 8, color: '#aaa' }}>Please visit Diagnostics page first to load test data</div>
       </div>
     );
   }
