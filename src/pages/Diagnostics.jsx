@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
-  Heartbeat, Heart, Drop, Shield, Bone, Baby, User,
+  Heartbeat, Heart, Drop, Shield, Bone, Baby, User, Warning,
   Microscope, Truck, Sparkle, Gear,
   CaretRight, CaretDown, FileText, CalendarDots, ChatCircle, Gift,
+  Lightbulb, Suitcase, Pill, Cloud, ForkKnife, Airplane, Briefcase, Coin, Moon, Leaf,
+  Syringe, FirstAid, Globe, Lightning,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
@@ -87,6 +89,7 @@ export default function Diagnostics() {
   const [focused, setFocused] = useState(false);
   const [sortBy, setSortBy] = useState('popular');
   const [faqOpen, setFaqOpen] = useState({});
+  const [packagesByAxis, setPackagesByAxis] = useState({});
 
   const sortOptions = [
     { value: 'popular', label: 'Popular' },
@@ -763,7 +766,15 @@ const seedTests = [
 
   useEffect(() => {
     load();
-
+    const checkPkg = () => {
+      const data = window.__packagesByAxis;
+      if (data && Object.keys(data).length > 0) { setPackagesByAxis(data); return true; }
+      return false;
+    };
+    if (!checkPkg()) {
+      const t = setInterval(() => { checkPkg(); }, 200);
+      setTimeout(() => clearInterval(t), 10000);
+    }
   }, []);
 
   useEffect(() => {
@@ -1494,134 +1505,87 @@ const seedTests = [
                   </button>
                 </div>
 
-                {/* Package cards */}
-                <div style={{ display: 'grid', gap: 16 }}>
-                  {seedTests.filter(t => t.subcategory === 'Health Packages').map((pkg, idx) => {
-                    const inCart = cart.find(i => i.id === pkg.id);
-                    const savings = pkg.mrp ? Math.round((1 - (pkg.offerPrice || pkg.price) / pkg.mrp) * 100) : 0;
-                    const paramMatch = pkg.description.match(/(\d+)\+?\s*(parameters|tests|params)/i);
-                    const slug = pkg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                    const levels = ['Basic', 'Executive', 'Wellness'];
-                    const levelColors = ['#22C55E', '#0F5DA8', '#7c3aed'];
-                    const levelIcons = ['Shield', 'Flask', 'Sparkle'];
-                    const level = levels[idx] || 'Package';
-                    return (
-                      <div key={pkg.id} style={{
-                        background: '#fff', borderRadius: 16,
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
-                        border: `1px solid ${idx === 1 ? '#dbeafe' : '#e8edf2'}`,
-                        overflow: 'hidden', position: 'relative',
-                        transition: 'all 0.2s',
-                      }}>
-                        {/* Left accent bar */}
-                        <div style={{
-                          position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
-                          background: levelColors[idx] || '#22C55E',
-                        }} />
-                        {/* Ribbon for middle/executive */}
-                        {idx === 1 && (
-                          <div style={{
-                            position: 'absolute', top: 12, right: -28,
-                            background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)',
-                            color: '#fff', fontSize: 10, fontWeight: 700,
-                            padding: '3px 32px', transform: 'rotate(45deg)',
-                            letterSpacing: 0.5, zIndex: 2,
-                          }}>
-                            MOST POPULAR
-                          </div>
-                        )}
-                        <div style={{ padding: '20px 24px 20px 28px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              {/* Tier badge */}
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                                <span style={{
-                                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                                  background: `${levelColors[idx]}15`, color: levelColors[idx],
-                                  fontSize: 10, fontWeight: 700, padding: '2px 10px', borderRadius: 4,
-                                  textTransform: 'uppercase', letterSpacing: 0.5,
-                                }}>
-                                  {level} Tier
-                                </span>
-                                {paramMatch && (
-                                  <span style={{ fontSize: 11, color: 'var(--text-light)' }}>
-                                    {paramMatch[0]}
-                                  </span>
-                                )}
-                              </div>
-                              <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0F5DA8', margin: 0, cursor: 'pointer' }} onClick={() => setSelectedTest(pkg)}>{pkg.name}</h3>
-                              <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 6, marginBottom: 12 }}>{pkg.description}</p>
-                              {/* Meta tags */}
-                              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#e65100', fontWeight: 500 }}>
-                                  <Clock size={13} /> Fasting
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-light)' }}>
-                                  <Clock size={13} /> {pkg.report_time}
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#22C55E', fontWeight: 500 }}>
-                                  <CheckCircle size={13} weight="fill" /> Home collection
-                                </span>
-                              </div>
+                {/* Package cards — all 117 by axis */}
+                {Object.keys(packagesByAxis).length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-light)' }}>
+                    <p style={{ fontSize: 13 }}>Loading packages...</p>
+                  </div>
+                ) : (
+                  (() => {
+                    const axisOrder = ['organ', 'disease', 'disorder', 'age', 'gender', 'lifestyle', 'lifeStage', 'symptom', 'occupation', 'medication', 'familyHistory', 'seasonal', 'diet', 'postRecovery', 'travel', 'insurance', 'preventive', 'budget', 'risk', 'duration', 'mentalHealth', 'fitness', 'sleep', 'environmental', 'vaccination', 'preSurgical', 'ethnicity', 'fertility'];
+                    const axisMeta = {
+                      organ: { label: 'Organ Wise', icon: Heartbeat, color: '#0F5DA8' },
+                      disease: { label: 'Disease Wise', icon: Warning, color: '#c62828' },
+                      disorder: { label: 'Disorder Wise', icon: Shield, color: '#7b1fa2' },
+                      age: { label: 'Age Wise', icon: User, color: '#2e7d32' },
+                      gender: { label: 'Gender Wise', icon: Heart, color: '#e65100' },
+                      lifestyle: { label: 'Lifestyle Wise', icon: Lightbulb, color: '#FF8A00' },
+                      lifeStage: { label: 'Life Stage Wise', icon: Baby, color: '#ec407a' },
+                      symptom: { label: 'Symptom Wise', icon: Warning, color: '#ff7043' },
+                      occupation: { label: 'Occupation Wise', icon: Suitcase, color: '#5c6bc0' },
+                      medication: { label: 'Medication Monitoring', icon: Pill, color: '#26a69a' },
+                      familyHistory: { label: 'Family History / Genetic', icon: Heartbeat, color: '#ef5350' },
+                      seasonal: { label: 'Seasonal Wise', icon: Cloud, color: '#42a5f5' },
+                      diet: { label: 'Diet Wise', icon: ForkKnife, color: '#66bb6a' },
+                      postRecovery: { label: 'Post-Recovery Wise', icon: Heartbeat, color: '#ab47bc' },
+                      travel: { label: 'Travel Wise', icon: Airplane, color: '#ffa726' },
+                      insurance: { label: 'Insurance / Corporate', icon: Briefcase, color: '#78909c' },
+                      preventive: { label: 'Preventive Screening', icon: Shield, color: '#26c6da' },
+                      budget: { label: 'Budget / Price Tier', icon: Coin, color: '#ffca28' },
+                      risk: { label: 'Risk Profile', icon: Warning, color: '#ef5350' },
+                      duration: { label: 'Duration / Urgency', icon: Clock, color: '#8d6e63' },
+                      mentalHealth: { label: 'Mental Health', icon: Heart, color: '#7e57c2' },
+                      fitness: { label: 'Fitness & Sports', icon: Lightning, color: '#ff7043' },
+                      sleep: { label: 'Sleep Health', icon: Moon, color: '#5c6bc0' },
+                      environmental: { label: 'Environmental / Toxin', icon: Leaf, color: '#66bb6a' },
+                      vaccination: { label: 'Vaccination & Immunity', icon: Syringe, color: '#42a5f5' },
+                      preSurgical: { label: 'Pre-Surgical', icon: FirstAid, color: '#ef5350' },
+                      ethnicity: { label: 'Ethnicity / Region', icon: Globe, color: '#ab47bc' },
+                      fertility: { label: 'Fertility & Reproductive', icon: Heart, color: '#ec407a' },
+                    };
+                    return axisOrder.filter(a => packagesByAxis[a]).map(axis => {
+                      const meta = axisMeta[axis] || { label: axis, icon: Heartbeat, color: '#888' };
+                      const Icon = meta.icon;
+                      const pkgs = packagesByAxis[axis];
+                      return (
+                        <div key={axis} style={{ marginBottom: 28 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: 8, background: meta.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Icon size={18} weight="fill" color={meta.color} />
                             </div>
-                            {/* Pricing */}
-                            <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 100 }}>
-                              <div style={{ fontSize: 22, fontWeight: 800, color: '#0F5DA8', lineHeight: 1.2 }}>₹{pkg.offerPrice || pkg.price}</div>
-                              {pkg.mrp && pkg.mrp > (pkg.offerPrice || pkg.price) && (
-                                <div style={{ fontSize: 13, color: '#bbb', textDecoration: 'line-through' }}>₹{pkg.mrp}</div>
-                              )}
-                              {savings > 0 && (
-                                <div style={{
-                                  display: 'inline-block', marginTop: 4,
-                                  background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)',
-                                  color: '#fff', fontSize: 11, fontWeight: 700,
-                                  padding: '2px 10px', borderRadius: 4,
-                                }}>
-                                  Save {savings}%
+                            <h3 style={{ fontSize: 15, margin: 0 }}>{meta.label}</h3>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+                            {pkgs.map(pkg => (
+                              <div key={pkg.slug} onClick={() => navigate(`/package/${pkg.slug}`)}
+                                style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: 14, cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                                  <h4 style={{ fontSize: 13, margin: 0, color: meta.color }}>{pkg.name}</h4>
+                                  <span style={{ fontSize: 10, fontWeight: 600, color: '#fff', background: 'linear-gradient(135deg, #22C55E, #16a34a)', padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' }}>{pkg.discountPct}% off</span>
                                 </div>
-                              )}
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', gap: 10, marginTop: 14, borderTop: '1px solid #f0f2f5', paddingTop: 14 }}>
-                            <button onClick={() => navigate(`/package/${slug}`)}
-                              style={{
-                                padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                                background: '#f0f5ff', color: '#0F5DA8', border: 'none', cursor: 'pointer',
-                                fontFamily: 'inherit', transition: 'all 0.15s',
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.background = '#dbeafe'}
-                              onMouseLeave={e => e.currentTarget.style.background = '#f0f5ff'}>
-                              View Details
-                            </button>
-                            {inCart ? (
-                              <button onClick={() => removeFromCart(pkg.id)}
-                                style={{
-                                  padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                                  background: '#fef2f2', color: '#dc2626', border: 'none', cursor: 'pointer',
-                                  fontFamily: 'inherit', transition: 'all 0.15s',
-                                }}>
-                                Remove
-                              </button>
-                            ) : (
-                              <button onClick={() => addToCart(pkg)}
-                                style={{
-                                  padding: '9px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                                  background: 'linear-gradient(135deg, #22C55E, #16a34a)', color: '#fff',
-                                  border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                                  boxShadow: '0 2px 8px rgba(34,197,94,0.3)',
-                                  transition: 'all 0.15s',
-                                }}
-                                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(34,197,94,0.4)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(34,197,94,0.3)'; e.currentTarget.style.transform = 'none'; }}>
-                                + Add to Cart
-                              </button>
-                            )}
+                                <p style={{ fontSize: 11, color: 'var(--text-light)', lineHeight: 1.4, marginBottom: 8 }}>{pkg.desc}</p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                                  <span style={{ fontWeight: 600 }}>{pkg.testCount} Tests</span>
+                                  <span style={{ width: 3, height: 3, borderRadius: '50%', background: '#ddd' }} />
+                                  <span>Save ₹{pkg.savings?.toLocaleString()}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <div>
+                                    <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--primary)' }}>₹{pkg.bundlePrice?.toLocaleString()}</span>
+                                    <span style={{ fontSize: 11, color: 'var(--text-light)', textDecoration: 'line-through', marginLeft: 4 }}>₹{pkg.totalMrp?.toLocaleString()}</span>
+                                  </div>
+                                  <CaretRight size={14} color={meta.color} />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    });
+                  })()
+                )}
 
                 {/* Bottom CTA */}
                 <div style={{
