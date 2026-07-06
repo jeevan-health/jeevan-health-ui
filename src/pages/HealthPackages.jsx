@@ -5,10 +5,10 @@ import {
   Airplane, Briefcase, Coin, Moon, Leaf, Syringe, FirstAid, Globe, Lightning, Clock,
   CaretRight, CaretDown, MagnifyingGlass, FileText, CheckCircle, X, Flask, Gift, MapPin,
   ShoppingCart, Trash, Plus, Info, WarningCircle, Sparkle, Drop, Bone,
-  Phone, WhatsappLogo, SpinnerGap, ArrowLeft, ChatText, DeviceMobile, ClipboardText, UserCircle,
+  Phone, WhatsappLogo, SpinnerGap, ChatText, DeviceMobile, ClipboardText, UserCircle,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
-import { getTestEducation, getPackageEducation } from '../utils/testEducation';
+import { getTestEducation } from '../utils/testEducation';
 
 const categoryList = [
   { name: 'Full Body', icon: User, color: '#0F5DA8' },
@@ -58,6 +58,13 @@ const axisMeta = {
   preSurgical: { label: 'Pre-Surgical', icon: FirstAid, color: '#ef5350', desc: 'Pre-surgery clearance packages — pre-operative, anesthesia clearance' },
   ethnicity: { label: 'Ethnicity / Region', icon: Globe, color: '#ab47bc', desc: 'Region-specific health screening — South Asian, sickle cell/thalassemia, endemic diseases' },
   fertility: { label: 'Fertility & Reproductive', icon: Heart, color: '#ec407a', desc: 'Fertility assessment — pre-conception, male fertility, female fertility' },
+};
+
+const categoryFilterMap = {
+  'Full Body': '', 'Heart': 'Cardiac', 'Fever': 'Infections', 'Vitamin': 'Vitamins',
+  'Diabetes': 'Diabetes', 'Thyroid': 'Thyroid', 'Hormones': 'Hormones', 'Lifestyle': '',
+  'Cancer': 'Cancer', 'Combo': '', 'Pregnancy': 'Hormones', 'Allergy': 'Infections',
+  'Arthritis': '', 'STD': 'Infections', 'Anemia': 'Hematology', 'Antenatal': 'Hormones',
 };
 
 const mostBookedTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total'];
@@ -183,12 +190,18 @@ export default function HealthPackages() {
   });
 
   const filteredTests = tests.filter(t => {
+    if (t.subcategory === 'Health Packages') return false;
     const matchName = t.name.toLowerCase().includes(q);
     const matchCat = t.category.toLowerCase().includes(q);
     const matchSub = t.subcategory?.toLowerCase().includes(q);
     const matchSearch = !q || matchName || matchCat || matchSub;
-    const matchCatFilter = !category || t.category === category;
-    return matchSearch && matchCatFilter && t.subcategory !== 'Health Packages';
+    let matchCatFilter = true;
+    if (category) {
+      const filterVal = categoryFilterMap[category];
+      if (filterVal) matchCatFilter = t.category === filterVal || t.subcategory === filterVal || t.name.includes(filterVal);
+      else matchCatFilter = t.category === category;
+    }
+    return matchSearch && matchCatFilter;
   });
 
   const sortedTests = [...filteredTests].sort((a, b) => {
@@ -299,7 +312,7 @@ export default function HealthPackages() {
             style={{ flex: 1, padding: '14px 16px', fontSize: 14, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: mode === 'tests' ? '#0F5DA8' : '#8b9bb5', borderBottom: mode === 'tests' ? '2px solid #0F5DA8' : '2px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.2s' }}>
             <Flask size={18} weight={mode === 'tests' ? 'fill' : 'regular'} />
             Diagnostic Tests
-            {mode === 'tests' && <span style={{ fontSize: 11, background: '#e8f0fe', color: '#0F5DA8', padding: '1px 8px', borderRadius: 10, fontWeight: 700 }}>{tests.length}</span>}
+            {mode === 'tests' && <span style={{ fontSize: 11, background: '#e8f0fe', color: '#0F5DA8', padding: '1px 8px', borderRadius: 10, fontWeight: 700 }}>{tests.filter(t => t.subcategory !== 'Health Packages').length}</span>}
           </button>
           <button onClick={() => { setMode('packages'); setSearch(''); setCategory(''); }}
             style={{ flex: 1, padding: '14px 16px', fontSize: 14, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: mode === 'packages' ? '#22C55E' : '#8b9bb5', borderBottom: mode === 'packages' ? '2px solid #22C55E' : '2px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.2s' }}>
