@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   House, StackSimple, Info, User, Pill, Flask, Phone,
   Stethoscope, Syringe, Heart, FirstAidKit, Baby, ChartBar,
   SuitcaseSimple, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
   Clock, CaretDown, List, X, Heartbeat,
-  Envelope, Clipboard, Brain, Bone, WhatsappLogo, 
+  Envelope, Clipboard, Brain, Bone, WhatsappLogo, ShoppingCart,
 } from '@phosphor-icons/react';
 
 const serviceGroups = [
@@ -75,7 +75,18 @@ const navLinks = [
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('jeevan_cart') || '[]').length; } catch { return 0; }
+  });
   const location = useLocation();
+
+  useEffect(() => {
+    const handler = () => {
+      try { setCartCount(JSON.parse(localStorage.getItem('jeevan_cart') || '[]').length); } catch { setCartCount(0); }
+    };
+    window.addEventListener('cart-updated', handler);
+    return () => window.removeEventListener('cart-updated', handler);
+  }, []);
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
@@ -142,6 +153,12 @@ export default function Header() {
             </ul>
           </nav>
 
+          <Link to="/my-test-orders" className="cart-badge" title="My Bookings">
+            <ShoppingCart size={20} weight="bold" />
+            {cartCount > 0 && (
+              <span className="cart-count">{cartCount > 9 ? '9+' : cartCount}</span>
+            )}
+          </Link>
           <button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X size={24} weight="bold" /> : <List size={24} weight="bold" />}
           </button>

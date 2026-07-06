@@ -84,7 +84,7 @@ export default function MyTestOrders() {
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/diagnostics')} style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <button onClick={() => navigate('/diagnostics', { state: { prefillCart: order.tests } })} style={{ padding: '6px 14px', borderRadius: 7, fontSize: 11, fontWeight: 600, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3 }}>
                       <Flask size={12} /> Re-Book
                     </button>
                     {order.status === 'results_ready' && (

@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { seedTests } from '../data/seedData';
 import {
   MagnifyingGlass, Flask, ShoppingCart, Trash, CheckCircle, Clock, MapPin,
@@ -71,7 +71,21 @@ export default function Diagnostics() {
   const [mode, setMode] = useState(location.pathname.includes('health-packages') ? 'packages' : 'tests');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    try {
+      const prefill = location.state?.prefillCart;
+      if (prefill && prefill.length > 0) {
+        localStorage.setItem('jeevan_cart', JSON.stringify(prefill));
+        window.dispatchEvent(new CustomEvent('cart-updated'));
+        return prefill;
+      }
+      return JSON.parse(localStorage.getItem('jeevan_cart') || '[]');
+    } catch { return []; }
+  });
+  useEffect(() => {
+    localStorage.setItem('jeevan_cart', JSON.stringify(cart));
+    window.dispatchEvent(new CustomEvent('cart-updated'));
+  }, [cart]);
   const [showCart, setShowCart] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [collectionDate, setCollectionDate] = useState('');
@@ -223,13 +237,13 @@ export default function Diagnostics() {
   };
 
   const renderBookingPanel = () => (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
-      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-    }}>
+      <div className="booking-panel-overlay" style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      }}>
       <div onClick={() => { if (bookingStep < 5) { setBookingOpen(false); setBookingSubmitted(false); } }}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)' }} />
-      <div style={{
+      <div className="booking-panel-inner" style={{
         position: 'relative', width: '100%', maxWidth: 500, maxHeight: '90vh', overflowY: 'auto',
         background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 18px 24px',
         boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', animation: 'slideUp 0.25s ease-out',
@@ -496,11 +510,11 @@ export default function Diagnostics() {
               <MapPin size={10} weight="fill" /> {city}
             </div>
           </div>
-          <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 800, margin: 0, lineHeight: 1.2, letterSpacing: -0.5 }}>
+          <h1 className="hero-heading" style={{ color: '#fff', fontSize: 24, fontWeight: 800, margin: 0, lineHeight: 1.2, letterSpacing: -0.5 }}>
             Health Checkups at Home{' '}
             <span style={{ color: '#FFD54F' }}>in {city}</span>
           </h1>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '10px 0 14px' }}>
+          <div className="hero-subtitle" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '10px 0 14px' }}>
             {['Free Home Collection', 'NABL Certified Labs', 'Starting at \u20B9799', 'Up to 60% OFF'].map((text, i) => (
               <span key={i} style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', gap: 3 }}>
                 <CheckCircle size={9} weight="fill" color={i === 3 ? '#FFD54F' : '#81C784'} /> {text}
@@ -522,7 +536,7 @@ export default function Diagnostics() {
             <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10 }}>|</div>
             <div style={{ color: '#81C784', fontSize: 10, fontWeight: 600 }}>247 booked today</div>
           </div>
-          <div style={{ position: 'relative' }}>
+          <div className="hero-search-wrap" style={{ position: 'relative' }}>
             <MagnifyingGlass size={16} style={{ position: 'absolute', left: 14, top: 11, color: '#0F5DA8', zIndex: 2 }} />
             <input type="text" placeholder="Search tests or packages..." value={search}
               onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
@@ -717,7 +731,7 @@ export default function Diagnostics() {
                       <div key={test.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid var(--border)', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Flask size={18} color="#0F5DA8" /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 1 }}>{test.name}</div>
+                          <Link to={`/test/${test.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} style={{ fontSize: 12, fontWeight: 600, marginBottom: 1, color: 'var(--text-dark)', textDecoration: 'none' }} onMouseEnter={e => e.target.style.color = '#0F5DA8'} onMouseLeave={e => e.target.style.color = 'var(--text-dark)'}>{test.name}</Link>
                           <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 2 }}>{test.category}{test.fasting_required ? ' \u2022 Fasting' : ''}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{test.offerPrice || test.price}</span>
@@ -841,7 +855,7 @@ export default function Diagnostics() {
       </div>
 
       {/* ─── FLOATING CTA ─── */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, padding: '8px 16px 10px', background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div className="floating-cta-bar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, padding: '8px 16px 10px', background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', display: 'flex', gap: 8, alignItems: 'center' }}>
         <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 10px rgba(37,211,102,0.3)' }}>
           <WhatsappLogo size={20} weight="fill" color="#fff" />
         </a>

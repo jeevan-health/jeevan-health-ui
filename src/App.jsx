@@ -29,6 +29,7 @@ const WellnessHub = lazy(() => import('./pages/WellnessHub'));
 const FoodDiary = lazy(() => import('./pages/FoodDiary'));
 const PackageDetail = lazy(() => import('./pages/PackageDetail'));
 const BookAppointment = lazy(() => import('./pages/BookAppointment'));
+const TestDetail = lazy(() => import('./pages/TestDetail'));
 import './data/initGlobals'; // initialize __packagesByAxis when __allTests is ready
 
 function ProtectedRoute({ children }) {
@@ -80,6 +81,7 @@ export default function App() {
             <Route path="/food-diary" element={<ProtectedRoute><FoodDiary /></ProtectedRoute>} />
             <Route path="/health-packages" element={<Diagnostics />} />
             <Route path="/package/:slug" element={<PackageDetail />} />
+            <Route path="/test/:slug" element={<TestDetail />} />
           </Route>
           <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
