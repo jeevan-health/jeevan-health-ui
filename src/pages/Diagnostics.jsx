@@ -262,7 +262,6 @@ export default function Diagnostics() {
   const cartTotal = cart.reduce((sum, i) => sum + i.price, 0);
 
   const handlePlace = async () => {
-    if (!isAuthenticated) { navigate('/signup'); return; }
     setPlacing(true);
     try {
       await placeDiagnosticOrder({
@@ -428,12 +427,12 @@ export default function Diagnostics() {
             <button onClick={() => setShowCart(!showCart)} style={{ fontSize: 13, color: 'var(--primary)', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
               {showCart ? 'Hide' : 'View'} Cart
             </button>
-            {cart.length > 0 && (
-              <button onClick={() => isAuthenticated ? (setShowForm(true), setBookingStep(1)) : navigate('/signup')}
-                className="btn-accent" style={{ padding: '6px 16px', fontSize: 13, marginLeft: 'auto', width: 'auto' }}>
-                Book Tests
-              </button>
-            )}
+                {cart.length > 0 && (
+                  <button onClick={() => (setShowForm(true), setBookingStep(1))}
+                    className="btn-accent" style={{ padding: '6px 16px', fontSize: 13, marginLeft: 'auto', width: 'auto' }}>
+                    Book Tests
+                  </button>
+                )}
           </div>
 
           {/* Cart dropdown */}
