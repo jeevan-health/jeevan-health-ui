@@ -1015,32 +1015,21 @@ const seedTests = [
             </div>
           )}
 
-          {/* Packages hero sub-text */}
-          {mode === 'packages' && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Starting at ₹799</span>
-              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-              <button onClick={() => packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                style={{
-                  padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                  background: 'rgba(255,255,255,0.15)', color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
-                  transition: 'all 0.15s',
-                }}>
-                Browse All Packages
-              </button>
-              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
-              <button onClick={() => { setMode('tests'); setSearch(''); setCategory(''); }}
-                style={{
-                  padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                  background: 'rgba(255,255,255,0.15)', color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
-                  transition: 'all 0.15s',
-                }}>
-                Browse All Tests
-              </button>
-            </div>
-          )}
+          {/* Single toggle button in hero */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+            <button onClick={() => {
+              if (mode === 'packages') { setMode('tests'); setSearch(''); setCategory(''); }
+              else { setMode('packages'); setPackageSearch(''); packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            }}
+              style={{
+                padding: '8px 22px', borderRadius: 20, fontSize: 13, fontWeight: 600,
+                background: 'rgba(255,255,255,0.15)', color: '#fff',
+                border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'all 0.15s',
+              }}>
+              {mode === 'packages' ? 'View Diagnostic Tests' : 'View Health Packages'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1498,15 +1487,6 @@ const seedTests = [
                     <h2 style={{ fontSize: 18, fontWeight: 700, color: '#166534', margin: 0 }}>Health Packages</h2>
                     <p style={{ fontSize: 13, color: '#4a7c59', margin: '2px 0 0' }}>Curated checkup bundles — more tests, less spend</p>
                   </div>
-                  <button onClick={() => packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                    style={{
-                      padding: '8px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                      background: '#fff', color: '#22C55E', border: '1px solid #22C55E',
-                      cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
-                      transition: 'all 0.15s',
-                    }}>
-                    All 117 Packages
-                  </button>
                 </div>
                 {/* Package search */}
                 <div style={{ marginBottom: 16, position: 'relative' }}>
@@ -1624,27 +1604,7 @@ const seedTests = [
                   })()
                 )}
 
-                {/* Bottom CTA */}
-                <div style={{
-                  marginTop: 20, textAlign: 'center',
-                  background: 'linear-gradient(135deg, #0F5DA8, #1a7ad4)',
-                  borderRadius: 16, padding: '24px 20px',
-                }}>
-                  <h3 style={{ color: '#fff', fontSize: 16, margin: 0 }}>Need a different test combination?</h3>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '6px 0 14px' }}>
-                    Browse all 117 health packages across 28 categories
-                  </p>
-                  <button onClick={() => { setMode('packages'); setPackageSearch(''); packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                    style={{
-                      padding: '10px 32px', borderRadius: 12, fontSize: 14, fontWeight: 700,
-                      background: '#fff', color: '#0F5DA8', border: 'none', cursor: 'pointer',
-                      fontFamily: 'inherit', transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                    Explore All Packages →
-                  </button>
-                </div>
+
               </div>
             </div>
           )}
