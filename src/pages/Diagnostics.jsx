@@ -4,12 +4,13 @@ import {
   MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
   Heartbeat, Heart, Drop, Shield, Bone, Baby, User,
   Microscope, Truck, Sparkle,
-  CaretRight, FileText, CalendarDots, ChatCircle,
+  CaretRight, CaretDown, FileText, CalendarDots, ChatCircle,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
 import { getFamilyMembers } from '../services/authService';
 import { searchTests, placeDiagnosticOrder } from '../services/diagnosticsService';
+import { getTestEducation } from '../utils/testEducation';
 
 const categoryList = [
   { name: 'Full Body', icon: User, color: '#0F5DA8' },
@@ -92,6 +93,7 @@ export default function Diagnostics() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [focused, setFocused] = useState(false);
   const [sortBy, setSortBy] = useState('popular');
+  const [faqOpen, setFaqOpen] = useState({});
 
   const sortOptions = [
     { value: 'popular', label: 'Popular' },
@@ -113,7 +115,7 @@ export default function Diagnostics() {
   };
 
   const popularTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total'];
-  const mostBookedTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total', 'Blood Sugar (Fasting)', 'Liver Function Test (LFT)', 'Kidney Function Test (KFT)'];
+  const mostBookedTests = ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total', 'Blood Sugar (Fasting)', 'Blood Sugar (Postprandial / Post Lunch - 2 HR)', 'Random Blood Sugar (RBS)', 'Liver Function Test (LFT)', 'Kidney Function Test (KFT)'];
   const bookingCounts = {
     'Complete Blood Count (CBC)': '2,847',
     'HbA1c': '4,216',
@@ -121,6 +123,8 @@ export default function Diagnostics() {
     'Lipid Profile': '3,128',
     'Vitamin D Total': '2,964',
     'Blood Sugar (Fasting)': '1,873',
+    'Blood Sugar (Postprandial / Post Lunch - 2 HR)': '2,146',
+    'Random Blood Sugar (RBS)': '1,214',
     'Liver Function Test (LFT)': '1,652',
     'Kidney Function Test (KFT)': '1,449',
   };
@@ -132,6 +136,8 @@ export default function Diagnostics() {
     'Lipid Profile': ['Blood Sugar (Fasting)', 'hs-CRP'],
     'Vitamin D Total': ['Vitamin B12', 'Calcium'],
     'Blood Sugar (Fasting)': ['HbA1c', 'Lipid Profile'],
+    'Blood Sugar (Postprandial / Post Lunch - 2 HR)': ['Blood Sugar (Fasting)', 'HbA1c'],
+    'Random Blood Sugar (RBS)': ['Blood Sugar (Fasting)', 'HbA1c'],
     'Liver Function Test (LFT)': ['Kidney Function Test (KFT)', 'Lipid Profile'],
     'Kidney Function Test (KFT)': ['Liver Function Test (LFT)', 'Uric Acid'],
   };
@@ -139,6 +145,8 @@ export default function Diagnostics() {
   const comboData = {
     'HbA1c': { name: 'Diabetes Care Pack', saveLabel: 'Save ₹271', tests: ['Blood Sugar (Fasting)', 'Lipid Profile'], comboPrice: 999 },
     'Blood Sugar (Fasting)': { name: 'Diabetes Care Pack', saveLabel: 'Save ₹271', tests: ['HbA1c', 'Lipid Profile'], comboPrice: 999 },
+    'Blood Sugar (Postprandial / Post Lunch - 2 HR)': { name: 'Sugar Control Pack', saveLabel: 'Save ₹351', tests: ['Blood Sugar (Fasting)', 'HbA1c'], comboPrice: 499 },
+    'Random Blood Sugar (RBS)': { name: 'Basic Sugar Check', saveLabel: 'Save ₹100', tests: ['Blood Sugar (Fasting)'], comboPrice: 249 },
     'Complete Blood Count (CBC)': { name: 'Anaemia Checkup', saveLabel: 'Save ₹600', tests: ['Iron Studies', 'Vitamin B12'], comboPrice: 1799 },
     'Thyroid Profile (T3, T4, TSH)': { name: 'Complete Thyroid', saveLabel: 'Save ₹151', tests: ['TSH'], comboPrice: 899 },
     'Lipid Profile': { name: 'Heart Health Pack', saveLabel: 'Save ₹201', tests: ['Total Cholesterol', 'hs-CRP'], comboPrice: 749 },
@@ -343,7 +351,7 @@ export default function Diagnostics() {
     { id: 193, name: 'Leukocyte Esterase (Urine Dipstick)', category: 'Full Body', subcategory: 'Urinalysis', price: 99, description: 'Quick dipstick test screening for UTI by detecting white blood cell activity in urine.', fasting_required: false, report_time: 'Immediate', preparation_instructions: 'Clean-catch mid-stream urine sample.' },
     { id: 194, name: 'Ovulation Predictor Kit (LH Surge)', category: 'Pregnancy', subcategory: 'Fertility', price: 349, description: 'Detects LH surge in urine to predict ovulation timing for fertility planning.', fasting_required: false, report_time: 'Immediate', preparation_instructions: 'Test mid-day. Reduce fluid intake 2 hours before.' },
     { id: 195, name: 'Helicobacter Pylori Urea Breath Test', category: 'Fever', subcategory: 'GI Infections', price: 1999, description: 'Non-invasive breath test for H. pylori infection — gold standard for eradication confirmation.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 6 hours. Avoid antibiotics and PPIs for 4 weeks before.' },
-    { id: 196, name: 'Fructosamine', category: 'Diabetes', subcategory: 'Glucose Control', price: 599, description: 'Measures fructosamine levels reflecting blood sugar control over the past 2-3 weeks.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 196, name: 'Urine Glucose / Sugar (Random)', category: 'Diabetes', subcategory: 'Urine Glucose', price: 99, description: 'Screens for glucose in urine — a simple, non-invasive test for diabetes screening.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation required. Clean-catch mid-stream sample.' },
     { id: 197, name: 'Insulin-Like Growth Factor Binding Protein-3 (IGFBP-3)', category: 'Hormones', subcategory: 'Growth Factors', price: 1499, description: 'Measures IGFBP-3 alongside IGF-1 for comprehensive growth hormone function assessment.', fasting_required: false, report_time: '5-7 days', preparation_instructions: 'No special preparation required.' },
     { id: 198, name: 'Serotonin (5-HT)', category: 'Full Body', subcategory: 'Neurotransmitters', price: 1999, description: 'Measures serotonin levels in blood for evaluating neuroendocrine tumours and mood disorders.', fasting_required: true, report_time: '5-7 days', preparation_instructions: 'Fasting for 10 hours. Avoid bananas, pineapple, walnuts, and tomatoes for 48 hours before.' },
     { id: 199, name: 'Glucagon', category: 'Diabetes', subcategory: 'Pancreatic Hormones', price: 1499, description: 'Measures glucagon levels to evaluate alpha-cell function in diabetes and hypoglycemia disorders.', fasting_required: true, report_time: '5-7 days', preparation_instructions: 'Fasting for 10-12 hours required.' },
@@ -545,6 +553,19 @@ export default function Diagnostics() {
     { id: 395, name: 'Alcohol Biomarkers: PEth (Phosphatidylethanol)', category: 'Full Body', subcategory: 'Toxicology', price: 2999, description: 'Direct alcohol biomarker detecting consumption over past 2-3 weeks with high sensitivity.', fasting_required: false, report_time: '5-7 days', preparation_instructions: 'No special preparation required.' },
     { id: 396, name: 'Alcohol Biomarkers: EtG (Ethyl Glucuronide)', category: 'Full Body', subcategory: 'Toxicology', price: 1999, description: 'Urinary alcohol biomarker detecting consumption over past 3-5 days.', fasting_required: false, report_time: '48 hrs', preparation_instructions: 'Urine sample. Avoid alcohol-based hand sanitizers before collection.' },
     { id: 397, name: 'EtS (Ethyl Sulfate) Urine', category: 'Full Body', subcategory: 'Toxicology', price: 1999, description: 'Confirmatory alcohol biomarker used alongside EtG to rule out false positives.', fasting_required: false, report_time: '48 hrs', preparation_instructions: 'Urine sample.' },
+    { id: 398, name: 'Blood Sugar (Postprandial / Post Lunch - 2 HR)', category: 'Diabetes', subcategory: 'Diabetes', price: 199, description: 'Measures blood glucose 2 hours after a meal to assess post-meal sugar control and diabetes management.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'Eat a normal meal. Test is done exactly 2 hours after the first bite.' },
+    { id: 399, name: 'Random Blood Sugar (RBS)', category: 'Diabetes', subcategory: 'Diabetes', price: 149, description: 'Measures blood glucose at any time of day without fasting — useful for urgent diabetes screening.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No fasting required. Can be taken anytime.' },
+    { id: 400, name: 'Blood Sugar (Post Meal - 1 Hour)', category: 'Diabetes', subcategory: 'Diabetes', price: 199, description: 'Measures blood glucose 1 hour after a meal — used in gestational diabetes screening and early glucose intolerance detection.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'Eat a normal meal. Test done exactly 1 hour after first bite.' },
+    { id: 401, name: 'Blood Sugar (Post Meal - 3 Hour)', category: 'Diabetes', subcategory: 'Diabetes', price: 199, description: 'Measures blood glucose 3 hours after a meal to assess extended glucose clearance and late-phase insulin response.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'Normal meal. Test done exactly 3 hours after eating.' },
+    { id: 402, name: 'Insulin (Postprandial / Post Meal)', category: 'Diabetes', subcategory: 'Insulin', price: 699, description: 'Measures insulin levels 2 hours after a meal to evaluate pancreatic beta-cell response to glucose.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'Eat a standard meal. Sample collected 2 hours after eating.' },
+    { id: 403, name: 'Glucose (Fasting) - Plasma', category: 'Diabetes', subcategory: 'Diabetes', price: 199, description: 'Plasma glucose measured after overnight fast — a more standardized alternative to venous blood sugar.', fasting_required: true, report_time: '6 hrs', preparation_instructions: 'Fasting for 8-12 hours required. Plasma sample preferred for accuracy.' },
+    { id: 404, name: 'Glucose (Random) - Plasma', category: 'Diabetes', subcategory: 'Diabetes', price: 149, description: 'Random plasma glucose measurement — used in emergency settings and for rapid diabetes screening.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation required.' },
+    { id: 405, name: 'Blood Ketones (Beta-Hydroxybutyrate)', category: 'Diabetes', subcategory: 'Diabetic Ketoacidosis', price: 499, description: 'Measures beta-hydroxybutyrate levels to detect and monitor diabetic ketoacidosis risk.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation required. Inform lab if diabetic.' },
+    { id: 406, name: 'Urine Ketones (Dipstick)', category: 'Diabetes', subcategory: 'Urine Analysis', price: 99, description: 'Screens for ketones in urine — a rapid test for detecting diabetic ketoacidosis and fat metabolism.', fasting_required: false, report_time: '6 hrs', preparation_instructions: 'No special preparation. Clean-catch mid-stream urine sample.' },
+    { id: 407, name: 'Gestational Diabetes Screening (GCT)', category: 'Pregnancy', subcategory: 'Glucose Tolerance', price: 399, description: 'Glucose challenge test for gestational diabetes screening — blood glucose measured 1 hour after a glucose drink.', fasting_required: false, report_time: '24 hrs', preparation_instructions: 'No fasting required. Drink glucose solution and blood drawn after 1 hour.' },
+    { id: 408, name: 'OGTT 75g (3 Samples: Fasting, 1Hr, 2Hr)', category: 'Diabetes', subcategory: 'Glucose Tolerance', price: 699, description: 'Three-sample oral glucose tolerance test — comprehensive evaluation of glucose metabolism for diabetes diagnosis.', fasting_required: true, report_time: '4 hrs', preparation_instructions: 'Fasting for 10-12 hours required. Remain seated throughout the test. No smoking.' },
+    { id: 409, name: 'Insulin (Fasting + Postprandial Combo)', category: 'Diabetes', subcategory: 'Insulin', price: 999, description: 'Combined fasting and post-meal insulin measurements for comprehensive beta-cell function assessment.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 10 hours. Then eat a meal. Two samples collected.' },
+    { id: 410, name: 'Glucose-Insulin Ratio', category: 'Diabetes', subcategory: 'Insulin Resistance', price: 799, description: 'Calculated ratio of fasting glucose to fasting insulin — used for PCOS and insulin resistance evaluation.', fasting_required: true, report_time: '24 hrs', preparation_instructions: 'Fasting for 10-12 hours required. Calculated from glucose + insulin values.' },
   ].map(t => {
     let mrp;
     if (t.price <= 299) mrp = Math.round(t.price * 2.5);
@@ -1240,6 +1261,44 @@ export default function Diagnostics() {
                         <Info size={12} /> {test.preparation_instructions}
                       </p>
                     )}
+                    {(() => {
+                      const edu = getTestEducation(test);
+                      const isOpen = faqOpen[test.id];
+                      if (!edu || edu.length === 0) return null;
+                      const top = edu.slice(0, 2);
+                      return (
+                        <div style={{ marginTop: 8 }}>
+                          <button onClick={() => setFaqOpen(p => ({ ...p, [test.id]: !p[test.id] }))}
+                            style={{
+                              width: '100%', padding: '6px 10px', borderRadius: 6, background: '#f3f0ff',
+                              border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, fontWeight: 600,
+                              color: '#7b1fa2', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            }}>
+                            <span>Why this test?</span>
+                            <CaretDown size={12} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
+                          </button>
+                          {isOpen && (
+                            <div style={{ marginTop: 6, padding: '8px 10px', background: '#faf9ff', borderRadius: 6, fontSize: 11, lineHeight: 1.6 }}>
+                              {top.map((section, si) => (
+                                <div key={si} style={{ marginBottom: si < top.length - 1 ? 8 : 0 }}>
+                                  <p style={{ fontWeight: 700, color: section.color, marginBottom: 4 }}>{section.title}</p>
+                                  {section.items.slice(0, 2).map((item, ii) => (
+                                    <div key={ii} style={{ marginBottom: 4 }}>
+                                      <p style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{item.q}</p>
+                                      <p style={{ color: 'var(--text-body)' }}>{item.a.length > 120 ? item.a.slice(0, 120) + '...' : item.a}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                              <p style={{ fontSize: 10, color: '#7b1fa2', fontWeight: 600, marginTop: 4, cursor: 'pointer' }}
+                                onClick={() => setSelectedTest(test)}>
+                                View all FAQ →
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {relatedSuggestions[test.name] && (
                       <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f0f0f0' }}>
                         <div style={{ fontSize: 10, color: 'var(--text-light)', fontWeight: 600, marginBottom: 4 }}>Also booked</div>

@@ -1,0 +1,522 @@
+const bloodSample = 'Blood sample collected by a certified phlebotomist from a vein in your arm';
+const homeCollection = 'Yes, our trained phlebotomist visits your home at your scheduled time. Available in all major cities.';
+
+const categoryPatterns = {
+  Hematology: {
+    whatIs: t => `${t.name || 'This test'} evaluates key components of your blood including red blood cells, white blood cells, hemoglobin, and platelets to assess overall blood health.`,
+    whyDone: t => `To screen for anaemia, infection, clotting disorders, and other blood-related conditions. It's one of the most commonly ordered routine tests.`,
+    whoNeeds: ['Anyone during a routine health checkup', 'People experiencing fatigue, weakness, or paleness', 'Pre-surgery assessment', 'Patients on medications that affect blood counts', 'Monitoring chronic conditions like kidney disease'],
+    whatMeasures: ['Hemoglobin — oxygen-carrying capacity', 'Red Blood Cells (RBC) — blood count', 'White Blood Cells (WBC) — immune status', 'Platelets — clotting ability'],
+    organsChecked: ['Bone marrow (blood cell production)', 'Spleen (blood filtration)', 'Immune system'],
+    diseasesDetected: ['Anaemia (iron deficiency, B12 deficiency)', 'Infections (bacterial/viral)', 'Leukemia and blood cancers', 'Clotting disorders', 'Thalassemia trait'],
+  },
+  Diabetes: {
+    whatIs: t => `${t.name || 'This test'} measures your blood sugar levels to evaluate how well your body processes glucose and to screen for diabetes.`,
+    whyDone: t => `To diagnose diabetes or prediabetes, monitor blood sugar control, and prevent complications like nerve damage, kidney disease, and heart problems.`,
+    whoNeeds: ['Anyone 35+ years old (routine screening)', 'Overweight or obese individuals', 'Family history of diabetes', 'Women with PCOS or gestational diabetes history', 'Known diabetic patients for monitoring'],
+    whatMeasures: t => {
+      if (/HbA1c|A1c/i.test(t.name)) return ['Glycated hemoglobin (average 2-3 month blood sugar)'];
+      if (/Fasting/i.test(t.name)) return ['Fasting blood glucose level'];
+      if (/PP/i.test(t.name) || /Postprandial/i.test(t.name)) return ['Post-meal blood glucose response'];
+      if (/OGTT|GTT|Glucose Tolerance/i.test(t.name)) return ['Blood glucose response over 2-3 hours after glucose load'];
+      return ['Blood glucose levels'];
+    },
+    organsChecked: ['Pancreas (insulin production)', 'Liver (glucose metabolism)'],
+    diseasesDetected: ['Type 1 Diabetes', 'Type 2 Diabetes', 'Prediabetes', 'Gestational Diabetes', 'Insulin Resistance'],
+  },
+  Thyroid: {
+    whatIs: t => `${t.name || 'This test'} measures thyroid hormone levels in your blood to evaluate how well your thyroid gland is functioning.`,
+    whyDone: t => `To screen for thyroid disorders like hypothyroidism (underactive thyroid), hyperthyroidism (overactive thyroid), and autoimmune thyroid conditions.`,
+    whoNeeds: ['Anyone with unexplained weight changes, fatigue, or mood swings', 'Women planning pregnancy or postpartum', 'People with family history of thyroid disease', 'Patients on thyroid medication for dose monitoring', 'Annual health checkups (especially women)'],
+    whatMeasures: t => {
+      if (/TSH/i.test(t.name)) return ['TSH — Thyroid Stimulating Hormone (pituitary signal to thyroid)'];
+      if (/Free T3|FT3/i.test(t.name)) return ['Free T3 — active thyroid hormone'];
+      if (/Free T4|FT4/i.test(t.name)) return ['Free T4 — primary thyroid hormone produced by gland'];
+      if (/TPO|Antibody/i.test(t.name)) return ['Anti-thyroid peroxidase antibodies (autoimmune marker)'];
+      if (/T3.*T4.*TSH|Profile/i.test(t.name)) return ['TSH, T3, and T4 levels for complete thyroid assessment'];
+      return ['Thyroid hormone levels'];
+    },
+    organsChecked: ['Thyroid gland', 'Pituitary gland (TSH regulation)'],
+    diseasesDetected: ['Hypothyroidism (low thyroid function)', 'Hyperthyroidism (excess thyroid function)', 'Hashimoto\'s thyroiditis (autoimmune)', 'Graves\' disease', 'Thyroid nodules / goiter'],
+  },
+  Cardiac: {
+    whatIs: t => `${t.name || 'This test'} evaluates your heart health and cardiovascular risk by measuring key markers in your blood.`,
+    whyDone: t => `To assess your risk of heart disease, stroke, and other cardiovascular conditions by measuring cholesterol, triglycerides, and other cardiac markers.`,
+    whoNeeds: ['Anyone 30+ years for baseline screening', 'Family history of heart disease', 'High BP, diabetes, or obesity', 'Smokers and sedentary individuals', 'Known heart patients for monitoring'],
+    whatMeasures: t => {
+      if (/Lipid/i.test(t.name)) return ['Total Cholesterol', 'HDL (good cholesterol)', 'LDL (bad cholesterol)', 'Triglycerides'];
+      if (/Cholesterol/i.test(t.name)) return ['Total cholesterol levels'];
+      if (/hs-CRP|CRP/i.test(t.name)) return ['High-sensitivity C-reactive protein (inflammation marker)'];
+      if (/Troponin/i.test(t.name)) return ['Troponin I or T (heart muscle damage marker)'];
+      if (/NT-proBNP|BNP/i.test(t.name)) return ['NT-proBNP (heart failure marker)'];
+      if (/Homocysteine/i.test(t.name)) return ['Homocysteine levels (heart disease risk marker)'];
+      if (/Apo|Apolipoprotein/i.test(t.name)) return ['Apolipoprotein A1 and B (advanced heart risk markers)'];
+      if (/Lp\(a\)|Lipoprotein.*a/i.test(t.name)) return ['Lipoprotein(a) — genetic heart disease risk factor'];
+      if (/CK-MB/i.test(t.name)) return ['CK-MB isoenzyme (heart muscle damage)'];
+      return ['Cardiac health markers'];
+    },
+    organsChecked: ['Heart', 'Blood vessels (arteries and veins)', 'Liver (cholesterol production)'],
+    diseasesDetected: ['High cholesterol / hyperlipidemia', 'Coronary artery disease', 'Heart attack risk', 'Heart failure', 'Atherosclerosis'],
+  },
+  Liver: {
+    whatIs: t => `${t.name || 'This test'} assesses your liver function by measuring enzymes, proteins, and other substances produced or processed by the liver.`,
+    whyDone: t => `To screen for liver damage, hepatitis, fatty liver, and monitor liver function in patients on certain medications or with liver conditions.`,
+    whoNeeds: ['People with jaundice or yellowing of skin/eyes', 'Heavy alcohol consumers', 'Patients on medications that affect the liver', 'Those with fatty liver or hepatitis', 'Annual health checkup'],
+    whatMeasures: t => {
+      if (/LFT|Function/i.test(t.name)) return ['SGPT/ALT and SGOT/AST (liver enzymes)', 'ALP (bile duct enzyme)', 'GGT (alcohol/liver damage marker)', 'Total Bilirubin', 'Total Protein, Albumin'];
+      if (/Bilirubin/i.test(t.name)) return ['Bilirubin levels (direct and indirect)'];
+      if (/SGPT|ALT/i.test(t.name)) return ['Alanine aminotransferase (SGPT) — liver cell injury marker'];
+      if (/SGOT|AST/i.test(t.name)) return ['Aspartate aminotransferase (SGOT) — liver/heart/muscle injury marker'];
+      if (/GGT|Gamma/i.test(t.name)) return ['Gamma-glutamyl transferase (GGT) — bile duct/liver damage'];
+      if (/ALP|Alkaline/i.test(t.name)) return ['Alkaline Phosphatase — bile duct and bone marker'];
+      return ['Liver enzyme and function markers'];
+    },
+    organsChecked: ['Liver', 'Gallbladder and bile ducts', 'Pancreas (secondary)'],
+    diseasesDetected: ['Hepatitis (viral/alcoholic)', 'Fatty liver disease (NAFLD)', 'Cirrhosis (liver scarring)', 'Bile duct obstruction', 'Liver cancer'],
+  },
+  Kidney: {
+    whatIs: t => `${t.name || 'This test'} evaluates how well your kidneys are filtering waste products from your blood and maintaining electrolyte balance.`,
+    whyDone: t => `To screen for kidney disease, monitor known kidney conditions, and check for complications of diabetes and high blood pressure that affect the kidneys.`,
+    whoNeeds: ['Diabetic patients (annual screening)', 'Hypertension patients', 'Family history of kidney disease', 'Patients on medications affecting kidneys', 'Routine health checkup'],
+    whatMeasures: t => {
+      if (/KFT|Kidney Function|Renal/i.test(t.name)) return ['Serum Creatinine', 'Blood Urea / BUN', 'Uric Acid', 'Electrolytes (Sodium, Potassium, Chloride)'];
+      if (/Creatinine/i.test(t.name)) return ['Creatinine levels — kidney waste filtration marker'];
+      if (/eGFR/i.test(t.name)) return ['Estimated Glomerular Filtration Rate — kidney function percentage'];
+      if (/BUN|Urea/i.test(t.name)) return ['Blood Urea Nitrogen — kidney waste removal marker'];
+      if (/Microalbumin/i.test(t.name)) return ['Urine microalbumin — early kidney damage marker'];
+      if (/Cystatin/i.test(t.name)) return ['Cystatin C — accurate kidney function marker independent of muscle mass'];
+      return ['Kidney function markers'];
+    },
+    organsChecked: ['Kidneys (filtration)', 'Urinary tract'],
+    diseasesDetected: ['Chronic Kidney Disease (CKD)', 'Acute Kidney Injury (AKI)', 'Diabetic nephropathy', 'Kidney stones', 'Urinary tract infections'],
+  },
+  Anemia: {
+    whatIs: t => `${t.name || 'This test'} evaluates iron levels and other markers related to red blood cell production and oxygen-carrying capacity.`,
+    whyDone: t => `To diagnose different types of anaemia (iron deficiency, B12 deficiency, etc.) and identify the root cause of fatigue, paleness, or weakness.`,
+    whoNeeds: ['People with chronic fatigue or weakness', 'Women with heavy menstrual bleeding', 'Pregnant women', 'Vegetarians/vegans (B12/Folate risk)', 'Those with paleness, breathlessness, or dizziness'],
+    whatMeasures: t => {
+      if (/Iron Studies|Iron Profile/i.test(t.name)) return ['Serum Iron', 'Ferritin (iron storage)', 'TIBC (binding capacity)', 'Transferrin Saturation'];
+      if (/Ferritin/i.test(t.name)) return ['Ferritin — iron storage protein'];
+      if (/TIBC/i.test(t.name)) return ['Total Iron Binding Capacity'];
+      if (/B12.*Folate|Folate.*B12|B12 & Folate/i.test(t.name)) return ['Vitamin B12 and Folate (folic acid) levels'];
+      if (/Haptoglobin/i.test(t.name)) return ['Haptoglobin — hemolysis marker'];
+      if (/Soluble Transferrin/i.test(t.name)) return ['Soluble Transferrin Receptor — differentiates IDA from chronic disease'];
+      if (/B12|Cobalamin/i.test(t.name)) return ['Vitamin B12 levels'];
+      return ['Iron and anaemia markers'];
+    },
+    organsChecked: ['Bone marrow (blood production)', 'Spleen', 'Iron storage organs'],
+    diseasesDetected: ['Iron Deficiency Anaemia', 'Vitamin B12 Deficiency Anaemia', 'Folate Deficiency Anaemia', 'Anaemia of Chronic Disease', 'Hemolytic Anaemia', 'Thalassemia trait'],
+  },
+  Vitamins: {
+    whatIs: t => `${t.name || 'This test'} measures your vitamin levels to detect deficiencies or excesses that can affect your overall health.`,
+    whyDone: t => `To check for vitamin deficiencies that can cause fatigue, bone problems, nerve issues, and weakened immunity.`,
+    whoNeeds: ['People with chronic fatigue', 'Vegans and vegetarians (B12 risk)', 'Older adults (Vitamin D/B12)', 'Those with limited sun exposure (D)', 'People with bone pain or fractures', 'Digestive disorders affecting absorption'],
+    whatMeasures: t => {
+      if (/Vitamin D/i.test(t.name)) return ['25-Hydroxyvitamin D (vitamin D status)'];
+      if (/Vitamin B12|Cobalamin/i.test(t.name)) return ['Vitamin B12 levels'];
+      if (/Vitamin A|Retinol/i.test(t.name)) return ['Vitamin A (retinol) levels'];
+      if (/Vitamin E|Tocopherol/i.test(t.name)) return ['Vitamin E (tocopherol) levels'];
+      if (/Folate|Folic/i.test(t.name)) return ['Folate (Folic Acid) levels'];
+      if (/CoQ10|Ubiquinone/i.test(t.name)) return ['Coenzyme Q10 levels'];
+      if (/MMA|Methylmalonic/i.test(t.name)) return ['Methylmalonic Acid — sensitive B12 deficiency marker'];
+      return ['Vitamin levels in blood'];
+    },
+    organsChecked: ['Bones (Vitamin D)', 'Nervous system (B vitamins)', 'Immune system'],
+    diseasesDetected: ['Vitamin D deficiency / insufficiency', 'Vitamin B12 deficiency', 'Folate deficiency', 'Vitamin A deficiency', 'Vitamin E deficiency'],
+  },
+  Hormones: {
+    whatIs: t => `${t.name || 'This test'} measures hormone levels in your blood to evaluate your endocrine (gland) system function.`,
+    whyDone: t => `To diagnose hormonal imbalances that can affect metabolism, reproduction, growth, mood, and overall health.`,
+    whoNeeds: ['People with unexplained weight changes', 'Women with irregular periods or PCOS', 'Men with low libido or erectile dysfunction', 'Anyone with infertility concerns', 'People with fatigue, mood swings, or sleep issues'],
+    whatMeasures: t => {
+      if (/Thyroid/i.test(t.name)) return ['Thyroid hormones (will be in Thyroid section)'];
+      if (/Prolactin/i.test(t.name)) return ['Prolactin — pituitary hormone affecting reproduction and lactation'];
+      if (/Cortisol/i.test(t.name)) return ['Cortisol — stress hormone from adrenal glands'];
+      if (/Testosterone/i.test(t.name)) return ['Testosterone — male sex hormone (also important in women)'];
+      if (/FSH/i.test(t.name)) return ['FSH — Follicle Stimulating Hormone (ovarian/testicular function)'];
+      if (/LH/i.test(t.name)) return ['LH — Luteinizing Hormone (ovulation and testosterone)'];
+      if (/Progesterone/i.test(t.name)) return ['Progesterone — female reproductive hormone'];
+      if (/Estradiol|E2/i.test(t.name)) return ['Estradiol — primary estrogen hormone'];
+      if (/AMH/i.test(t.name)) return ['AMH — Anti-Mullerian Hormone (ovarian reserve)'];
+      if (/DHEA/i.test(t.name)) return ['DHEA-S / DHEA — adrenal androgen hormone'];
+      if (/SHBG/i.test(t.name)) return ['SHBG — Sex Hormone Binding Globulin'];
+      if (/PTH|Parathyroid/i.test(t.name)) return ['PTH — Parathyroid Hormone (calcium regulation)'];
+      if (/Growth|GH|IGF-1/i.test(t.name)) return ['Growth Hormone / IGF-1 (growth and metabolism)'];
+      if (/Aldosterone|Renin/i.test(t.name)) return ['Aldosterone and Renin (BP and electrolyte regulation)'];
+      if (/17-OH/i.test(t.name)) return ['17-OH Progesterone (adrenal hormone, CAH screening)'];
+      if (/ACTH/i.test(t.name)) return ['ACTH (pituitary-adrenal axis function)'];
+      if (/Androstenedione/i.test(t.name)) return ['Androstenedione (adrenal/ovarian androgen)'];
+      if (/Pregnenolone/i.test(t.name)) return ['Pregnenolone (neurosteroid, memory & mood)'];
+      return ['Hormone levels'];
+    },
+    organsChecked: ['Pituitary gland (master gland)', 'Thyroid gland', 'Adrenal glands', 'Ovaries (female)', 'Testes (male)'],
+    diseasesDetected: ['Hypogonadism (low sex hormones)', 'PCOS (hormonal imbalance)', 'Adrenal insufficiency', 'Pituitary disorders', 'Menopause related hormonal changes'],
+  },
+  Fever: {
+    whatIs: t => `${t.name || 'This test'} helps identify the cause of your fever by detecting specific pathogens (viruses, bacteria, or parasites) in your blood.`,
+    whyDone: t => `To diagnose the underlying infection causing fever, enabling targeted treatment rather than broad-spectrum antibiotics.`,
+    whoNeeds: ['Anyone with persistent or high-grade fever', 'Fever with chills, body ache, or headache', 'Fever lasting more than 3 days', 'Suspected dengue, malaria, typhoid based on symptoms', 'Fever with travel history to endemic areas'],
+    whatMeasures: t => {
+      if (/Dengue/i.test(t.name)) return ['Dengue NS1 antigen (early) or IgG/IgM antibodies'];
+      if (/Malaria/i.test(t.name)) return ['Malaria parasite antigen (P. falciparum, P. vivax)'];
+      if (/Typhoid/i.test(t.name)) return ['Salmonella typhi antibodies (O and H antigens)'];
+      if (/Chikungunya/i.test(t.name)) return ['Chikungunya virus IgM antibodies'];
+      if (/EBV|Epstein/i.test(t.name)) return ['EBV antibodies (VCA, EA, EBNA) for glandular fever'];
+      if (/Leptospira|Lepto/i.test(t.name)) return ['Leptospira IgM antibodies'];
+      if (/Scrub Typhus/i.test(t.name)) return ['Orientia tsutsugamushi IgM antibodies'];
+      if (/CRP|C-Reactive/i.test(t.name)) return ['C-Reactive Protein — general inflammation/infection marker'];
+      if (/Procalcitonin/i.test(t.name)) return ['Procalcitonin — bacterial vs viral infection differentiation'];
+      if (/Blood Culture/i.test(t.name)) return ['Bacterial/fungal growth in blood (gold standard for sepsis)'];
+      if (/TB|Tuberculosis|QuantiFERON|GeneXpert|ADA/i.test(t.name)) return ['TB-specific markers (IGRA, PCR, or adenosine deaminase)'];
+      if (/VZV|Varicella/i.test(t.name)) return ['Varicella Zoster virus antibodies'];
+      if (/Measles/i.test(t.name)) return ['Measles virus antibodies'];
+      if (/Mumps/i.test(t.name)) return ['Mumps virus antibodies'];
+      if (/Pertussis|Whoop/i.test(t.name)) return ['Bordetella pertussis antibodies'];
+      if (/Widal/i.test(t.name)) return ['Salmonella typhi and paratyphi agglutination'];
+      if (/Weil.Felix/i.test(t.name)) return ['OX19, OX2, OXK antibodies (rickettsial diseases)'];
+      if (/Brucella/i.test(t.name)) return ['Brucella abortus/melitensis antibodies'];
+      if (/Legionella/i.test(t.name)) return ['Legionella pneumophila urinary antigen'];
+      if (/Cryptococcal|Crypto/i.test(t.name)) return ['Cryptococcus neoformans antigen'];
+      if (/Histoplasma/i.test(t.name)) return ['Histoplasma capsulatum antigen'];
+      return ['Infection-specific markers (pathogen antigens/antibodies)'];
+    },
+    organsChecked: ['Immune system response', 'Potentially affected organs based on infection type'],
+    diseasesDetected: ['Dengue Fever', 'Malaria', 'Typhoid Fever', 'Chikungunya', 'Leptospirosis', 'Scrub Typhus', 'Tuberculosis (TB)', 'Epstein-Barr Virus', 'Bacterial vs Viral infections'],
+  },
+  STD: {
+    whatIs: t => `${t.name || 'This test'} screens for sexually transmitted infections (STIs) by detecting specific markers in your blood or other samples.`,
+    whyDone: t => `To detect STIs early, prevent complications, protect your partner, and receive appropriate treatment. Many STIs can be asymptomatic.`,
+    whoNeeds: ['Sexually active individuals (routine screening)', 'People with multiple partners', 'Pregnant women (to prevent mother-to-child transmission)', 'People with symptoms like discharge, sores, or pain', 'Needle-sharing or blood exposure history'],
+    whatMeasures: t => {
+      if (/HIV/i.test(t.name)) return ['HIV-1 and HIV-2 antibodies/p24 antigen'];
+      if (/Hepatitis B|HBsAg/i.test(t.name)) return ['Hepatitis B surface antigen (active infection)'];
+      if (/Hepatitis C/i.test(t.name)) return ['Hepatitis C virus antibodies'];
+      if (/VDRL|RPR/i.test(t.name)) return ['Non-specific antibodies for syphilis screening'];
+      return ['STI-specific markers'];
+    },
+    organsChecked: ['Immune system', 'Liver (Hepatitis)', 'Reproductive organs'],
+    diseasesDetected: ['HIV/AIDS', 'Hepatitis B', 'Hepatitis C', 'Syphilis'],
+  },
+  Pregnancy: {
+    whatIs: t => `${t.name || 'This test'} is related to pregnancy monitoring, fertility assessment, or prenatal screening.`,
+    whyDone: t => `To confirm pregnancy, monitor foetal health, screen for genetic conditions, assess fertility, and ensure a healthy pregnancy.`,
+    whoNeeds: ['Women trying to conceive', 'Pregnant women (routine prenatal care)', 'Women with fertility concerns', 'Couples with family history of genetic disorders'],
+    whatMeasures: t => {
+      if (/hCG|Beta.*hCG|Pregnancy.*Test/i.test(t.name)) return ['Human Chorionic Gonadotropin (hCG) — pregnancy hormone'];
+      if (/AMH/i.test(t.name)) return ['Anti-Mullerian Hormone — ovarian reserve (egg count)'];
+      if (/Triple Marker/i.test(t.name)) return ['AFP, hCG, Estriol — Down syndrome and neural tube defect screening'];
+      if (/NIPT|Non.Invasive/i.test(t.name)) return ['Cell-free fetal DNA — trisomy 21, 18, 13 screening'];
+      if (/Rubella/i.test(t.name)) return ['Rubella IgG/IgM antibodies (immunity and infection screening)'];
+      if (/Toxoplasma/i.test(t.name)) return ['Toxoplasma gondii antibodies'];
+      if (/CMV/i.test(t.name)) return ['Cytomegalovirus antibodies'];
+      if (/Semen|Sperm/i.test(t.name)) return ['Sperm count, motility, morphology (male fertility)'];
+      return ['Pregnancy and fertility markers'];
+    },
+    organsChecked: ['Uterus and ovaries', 'Placenta', 'Foetus (through screening markers)'],
+    diseasesDetected: ['Pregnancy confirmation', 'Ectopic pregnancy', 'Down syndrome / Trisomy 21', 'Neural tube defects', 'Fertility disorders'],
+  },
+  Cancer: {
+    whatIs: t => `${t.name || 'This test'} screens for or monitors cancer by measuring specific tumour markers or detecting abnormal cells in the body.`,
+    whyDone: t => `For early cancer detection, monitoring treatment response, checking for recurrence, and screening high-risk individuals.`,
+    whoNeeds: ['People with family history of cancer', 'Age-appropriate screening (e.g., PAP for cervical cancer)', 'Known cancer patients for treatment monitoring', 'People with suspicious symptoms or lumps', 'Annual health checkup packages'],
+    whatMeasures: t => {
+      if (/CA 125/i.test(t.name)) return ['CA-125 — ovarian cancer monitoring marker'];
+      if (/PSA/i.test(t.name)) return ['Prostate Specific Antigen (prostate cancer screening)'];
+      if (/PAP|Smear|Cervical/i.test(t.name)) return ['Cervical cell examination (PAP smear)'];
+      if (/CA 19-9/i.test(t.name)) return ['CA 19-9 — pancreatic/biliary tract cancer marker'];
+      if (/CA 15-3/i.test(t.name)) return ['CA 15-3 — breast cancer monitoring marker'];
+      if (/NSE/i.test(t.name)) return ['Neuron-Specific Enolase — lung cancer and neuroendocrine tumours'];
+      if (/Cyfra|CYFRA/i.test(t.name)) return ['CYFRA 21-1 — non-small cell lung cancer marker'];
+      if (/SCC/i.test(t.name)) return ['SCC Antigen — squamous cell carcinoma marker'];
+      if (/HE4/i.test(t.name)) return ['HE4 — ovarian cancer marker (used in ROMA algorithm)'];
+      if (/GALAD/i.test(t.name)) return ['GALAD Score — combined algorithm for ovarian cancer risk'];
+      if (/CEA/i.test(t.name)) return ['Carcinoembryonic Antigen (CEA) — colorectal and other cancers'];
+      if (/AFP/i.test(t.name)) return ['Alpha-Fetoprotein (AFP) — liver cancer marker'];
+      if (/Free Light|SPEP|UPEP|Immunofixation|Myeloma/i.test(t.name)) return ['Multiple myeloma markers'];
+      if (/BRCA/i.test(t.name)) return ['BRCA1/BRCA2 gene mutations (hereditary breast/ovarian cancer)'];
+      if (/Colorectal|FIT|Fecal Occult|Occult Blood/i.test(t.name)) return ['Fecal occult blood — colorectal cancer screening'];
+      if (/Calcitonin/i.test(t.name)) return ['Calcitonin — medullary thyroid cancer marker'];
+      if (/Thyroglobulin/i.test(t.name)) return ['Thyroglobulin — thyroid cancer recurrence monitoring'];
+      return ['Cancer-specific markers'];
+    },
+    organsChecked: ['Depends on the specific cancer marker/screening'],
+    diseasesDetected: ['Ovarian Cancer (CA-125, HE4)', 'Prostate Cancer (PSA)', 'Cervical Cancer (PAP Smear)', 'Pancreatic Cancer (CA 19-9)', 'Breast Cancer (CA 15-3)', 'Lung Cancer (NSE, Cyfra 21-1, SCC)', 'Liver Cancer (AFP)', 'Colorectal Cancer (FOBT/FIT)'],
+  },
+  Arthritis: {
+    whatIs: t => `${t.name || 'This test'} helps diagnose and monitor autoimmune and inflammatory conditions affecting the joints and connective tissues.`,
+    whyDone: t => `To differentiate between types of arthritis (rheumatoid vs osteoarthritis), detect autoimmune diseases, and monitor treatment response.`,
+    whoNeeds: ['People with joint pain, stiffness, or swelling', 'Morning stiffness lasting more than 30 minutes', 'Family history of autoimmune disease', 'Unexplained inflammation or fever', 'Skin rashes with joint pain (lupus suspicion)'],
+    whatMeasures: t => {
+      if (/Rheumatoid|RF/i.test(t.name)) return ['Rheumatoid Factor (RF) — antibody in rheumatoid arthritis'];
+      if (/Anti-CCP/i.test(t.name)) return ['Anti-CCP antibodies — highly specific for rheumatoid arthritis'];
+      if (/Uric Acid/i.test(t.name)) return ['Uric Acid — gout arthritis marker'];
+      if (/ANA/i.test(t.name)) return ['Antinuclear Antibodies (ANA) — lupus and autoimmune screening'];
+      if (/Anti-dsDNA/i.test(t.name)) return ['Anti-dsDNA — specific lupus marker'];
+      if (/HLA-B27/i.test(t.name)) return ['HLA-B27 genetic marker — ankylosing spondylitis'];
+      if (/ANCA|MPO|PR3/i.test(t.name)) return ['ANCA — vasculitis (blood vessel inflammation)'];
+      if (/Complement|C3|C4/i.test(t.name)) return ['C3 and C4 complement proteins (disease activity monitoring)'];
+      if (/Anti.*SSA|Anti.*SSB|Ro|La/i.test(t.name)) return ['Anti-Ro/SSA and Anti-La/SSB — Sjogren syndrome'];
+      if (/Anti.*Sm|Smith/i.test(t.name)) return ['Anti-Smith — lupus specific'];
+      if (/Anti.*RNP/i.test(t.name)) return ['Anti-RNP — mixed connective tissue disease'];
+      if (/Anti.*Scl|Scleroderma|Topoisomerase/i.test(t.name)) return ['Anti-Scl-70 — systemic sclerosis (scleroderma)'];
+      if (/Anti.*Jo.*1|Jo-1/i.test(t.name)) return ['Anti-Jo-1 — polymyositis'];
+      if (/Anti.*Centromere|Centromere/i.test(t.name)) return ['Anti-centromere — limited systemic sclerosis (CREST)'];
+      if (/Anti.*Cardiolipin/i.test(t.name)) return ['Anti-cardiolipin — antiphospholipid syndrome'];
+      return ['Autoimmune and inflammation markers'];
+    },
+    organsChecked: ['Joints (synovium)', 'Connective tissues', 'Multiple organs (autoimmune)'],
+    diseasesDetected: ['Rheumatoid Arthritis', 'Gout', 'Systemic Lupus Erythematosus (Lupus)', 'Ankylosing Spondylitis', 'Sjogren Syndrome', 'Scleroderma / Systemic Sclerosis', 'Vasculitis', 'Antiphospholipid Syndrome'],
+  },
+  Allergy: {
+    whatIs: t => `${t.name || 'This test'} identifies what substances (allergens) you may be allergic to by measuring your immune system's response.`,
+    whyDone: t => `To identify specific triggers causing allergic reactions like sneezing, rashes, breathing difficulty, or digestive issues, enabling targeted avoidance and treatment.`,
+    whoNeeds: ['People with seasonal allergies (pollen, dust)', 'Those with unexplained rashes or hives', 'Food allergy suspicions (after certain meals)', 'Asthma or eczema patients', 'Recurrent sinusitis or respiratory issues'],
+    whatMeasures: t => {
+      if (/Food.*Panel|Panel.*Food/i.test(t.name)) return ['IgE antibodies against common food allergens'];
+      if (/Inhalant.*Panel|Panel.*Inhalant/i.test(t.name)) return ['IgE antibodies against inhaled allergens'];
+      if (/Total IgE/i.test(t.name)) return ['Total Immunoglobulin E (baseline allergy marker)'];
+      if (/RAST|Specific.*IgE|Dust.*Mite|Milk|Egg|Peanut|Wheat|Soy|Tree Nut|Fish|Shellfish|Sesame/i.test(t.name)) return ['Specific IgE antibodies against individual allergens'];
+      return ['Allergy-specific IgE antibodies'];
+    },
+    organsChecked: ['Immune system (mast cells, IgE response)'],
+    diseasesDetected: ['Seasonal Allergies (hay fever)', 'Food Allergies', 'Dust Mite Allergy', 'Pet Dander Allergy', 'Contact Dermatitis'],
+  },
+  FullBody: {
+    whatIs: t => `${t.name || 'This test'} is a comprehensive assessment that evaluates multiple organ systems and overall health markers.`,
+    whyDone: t => `For a complete health checkup, screening for hidden conditions, establishing baseline values, and identifying risk factors early.`,
+    whoNeeds: ['Annual health checkup seekers', 'Pre-employment or insurance medicals', 'People 40+ for preventive screening', 'Those with multiple health concerns', 'Baseline assessment before starting new medications'],
+    whatMeasures: t => {
+      if (/LFT|Function.*Liver/i.test(t.name)) return ['Liver enzymes, bilirubin, proteins'];
+      if (/KFT|Kidney|Renal/i.test(t.name)) return ['Creatinine, BUN, electrolytes, uric acid'];
+      if (/Electrolytes/i.test(t.name)) return ['Sodium, Potassium, Chloride levels'];
+      if (/Urine.*Routine|Urine.*Complete/i.test(t.name)) return ['Physical, chemical, and microscopic urine analysis'];
+      if (/Stool/i.test(t.name)) return ['Stool physical, chemical, and microscopic examination'];
+      if (/Heavy Metal/i.test(t.name)) return ['Lead, Mercury, Arsenic (toxic heavy metals)'];
+      if (/Cystatin/i.test(t.name)) return ['Cystatin C (kidney function)'];
+      if (/Vitamin/i.test(t.name)) return ['Vitamin levels'];
+      if (/Drug Screen|Toxicology|Alcohol.*CDT|PEth|EtG|EtS/i.test(t.name)) return ['Drug or alcohol biomarkers'];
+      if (/Osmolality/i.test(t.name)) return ['Serum or urine osmolality (fluid balance)'];
+      if (/Anion Gap/i.test(t.name)) return ['Anion Gap (acid-base balance)'];
+      if (/Total Protein|Albumin.*Globulin|A.?G Ratio/i.test(t.name)) return ['Total protein, albumin, globulin, A/G ratio'];
+      if (/Magnesium/i.test(t.name)) return ['Serum magnesium (electrolyte)'];
+      if (/Phosphorus|Phosphate/i.test(t.name)) return ['Serum phosphorus levels'];
+      if (/Calcium/i.test(t.name)) return ['Serum calcium (bone and metabolic marker)'];
+      if (/Pharmacogenom|CYP|Warfarin|Clopidogrel/i.test(t.name)) return ['Genetic variants affecting drug metabolism'];
+      if (/Sweat Chloride/i.test(t.name)) return ['Chloride in sweat (cystic fibrosis diagnosis)'];
+      if (/Elastase/i.test(t.name)) return ['Pancreatic elastase (pancreatic function)'];
+      if (/Lactoferrin|Calprotectin/i.test(t.name)) return ['Stool inflammatory markers'];
+      if (/Lactose|SIBO|Breath.*Test|Celiac|tTG|Gliadin|EMA|Endomysial|DGP|HLA.DQ/i.test(t.name)) return ['GI function and malabsorption markers'];
+      if (/MMA|Methylmalonic/i.test(t.name)) return ['MMA (vitamin B12 status)'];
+      if (/Carnitine/i.test(t.name)) return ['Carnitine (energy metabolism)'];
+      if (/Amino Acid|Organic Acid/i.test(t.name)) return ['Comprehensive metabolic screening'];
+      return ['Comprehensive health markers'];
+    },
+    organsChecked: ['Multiple — varies by test'],
+    diseasesDetected: ['Comprehensive — depends on specific test components'],
+  },
+};
+
+const getCategoryInfo = (test) => {
+  const cat = test.category || '';
+  const name = test.name || '';
+  const sub = test.subcategory || '';
+  for (const [key, val] of Object.entries(categoryPatterns)) {
+    if (cat.toLowerCase().includes(key.toLowerCase())) return val;
+    if (sub.toLowerCase().includes(key.toLowerCase())) return val;
+    if (name.toLowerCase().includes(key.toLowerCase())) return val;
+  }
+  return {
+    whatIs: () => `${name || 'This test'} measures specific markers in your body to help evaluate your health and detect potential issues.`,
+    whyDone: () => `To screen for, diagnose, or monitor health conditions based on the specific markers measured by ${name || 'this test'}.`,
+    whoNeeds: ['Recommended by your doctor based on your symptoms, age, risk factors, or medical history', 'Part of routine health checkups or specific diagnostic evaluation', 'Individuals with relevant family history or lifestyle risk factors'],
+    whatMeasures: () => ['Specific biomarkers relevant to the condition being evaluated'],
+    organsChecked: ['Depends on the specific test'],
+    diseasesDetected: ['Depends on the specific test — consult your doctor for interpretation'],
+  };
+};
+
+const sampleTypeMap = {
+  'Blood (Vein sample)': bloodSample,
+  'Blood (Finger prick)': 'A small drop of blood collected by pricking your fingertip with a sterile lancet',
+  'Urine': 'A urine sample collected in a sterile container',
+  'Stool': 'A stool sample collected in a clean, dry container',
+  'Sputum': 'A sample of mucus coughed up from your lungs',
+  'Swab': 'A sterile swab used to collect cells from the affected area',
+  'Semen': 'Semen sample collected through masturbation into a sterile container',
+  'CSF': 'Cerebrospinal fluid collected through lumbar puncture',
+  'Sweat': 'Sweat collected using a painless electrical stimulation procedure on the forearm',
+};
+const defaultSampleDesc = 'Biological sample collected as per standard medical procedure';
+
+export function getTestEducation(test) {
+  if (!test) return [];
+  const info = getCategoryInfo(test);
+  const cat = test.category || '';
+  const name = test.name || '';
+  const price = test.offerPrice || test.price || 0;
+  const fasting = test.fasting_required;
+  const reportTime = test.report_time || '12-24 hours';
+  const prep = test.preparation_instructions || 'No special preparation required';
+  const sampleTypeLabel = test.sampleType || 'Blood (Vein sample)';
+  const sampleDesc = sampleTypeMap[sampleTypeLabel] || defaultSampleDesc;
+
+  const whatMeasuresArr = typeof info.whatMeasures === 'function' ? info.whatMeasures(test) : info.whatMeasures;
+  const sampleCollected = test.home_collection !== false ? homeCollection : 'Lab visit is preferred for this test';
+
+  // Disease-specific monitoring frequency
+  const getFrequency = () => {
+    if (/HbA1c|diabetes|blood sugar|glucose|fructosamine/i.test(name)) return 'Every 3 months for diabetics, annually for screening';
+    if (/thyroid|tsh|t3|t4/i.test(name) && !/antibody|autoimmune/i.test(name)) return 'Every 6-12 months for diagnosed patients, annually for screening';
+    if (/lipid|cholesterol/i.test(name)) return 'Annually for most adults, every 3-6 months if on cholesterol medication';
+    if (/liver|kft|kidney|creatinine/i.test(name)) return 'Annually for routine checkups, more frequently if on medications or with known disease';
+    if (/vitamin|iron|ferritin|b12|folate/i.test(name)) return 'Every 6-12 months after starting supplementation, annually for screening';
+    return 'As recommended by your doctor based on your health status';
+  };
+
+  const commonSections = [
+    {
+      title: 'Basic Understanding',
+      icon: 'Lightbulb',
+      color: '#0F5DA8',
+      items: [
+        { q: `What is ${name} test?`, a: info.whatIs(test) },
+        { q: `Why is ${name} test done?`, a: info.whyDone(test) },
+        { q: 'What does this test measure?', a: `The test measures: ${whatMeasuresArr.join(', ')}.` },
+        { q: 'Which organs/functions does it check?', a: info.organsChecked.join(', ') + '.' },
+        { q: 'Is this a routine or specialized test?', a: price <= 599 ? 'This is a routine screening test commonly included in health checkup packages.' : price <= 1999 ? 'This is a specialty test typically ordered based on specific symptoms or risk factors.' : 'This is a specialized or advanced diagnostic test ordered by a specialist for specific clinical indications.' },
+      ]
+    },
+    {
+      title: 'Who Should Take This Test',
+      icon: 'User',
+      color: '#2e7d32',
+      items: [
+        { q: 'Who needs this test?', a: info.whoNeeds.map((w, i) => `${i + 1}. ${w}`).join('\n') },
+        { q: 'Is this test for adults, children, or elderly?', a: info.whoNeeds.some(w => /child|pediatric/i.test(w)) ? 'Suitable for all age groups including children and elderly.' : 'Primarily for adults and elderly. Consult your doctor if this test is needed for children.' },
+        { q: 'Can healthy people take this test for screening?', a: info.whoNeeds.some(w => /routine|annual|health checkup|screening/i.test(w)) ? 'Yes, this test is suitable for preventive health screening.' : 'Yes, but mainly recommended if you have specific risk factors or symptoms.' },
+        { q: 'How often should this test be done?', a: getFrequency() },
+      ]
+    },
+    {
+      title: 'Symptoms-Based Questions',
+      icon: 'Warning',
+      color: '#c62828',
+      items: [
+        { q: `What symptoms indicate I should take ${name} test?`, a: info.whoNeeds.length > 2 ? info.whoNeeds.slice(0, 3).map(w => `• ${w}`).join('\n') : `Your doctor may recommend ${name} based on your specific symptoms and clinical evaluation.` },
+        { q: 'Can fatigue / fever / weakness be related to this test?', a: /hematology|anemia|iron|b12|folate|diabetes|thyroid|fever|infection/i.test(cat) ? 'Yes, these are common symptoms that may indicate the need for this test.' : 'These symptoms may be related — consult your doctor for proper evaluation.' },
+        { q: 'When should I suspect I need this test?', a: `If you experience persistent symptoms that concern you, or if your doctor recommends it based on your age, risk factors, or family history.` },
+      ]
+    },
+    {
+      title: 'Preparation & Fasting',
+      icon: 'Clock',
+      color: '#e65100',
+      items: [
+        { q: 'Do I need fasting before this test?', a: fasting ? 'Yes, fasting is required for accurate results.' : 'No, fasting is not required for this test.' },
+        { q: !fasting ? 'Why is no fasting needed?' : 'How many hours fasting is required?', a: fasting ? test.preparation_instructions || 'Typically 8-12 hours of fasting. Only plain water is allowed.' : 'The markers measured by this test are not significantly affected by food intake.' },
+        { q: 'Can I drink water during fasting?', a: fasting ? 'Yes, plain drinking water is allowed during the fasting period.' : 'Yes, you can drink water as usual.' },
+        { q: 'Can I take medicines before the test?', a: 'Please inform your doctor about all medications you are taking. Some medicines may need to be paused before the test.' },
+        { q: 'Should I avoid alcohol, smoking, or exercise?', a: fasting ? 'Yes, avoid alcohol for 24 hours, smoking on the morning of the test, and strenuous exercise for 12 hours before.' : 'It is advisable to avoid alcohol for 24 hours before the test.' },
+      ]
+    },
+    {
+      title: 'Sample Collection',
+      icon: 'Drop',
+      color: '#1565c0',
+      items: [
+        { q: 'What sample is required?', a: `${sampleTypeLabel} is required. ${sampleDesc}.` },
+        { q: 'How is the sample collected at home?', a: sampleCollected },
+        { q: 'Is the test painful?', a: 'You may feel a mild pinch during the blood draw. Most people find it tolerable and the discomfort lasts only a few seconds.' },
+        { q: 'How long does sample collection take?', a: 'The collection process takes about 5-10 minutes.' },
+        { q: 'Is home collection available?', a: test.home_collection !== false ? 'Yes, absolutely. A certified phlebotomist will visit your home at your preferred time.' : 'Lab visit is preferred for this specific test.' },
+      ]
+    },
+    {
+      title: 'Test Process',
+      icon: 'Microscope',
+      color: '#0F5DA8',
+      items: [
+        { q: 'What happens during the test?', a: `A qualified phlebotomist will ${sampleDesc.toLowerCase()}. The sample is then sent to our NABL-accredited lab for analysis.` },
+        { q: 'Is any risk or side effect involved?', a: 'The test is extremely safe. In rare cases, you may experience mild bruising at the puncture site which resolves within a day.' },
+        { q: 'How long does the test procedure take?', a: 'The sample collection takes 5-10 minutes. Results are typically ready within the specified report time.' },
+        { q: 'Is it safe for pregnant women / elderly?', a: 'Yes, blood tests are safe for pregnant women and elderly. However, always inform the phlebotomist if you are pregnant.' },
+      ]
+    },
+    {
+      title: 'Report & Timing',
+      icon: 'FileText',
+      color: '#1565c0',
+      items: [
+        { q: `How long does it take to get ${name} report?`, a: `Reports are usually available within ${reportTime}. Turnaround time may vary based on lab workload.` },
+        { q: 'How will I receive my report?', a: 'You will receive your report via WhatsApp, Email, and the Jeevan HealthCare app. You can also download it from our patient portal.' },
+        { q: 'Can I download the report online?', a: 'Yes, reports are available for download from your account on our website or app.' },
+        { q: 'What if my report is delayed?', a: 'If your report is delayed beyond the expected time, please contact our support team at +91-XXXXXXXXXX.' },
+      ]
+    },
+    {
+      title: 'Result Interpretation',
+      icon: 'ChartBar',
+      color: '#2e7d32',
+      items: [
+        { q: 'What do normal results mean?', a: 'Normal results indicate that the measured biomarkers are within the expected reference range for a healthy individual.' },
+        { q: 'What does a high or low result indicate?', a: 'Abnormal results may indicate an underlying condition that requires medical attention. Only your doctor can interpret results in the context of your overall health.' },
+        { q: 'Is an abnormal result always dangerous?', a: 'Not necessarily. Mild deviations may be temporary, diet-related, or within normal variation. Always consult your doctor for proper interpretation.' },
+        { q: 'Can lifestyle affect my results?', a: 'Yes, diet, exercise, stress, sleep, alcohol, and smoking can all affect test results. Your doctor will consider these factors.' },
+        { q: 'Should I repeat the test?', a: getFrequency() + '\n\nYour doctor will advise if a repeat test is needed based on borderline results.' },
+      ]
+    },
+    {
+      title: 'Clinical Meaning',
+      icon: 'Heartbeat',
+      color: '#c62828',
+      items: [
+        { q: 'What diseases can this test detect?', a: info.diseasesDetected.map((d, i) => `${i + 1}. ${d}`).join('\n') },
+        { q: 'Can this test confirm a disease?', a: 'This test provides important diagnostic information, but diagnosis is made by your doctor based on the complete clinical picture including symptoms, history, and other investigations.' },
+        { q: 'Is this test enough for diagnosis?', a: 'This test alone may not be sufficient for diagnosis. Your doctor may recommend additional tests for a complete evaluation.' },
+        { q: 'Do I need additional tests after this?', a: 'Depending on the results, your doctor may recommend follow-up tests for confirmation or further investigation.' },
+      ]
+    },
+    {
+      title: 'Safety & Reliability',
+      icon: 'Shield',
+      color: '#0F5DA8',
+      items: [
+        { q: 'Is this test accurate?', a: 'Yes, our tests are processed at NABL-accredited laboratories using standardized and validated methods for high accuracy.' },
+        { q: 'Can results vary between labs?', a: 'Minor variations can occur between labs due to different equipment and methods. Always use the same lab for consistent monitoring.' },
+        { q: 'Are there any risks in this test?', a: 'There are no significant risks. The procedure is minimally invasive and very safe.' },
+        { q: 'Is NABL accreditation important for this test?', a: 'Yes, NABL accreditation ensures quality standards, accurate results, and reliable testing processes.' },
+      ]
+    },
+    {
+      title: 'Cost & Booking',
+      icon: 'Coin',
+      color: '#FF8A00',
+      items: [
+        { q: 'What is the cost of this test?', a: `The cost of ${name} is ₹${price}. We also offer combo packages and seasonal discounts to make testing more affordable.` },
+        { q: 'Is home collection free?', a: price >= 999 ? 'Yes, home collection is FREE for this test.' : 'Free home collection is available for orders above ₹999. A nominal fee applies for lower-value orders.' },
+        { q: 'How do I book this test?', a: 'You can book online directly from this page. Click "Add to Cart" and proceed through the simple booking steps — Review, Patient Details, Address, and Payment.' },
+        { q: 'Can I reschedule or cancel booking?', a: 'Yes, you can reschedule or cancel your booking up to 2 hours before the scheduled collection time at no charge.' },
+        { q: 'What payment methods are available?', a: 'We accept all major payment methods: Credit/Debit Cards, UPI (GPay, PhonePe, Paytm), Net Banking, and Cash on Collection.' },
+      ]
+    },
+    {
+      title: 'Follow-up',
+      icon: 'ArrowClockwise',
+      color: '#7b1fa2',
+      items: [
+        { q: 'When should I repeat this test?', a: getFrequency() },
+        { q: 'Do I need doctor consultation after this test?', a: 'We recommend consulting a doctor to review your results, especially if any values are outside the normal range.' },
+        { q: 'Can I monitor results over time?', a: 'Yes, keeping a record of your test results over time helps track changes and trends. Your Jeevan HealthCare account stores all your past reports.' },
+        { q: 'What lifestyle changes help improve results?', a: 'A balanced diet, regular exercise (30 mins/day), stress management, adequate sleep (7-8 hours), and staying hydrated can positively impact most health markers.' },
+      ]
+    },
+  ];
+
+  return commonSections.map(section => ({
+    ...section,
+    items: section.items.map(item => ({
+      q: item.q,
+      a: item.a,
+    })),
+  }));
+}

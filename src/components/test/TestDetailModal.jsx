@@ -1,9 +1,17 @@
-import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield, ShoppingCart, Plus } from '@phosphor-icons/react';
+import { useState } from 'react';
+import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield, ShoppingCart, Plus, CaretDown, Warning, FileText, ChartBar, Heartbeat, Coin, ArrowClockwise, User, Lightbulb } from '@phosphor-icons/react';
 import testDetailData from './testDetailData';
+import { getTestEducation } from '../../utils/testEducation';
+
+const iconMap = {
+  Lightbulb, User: User, Warning, Drop, Microscope, FileText, ChartBar, Heartbeat, Shield, Coin: Coin, ArrowClockwise, Clock, Info, Heart, Phone,
+};
 
 const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = [], onAddAlsoBooked }) => {
   if (!test) return null;
   const data = testDetailData[test.name] || null;
+  const education = getTestEducation(test);
+  const [openFaq, setOpenFaq] = useState({});
 
   const Section = ({ title, icon: Icon, children, color = '#0F5DA8' }) => (
     <div style={{ marginBottom: 24 }}>
@@ -341,6 +349,65 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
             ))}
           </div>
         </Section>
+
+        {/* FAQ Accordion */}
+        {education.length > 0 && (
+          <Section title="FREQUENTLY ASKED QUESTIONS" icon={FileText} color="#7b1fa2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {education.map((section, si) => {
+                const Icon = iconMap[section.icon] || Info;
+                const isOpen = openFaq[si];
+                return (
+                  <div key={si} style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden' }}>
+                    <button onClick={() => setOpenFaq(p => ({ ...p, [si]: !p[si] }))}
+                      style={{
+                        width: '100%', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        background: isOpen ? '#f3f0ff' : '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                        fontSize: 13, fontWeight: 700, color: section.color, transition: 'background 0.15s',
+                      }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Icon size={16} weight="fill" color={section.color} />
+                        {section.title}
+                        <span style={{ fontSize: 10, color: 'var(--text-light)', fontWeight: 400 }}>({section.items.length} questions)</span>
+                      </span>
+                      <CaretDown size={14} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
+                    </button>
+                    {isOpen && (
+                      <div style={{ padding: '4px 14px 14px', background: '#faf9ff' }}>
+                        {section.items.map((item, ii) => (
+                          <div key={ii} style={{ padding: '8px 0', borderBottom: ii < section.items.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 4 }}>{item.q}</p>
+                            <p style={{ fontSize: 12, color: 'var(--text-body)', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{item.a}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+        )}
+
+        {/* Book Test CTA */}
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button onClick={onClose}
+            style={{
+              width: '100%', padding: '14px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+              background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+            Book This Test — ₹{test.offerPrice || test.price}
+          </button>
+          <button onClick={onClose}
+            style={{
+              width: '100%', padding: '10px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+              background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8',
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+            Talk to a Doctor
+          </button>
+        </div>
       </div>
     </div>
   );
