@@ -235,7 +235,7 @@ const PACKAGE_DEFS = [
   { slug: 'sports-clearance', name: 'Sports Clearance Package', axis: 'occupation',
     desc: 'Pre-participation screening for athletes covering cardiac, musculoskeletal, and metabolic fitness.',
     match: c => true, priceMultiplier: 0.4,
-    filterTests: t => /CBC|cardiac|lipid|troponin|CK-MB|CPK|creatine.*kinase|creatinine|BUN|glucose|electrolyte|calcium|magnesium|uric.*acid|total.*protein|albumin|iron|vitamin D|testosterone/urine.*routine|stool|blood.*group/i.test(t.name + t.category + t.subcategory) && t.price <= 999 },
+    filterTests: t => /CBC|cardiac|lipid|troponin|CK-MB|CPK|creatine.*kinase|creatinine|BUN|glucose|electrolyte|calcium|magnesium|uric.*acid|total.*protein|albumin|iron|vitamin D|testosterone|urine.*routine|stool|blood.*group/i.test(t.name + t.category + t.subcategory) && t.price <= 999 },
   { slug: 'hospital-admission', name: 'Hospital Admission Package', axis: 'occupation',
     desc: 'Pre-admission health screening required before elective surgery or hospital admission.',
     match: c => true, priceMultiplier: 0.5,
@@ -429,7 +429,7 @@ const PACKAGE_DEFS = [
   { slug: 'mental-wellness', name: 'Complete Mental Wellness Checkup', axis: 'mentalHealth',
     desc: 'Comprehensive mental health assessment covering all biological markers that influence mood, cognition, and mental wellbeing.',
     match: c => true, priceMultiplier: 0.45,
-    filterTests: t => /Thyroid|TSH|vitamin D|B12|folate|iron|ferritin|CBC|cortisol|testosterone|estradiol|progesterone|prolactin|DHEA|homocysteine|hs.crp|magnesium|zinc|calcium|electrolyte|creatinine|glucose|HbA1c|lipid|uric.*acid|total.*protein|albumin|neurotransmitter/serotonin|dopamine|melatonin|pregnenolone|androstenedione|SHBG/i.test(t.name + t.category + t.subcategory) && t.price <= 999 },
+    filterTests: t => /Thyroid|TSH|vitamin D|B12|folate|iron|ferritin|CBC|cortisol|testosterone|estradiol|progesterone|prolactin|DHEA|homocysteine|hs.crp|magnesium|zinc|calcium|electrolyte|creatinine|glucose|HbA1c|lipid|uric.*acid|total.*protein|albumin|neurotransmitter|serotonin|dopamine|melatonin|pregnenolone|androstenedione|SHBG/i.test(t.name + t.category + t.subcategory) && t.price <= 999 },
 
   // ── 22. FITNESS & SPORTS WISE ──
   { slug: 'pre-marathon', name: 'Pre-Marathon Health Screening', axis: 'fitness',

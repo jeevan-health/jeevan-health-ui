@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
   Heartbeat, Heart, Drop, Shield, Bone, Baby, User,
-  Microscope, Truck, Sparkle,
-  CaretRight, CaretDown, FileText, CalendarDots, ChatCircle,
+  Microscope, Truck, Sparkle, Gear,
+  CaretRight, CaretDown, FileText, CalendarDots, ChatCircle, Gift,
 } from '@phosphor-icons/react';
 import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
@@ -68,6 +68,7 @@ export default function Diagnostics() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState('tests'); // 'tests' | 'packages'
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [cart, setCart] = useState([]);
@@ -592,14 +593,147 @@ export default function Diagnostics() {
     { id: 433, name: 'Executive Health Checkup', category: 'Full Body', subcategory: 'Health Packages', price: 2499, description: 'Advanced full-body assessment with 60+ parameters including CBC, HbA1c, Lipid Profile, LFT, KFT, Thyroid, Vitamin D, Vitamin B12, Iron Studies, ECG, and more.', fasting_required: true, report_time: '48 hrs', preparation_instructions: 'Fasting for 10-12 hours required. Wear loose clothing for ECG.' },
     { id: 434, name: 'Wellness Package (Complete)', category: 'Full Body', subcategory: 'Health Packages', price: 3999, description: 'Comprehensive wellness screening with 85+ parameters covering all major organ systems, vitamins, hormones, cardiac risk markers, and cancer screening.', fasting_required: true, report_time: '48 hrs', preparation_instructions: 'Fasting for 10-12 hours required. Takes approximately 30 minutes for sample collection.' },
   ].map(t => {
+    // Hyderabad competitor-aligned pricing (Thyrocare / Apollo / Vijaya benchmarks)
+    const hyderabadPricing = (name, cat, sub, base) => {
+      const n = name.toLowerCase(), c = cat.toLowerCase(), s = sub.toLowerCase();
+      // Basic tests (₹99-249)
+      if (/fasting.*(blood|sugar)|fbs|glucose.*fast/i.test(n)) return 119;
+      if (/random.*(blood|sugar)|rbs|glucose.*random/i.test(n)) return 119;
+      if (/ppbs|postprandial|post.*meal|post.*lunch/i.test(n)) return 139;
+      if (/total.*cholesterol|cholesterol.*total/i.test(n)) return 169;
+      if (/hemoglobin|hb.*electrophoresis|electro.*hb|hplc.*hb/i.test(n) && !/electro|hplc|variant/i.test(n)) return 119;
+      if (/esr/i.test(n)) return 99;
+      if (/uric.*acid/i.test(n)) return 169;
+      if (/creatinine.*serum|serum.*creatinine/i.test(n)) return 139;
+      if (/bun|urea.*blood|blood.*urea/i.test(n)) return 149;
+      if (/urine.*routine|complete.*urine|urine.*microscopy|urinalysis/i.test(n)) return 149;
+      if (/blood.*group|abo|rh.*factor/i.test(n)) return 149;
+      // Standard tests (₹249-599)
+      if (/cbc|complete.*blood.*count|hemogram/i.test(n)) return 349;
+      if (/hba1c|glycated.*hemoglobin|glycosylated.*hemoglobin/i.test(n)) return 449;
+      if (/tsh/i.test(n) && !/t3|t4|thyroid.*profile/i.test(n)) return 249;
+      if (/t3.*t4.*tsh|thyroid.*profile/i.test(n)) return 449;
+      if (/free.*t3|ft3/i.test(n)) return 349;
+      if (/free.*t4|ft4/i.test(n)) return 349;
+      if (/lipid.*profile/i.test(n) && !/subfraction|remnant|apolipoprotein/i.test(n)) return 499;
+      if (/lft|liver.*function/i.test(n)) return 449;
+      if (/kft|kidney.*function|renal.*function/i.test(n)) return 399;
+      if (/sgpt|alt/i.test(n)) return 249;
+      if (/sgot|ast/i.test(n)) return 249;
+      if (/ggt|gamma.*gt/i.test(n)) return 299;
+      if (/alkaline.*phosphatase|alp/i.test(n) && !/bone.*specific/i.test(n)) return 249;
+      if (/bilirubin.*total|total.*bilirubin/i.test(n)) return 149;
+      if (/electrolyte.*serum|serum.*electrolyte/i.test(n)) return 349;
+      if (/cbc.*esr|hemogram.*esr/i.test(n)) return 399;
+      if (/platelet.*count/i.test(n)) return 199;
+      if (/calcium.*serum|serum.*calcium/i.test(n)) return 199;
+      if (/phosphorus.*serum|serum.*phosphorus/i.test(n)) return 199;
+      if (/magnesium.*serum|serum.*magnesium/i.test(n)) return 299;
+      if (/prolactin/i.test(n)) return 449;
+      if (/cortisol/i.test(n)) return 549;
+      if (/total.*protein.*serum|serum.*total.*protein/i.test(n)) return 199;
+      if (/albumin.*serum|serum.*albumin/i.test(n)) return 149;
+      if (/hiv.*(antibody|elisa|rapid)|anti.*hiv/i.test(n)) return 449;
+      if (/hbsag|hepatitis.*b.*surface/i.test(n)) return 349;
+      if (/anti.*hcv|hepatitis.*c.*antibody|hcv.*antibody/i.test(n)) return 549;
+      if (/vdrl|rpr/i.test(n)) return 199;
+      // Premium tests (₹599-1499)
+      if (/vitamin.*d.*total|25.*hydroxy|vitamin.*d/i.test(n)) return 799;
+      if (/vitamin.*b12|b12.*vitamin|cobalamin/i.test(n)) return 599;
+      if (/iron.*studies|iron.*profile/i.test(n)) return 549;
+      if (/ferritin/i.test(n)) return 499;
+      if (/tibc|total.*iron.*binding/i.test(n)) return 349;
+      if (/hs.crp|high.*sensitivity.*crp|crp.*high/i.test(n)) return 449;
+      if (/homocysteine/i.test(n)) return 899;
+      if (/testosterone.*total|total.*testosterone/i.test(n)) return 699;
+      if (/testosterone.*free|free.*testosterone/i.test(n)) return 799;
+      if (/dengue.*ns1|ns1.*antigen/i.test(n)) return 649;
+      if (/dengue.*igg.*igm|dengue.*antibody/i.test(n)) return 549;
+      if (/malaria.*(antigen|rapid|pf)/i.test(n)) return 349;
+      if (/typhoid.*(igg|igm|antibody|widal)/i.test(n)) return 299;
+      if (/chikungunya.*igm/i.test(n)) return 649;
+      if (/thyroglobulin/i.test(n)) return 999;
+      if (/calcitonin/i.test(n)) return 999;
+      if (/psa.*total|total.*psa|prostate.*specific.*antigen/i.test(n)) return 699;
+      if (/free.*psa/i.test(n)) return 899;
+      if (/ca 125/i.test(n)) return 899;
+      if (/ca 19-9|ca 19.9/i.test(n)) return 949;
+      if (/ca 15-3/i.test(n)) return 949;
+      if (/cea.*(serum|blood)/i.test(n) && /carcino/i.test(n)) return 749;
+      if (/afp.*(serum|blood)|alpha.*fetoprotein/i.test(n)) return 699;
+      if (/pap.*smear|cervical.*smear/i.test(n)) return 899;
+      if (/amh|anti.*mullerian/i.test(n)) return 1199;
+      if (/fsh/i.test(n)) return 499;
+      if (/lh.*hormone|luteinizing/i.test(n)) return 499;
+      if (/estradiol|e2.*hormone/i.test(n)) return 599;
+      if (/progesterone.*p4|p4.*progesterone/i.test(n)) return 599;
+      if (/dhea.s|dehydroepiandrosterone/i.test(n)) return 599;
+      if (/shbg/i.test(n)) return 549;
+      if (/troponin.*i|troponin.*t|hs.*troponin/i.test(n)) return 999;
+      if (/nt.probnp|bnp.*natriuretic/i.test(n)) return 1299;
+      if (/ck.mb|creatine.*kinase.*mb/i.test(n)) return 549;
+      if (/c.*peptide|connecting.*peptide/i.test(n)) return 549;
+      if (/insulin.*fasting|fasting.*insulin/i.test(n)) return 449;
+      if (/microalbumin/i.test(n)) return 399;
+      if (/cystatin.*c/i.test(n)) return 749;
+      if (/stool.*occult|fobt|fit.*test|occult.*blood/i.test(n)) return 299;
+      if (/coagulation.*profile|pt.*inr.*aptt/i.test(n)) return 499;
+      if (/d.dimer/i.test(n)) return 699;
+      if (/fibrinogen/i.test(n)) return 449;
+      if (/factor.*v.*leiden|factor.*5.*leiden/i.test(n)) return 1499;
+      if (/mthfr/i.test(n)) return 1299;
+      if (/hemoglobin.*electro|hplc.*hb|hb.*variant|thalassemia/i.test(n)) return 749;
+      if (/g6pd/i.test(n)) return 449;
+      if (/semen.*analysis|sperm.*count|semen.*examination/i.test(n)) return 599;
+      if (/covid.*(pcr|rt-pcr|corona)/i.test(n)) return 499;
+      if (/covid.*(rapid.*antigen|antigen.*rapid)/i.test(n)) return 249;
+      if (/covid.*(igg|igm|antibody)/i.test(n)) return 349;
+      if (/acth.*stim|synacthen/i.test(n)) return 1999;
+      if (/dexamethasone.*suppress/i.test(n)) return 1499;
+      if (/lactose.*(breath|h2)|sibo.*breath|breath.*test/i.test(n)) return 1799;
+      if (/fecal.*fat.*72|72.*hour.*fat/i.test(n)) return 1799;
+      // Subcategory-based pricing
+      if (/allergy.*panel.*food|food.*allergy.*panel|food.*panel/i.test(n)) return 1999;
+      if (/allergy.*panel.*inhalant|inhalant.*panel/i.test(n)) return 2199;
+      if (/copper/i.test(n)) return 349;
+      if (/zinc.*serum|serum.*zinc/i.test(n)) return 449;
+      if (/selenium/i.test(n)) return 899;
+      if (/iodine.*urine|urine.*iodine/i.test(n)) return 699;
+      if (/hla.*b27/i.test(n)) return 1499;
+      if (/ana.*(titer|screen|profile)/i.test(n)) return 599;
+      if (/anti.*dsdna/i.test(n)) return 699;
+      if (/anti.*ccp/i.test(n)) return 799;
+      if (/rheumatoid.*factor|rf.*factor/i.test(n)) return 399;
+      if (/complement.*c3|c3.*complement/i.test(n)) return 499;
+      if (/complement.*c4|c4.*complement/i.test(n)) return 499;
+      if (/vitamin.*a|retinol/i.test(n)) return 599;
+      if (/vitamin.*e|tocopherol/i.test(n)) return 699;
+      if (/folate|folic.*acid/i.test(n)) return 399;
+      if (/coq10|coenzyme.*q/i.test(n)) return 1499;
+      if (/carnitine/i.test(n)) return 999;
+      if (/amino.*acid.*profile/i.test(n)) return 1999;
+      if (/heavy.*metal|lead.*blood|mercury|arsenic|cadmium/i.test(n)) return 1199;
+      if (/drug.*screen|toxicology|drug.*panel/i.test(n)) return 1499;
+      if (/breath.*test.*(lactose|sibo|glucose)/i.test(n)) return 1799;
+      if (/c.*reactive.*protein|crp.*quantitative|crp/i.test(n) && !/hs.crp|high.*sensitivity/i.test(n)) return 349;
+      if (/rbc.*count|red.*cell.*count/i.test(n)) return 99;
+      if (/wbc.*count|white.*cell.*count|total.*count.*wbc/i.test(n)) return 99;
+      // Health Packages
+      if (/basic.*health.*checkup|basic.*checkup/i.test(n)) return 899;
+      if (/executive.*health.*checkup|executive.*checkup/i.test(n)) return 1999;
+      if (/wellness.*package.*complete|wellness.*package/i.test(n)) return 3499;
+      return null; // use original price
+    };
+    const hydPrice = hyderabadPricing(t.name, t.category, t.subcategory, t.price);
+    const finalPrice = hydPrice !== null ? hydPrice : t.price;
     let mrp;
-    if (t.price <= 299) mrp = Math.round(t.price * 2.5);
-    else if (t.price <= 599) mrp = Math.round(t.price * 2.2);
-    else if (t.price <= 999) mrp = Math.round(t.price * 2.0);
-    else if (t.price <= 1999) mrp = Math.round(t.price * 1.8);
-    else if (t.price <= 4999) mrp = Math.round(t.price * 1.6);
-    else mrp = Math.round(t.price * 1.4);
-    return { ...t, mrp, offerPrice: t.price };
+    if (finalPrice <= 299) mrp = Math.round(finalPrice * 2.5);
+    else if (finalPrice <= 599) mrp = Math.round(finalPrice * 2.2);
+    else if (finalPrice <= 999) mrp = Math.round(finalPrice * 2.0);
+    else if (finalPrice <= 1999) mrp = Math.round(finalPrice * 1.8);
+    else if (finalPrice <= 4999) mrp = Math.round(finalPrice * 1.6);
+    else mrp = Math.round(finalPrice * 1.4);
+    return { ...t, price: finalPrice, mrp, offerPrice: finalPrice };
   });
 
   // Expose tests and packages globally for HealthPackages / PackageDetail pages
@@ -619,8 +753,19 @@ export default function Diagnostics() {
   const load = async () => {
     setLoading(true);
     let filtered = [...seedTests];
-    if (search) filtered = filtered.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
-    if (category) filtered = filtered.filter(t => t.category === category);
+    if (mode === 'packages') {
+      filtered = filtered.filter(t => t.subcategory === 'Health Packages');
+    } else {
+      if (search) filtered = filtered.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
+      if (category) {
+        const filterVal = categoryFilterMap[category];
+        if (filterVal) {
+          filtered = filtered.filter(t => t.category === filterVal || t.subcategory === filterVal || t.name.includes(filterVal));
+        } else {
+          filtered = filtered.filter(t => t.category === category);
+        }
+      }
+    }
     setTests(filtered);
     setLoading(false);
   };
@@ -636,7 +781,7 @@ export default function Diagnostics() {
     }
   }, [isAuthenticated]);
 
-  useEffect(() => { const t = setTimeout(load, 300); return () => clearTimeout(t); }, [search, category]);
+  useEffect(() => { const t = setTimeout(load, 300); return () => clearTimeout(t); }, [search, category, mode]);
 
   const sortedTests = [...tests].sort((a, b) => {
     if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
@@ -713,10 +858,47 @@ export default function Diagnostics() {
         padding: '48px 20px 40px', textAlign: 'center',
       }}>
         <div className="container" style={{ maxWidth: 720 }}>
-          <h1 style={{ color: '#fff', fontSize: 32, marginBottom: 8 }}>Looking for a Test?</h1>
-          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24 }}>
-            Book diagnostic tests at home — accurate reports, doorstep collection
-          </p>
+          {/* Mode Toggle */}
+          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.12)', borderRadius: 30, padding: 3, marginBottom: 20, maxWidth: 340, marginLeft: 'auto', marginRight: 'auto' }}>
+            <button onClick={() => { setMode('tests'); setSearch(''); setCategory(''); }}
+              style={{
+                flex: 1, padding: '8px 20px', borderRadius: 30, fontSize: 13, fontWeight: 600,
+                background: mode === 'tests' ? '#fff' : 'transparent',
+                color: mode === 'tests' ? '#0F5DA8' : 'rgba(255,255,255,0.8)',
+                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}>
+              <Flask size={16} weight={mode === 'tests' ? 'fill' : undefined} />
+              Tests
+            </button>
+            <button onClick={() => { setMode('packages'); setSearch(''); setCategory(''); }}
+              style={{
+                flex: 1, padding: '8px 20px', borderRadius: 30, fontSize: 13, fontWeight: 600,
+                background: mode === 'packages' ? '#fff' : 'transparent',
+                color: mode === 'packages' ? '#0F5DA8' : 'rgba(255,255,255,0.8)',
+                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}>
+              <Gift size={16} weight={mode === 'packages' ? 'fill' : undefined} />
+              Packages
+            </button>
+          </div>
+
+          {mode === 'tests' ? (
+            <>
+              <h1 style={{ color: '#fff', fontSize: 32, marginBottom: 8 }}>Looking for a Test?</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24 }}>
+                Book diagnostic tests at home — accurate reports, doorstep collection
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 style={{ color: '#fff', fontSize: 32, marginBottom: 8 }}>Health Packages</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24 }}>
+                Curated health checkup packages — up to 60% off on comprehensive screenings
+              </p>
+            </>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
               <button onClick={() => setShowCityPicker(!showCityPicker)}
@@ -755,69 +937,87 @@ export default function Diagnostics() {
             </div>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>Home collection available</span>
           </div>
-          <div style={{ position: 'relative', maxWidth: 600, margin: '0 auto' }}>
-            <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0F5DA8' }} />
+          {mode === 'tests' && (
+            <div style={{ position: 'relative', maxWidth: 600, margin: '0 auto' }}>
+              <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0F5DA8' }} />
               <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
                 value={search}
                 onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => { setFocused(true); setShowSuggestions(true); }}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onKeyDown={e => { if (e.key === 'Enter') { setShowAllTests(true); setShowSuggestions(false); } }}
-              style={{
-                width: '100%', padding: '14px 16px 14px 48px', borderRadius: 50,
-                border: 'none', fontSize: 15, outline: 'none', background: '#fff',
-                fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              }} />
-            {/* Suggestions dropdown */}
-            {showSuggestions && (
-              <div style={{
-                position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
-                background: '#fff', borderRadius: 16, boxShadow: '0 12px 48px rgba(0,0,0,0.12)',
-                border: '1px solid var(--border)', overflow: 'hidden', zIndex: 999, textAlign: 'left',
-              }}>
-                {search.trim() && suggestions.length > 0 ? (
-                  suggestions.map(t => (
-                    <button key={t.id} onMouseDown={() => handleSuggestionClick(t.name)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 18px',
-                        border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit',
-                        borderBottom: '1px solid #f5f5f5', transition: 'background 0.1s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
-                      onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-                      <MagnifyingGlass size={16} color="#0F5DA8" />
-                      <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>{t.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{t.category} • ₹{t.offerPrice || t.price} {t.mrp ? <span style={{ textDecoration: 'line-through', marginLeft: 2, color: '#bbb' }}>₹{t.mrp}</span> : null}</div>
+                style={{
+                  width: '100%', padding: '14px 16px 14px 48px', borderRadius: 50,
+                  border: 'none', fontSize: 15, outline: 'none', background: '#fff',
+                  fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                }} />
+              {/* Suggestions dropdown */}
+              {showSuggestions && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                  background: '#fff', borderRadius: 16, boxShadow: '0 12px 48px rgba(0,0,0,0.12)',
+                  border: '1px solid var(--border)', overflow: 'hidden', zIndex: 999, textAlign: 'left',
+                }}>
+                  {search.trim() && suggestions.length > 0 ? (
+                    suggestions.map(t => (
+                      <button key={t.id} onMouseDown={() => handleSuggestionClick(t.name)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 18px',
+                          border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit',
+                          borderBottom: '1px solid #f5f5f5', transition: 'background 0.1s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#f0f5ff'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                        <MagnifyingGlass size={16} color="#0F5DA8" />
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>{t.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{t.category} • ₹{t.offerPrice || t.price} {t.mrp ? <span style={{ textDecoration: 'line-through', marginLeft: 2, color: '#bbb' }}>₹{t.mrp}</span> : null}</div>
+                        </div>
+                      </button>
+                    ))
+                  ) : !search.trim() && focused ? (
+                    <div style={{ padding: '12px 18px' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Popular Tests</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {popularTests.map(name => (
+                          <button key={name} onMouseDown={() => handleSuggestionClick(name)}
+                            style={{
+                              padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+                              background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                              fontFamily: 'inherit', transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#d0e2ff'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
+                            {name}
+                          </button>
+                        ))}
                       </div>
-                    </button>
-                  ))
-                ) : !search.trim() && focused ? (
-                  <div style={{ padding: '12px 18px' }}>
-                    <div style={{ fontSize: 11, color: 'var(--text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Popular Tests</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {popularTests.map(name => (
-                        <button key={name} onMouseDown={() => handleSuggestionClick(name)}
-                          style={{
-                            padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
-                            background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
-                            fontFamily: 'inherit', transition: 'background 0.15s',
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = '#d0e2ff'}
-                          onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
-                          {name}
-                        </button>
-                      ))}
                     </div>
-                  </div>
-                ) : search.trim() && suggestions.length === 0 ? (
-                  <div style={{ padding: '16px 18px', fontSize: 13, color: 'var(--text-light)', textAlign: 'center' }}>
-                    No tests found — try a different name
-                  </div>
-                ) : null}
-              </div>
-            )}
-          </div>
+                  ) : search.trim() && suggestions.length === 0 ? (
+                    <div style={{ padding: '16px 18px', fontSize: 13, color: 'var(--text-light)', textAlign: 'center' }}>
+                      No tests found — try a different name
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
+          )}
+          {mode === 'packages' && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
+              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Curated health packages starting at ₹999</span>
+              <button onClick={() => navigate('/health-packages')}
+                style={{
+                  padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  background: 'rgba(255,255,255,0.2)', color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: 'inherit',
+                  backdropFilter: 'blur(4px)', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}>
+                Browse All 81 Packages →
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1196,36 +1396,184 @@ export default function Diagnostics() {
             </div>
           )}
 
-          {/* Sort bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 600 }}>Sort by:</span>
-            {sortOptions.map(opt => (
-              <button key={opt.value} onClick={() => setSortBy(opt.value)}
-                style={{
-                  padding: '5px 12px', borderRadius: 16, fontSize: 12, fontWeight: 500,
-                  background: sortBy === opt.value ? '#0F5DA8' : '#f0f0f0',
-                  color: sortBy === opt.value ? '#fff' : 'var(--text-dark)',
-                  border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                  transition: 'all 0.15s',
-                }}>
-                {opt.label}
-              </button>
-            ))}
-            <span style={{ fontSize: 11, color: 'var(--text-light)', marginLeft: 'auto' }}>
-              {tests.length} tests found
-            </span>
-          </div>
+          {mode === 'packages' && (
+            <div className="container" style={{ padding: '20px 16px' }}>
+              <h2 style={{ fontSize: 20, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Gift size={22} color="#22C55E" weight="fill" />
+                Health Packages
+                <span style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 400, marginLeft: 4 }}>
+                  — Curated for your health needs
+                </span>
+              </h2>
+              <div style={{ display: 'grid', gap: 16 }}>
+                {seedTests.filter(t => t.subcategory === 'Health Packages').map(pkg => {
+                  const inCart = cart.find(i => i.id === pkg.id);
+                  const savings = pkg.mrp ? Math.round((1 - (pkg.offerPrice || pkg.price) / pkg.mrp) * 100) : 0;
+                  return (
+                    <div key={pkg.id} style={{
+                      background: '#fff', borderRadius: 16, border: '2px solid #22C55E',
+                      padding: 24, position: 'relative', overflow: 'hidden',
+                    }}>
+                      {/* Background decoration */}
+                      <div style={{
+                        position: 'absolute', top: -40, right: -40, width: 120, height: 120,
+                        borderRadius: '50%', background: 'rgba(34,197,94,0.06)',
+                      }} />
+                      <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <span style={{
+                                background: '#22C55E', color: '#fff', fontSize: 10, fontWeight: 700,
+                                padding: '2px 10px', borderRadius: 4, letterSpacing: 0.3,
+                              }}>
+                                {savings > 0 ? `SAVE ${savings}%` : 'BEST VALUE'}
+                              </span>
+                              <span style={{ fontSize: 11, color: '#22C55E', fontWeight: 600 }}>
+                                {pkg.description.match(/(\d+)\+?\s*(parameters|tests|params)/i)?.[0] || 'Comprehensive'}
+                              </span>
+                            </div>
+                            <h3 style={{ fontSize: 18, margin: '6px 0 4px', color: '#0F5DA8' }}>{pkg.name}</h3>
+                            <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 12 }}>{pkg.description}</p>
+                          </div>
+                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ fontSize: 24, fontWeight: 800, color: '#0F5DA8' }}>₹{pkg.offerPrice || pkg.price}</div>
+                            {pkg.mrp && pkg.mrp > (pkg.offerPrice || pkg.price) && (
+                              <div style={{ fontSize: 14, color: 'var(--text-light)', textDecoration: 'line-through' }}>₹{pkg.mrp}</div>
+                            )}
+                            {savings > 0 && (
+                              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', padding: '2px 8px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>
+                                {savings}% OFF
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#e65100', fontWeight: 500 }}>
+                            <Clock size={14} /> Fasting required
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-light)' }}>
+                            <Clock size={14} /> Reports in {pkg.report_time}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                          <button onClick={() => navigate(`/package/${pkg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`)}
+                            style={{
+                              padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                              background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                              fontFamily: 'inherit', transition: 'all 0.15s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#d0e2ff'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
+                            View Details →
+                          </button>
+                          {inCart ? (
+                            <button onClick={() => removeFromCart(pkg.id)}
+                              style={{
+                                padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                                background: '#fbe9e7', color: '#c62828', border: 'none', cursor: 'pointer',
+                                fontFamily: 'inherit',
+                              }}>
+                              Remove from Cart
+                            </button>
+                          ) : (
+                            <button onClick={() => addToCart(pkg)}
+                              style={{
+                                padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                                background: 'linear-gradient(135deg, #22C55E, #16a34a)', color: '#fff',
+                                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                transition: 'transform 0.15s',
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                              + Add All to Cart
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 20 }}>
+                <button onClick={() => navigate('/health-packages')}
+                  style={{
+                    padding: '10px 28px', borderRadius: 30, fontSize: 14, fontWeight: 600,
+                    background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', color: '#fff',
+                    border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                    transition: 'transform 0.15s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                  Browse All 81 Packages by Category →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {mode === 'tests' && (
+            <>
+              {/* Category Chips */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12, overflowX: 'auto', paddingBottom: 4, flexShrink: 0 }}>
+                <button onClick={() => setCategory('')}
+                  style={{
+                    padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                    background: !category ? '#0F5DA8' : '#f0f0f0',
+                    color: !category ? '#fff' : 'var(--text-dark)',
+                    border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                    transition: 'all 0.15s',
+                  }}>
+                  All
+                </button>
+                {categoryList.map(cat => (
+                  <button key={cat.name} onClick={() => setCategory(category === cat.name ? '' : cat.name)}
+                    style={{
+                      padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                      background: category === cat.name ? cat.color : '#f0f0f0',
+                      color: category === cat.name ? '#fff' : 'var(--text-dark)',
+                      border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      transition: 'all 0.15s',
+                    }}>
+                    <cat.icon size={14} weight={category === cat.name ? 'fill' : undefined} />
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 600 }}>Sort by:</span>
+                {sortOptions.map(opt => (
+                  <button key={opt.value} onClick={() => setSortBy(opt.value)}
+                    style={{
+                      padding: '5px 12px', borderRadius: 16, fontSize: 12, fontWeight: 500,
+                      background: sortBy === opt.value ? '#0F5DA8' : '#f0f0f0',
+                      color: sortBy === opt.value ? '#fff' : 'var(--text-dark)',
+                      border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                      transition: 'all 0.15s',
+                    }}>
+                    {opt.label}
+                  </button>
+                ))}
+                <span style={{ fontSize: 11, color: 'var(--text-light)', marginLeft: 'auto' }}>
+                  {tests.length} tests found
+                </span>
+              </div>
+            </>
+          )}
 
           {/* Test Grid */}
-          {loading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-light)' }}>Loading tests...</div>
-          ) : sortedTests.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center' }}>
-              <Flask size={32} style={{ color: 'var(--text-light)', marginBottom: 8 }} />
-              <p style={{ color: 'var(--text-light)' }}>No tests found.</p>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
+          {mode === 'tests' && (
+            loading ? (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-light)' }}>Loading tests...</div>
+            ) : sortedTests.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center' }}>
+                <Flask size={32} style={{ color: 'var(--text-light)', marginBottom: 8 }} />
+                <p style={{ color: 'var(--text-light)' }}>No tests found.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {sortedTests.map(test => {
                 const inCart = cart.find(i => i.id === test.id);
                 const isPackage = test.subcategory === 'Health Packages';
@@ -1374,7 +1722,7 @@ export default function Diagnostics() {
                 );
               })}
             </div>
-          )}
+          ))}
         </div>
       </div>
 
