@@ -422,13 +422,11 @@ export default function Diagnostics() {
 
   const load = async () => {
     setLoading(true);
-    try {
-      const params = {};
-      if (search) params.name = search;
-      if (category) params.category = category;
-      const { data } = await searchTests(params);
-      setTests(data && data.length ? data : seedTests);
-    } catch { setTests(seedTests); } finally { setLoading(false); }
+    let filtered = [...seedTests];
+    if (search) filtered = filtered.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
+    if (category) filtered = filtered.filter(t => t.category === category);
+    setTests(filtered);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -452,7 +450,7 @@ export default function Diagnostics() {
   });
 
   const suggestions = search.trim()
-    ? tests.filter(t => t.name.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
+    ? seedTests.filter(t => t.name.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
     : [];
 
   const handleSuggestionClick = (name) => {
