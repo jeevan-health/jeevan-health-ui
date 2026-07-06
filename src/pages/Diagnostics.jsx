@@ -854,63 +854,27 @@ export default function Diagnostics() {
     <>
       {/* Hero */}
       <div style={{
+        position: 'relative', overflow: 'hidden',
         background: 'linear-gradient(135deg, #0F5DA8 0%, #0C6BC4 100%)',
-        padding: '48px 20px 40px', textAlign: 'center',
+        padding: '40px 20px 32px', textAlign: 'center',
       }}>
-        <div className="container" style={{ maxWidth: 720 }}>
-          {/* Mode Toggle */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.12)', borderRadius: 30, padding: 3, marginBottom: 20, maxWidth: 340, marginLeft: 'auto', marginRight: 'auto' }}>
-            <button onClick={() => { setMode('tests'); setSearch(''); setCategory(''); }}
-              style={{
-                flex: 1, padding: '8px 20px', borderRadius: 30, fontSize: 13, fontWeight: 600,
-                background: mode === 'tests' ? '#fff' : 'transparent',
-                color: mode === 'tests' ? '#0F5DA8' : 'rgba(255,255,255,0.8)',
-                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              }}>
-              <Flask size={16} weight={mode === 'tests' ? 'fill' : undefined} />
-              Tests
-            </button>
-            <button onClick={() => { setMode('packages'); setSearch(''); setCategory(''); }}
-              style={{
-                flex: 1, padding: '8px 20px', borderRadius: 30, fontSize: 13, fontWeight: 600,
-                background: mode === 'packages' ? '#fff' : 'transparent',
-                color: mode === 'packages' ? '#0F5DA8' : 'rgba(255,255,255,0.8)',
-                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              }}>
-              <Gift size={16} weight={mode === 'packages' ? 'fill' : undefined} />
-              Packages
-            </button>
-          </div>
-
-          {mode === 'tests' ? (
-            <>
-              <h1 style={{ color: '#fff', fontSize: 32, marginBottom: 8 }}>Looking for a Test?</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24 }}>
-                Book diagnostic tests at home — accurate reports, doorstep collection
-              </p>
-            </>
-          ) : (
-            <>
-              <h1 style={{ color: '#fff', fontSize: 32, marginBottom: 8 }}>Health Packages</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 24 }}>
-                Curated health checkup packages — up to 60% off on comprehensive screenings
-              </p>
-            </>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {/* Decorative circles */}
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+        <div style={{ position: 'absolute', bottom: -40, left: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
+        <div className="container" style={{ maxWidth: 720, position: 'relative', zIndex: 1 }}>
+          {/* City + availability row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
               <button onClick={() => setShowCityPicker(!showCityPicker)}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px',
-                  borderRadius: 20, background: 'rgba(255,255,255,0.15)', color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 13,
-                  fontFamily: 'inherit', fontWeight: 500, backdropFilter: 'blur(4px)',
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px',
+                  borderRadius: 20, background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)',
+                  border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 12,
+                  fontFamily: 'inherit', fontWeight: 500, transition: 'all 0.15s',
                 }}>
-                <MapPin size={14} weight="fill" />
+                <MapPin size={12} weight="fill" />
                 {city}
-                <span style={{ fontSize: 10, marginLeft: 2 }}>▾</span>
+                <CaretDown size={10} />
               </button>
               {showCityPicker && (
                 <div style={{
@@ -935,11 +899,25 @@ export default function Diagnostics() {
                 </div>
               )}
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>Home collection available</span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <CheckCircle size={11} weight="fill" color="#22C55E" /> Free home collection
+            </span>
           </div>
+
+          {/* Heading */}
+          {mode === 'tests' ? (
+            <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, marginBottom: 4, letterSpacing: -0.3 }}>Looking for a Test?</h1>
+          ) : (
+            <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, marginBottom: 4, letterSpacing: -0.3 }}>Health Packages</h1>
+          )}
+          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, marginBottom: 20, maxWidth: 400, marginLeft: 'auto', marginRight: 'auto' }}>
+            {mode === 'tests' ? 'Book diagnostic tests at home — accurate reports, doorstep collection' : 'Curated health checkup packages — up to 60% off'}
+          </p>
+
+          {/* Search bar (tests only) */}
           {mode === 'tests' && (
-            <div style={{ position: 'relative', maxWidth: 600, margin: '0 auto' }}>
-              <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0F5DA8' }} />
+            <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
+              <MagnifyingGlass size={18} style={{ position: 'absolute', left: 18, top: 13, color: '#0F5DA8' }} />
               <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
                 value={search}
                 onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
@@ -947,11 +925,10 @@ export default function Diagnostics() {
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onKeyDown={e => { if (e.key === 'Enter') { setShowAllTests(true); setShowSuggestions(false); } }}
                 style={{
-                  width: '100%', padding: '14px 16px 14px 48px', borderRadius: 50,
-                  border: 'none', fontSize: 15, outline: 'none', background: '#fff',
+                  width: '100%', padding: '12px 16px 12px 48px', borderRadius: 50,
+                  border: 'none', fontSize: 14, outline: 'none', background: '#fff',
                   fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                 }} />
-              {/* Suggestions dropdown */}
               {showSuggestions && (
                 <div style={{
                   position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
@@ -962,7 +939,7 @@ export default function Diagnostics() {
                     suggestions.map(t => (
                       <button key={t.id} onMouseDown={() => handleSuggestionClick(t.name)}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 18px',
+                          display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '11px 18px',
                           border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit',
                           borderBottom: '1px solid #f5f5f5', transition: 'background 0.1s',
                         }}
@@ -1002,42 +979,59 @@ export default function Diagnostics() {
               )}
             </div>
           )}
+
+          {/* Packages hero sub-text */}
           {mode === 'packages' && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
-              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Curated health packages starting at ₹999</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Starting at ₹999</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
               <button onClick={() => navigate('/health-packages')}
                 style={{
-                  padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                  background: 'rgba(255,255,255,0.2)', color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: 'inherit',
-                  backdropFilter: 'blur(4px)', transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}>
-                Browse All 81 Packages →
+                  padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  background: 'rgba(255,255,255,0.15)', color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.15s',
+                }}>
+                Browse All 81 Packages
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Urgency banner */}
-      <div style={{ background: 'linear-gradient(90deg, #fff8e1, #fff3e0)', borderBottom: '1px solid #ffecb3', padding: '10px 20px' }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, flexWrap: 'wrap', fontSize: 13 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#e65100', fontWeight: 600 }}>
-            <Clock size={16} weight="fill" color="#FF8A00" />
-            <strong style={{ fontSize: 16 }}>{totalBookedToday}</strong> tests booked today
-          </span>
-          <span style={{ color: '#888' }}>•</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#2e7d32', fontWeight: 500 }}>
-            <CheckCircle size={14} weight="fill" color="#22C55E" />
-            Free home collection
-          </span>
-          <span style={{ color: '#888' }}>•</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#0F5DA8', fontWeight: 500 }}>
-            <MapPin size={14} weight="fill" />
-            Available in {city}
-          </span>
+      {/* Sticky Tab Bar */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: '#fff', borderBottom: '1px solid #e8edf2',
+        padding: '0 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+      }}>
+        <div className="container" style={{ display: 'flex', gap: 0, maxWidth: 720 }}>
+          <button onClick={() => { setMode('tests'); setSearch(''); setCategory(''); }}
+            style={{
+              flex: 1, padding: '14px 16px', fontSize: 14, fontWeight: 600,
+              background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              color: mode === 'tests' ? '#0F5DA8' : '#8b9bb5',
+              borderBottom: mode === 'tests' ? '2px solid #0F5DA8' : '2px solid transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              transition: 'all 0.2s',
+            }}>
+            <Flask size={18} weight={mode === 'tests' ? 'fill' : 'regular'} />
+            Diagnostic Tests
+            {mode === 'tests' && <span style={{ fontSize: 11, color: '#0F5DA8', fontWeight: 700, marginLeft: 4, background: '#e8f0fe', padding: '1px 8px', borderRadius: 10 }}>{seedTests.length - 3}</span>}
+          </button>
+          <button onClick={() => { setMode('packages'); setSearch(''); setCategory(''); }}
+            style={{
+              flex: 1, padding: '14px 16px', fontSize: 14, fontWeight: 600,
+              background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              color: mode === 'packages' ? '#22C55E' : '#8b9bb5',
+              borderBottom: mode === 'packages' ? '2px solid #22C55E' : '2px solid transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              transition: 'all 0.2s',
+            }}>
+            <Gift size={18} weight={mode === 'packages' ? 'fill' : 'regular'} />
+            Health Packages
+            {mode === 'packages' && <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, background: '#22C55E', padding: '1px 8px', borderRadius: 10 }}>SAVE 60%</span>}
+          </button>
         </div>
       </div>
 
@@ -1397,116 +1391,189 @@ export default function Diagnostics() {
           )}
 
           {mode === 'packages' && (
-            <div className="container" style={{ padding: '20px 16px' }}>
-              <h2 style={{ fontSize: 20, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Gift size={22} color="#22C55E" weight="fill" />
-                Health Packages
-                <span style={{ fontSize: 12, color: 'var(--text-light)', fontWeight: 400, marginLeft: 4 }}>
-                  — Curated for your health needs
-                </span>
-              </h2>
-              <div style={{ display: 'grid', gap: 16 }}>
-                {seedTests.filter(t => t.subcategory === 'Health Packages').map(pkg => {
-                  const inCart = cart.find(i => i.id === pkg.id);
-                  const savings = pkg.mrp ? Math.round((1 - (pkg.offerPrice || pkg.price) / pkg.mrp) * 100) : 0;
-                  return (
-                    <div key={pkg.id} style={{
-                      background: '#fff', borderRadius: 16, border: '2px solid #22C55E',
-                      padding: 24, position: 'relative', overflow: 'hidden',
-                    }}>
-                      {/* Background decoration */}
-                      <div style={{
-                        position: 'absolute', top: -40, right: -40, width: 120, height: 120,
-                        borderRadius: '50%', background: 'rgba(34,197,94,0.06)',
-                      }} />
-                      <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                              <span style={{
-                                background: '#22C55E', color: '#fff', fontSize: 10, fontWeight: 700,
-                                padding: '2px 10px', borderRadius: 4, letterSpacing: 0.3,
-                              }}>
-                                {savings > 0 ? `SAVE ${savings}%` : 'BEST VALUE'}
-                              </span>
-                              <span style={{ fontSize: 11, color: '#22C55E', fontWeight: 600 }}>
-                                {pkg.description.match(/(\d+)\+?\s*(parameters|tests|params)/i)?.[0] || 'Comprehensive'}
-                              </span>
-                            </div>
-                            <h3 style={{ fontSize: 18, margin: '6px 0 4px', color: '#0F5DA8' }}>{pkg.name}</h3>
-                            <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginBottom: 12 }}>{pkg.description}</p>
+            <div style={{ padding: '20px 0' }}>
+              <div className="container">
+                {/* Section intro */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #e8f5e9, #f1f8e9)',
+                  borderRadius: 16, padding: '20px 24px', marginBottom: 20,
+                  display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+                }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 12,
+                    background: 'linear-gradient(135deg, #22C55E, #16a34a)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <Gift size={24} weight="fill" color="#fff" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h2 style={{ fontSize: 18, fontWeight: 700, color: '#166534', margin: 0 }}>Health Packages</h2>
+                    <p style={{ fontSize: 13, color: '#4a7c59', margin: '2px 0 0' }}>Curated checkup bundles — more tests, less spend</p>
+                  </div>
+                  <button onClick={() => navigate('/health-packages')}
+                    style={{
+                      padding: '8px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                      background: '#fff', color: '#22C55E', border: '1px solid #22C55E',
+                      cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#22C55E'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#22C55E'; }}>
+                    View All 81 →
+                  </button>
+                </div>
+
+                {/* Package cards */}
+                <div style={{ display: 'grid', gap: 16 }}>
+                  {seedTests.filter(t => t.subcategory === 'Health Packages').map((pkg, idx) => {
+                    const inCart = cart.find(i => i.id === pkg.id);
+                    const savings = pkg.mrp ? Math.round((1 - (pkg.offerPrice || pkg.price) / pkg.mrp) * 100) : 0;
+                    const paramMatch = pkg.description.match(/(\d+)\+?\s*(parameters|tests|params)/i);
+                    const slug = pkg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                    const levels = ['Basic', 'Executive', 'Wellness'];
+                    const levelColors = ['#22C55E', '#0F5DA8', '#7c3aed'];
+                    const levelIcons = ['Shield', 'Flask', 'Sparkle'];
+                    const level = levels[idx] || 'Package';
+                    return (
+                      <div key={pkg.id} style={{
+                        background: '#fff', borderRadius: 16,
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                        border: `1px solid ${idx === 1 ? '#dbeafe' : '#e8edf2'}`,
+                        overflow: 'hidden', position: 'relative',
+                        transition: 'all 0.2s',
+                      }}>
+                        {/* Left accent bar */}
+                        <div style={{
+                          position: 'absolute', left: 0, top: 0, bottom: 0, width: 4,
+                          background: levelColors[idx] || '#22C55E',
+                        }} />
+                        {/* Ribbon for middle/executive */}
+                        {idx === 1 && (
+                          <div style={{
+                            position: 'absolute', top: 12, right: -28,
+                            background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)',
+                            color: '#fff', fontSize: 10, fontWeight: 700,
+                            padding: '3px 32px', transform: 'rotate(45deg)',
+                            letterSpacing: 0.5, zIndex: 2,
+                          }}>
+                            MOST POPULAR
                           </div>
-                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontSize: 24, fontWeight: 800, color: '#0F5DA8' }}>₹{pkg.offerPrice || pkg.price}</div>
-                            {pkg.mrp && pkg.mrp > (pkg.offerPrice || pkg.price) && (
-                              <div style={{ fontSize: 14, color: 'var(--text-light)', textDecoration: 'line-through' }}>₹{pkg.mrp}</div>
-                            )}
-                            {savings > 0 && (
-                              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', padding: '2px 8px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>
-                                {savings}% OFF
+                        )}
+                        <div style={{ padding: '20px 24px 20px 28px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              {/* Tier badge */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                                <span style={{
+                                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                                  background: `${levelColors[idx]}15`, color: levelColors[idx],
+                                  fontSize: 10, fontWeight: 700, padding: '2px 10px', borderRadius: 4,
+                                  textTransform: 'uppercase', letterSpacing: 0.5,
+                                }}>
+                                  {level} Tier
+                                </span>
+                                {paramMatch && (
+                                  <span style={{ fontSize: 11, color: 'var(--text-light)' }}>
+                                    {paramMatch[0]}
+                                  </span>
+                                )}
                               </div>
+                              <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0F5DA8', margin: 0 }}>{pkg.name}</h3>
+                              <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 6, marginBottom: 12 }}>{pkg.description}</p>
+                              {/* Meta tags */}
+                              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#e65100', fontWeight: 500 }}>
+                                  <Clock size={13} /> Fasting
+                                </span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-light)' }}>
+                                  <Clock size={13} /> {pkg.report_time}
+                                </span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#22C55E', fontWeight: 500 }}>
+                                  <CheckCircle size={13} weight="fill" /> Home collection
+                                </span>
+                              </div>
+                            </div>
+                            {/* Pricing */}
+                            <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 100 }}>
+                              <div style={{ fontSize: 22, fontWeight: 800, color: '#0F5DA8', lineHeight: 1.2 }}>₹{pkg.offerPrice || pkg.price}</div>
+                              {pkg.mrp && pkg.mrp > (pkg.offerPrice || pkg.price) && (
+                                <div style={{ fontSize: 13, color: '#bbb', textDecoration: 'line-through' }}>₹{pkg.mrp}</div>
+                              )}
+                              {savings > 0 && (
+                                <div style={{
+                                  display: 'inline-block', marginTop: 4,
+                                  background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)',
+                                  color: '#fff', fontSize: 11, fontWeight: 700,
+                                  padding: '2px 10px', borderRadius: 4,
+                                }}>
+                                  Save {savings}%
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 10, marginTop: 14, borderTop: '1px solid #f0f2f5', paddingTop: 14 }}>
+                            <button onClick={() => navigate(`/package/${slug}`)}
+                              style={{
+                                padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                                background: '#f0f5ff', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                                fontFamily: 'inherit', transition: 'all 0.15s',
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = '#dbeafe'}
+                              onMouseLeave={e => e.currentTarget.style.background = '#f0f5ff'}>
+                              View Details
+                            </button>
+                            {inCart ? (
+                              <button onClick={() => removeFromCart(pkg.id)}
+                                style={{
+                                  padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                                  background: '#fef2f2', color: '#dc2626', border: 'none', cursor: 'pointer',
+                                  fontFamily: 'inherit', transition: 'all 0.15s',
+                                }}>
+                                Remove
+                              </button>
+                            ) : (
+                              <button onClick={() => addToCart(pkg)}
+                                style={{
+                                  padding: '9px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                                  background: 'linear-gradient(135deg, #22C55E, #16a34a)', color: '#fff',
+                                  border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                  boxShadow: '0 2px 8px rgba(34,197,94,0.3)',
+                                  transition: 'all 0.15s',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(34,197,94,0.4)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(34,197,94,0.3)'; e.currentTarget.style.transform = 'none'; }}>
+                                + Add to Cart
+                              </button>
                             )}
                           </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#e65100', fontWeight: 500 }}>
-                            <Clock size={14} /> Fasting required
-                          </span>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-light)' }}>
-                            <Clock size={14} /> Reports in {pkg.report_time}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-                          <button onClick={() => navigate(`/package/${pkg.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`)}
-                            style={{
-                              padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                              background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
-                              fontFamily: 'inherit', transition: 'all 0.15s',
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = '#d0e2ff'}
-                            onMouseLeave={e => e.currentTarget.style.background = '#e8f0fe'}>
-                            View Details →
-                          </button>
-                          {inCart ? (
-                            <button onClick={() => removeFromCart(pkg.id)}
-                              style={{
-                                padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                                background: '#fbe9e7', color: '#c62828', border: 'none', cursor: 'pointer',
-                                fontFamily: 'inherit',
-                              }}>
-                              Remove from Cart
-                            </button>
-                          ) : (
-                            <button onClick={() => addToCart(pkg)}
-                              style={{
-                                padding: '10px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-                                background: 'linear-gradient(135deg, #22C55E, #16a34a)', color: '#fff',
-                                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                                transition: 'transform 0.15s',
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                              + Add All to Cart
-                            </button>
-                          )}
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{ textAlign: 'center', marginTop: 20 }}>
-                <button onClick={() => navigate('/health-packages')}
-                  style={{
-                    padding: '10px 28px', borderRadius: 30, fontSize: 14, fontWeight: 600,
-                    background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', color: '#fff',
-                    border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                    transition: 'transform 0.15s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                  Browse All 81 Packages by Category →
-                </button>
+                    );
+                  })}
+                </div>
+
+                {/* Bottom CTA */}
+                <div style={{
+                  marginTop: 20, textAlign: 'center',
+                  background: 'linear-gradient(135deg, #0F5DA8, #1a7ad4)',
+                  borderRadius: 16, padding: '24px 20px',
+                }}>
+                  <h3 style={{ color: '#fff', fontSize: 16, margin: 0 }}>Need a different test combination?</h3>
+                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '6px 0 14px' }}>
+                    Browse all 81 health packages across 28 categories
+                  </p>
+                  <button onClick={() => navigate('/health-packages')}
+                    style={{
+                      padding: '10px 32px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                      background: '#fff', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                      fontFamily: 'inherit', transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                    Explore All Packages →
+                  </button>
+                </div>
               </div>
             </div>
           )}
