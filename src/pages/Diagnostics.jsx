@@ -718,12 +718,12 @@ const seedTests = [
     const hydPrice = hyderabadPricing(t.name, t.category, t.subcategory, t.price);
     const finalPrice = hydPrice !== null ? hydPrice : t.price;
     let mrp;
-    if (finalPrice <= 199) mrp = Math.round(finalPrice * 2.2);
-    else if (finalPrice <= 499) mrp = Math.round(finalPrice * 2.0);
-    else if (finalPrice <= 999) mrp = Math.round(finalPrice * 1.8);
-    else if (finalPrice <= 1999) mrp = Math.round(finalPrice * 1.6);
-    else if (finalPrice <= 4999) mrp = Math.round(finalPrice * 1.5);
-    else mrp = Math.round(finalPrice * 1.3);
+    if (finalPrice <= 199) mrp = Math.round(finalPrice * 2.5);
+    else if (finalPrice <= 499) mrp = Math.round(finalPrice * 2.2);
+    else if (finalPrice <= 999) mrp = Math.round(finalPrice * 2.0);
+    else if (finalPrice <= 1999) mrp = Math.round(finalPrice * 1.8);
+    else if (finalPrice <= 4999) mrp = Math.round(finalPrice * 1.6);
+    else mrp = Math.round(finalPrice * 1.4);
     return { ...t, price: finalPrice, mrp, offerPrice: finalPrice };
   });
 
@@ -974,7 +974,7 @@ const seedTests = [
           {/* Packages hero sub-text */}
           {mode === 'packages' && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Starting at ₹999</span>
+              <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>Starting at ₹799</span>
               <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
               <button onClick={() => navigate('/health-packages')}
                 style={{
@@ -983,7 +983,7 @@ const seedTests = [
                   border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
                   transition: 'all 0.15s',
                 }}>
-                Browse All 81 Packages
+                Browse All Packages
               </button>
             </div>
           )}
@@ -1060,6 +1060,56 @@ const seedTests = [
               ))}
             </div>
           )}
+
+          {/* Prescription Upload — Prominent */}
+          <div className="container" style={{ marginBottom: 16 }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #eef4ff, #f5f9ff, #fff)',
+              borderRadius: 16, border: '1px solid #c7d9f0', padding: '18px 20px',
+              display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
+            }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <FileText size={22} weight="fill" color="#fff" />
+              </div>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0F5DA8', margin: 0 }}>
+                  Have a Prescription? Upload Here
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-light)', margin: '2px 0 0' }}>
+                  Upload your doctor's prescription and we'll match the right tests for you
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {prescription ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 12, color: '#2e7d32', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <CheckCircle size={14} weight="fill" /> {prescription.name.length > 15 ? prescription.name.slice(0, 15) + '…' : prescription.name}
+                    </span>
+                    <button onClick={() => { setPrescription(null); if (prescriptionRef.current) prescriptionRef.current.value = ''; }}
+                      style={{ background: '#fee2e2', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#dc2626', cursor: 'pointer', fontWeight: 500 }}>
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => prescriptionRef.current?.click()}
+                    style={{
+                      padding: '8px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                      background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)', color: '#fff',
+                      border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                      boxShadow: '0 2px 8px rgba(15,93,168,0.25)',
+                    }}>
+                    <input ref={prescriptionRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) { setPrescription(f); if (window?.gtag) window.gtag('event', 'prescription_upload'); } }} />
+                    📄 Upload Prescription
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           {/* Booking Form — Multi Step */}
           {showForm && bookingStep < 5 && (

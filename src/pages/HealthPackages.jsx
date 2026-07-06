@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heartbeat, Warning, Shield, User, Heart, Lightbulb, Baby, Suitcase, Pill, Cloud, ForkKnife, Airplane, Briefcase, Coin, Moon, Leaf, Syringe, FirstAid, Globe, Lightning, Clock, CaretRight } from '@phosphor-icons/react';
+import {
+  Heartbeat, Warning, Shield, User, Heart, Lightbulb, Baby, Suitcase, Pill, Cloud, ForkKnife,
+  Airplane, Briefcase, Coin, Moon, Leaf, Syringe, FirstAid, Globe, Lightning, Clock,
+  CaretRight, MagnifyingGlass, FileText, CheckCircle, X,
+} from '@phosphor-icons/react';
 
 const axisMeta = {
   organ: { label: 'Organ Wise', icon: Heartbeat, color: '#0F5DA8', desc: 'Packages focused on specific organs like liver, heart, kidney, thyroid, lungs, brain, bone, skin, pancreas' },
@@ -36,6 +40,9 @@ const axisMeta = {
 const HealthPackages = () => {
   const navigate = useNavigate();
   const [grouped, setGrouped] = useState({});
+  const [search, setSearch] = useState('');
+  const [prescription, setPrescription] = useState(null);
+  const prescriptionRef = useRef(null);
 
   useEffect(() => {
     const check = () => {
@@ -62,17 +69,135 @@ const HealthPackages = () => {
   }
 
   const axisOrder = Object.keys(axisMeta);
+  const q = search.toLowerCase().trim();
+
+  const matchesSearch = (pkg, axis) => {
+    if (!q) return true;
+    const meta = axisMeta[axis] || {};
+    return pkg.name.toLowerCase().includes(q)
+      || pkg.desc.toLowerCase().includes(q)
+      || meta.label.toLowerCase().includes(q)
+      || pkg.testNames?.some(n => n.toLowerCase().includes(q));
+  };
+
+  const filteredGrouped = {};
+  axisOrder.filter(a => grouped[a]).forEach(axis => {
+    const pkgs = grouped[axis].filter(p => matchesSearch(p, axis));
+    if (pkgs.length > 0) filteredGrouped[axis] = pkgs;
+  });
+
+  const hasResults = Object.keys(filteredGrouped).length > 0;
 
   return (
     <div className="page-container">
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '24px 16px' }}>
-        <h1 style={{ fontSize: 24, marginBottom: 4 }}>Health Packages</h1>
-        <p style={{ fontSize: 13, color: 'var(--text-light)', marginBottom: 24 }}>Curated health checkup packages across 28 categories — choose what fits your needs</p>
+      {/* Hero */}
+      <div style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #0C6BC4 50%, #0B7DE5 100%)', padding: '40px 20px 32px', textAlign: 'center' }}>
+        <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, marginBottom: 4 }}>Health Packages</h1>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, marginBottom: 20, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
+          Curated health checkup packages across 28 categories — choose what fits your needs
+        </p>
 
-        {axisOrder.filter(a => grouped[a]).map(axis => {
+        {/* Search bar */}
+        <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
+          <MagnifyingGlass size={18} style={{ position: 'absolute', left: 18, top: 13, color: '#0F5DA8' }} />
+          <input type="text" placeholder="Search packages (e.g., liver, diabetes, heart, senior)..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              width: '100%', padding: '12px 48px 12px 48px', borderRadius: 50,
+              border: 'none', fontSize: 14, outline: 'none', background: '#fff',
+              fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            }} />
+          {search && (
+            <button onClick={() => setSearch('')} style={{
+              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+              background: '#e0e0e0', border: 'none', borderRadius: '50%', width: 24, height: 24,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            }}>
+              <X size={14} weight="bold" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px 40px' }}>
+        {/* Prescription Upload Banner */}
+        <div style={{
+          background: 'linear-gradient(135deg, #eef4ff, #f5f9ff, #fff)',
+          borderRadius: 16, border: '1px solid #c7d9f0', padding: '16px 20px',
+          display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 24,
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <FileText size={22} weight="fill" color="#fff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0F5DA8', margin: 0 }}>Have a Prescription? Upload Here</h3>
+            <p style={{ fontSize: 12, color: 'var(--text-light)', margin: '2px 0 0' }}>
+              Upload your doctor's prescription and we'll match the right tests for you
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {prescription ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 12, color: '#2e7d32', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <CheckCircle size={14} weight="fill" /> {prescription.name.length > 15 ? prescription.name.slice(0, 15) + '…' : prescription.name}
+                </span>
+                <button onClick={() => { setPrescription(null); if (prescriptionRef.current) prescriptionRef.current.value = ''; }}
+                  style={{ background: '#fee2e2', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, color: '#dc2626', cursor: 'pointer', fontWeight: 500 }}>
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => prescriptionRef.current?.click()}
+                style={{
+                  padding: '8px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                  background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)', color: '#fff',
+                  border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                  boxShadow: '0 2px 8px rgba(15,93,168,0.25)',
+                }}>
+                <input ref={prescriptionRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) setPrescription(f); }} />
+                📄 Upload Prescription
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Results info */}
+        {q && (
+          <div style={{ fontSize: 13, color: 'var(--text-light)', marginBottom: 16 }}>
+            {hasResults
+              ? `Found ${Object.values(filteredGrouped).flat().length} packages matching "${q}"`
+              : `No packages found matching "${q}"`}
+          </div>
+        )}
+
+        {/* Package groups */}
+        {Object.keys(filteredGrouped).length === 0 && q && (
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-light)' }}>
+            <MagnifyingGlass size={32} style={{ marginBottom: 12, opacity: 0.3 }} />
+            <p style={{ fontSize: 14 }}>Try searching for "liver", "diabetes", "heart", "senior", or browse categories below</p>
+            <button onClick={() => setSearch('')} style={{ marginTop: 12, padding: '8px 20px', borderRadius: 8, border: '1px solid #0F5DA8', background: '#fff', color: '#0F5DA8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 13 }}>
+              Clear Search
+            </button>
+          </div>
+        )}
+
+        {Object.keys(filteredGrouped).length === 0 && !q && (
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-light)' }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>⚕️</div>
+            <p style={{ fontSize: 14 }}>No packages available. Please visit Diagnostics page first.</p>
+          </div>
+        )}
+
+        {Object.keys(filteredGrouped).map(axis => {
           const meta = axisMeta[axis] || {};
           const Icon = meta.icon || Heartbeat;
-          const packages = grouped[axis];
+          const packages = filteredGrouped[axis];
           return (
             <div key={axis} style={{ marginBottom: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
