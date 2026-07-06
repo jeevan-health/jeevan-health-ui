@@ -566,3 +566,179 @@ export function getTestEducation(test) {
     })),
   }));
 }
+
+function getPackageCategory(pkg) {
+  const n = pkg.name || '';
+  const d = pkg.description || '';
+  if (/basic/i.test(n)) return { tier: 'Basic', params: '30+', price: 999, suitable: '18+ years, first-time health checkup seekers', freq: 'Annually; every 6 months if over 40' };
+  if (/executive/i.test(n)) return { tier: 'Executive', params: '60+', price: 2499, suitable: '25+ years working professionals, corporate employees', freq: 'Annually recommended' };
+  if (/wellness|complete|full body/i.test(n)) return { tier: 'Premium', params: '85+', price: 3999, suitable: '30+ years, comprehensive health assessment needed', freq: 'Annually; every 6 months if chronic conditions present' };
+  if (/diabetes|diabetic/i.test(n)) return { tier: 'Diabetes', params: '25+', price: 1299, suitable: 'Diabetic patients, prediabetic individuals, family history of diabetes', freq: 'Every 3-6 months for diabetics; annually for screening' };
+  if (/corporate/i.test(n)) return { tier: 'Corporate', params: 'Customizable', price: 599, suitable: 'Corporate employees, pre-employment screening', freq: 'As per company policy or annually' };
+  const match = d.match(/(\d+)\+?\s*(parameters|tests|params)/i);
+  return { tier: 'Standard', params: match ? match[1] + '+' : 'Multiple', price: pkg.offerPrice || pkg.price || 999, suitable: 'Adults 18+ looking for preventive health screening', freq: 'Annually for most adults' };
+}
+
+export function getPackageEducation(pkg) {
+  if (!pkg) return [];
+  const cat = getPackageCategory(pkg);
+  const n = pkg.name || '';
+  const d = pkg.description || '';
+  const price = pkg.offerPrice || pkg.price || cat.price;
+  const reportTime = pkg.report_time || '24-48 hrs';
+  const mrp = pkg.mrp || Math.round(price * 2.5);
+  const savings = mrp - price;
+  const discountPct = Math.round((1 - price / mrp) * 100);
+
+  return [
+    {
+      title: 'What is a Health Package?',
+      icon: 'Lightbulb', color: '#0F5DA8',
+      items: [
+        { q: `What is included in ${n}?`, a: `${d} It covers ${cat.params} parameters to give you a complete picture of your health.` },
+        { q: 'Why choose a health package instead of individual tests?', a: `Health packages offer comprehensive screening at 40-60% lower cost than booking individual tests separately. You save ₹${savings} on this package alone. Plus, you get a holistic health assessment rather than isolated markers.` },
+        { q: 'What is the purpose of a full body checkup?', a: 'To assess your overall health status, detect underlying conditions early (often before symptoms appear), establish baseline values for future comparison, and identify lifestyle or genetic risk factors.' },
+        { q: 'How does a preventive health package help in early disease detection?', a: 'Many serious conditions like diabetes, hypertension, fatty liver, and early-stage cancers show no symptoms initially. Health packages screen across multiple organ systems, catching abnormalities at a stage when treatment is most effective.' },
+      ]
+    },
+    {
+      title: 'Who Should Take This Package?',
+      icon: 'User', color: '#2e7d32',
+      items: [
+        { q: 'Who should take this health package?', a: cat.suitable },
+        { q: 'Is this package suitable for healthy individuals?', a: 'Absolutely. In fact, preventive health packages are most valuable for people who feel healthy — they help detect silent conditions before they cause symptoms.' },
+        { q: 'Do I need a health package if I have no symptoms?', a: 'Yes. Many health conditions develop silently without any warning signs. Regular health checkups are essential even for asymptomatic individuals, especially after age 30.' },
+        { q: 'Are there special packages for different groups?', a: 'Yes! We offer packages tailored for: adults under 40 (baseline screening), seniors 40+ (comprehensive), men (prostate + hormone markers), women (breast + gynecological health), corporate employees (stress + lifestyle), and chronic disease patients (focused organ monitoring).' },
+        { q: 'How often should I take this package?', a: cat.freq },
+      ]
+    },
+    {
+      title: 'What Tests Are Included?',
+      icon: 'Flask', color: '#7b1fa2',
+      items: [
+        { q: `What tests are included in ${n}?`, a: d },
+        { q: 'Does it include CBC, sugar, thyroid, liver, kidney tests?', a: 'Most comprehensive packages include CBC (blood count), Fasting Blood Sugar, Thyroid Profile (TSH/T3/T4), Liver Function Tests (SGPT/SGOT/ALP/Bilirubin), and Kidney Function Tests (Creatinine/Urea/Uric Acid). Specifics vary by package tier.' },
+        { q: 'Does this package include Vitamin D / B12 tests?', a: 'Premium packages (Executive and Wellness) include Vitamin D and Vitamin B12. Basic packages may include these as add-ons.' },
+        { q: 'Are ECG, X-ray, or ultrasound included?', a: 'ECG is included in Executive and Wellness packages. Imaging like X-ray or ultrasound is typically not part of standard packages but can be added on request.' },
+        { q: 'Can the test list vary between packages?', a: 'Yes. Higher-tier packages include more advanced markers. Basic covers essentials, Executive adds vitamins and cardiac markers, Wellness includes hormones and cancer screening.' },
+      ]
+    },
+    {
+      title: 'Preparation & Fasting',
+      icon: 'Clock', color: '#e65100',
+      items: [
+        { q: 'Do I need fasting before a health package test?', a: pkg.fasting_required ? 'Yes, fasting is required for accurate results — typically 10-12 hours overnight.' : 'Most packages require fasting for blood sugar and lipid accuracy.' },
+        { q: 'How many hours fasting is required?', a: pkg.fasting_required ? (pkg.preparation_instructions || '10-12 hours of fasting. Only plain water is allowed.') : 'If fasting is required, 10-12 hours is standard. Your booking confirmation will specify.' },
+        { q: 'Can I drink water during fasting?', a: 'Yes, plain drinking water is allowed and encouraged to stay hydrated. Avoid tea, coffee, milk, or flavored drinks.' },
+        { q: 'Can I take regular medicines before the test?', a: 'Continue your regular medications unless specifically advised otherwise by your doctor. Inform the phlebotomist about any medicines you take.' },
+        { q: 'Should I avoid alcohol, smoking, or exercise before the test?', a: 'Avoid alcohol for 24 hours, smoking on the test morning, and strenuous exercise for 12 hours before sample collection.' },
+      ]
+    },
+    {
+      title: 'Sample Collection & Process',
+      icon: 'Drop', color: '#1565c0',
+      items: [
+        { q: 'How is the health package test done at home?', a: 'A certified phlebotomist visits your home at the scheduled time. They collect blood samples (multiple vials for different tests) and any other required samples (urine, stool) in a single visit.' },
+        { q: 'What samples are collected?', a: 'Most packages require 1-2 blood vials (8-12 ml total), a urine sample, and occasionally a stool sample. Each test uses a small portion of the same blood draw.' },
+        { q: 'How long does the home sample collection take?', a: 'The entire collection process takes about 15-20 minutes for a full package. The phlebotomist labels and prepares all samples for transport.' },
+        { q: 'Is the procedure safe and painless?', a: 'Yes, it is very safe. You may feel a mild prick during venipuncture. Our phlebotomists use sterile, single-use equipment following strict safety protocols.' },
+        { q: 'Do I need to visit the lab or is everything at home?', a: 'Everything is done at home. From sample collection to report delivery — you never need to visit a lab. Reports are sent digitally.' },
+      ]
+    },
+    {
+      title: 'Test Duration & Convenience',
+      icon: 'Clock', color: '#0F5DA8',
+      items: [
+        { q: 'How long does the full health checkup process take?', a: 'Sample collection: 15-20 minutes at home. Reports: typically ready within 24-48 hours. Total turnaround: 1-2 days from collection to report.' },
+        { q: 'Can all tests be done in a single visit?', a: 'Yes. All tests included in the package are performed using the same blood and urine samples collected during one visit. No separate appointments needed.' },
+        { q: 'Is home sample collection available?', a: 'Yes, home collection is available and FREE for all our health packages. We cover all major cities and most urban areas.' },
+        { q: 'Can I book a time slot for collection?', a: 'Yes, you can choose a 2-hour time slot that suits you — morning (6-8 AM), mid-morning (8-10 AM), or flexible slots based on availability.' },
+      ]
+    },
+    {
+      title: 'Report Delivery',
+      icon: 'FileText', color: '#1565c0',
+      items: [
+        { q: `How long does it take to get ${n} reports?`, a: `Reports are usually available within ${reportTime}. Complex packages may take up to 72 hours for complete integration of all reports.` },
+        { q: 'Will I receive reports on WhatsApp / Email / App?', a: 'Yes, reports are delivered via WhatsApp, Email, and the Jeevan HealthCare mobile app. You can access them from anywhere.' },
+        { q: 'Can I download my full health report?', a: 'Yes, you can download a complete PDF report from your patient portal. The report includes all test values with reference ranges and flags for abnormal values.' },
+        { q: 'Is a doctor-reviewed report included?', a: 'Premium packages (Executive and Wellness) include a doctor-reviewed report summary. Basic package includes lab-verified results.' },
+        { q: 'What if my report is delayed?', a: 'If your report is delayed beyond the expected time, contact our support team at +91-XXXXXXXXXX. We prioritize health package reports.' },
+      ]
+    },
+    {
+      title: 'Interpretation of Results',
+      icon: 'ChartBar', color: '#2e7d32',
+      items: [
+        { q: 'What do normal health package results mean?', a: 'Normal results indicate that all measured biomarkers are within expected healthy reference ranges. This suggests good organ function and no apparent disease.' },
+        { q: 'What does it mean if one or more tests are abnormal?', a: 'Abnormal results do not always mean disease. They indicate areas that need medical attention. Some values may be temporarily affected by diet, stress, or medications.' },
+        { q: 'Do I need to worry if a value is slightly high/low?', a: 'Not immediately. Mild deviations can be normal variation. However, consult a doctor for proper interpretation, especially if multiple values are outside range.' },
+        { q: 'Can health package results confirm disease?', a: 'Health package results provide screening information. Confirmation of any disease requires consultation with a doctor who may recommend additional focused tests.' },
+        { q: 'Should I consult a doctor after receiving results?', a: 'We strongly recommend it. Our packages include a free follow-up consultation to discuss your results with a qualified physician.' },
+      ]
+    },
+    {
+      title: 'Medical Value & Accuracy',
+      icon: 'Heartbeat', color: '#c62828',
+      items: [
+        { q: 'How accurate are health package tests?', a: 'All tests are processed at NABL-accredited laboratories using automated, calibrated analyzers. Results meet clinical accuracy standards.' },
+        { q: 'Can these tests detect diseases early?', a: 'Yes. Health packages are designed for early detection. For example, raised blood sugar catches prediabetes years before symptoms appear. Elevated liver enzymes detect fatty liver early.' },
+        { q: 'Do health packages guarantee detection of all diseases?', a: 'No medical test can guarantee 100% detection. Health packages screen for common conditions affecting major organ systems. Rare or specific conditions may require additional targeted testing.' },
+        { q: 'Are NABL-certified labs used for testing?', a: 'Yes, all our partner laboratories are NABL-accredited (National Accreditation Board for Testing and Calibration Laboratories) ensuring quality and reliability.' },
+        { q: 'Can results vary between labs?', a: 'Minor variations can occur due to different equipment, reagents, and reference populations. For consistent monitoring, we recommend using the same lab each time.' },
+      ]
+    },
+    {
+      title: 'Frequency of Testing',
+      icon: 'ArrowClockwise', color: '#7b1fa2',
+      items: [
+        { q: 'How often should I take a full body checkup?', a: cat.freq },
+        { q: 'Is annual health screening necessary?', a: 'Yes. Annual screening is recommended for all adults 35+. Many health changes happen gradually over a year, and annual comparison helps track trends.' },
+        { q: 'Do chronic patients need more frequent testing?', a: 'Yes. Patients with diabetes, hypertension, thyroid disorders, or heart disease need monitoring every 3-6 months as advised by their doctor.' },
+        { q: 'Should young adults take health packages regularly?', a: 'Young adults (20-30) should have a baseline checkup once. After 30, every 2 years is recommended. After 40, annual screening is ideal.' },
+      ]
+    },
+    {
+      title: 'Customization FAQs',
+      icon: 'Info', color: '#e65100',
+      items: [
+        { q: 'Can I customize my health package?', a: 'Yes, most packages can be customized. You can add or remove specific tests based on your age, gender, medical history, or doctor recommendation.' },
+        { q: 'Can I add or remove tests from a package?', a: 'Yes, you can add any individual test from our 400+ test catalog to your package. Removal may reduce the package discount proportionally.' },
+        { q: 'Are there personalized packages based on age or disease history?', a: 'Yes, we recommend personalized packages. For example: Women 30+ get packages with thyroid + iron + Vitamin D. Diabetics get packages with HbA1c + kidney function + lipid profile.' },
+        { q: 'Can doctors recommend specific package combinations?', a: 'Yes. You can share your package list with your doctor who can recommend additions or modifications. We also offer doctor-recommended combo packages.' },
+      ]
+    },
+    {
+      title: 'Safety & Comfort',
+      icon: 'Shield', color: '#0F5DA8',
+      items: [
+        { q: 'Is blood collection safe at home?', a: 'Yes, our phlebotomists are trained and certified professionals who follow strict infection control protocols. All equipment is sterile and single-use.' },
+        { q: 'Is there any risk or side effect in testing?', a: 'The procedure is extremely safe. Minimal risks include slight bruising at the puncture site, mild discomfort, or rare dizziness. These resolve quickly.' },
+        { q: 'Is it safe for elderly or pregnant patients?', a: 'Yes, blood tests are safe for all ages and during pregnancy. Inform the phlebotomist if you are pregnant or have any bleeding disorders.' },
+        { q: 'Are trained phlebotomists used for sample collection?', a: 'Yes, all our phlebotomists are certified with minimum 2 years of experience. They undergo regular training on safety protocols and patient comfort.' },
+      ]
+    },
+    {
+      title: 'Cost & Booking',
+      icon: 'Coin', color: '#FF8A00',
+      items: [
+        { q: `What is the cost of ${n}?`, a: `The package costs ₹${price}. The total value of individual tests is ₹${mrp}, so you save ₹${savings} (${discountPct}% off).` },
+        { q: 'Why are packages cheaper than individual tests?', a: 'Packages bundle multiple tests into one booking, reducing administrative costs. The savings are passed to you — typically 40-60% off compared to booking each test separately.' },
+        { q: 'Is home collection free?', a: 'Yes, FREE home collection is included with all health packages. A certified phlebotomist visits you at your preferred time.' },
+        { q: 'How do I book a health package?', a: 'Click "Add to Cart" on this package, then proceed through Review → Patient Details → Address → Payment. You can choose your preferred collection time slot.' },
+        { q: 'What payment methods are available?', a: 'We accept Credit/Debit Cards, UPI (GPay, PhonePe, Paytm), Net Banking, and Cash on Collection. EMI options available on select cards.' },
+      ]
+    },
+    {
+      title: 'Post-Test Guidance',
+      icon: 'Phone', color: '#c62828',
+      items: [
+        { q: 'What should I do after receiving reports?', a: 'Review your report carefully. Schedule a follow-up consultation with our doctor (included with most packages). Discuss any abnormal values and get a personalized health plan.' },
+        { q: 'Will I get doctor consultation after the package?', a: 'Yes, Executive and Wellness packages include a free tele-consultation with a doctor to review and explain your results. Basic package includes a doctor-reviewed summary.' },
+        { q: 'Do I need follow-up tests?', a: 'If any results are borderline or abnormal, your doctor may recommend specific follow-up tests for confirmation. These can be booked separately from our catalog.' },
+        { q: 'Can lifestyle changes improve my results?', a: 'Absolutely. Many abnormal results (high cholesterol, blood sugar, liver enzymes) can be improved with diet, exercise, stress management, and better sleep. Your doctor can guide you.' },
+        { q: 'How do I track my health progress over time?', a: 'Your Jeevan HealthCare account stores all past reports. You can compare results year-over-year to track improvements and detect concerning trends early.' },
+      ]
+    },
+  ];
+}

@@ -10,7 +10,7 @@ import TestDetailModal from '../components/test/TestDetailModal';
 import useAuthStore from '../store/authStore';
 import { getFamilyMembers } from '../services/authService';
 import { searchTests, placeDiagnosticOrder } from '../services/diagnosticsService';
-import { getTestEducation } from '../utils/testEducation';
+import { getTestEducation, getPackageEducation } from '../utils/testEducation';
 
 const categoryList = [
   { name: 'Full Body', icon: User, color: '#0F5DA8' },
@@ -1223,20 +1223,34 @@ export default function Diagnostics() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {sortedTests.map(test => {
                 const inCart = cart.find(i => i.id === test.id);
+                const isPackage = test.subcategory === 'Health Packages';
+                const paramMatch = isPackage && test.description.match(/(\d+)\+?\s*(parameters|tests|params)/i);
                 return (
-                   <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16, position: 'relative' }}>
+                   <div key={test.id} style={{ background: '#fff', borderRadius: 'var(--radius-lg)', border: isPackage ? '2px solid #22C55E' : '1px solid var(--border)', padding: 16, position: 'relative' }}>
                     {mostBookedTests.includes(test.name) && (
                       <span style={{
                         position: 'absolute', top: 8, right: 8,
                         background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
                         fontSize: 9, fontWeight: 700, padding: '2px 10px', borderRadius: 4,
                         textTransform: 'uppercase', letterSpacing: 0.3,
+                        zIndex: 2,
                       }}>
                         Most Booked
                       </span>
                     )}
+                    {isPackage && (
+                      <span style={{
+                        position: 'absolute', top: 8, left: 8,
+                        background: '#22C55E', color: '#fff',
+                        fontSize: 9, fontWeight: 700, padding: '2px 10px', borderRadius: 4,
+                        textTransform: 'uppercase', letterSpacing: 0.3,
+                        zIndex: 2,
+                      }}>
+                        PACKAGE {paramMatch ? `• ${paramMatch[1]}+ Tests` : ''}
+                      </span>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ flex: 1, minWidth: 0, marginTop: isPackage ? 20 : 0 }}>
                         <h3 style={{ fontSize: 14, margin: 0, cursor: 'pointer', color: '#0F5DA8' }} onClick={() => setSelectedTest(test)}>{test.name}</h3>
                         <p style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 500, marginTop: 2 }}>{test.subcategory}</p>
                       </div>
@@ -1286,23 +1300,27 @@ export default function Diagnostics() {
                       </p>
                     )}
                     {(() => {
-                      const edu = getTestEducation(test);
+                      const isPkg = test.subcategory === 'Health Packages';
+                      const edu = isPkg ? getPackageEducation(test) : getTestEducation(test);
                       const isOpen = faqOpen[test.id];
                       if (!edu || edu.length === 0) return null;
                       const top = edu.slice(0, 2);
+                      const bgColor = isPkg ? '#eef5ff' : '#f3f0ff';
+                      const textColor = isPkg ? '#0F5DA8' : '#7b1fa2';
+                      const contentBg = isPkg ? '#f5f9ff' : '#faf9ff';
                       return (
                         <div style={{ marginTop: 8 }}>
                           <button onClick={() => setFaqOpen(p => ({ ...p, [test.id]: !p[test.id] }))}
                             style={{
-                              width: '100%', padding: '6px 10px', borderRadius: 6, background: '#f3f0ff',
-                              border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, fontWeight: 600,
-                              color: '#7b1fa2', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              width: '100%', padding: '6px 10px', borderRadius: 6, background: bgColor,
+                              border: isPkg ? '1px solid #b3d4ff' : 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, fontWeight: 600,
+                              color: textColor, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             }}>
-                            <span>Why this test?</span>
+                            <span>{isPkg ? 'About this package' : 'Why this test?'}</span>
                             <CaretDown size={12} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
                           </button>
                           {isOpen && (
-                            <div style={{ marginTop: 6, padding: '8px 10px', background: '#faf9ff', borderRadius: 6, fontSize: 11, lineHeight: 1.6 }}>
+                            <div style={{ marginTop: 6, padding: '8px 10px', background: contentBg, borderRadius: 6, fontSize: 11, lineHeight: 1.6 }}>
                               {top.map((section, si) => (
                                 <div key={si} style={{ marginBottom: si < top.length - 1 ? 8 : 0 }}>
                                   <p style={{ fontWeight: 700, color: section.color, marginBottom: 4 }}>{section.title}</p>
@@ -1314,7 +1332,7 @@ export default function Diagnostics() {
                                   ))}
                                 </div>
                               ))}
-                              <p style={{ fontSize: 10, color: '#7b1fa2', fontWeight: 600, marginTop: 4, cursor: 'pointer' }}
+                              <p style={{ fontSize: 10, color: textColor, fontWeight: 600, marginTop: 4, cursor: 'pointer' }}
                                 onClick={() => setSelectedTest(test)}>
                                 View all FAQ →
                               </p>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield, ShoppingCart, Plus, CaretDown, Warning, FileText, ChartBar, Heartbeat, Coin, ArrowClockwise, User, Lightbulb } from '@phosphor-icons/react';
 import testDetailData from './testDetailData';
-import { getTestEducation } from '../../utils/testEducation';
+import { getTestEducation, getPackageEducation } from '../../utils/testEducation';
 
 const iconMap = {
   Lightbulb, User: User, Warning, Drop, Microscope, FileText, ChartBar, Heartbeat, Shield, Coin: Coin, ArrowClockwise, Clock, Info, Heart, Phone,
@@ -9,8 +9,9 @@ const iconMap = {
 
 const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = [], onAddAlsoBooked }) => {
   if (!test) return null;
+  const isPackage = test.subcategory === 'Health Packages';
   const data = testDetailData[test.name] || null;
-  const education = getTestEducation(test);
+  const education = isPackage ? getPackageEducation(test) : getTestEducation(test);
   const [openFaq, setOpenFaq] = useState({});
 
   const Section = ({ title, icon: Icon, children, color = '#0F5DA8' }) => (
@@ -352,17 +353,20 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* FAQ Accordion */}
         {education.length > 0 && (
-          <Section title="FREQUENTLY ASKED QUESTIONS" icon={FileText} color="#7b1fa2">
+          <Section title={isPackage ? "HEALTH PACKAGE FAQ" : "FREQUENTLY ASKED QUESTIONS"} icon={FileText} color={isPackage ? "#0F5DA8" : "#7b1fa2"}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {education.map((section, si) => {
                 const Icon = iconMap[section.icon] || Info;
                 const isOpen = openFaq[si];
+                const pkgBg = isPackage ? '#eef5ff' : '#f3f0ff';
+                const pkgOpen = isOpen ? (isPackage ? '#dceaff' : '#f3f0ff') : '#fff';
+                const pkgContent = isPackage ? '#f5f9ff' : '#faf9ff';
                 return (
-                  <div key={si} style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden' }}>
+                  <div key={si} style={{ border: isPackage ? '1px solid #b3d4ff' : '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden' }}>
                     <button onClick={() => setOpenFaq(p => ({ ...p, [si]: !p[si] }))}
                       style={{
                         width: '100%', padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        background: isOpen ? '#f3f0ff' : '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                        background: isOpen ? pkgBg : '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                         fontSize: 13, fontWeight: 700, color: section.color, transition: 'background 0.15s',
                       }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -373,7 +377,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
                       <CaretDown size={14} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
                     </button>
                     {isOpen && (
-                      <div style={{ padding: '4px 14px 14px', background: '#faf9ff' }}>
+                      <div style={{ padding: '4px 14px 14px', background: pkgContent }}>
                         {section.items.map((item, ii) => (
                           <div key={ii} style={{ padding: '8px 0', borderBottom: ii < section.items.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 4 }}>{item.q}</p>
