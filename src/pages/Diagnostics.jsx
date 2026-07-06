@@ -265,10 +265,16 @@ export default function Diagnostics() {
                 <WhatsappLogo size={16} weight="fill" /> WhatsApp
               </a>
             </div>
-            <button onClick={() => { setBookingOpen(false); setCart([]); setBookingStep(1); setBookingSubmitted(false); setOrderId(null); setPrescription(null); setAddress({ line1: '', city: '', pincode: '' }); setCollectionDate(''); setCollectionTime(''); setPaymentMethod(''); setPatientInfo({ name: '', age: '', gender: '' }); setBookedFor(null); }}
-              style={{ marginTop: 16, padding: '10px 24px', borderRadius: 10, fontWeight: 600, fontSize: 13, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>
-              Back to Tests
-            </button>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button onClick={() => { setBookingOpen(false); setCart([]); setBookingStep(1); setBookingSubmitted(false); setOrderId(null); setPrescription(null); setAddress({ line1: '', city: '', pincode: '' }); setCollectionDate(''); setCollectionTime(''); setPaymentMethod(''); setPatientInfo({ name: '', age: '', gender: '' }); setBookedFor(null); }}
+                style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 600, fontSize: 13, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Back to Tests
+              </button>
+              <button onClick={() => { setBookingOpen(false); navigate('/my-test-orders'); }}
+                style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 600, fontSize: 13, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Clock size={14} /> View My Bookings
+              </button>
+            </div>
           </div>
         ) : (
           <>
