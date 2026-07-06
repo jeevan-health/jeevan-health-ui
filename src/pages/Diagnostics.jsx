@@ -73,12 +73,10 @@ export default function Diagnostics() {
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
-  const [selectedTest, setSelectedTest] = useState(null);
   const [collectionDate, setCollectionDate] = useState('');
   const [collectionTime, setCollectionTime] = useState('');
   const [address, setAddress] = useState({ line1: '', city: '', pincode: '' });
   const [city, setCity] = useState('Hyderabad');
-  const [showCityPicker, setShowCityPicker] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [bookedFor, setBookedFor] = useState(null);
@@ -100,7 +98,6 @@ export default function Diagnostics() {
   const [packagesByAxis, setPackagesByAxis] = useState({});
   const [packageSearch, setPackageSearch] = useState('');
   const [showPackageSuggestions, setShowPackageSuggestions] = useState(false);
-  const packagesRef = useRef(null);
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
 
   const bookingCounts = {
@@ -172,11 +169,6 @@ export default function Diagnostics() {
     if (mode !== 'tests') setMode('tests');
     load();
   };
-
-  const allPackagesList = Object.values(packagesByAxis).flat();
-  const packageSuggestions = packageSearch.trim()
-    ? allPackagesList.filter(p => p.name.toLowerCase().includes(packageSearch.toLowerCase()) || p.desc?.toLowerCase().includes(packageSearch.toLowerCase())).slice(0, 8)
-    : [];
 
   const addToCart = (test) => {
     setCart(prev => {
@@ -850,7 +842,7 @@ export default function Diagnostics() {
           <div style={{ fontSize: 10, color: 'var(--text-light)' }}>{cart.length} test{cart.length !== 1 ? 's' : ''} selected</div>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#e53935' }}>{'\u20B9'}{cartTotal}</div>
         </div>
-        <button onClick={openBooking} style={{ padding: '9px 24px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: cart.length > 0 ? '#FF3B30' : '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: cart.length > 0 ? '0 4px 14px rgba(255,59,48,0.3)' : 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => cart.length > 0 ? openBooking() : window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ padding: '9px 24px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: cart.length > 0 ? '#FF3B30' : '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: cart.length > 0 ? '0 4px 14px rgba(255,59,48,0.3)' : 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Sparkle size={14} weight="fill" /> {cart.length > 0 ? 'Book Now' : 'Start Booking'}
         </button>
       </div>

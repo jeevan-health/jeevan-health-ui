@@ -8,11 +8,11 @@ const iconMap = {
 };
 
 const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = [], onAddAlsoBooked }) => {
+  const [openFaq, setOpenFaq] = useState({});
   if (!test) return null;
   const isPackage = test.subcategory === 'Health Packages';
   const data = testDetailData[test.name] || null;
   const education = isPackage ? getPackageEducation(test) : getTestEducation(test);
-  const [openFaq, setOpenFaq] = useState({});
 
   const Section = ({ title, icon: Icon, children, color = '#0F5DA8' }) => (
     <div style={{ marginBottom: 24 }}>
