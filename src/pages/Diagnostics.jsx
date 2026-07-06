@@ -194,6 +194,7 @@ export default function Diagnostics() {
   const handleSuggestionClick = (name) => {
     setSearch(name);
     setShowSuggestions(false);
+    setShowAllTests(true);
     load();
   };
 
@@ -299,11 +300,12 @@ export default function Diagnostics() {
           </div>
           <div style={{ position: 'relative', maxWidth: 600, margin: '0 auto' }}>
             <MagnifyingGlass size={20} style={{ position: 'absolute', left: 16, top: 14, color: '#0F5DA8' }} />
-            <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
-              value={search}
-              onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
-              onFocus={() => { setFocused(true); setShowSuggestions(true); }}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              <input type="text" placeholder="Search tests (e.g., CBC, Thyroid, Lipid)..."
+                value={search}
+                onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => { setFocused(true); setShowSuggestions(true); }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onKeyDown={e => { if (e.key === 'Enter') { setShowAllTests(true); setShowSuggestions(false); } }}
               style={{
                 width: '100%', padding: '14px 16px 14px 48px', borderRadius: 50,
                 border: 'none', fontSize: 15, outline: 'none', background: '#fff',
@@ -633,8 +635,7 @@ export default function Diagnostics() {
                       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                         <button onClick={() => setBookingStep(1)} className="btn-outline" style={{ flex: 1 }}>Back</button>
                         <button onClick={() => {
-                          if (!bookedFor && !patientInfo.name.trim()) return;
-                          setBookingStep(3);
+                          if (bookedFor || patientInfo.name.trim()) setBookingStep(3);
                         }} className="btn-accent" style={{ flex: 1 }}>Continue</button>
                       </div>
                     </>
