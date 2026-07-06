@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MagnifyingGlass, Flask, ShoppingCart, Plus, Trash, CheckCircle, Clock, Info, WarningCircle, MapPin,
@@ -46,17 +46,6 @@ const stats = [
   { value: '500+', label: 'Trained Phlebotomists' },
 ];
 
-const healthPackages = [
-  { name: 'Basic Health Checkup', tests: '30+ Tests', price: 999, oldPrice: 2499 },
-  { name: 'Essential Wellness', tests: '45+ Tests', price: 1499, oldPrice: 3749 },
-  { name: 'Executive Health', tests: '60+ Tests', price: 2499, oldPrice: 6249 },
-  { name: 'Full Body Checkup', tests: '85+ Tests', price: 3999, oldPrice: 9999 },
-  { name: 'Diabetes Care Package', tests: '25+ Tests', price: 1299, oldPrice: 3249 },
-  { name: 'Cardiac Health Check', tests: '35+ Tests', price: 1999, oldPrice: 4999 },
-  { name: 'Liver Function Panel', tests: '15+ Tests', price: 899, oldPrice: 2249 },
-  { name: 'Women\'s Wellness', tests: '40+ Tests', price: 1799, oldPrice: 4499 },
-];
-
 const testimonials = [
   { name: 'Meera Sharma', place: 'Delhi', text: 'The sample collection was smooth and hygienic. I received detailed reports within 12 hours, helping me consult my doctor promptly.' },
   { name: 'Raj Patel', place: 'Bangalore', text: 'I received detailed and understandable reports. The free doctor consultation was a great addition, helping me interpret results effectively.' },
@@ -91,6 +80,8 @@ export default function Diagnostics() {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [orderId, setOrderId] = useState(null);
   const [patientInfo, setPatientInfo] = useState({ name: '', age: '', gender: '' });
+  const [prescription, setPrescription] = useState(null);
+  const prescriptionRef = useRef(null);
   const nextSlot = ['2:00 PM', '4:00 PM', '6:00 PM', 'Tomorrow 8:00 AM'][cart.length % 4];
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -593,146 +584,146 @@ const seedTests = [
     { id: 433, name: 'Executive Health Checkup', category: 'Full Body', subcategory: 'Health Packages', price: 2499, description: 'Advanced full-body assessment with 60+ parameters including CBC, HbA1c, Lipid Profile, LFT, KFT, Thyroid, Vitamin D, Vitamin B12, Iron Studies, ECG, and more.', fasting_required: true, report_time: '48 hrs', preparation_instructions: 'Fasting for 10-12 hours required. Wear loose clothing for ECG.' },
     { id: 434, name: 'Wellness Package (Complete)', category: 'Full Body', subcategory: 'Health Packages', price: 3999, description: 'Comprehensive wellness screening with 85+ parameters covering all major organ systems, vitamins, hormones, cardiac risk markers, and cancer screening.', fasting_required: true, report_time: '48 hrs', preparation_instructions: 'Fasting for 10-12 hours required. Takes approximately 30 minutes for sample collection.' },
   ].map(t => {
-    // Hyderabad competitor-aligned pricing (Thyrocare / Apollo / Vijaya benchmarks)
+    // Hyderabad competitor-aligned pricing (Thyrocare / Apollo / Vijaya / market benchmarks 2025-26)
     const hyderabadPricing = (name, cat, sub, base) => {
       const n = name.toLowerCase(), c = cat.toLowerCase(), s = sub.toLowerCase();
-      // Basic tests (₹99-249)
-      if (/fasting.*(blood|sugar)|fbs|glucose.*fast/i.test(n)) return 119;
-      if (/random.*(blood|sugar)|rbs|glucose.*random/i.test(n)) return 119;
-      if (/ppbs|postprandial|post.*meal|post.*lunch/i.test(n)) return 139;
-      if (/total.*cholesterol|cholesterol.*total/i.test(n)) return 169;
-      if (/hemoglobin|hb.*electrophoresis|electro.*hb|hplc.*hb/i.test(n) && !/electro|hplc|variant/i.test(n)) return 119;
+      // Basic tests (₹79-199)
+      if (/fasting.*(blood|sugar)|fbs|glucose.*fast/i.test(n)) return 99;
+      if (/random.*(blood|sugar)|rbs|glucose.*random/i.test(n)) return 99;
+      if (/ppbs|postprandial|post.*meal|post.*lunch/i.test(n)) return 119;
+      if (/total.*cholesterol|cholesterol.*total/i.test(n)) return 149;
+      if (/hemoglobin|hb.*electrophoresis|electro.*hb|hplc.*hb/i.test(n) && !/electro|hplc|variant/i.test(n)) return 99;
       if (/esr/i.test(n)) return 99;
-      if (/uric.*acid/i.test(n)) return 169;
-      if (/creatinine.*serum|serum.*creatinine/i.test(n)) return 139;
+      if (/uric.*acid/i.test(n)) return 149;
+      if (/creatinine.*serum|serum.*creatinine/i.test(n)) return 149;
       if (/bun|urea.*blood|blood.*urea/i.test(n)) return 149;
       if (/urine.*routine|complete.*urine|urine.*microscopy|urinalysis/i.test(n)) return 149;
-      if (/blood.*group|abo|rh.*factor/i.test(n)) return 149;
-      // Standard tests (₹249-599)
+      if (/blood.*group|abo|rh.*factor/i.test(n)) return 129;
+      // Standard tests (₹199-449)
       if (/cbc|complete.*blood.*count|hemogram/i.test(n)) return 349;
       if (/hba1c|glycated.*hemoglobin|glycosylated.*hemoglobin/i.test(n)) return 449;
-      if (/tsh/i.test(n) && !/t3|t4|thyroid.*profile/i.test(n)) return 249;
-      if (/t3.*t4.*tsh|thyroid.*profile/i.test(n)) return 449;
-      if (/free.*t3|ft3/i.test(n)) return 349;
-      if (/free.*t4|ft4/i.test(n)) return 349;
-      if (/lipid.*profile/i.test(n) && !/subfraction|remnant|apolipoprotein/i.test(n)) return 499;
+      if (/tsh/i.test(n) && !/t3|t4|thyroid.*profile/i.test(n)) return 199;
+      if (/t3.*t4.*tsh|thyroid.*profile/i.test(n)) return 399;
+      if (/free.*t3|ft3/i.test(n)) return 299;
+      if (/free.*t4|ft4/i.test(n)) return 299;
+      if (/lipid.*profile/i.test(n) && !/subfraction|remnant|apolipoprotein/i.test(n)) return 449;
       if (/lft|liver.*function/i.test(n)) return 449;
-      if (/kft|kidney.*function|renal.*function/i.test(n)) return 399;
-      if (/sgpt|alt/i.test(n)) return 249;
-      if (/sgot|ast/i.test(n)) return 249;
-      if (/ggt|gamma.*gt/i.test(n)) return 299;
-      if (/alkaline.*phosphatase|alp/i.test(n) && !/bone.*specific/i.test(n)) return 249;
-      if (/bilirubin.*total|total.*bilirubin/i.test(n)) return 149;
+      if (/kft|kidney.*function|renal.*function/i.test(n)) return 349;
+      if (/sgpt|alt/i.test(n)) return 199;
+      if (/sgot|ast/i.test(n)) return 199;
+      if (/ggt|gamma.*gt/i.test(n)) return 249;
+      if (/alkaline.*phosphatase|alp/i.test(n) && !/bone.*specific/i.test(n)) return 199;
+      if (/bilirubin.*total|total.*bilirubin/i.test(n)) return 129;
       if (/electrolyte.*serum|serum.*electrolyte/i.test(n)) return 349;
       if (/cbc.*esr|hemogram.*esr/i.test(n)) return 399;
-      if (/platelet.*count/i.test(n)) return 199;
-      if (/calcium.*serum|serum.*calcium/i.test(n)) return 199;
-      if (/phosphorus.*serum|serum.*phosphorus/i.test(n)) return 199;
-      if (/magnesium.*serum|serum.*magnesium/i.test(n)) return 299;
-      if (/prolactin/i.test(n)) return 449;
-      if (/cortisol/i.test(n)) return 549;
-      if (/total.*protein.*serum|serum.*total.*protein/i.test(n)) return 199;
-      if (/albumin.*serum|serum.*albumin/i.test(n)) return 149;
-      if (/hiv.*(antibody|elisa|rapid)|anti.*hiv/i.test(n)) return 449;
-      if (/hbsag|hepatitis.*b.*surface/i.test(n)) return 349;
-      if (/anti.*hcv|hepatitis.*c.*antibody|hcv.*antibody/i.test(n)) return 549;
-      if (/vdrl|rpr/i.test(n)) return 199;
-      // Premium tests (₹599-1499)
-      if (/vitamin.*d.*total|25.*hydroxy|vitamin.*d/i.test(n)) return 799;
-      if (/vitamin.*b12|b12.*vitamin|cobalamin/i.test(n)) return 599;
-      if (/iron.*studies|iron.*profile/i.test(n)) return 549;
-      if (/ferritin/i.test(n)) return 499;
-      if (/tibc|total.*iron.*binding/i.test(n)) return 349;
-      if (/hs.crp|high.*sensitivity.*crp|crp.*high/i.test(n)) return 449;
-      if (/homocysteine/i.test(n)) return 899;
-      if (/testosterone.*total|total.*testosterone/i.test(n)) return 699;
-      if (/testosterone.*free|free.*testosterone/i.test(n)) return 799;
-      if (/dengue.*ns1|ns1.*antigen/i.test(n)) return 649;
-      if (/dengue.*igg.*igm|dengue.*antibody/i.test(n)) return 549;
-      if (/malaria.*(antigen|rapid|pf)/i.test(n)) return 349;
-      if (/typhoid.*(igg|igm|antibody|widal)/i.test(n)) return 299;
-      if (/chikungunya.*igm/i.test(n)) return 649;
-      if (/thyroglobulin/i.test(n)) return 999;
-      if (/calcitonin/i.test(n)) return 999;
-      if (/psa.*total|total.*psa|prostate.*specific.*antigen/i.test(n)) return 699;
-      if (/free.*psa/i.test(n)) return 899;
-      if (/ca 125/i.test(n)) return 899;
-      if (/ca 19-9|ca 19.9/i.test(n)) return 949;
-      if (/ca 15-3/i.test(n)) return 949;
-      if (/cea.*(serum|blood)/i.test(n) && /carcino/i.test(n)) return 749;
-      if (/afp.*(serum|blood)|alpha.*fetoprotein/i.test(n)) return 699;
-      if (/pap.*smear|cervical.*smear/i.test(n)) return 899;
-      if (/amh|anti.*mullerian/i.test(n)) return 1199;
-      if (/fsh/i.test(n)) return 499;
-      if (/lh.*hormone|luteinizing/i.test(n)) return 499;
-      if (/estradiol|e2.*hormone/i.test(n)) return 599;
-      if (/progesterone.*p4|p4.*progesterone/i.test(n)) return 599;
-      if (/dhea.s|dehydroepiandrosterone/i.test(n)) return 599;
-      if (/shbg/i.test(n)) return 549;
-      if (/troponin.*i|troponin.*t|hs.*troponin/i.test(n)) return 999;
-      if (/nt.probnp|bnp.*natriuretic/i.test(n)) return 1299;
-      if (/ck.mb|creatine.*kinase.*mb/i.test(n)) return 549;
-      if (/c.*peptide|connecting.*peptide/i.test(n)) return 549;
-      if (/insulin.*fasting|fasting.*insulin/i.test(n)) return 449;
-      if (/microalbumin/i.test(n)) return 399;
-      if (/cystatin.*c/i.test(n)) return 749;
-      if (/stool.*occult|fobt|fit.*test|occult.*blood/i.test(n)) return 299;
-      if (/coagulation.*profile|pt.*inr.*aptt/i.test(n)) return 499;
-      if (/d.dimer/i.test(n)) return 699;
-      if (/fibrinogen/i.test(n)) return 449;
-      if (/factor.*v.*leiden|factor.*5.*leiden/i.test(n)) return 1499;
-      if (/mthfr/i.test(n)) return 1299;
-      if (/hemoglobin.*electro|hplc.*hb|hb.*variant|thalassemia/i.test(n)) return 749;
-      if (/g6pd/i.test(n)) return 449;
-      if (/semen.*analysis|sperm.*count|semen.*examination/i.test(n)) return 599;
-      if (/covid.*(pcr|rt-pcr|corona)/i.test(n)) return 499;
-      if (/covid.*(rapid.*antigen|antigen.*rapid)/i.test(n)) return 249;
-      if (/covid.*(igg|igm|antibody)/i.test(n)) return 349;
-      if (/acth.*stim|synacthen/i.test(n)) return 1999;
-      if (/dexamethasone.*suppress/i.test(n)) return 1499;
-      if (/lactose.*(breath|h2)|sibo.*breath|breath.*test/i.test(n)) return 1799;
-      if (/fecal.*fat.*72|72.*hour.*fat/i.test(n)) return 1799;
+      if (/platelet.*count/i.test(n)) return 149;
+      if (/calcium.*serum|serum.*calcium/i.test(n)) return 179;
+      if (/phosphorus.*serum|serum.*phosphorus/i.test(n)) return 179;
+      if (/magnesium.*serum|serum.*magnesium/i.test(n)) return 249;
+      if (/prolactin/i.test(n)) return 399;
+      if (/cortisol/i.test(n)) return 499;
+      if (/total.*protein.*serum|serum.*total.*protein/i.test(n)) return 149;
+      if (/albumin.*serum|serum.*albumin/i.test(n)) return 129;
+      if (/hiv.*(antibody|elisa|rapid)|anti.*hiv/i.test(n)) return 399;
+      if (/hbsag|hepatitis.*b.*surface/i.test(n)) return 299;
+      if (/anti.*hcv|hepatitis.*c.*antibody|hcv.*antibody/i.test(n)) return 449;
+      if (/vdrl|rpr/i.test(n)) return 179;
+      // Premium tests (₹499-1299)
+      if (/vitamin.*d.*total|25.*hydroxy|vitamin.*d/i.test(n)) return 699;
+      if (/vitamin.*b12|b12.*vitamin|cobalamin/i.test(n)) return 549;
+      if (/iron.*studies|iron.*profile/i.test(n)) return 499;
+      if (/ferritin/i.test(n)) return 449;
+      if (/tibc|total.*iron.*binding/i.test(n)) return 299;
+      if (/hs.crp|high.*sensitivity.*crp|crp.*high/i.test(n)) return 399;
+      if (/homocysteine/i.test(n)) return 799;
+      if (/testosterone.*total|total.*testosterone/i.test(n)) return 599;
+      if (/testosterone.*free|free.*testosterone/i.test(n)) return 699;
+      if (/dengue.*ns1|ns1.*antigen/i.test(n)) return 549;
+      if (/dengue.*igg.*igm|dengue.*antibody/i.test(n)) return 499;
+      if (/malaria.*(antigen|rapid|pf)/i.test(n)) return 299;
+      if (/typhoid.*(igg|igm|antibody|widal)/i.test(n)) return 249;
+      if (/chikungunya.*igm/i.test(n)) return 549;
+      if (/thyroglobulin/i.test(n)) return 899;
+      if (/calcitonin/i.test(n)) return 899;
+      if (/psa.*total|total.*psa|prostate.*specific.*antigen/i.test(n)) return 599;
+      if (/free.*psa/i.test(n)) return 799;
+      if (/ca 125/i.test(n)) return 799;
+      if (/ca 19-9|ca 19.9/i.test(n)) return 849;
+      if (/ca 15-3/i.test(n)) return 849;
+      if (/cea.*(serum|blood)/i.test(n) && /carcino/i.test(n)) return 649;
+      if (/afp.*(serum|blood)|alpha.*fetoprotein/i.test(n)) return 599;
+      if (/pap.*smear|cervical.*smear/i.test(n)) return 799;
+      if (/amh|anti.*mullerian/i.test(n)) return 999;
+      if (/fsh/i.test(n)) return 399;
+      if (/lh.*hormone|luteinizing/i.test(n)) return 399;
+      if (/estradiol|e2.*hormone/i.test(n)) return 499;
+      if (/progesterone.*p4|p4.*progesterone/i.test(n)) return 499;
+      if (/dhea.s|dehydroepiandrosterone/i.test(n)) return 499;
+      if (/shbg/i.test(n)) return 449;
+      if (/troponin.*i|troponin.*t|hs.*troponin/i.test(n)) return 849;
+      if (/nt.probnp|bnp.*natriuretic/i.test(n)) return 1199;
+      if (/ck.mb|creatine.*kinase.*mb/i.test(n)) return 399;
+      if (/c.*peptide|connecting.*peptide/i.test(n)) return 449;
+      if (/insulin.*fasting|fasting.*insulin/i.test(n)) return 399;
+      if (/microalbumin/i.test(n)) return 349;
+      if (/cystatin.*c/i.test(n)) return 649;
+      if (/stool.*occult|fobt|fit.*test|occult.*blood/i.test(n)) return 249;
+      if (/coagulation.*profile|pt.*inr.*aptt/i.test(n)) return 449;
+      if (/d.dimer/i.test(n)) return 599;
+      if (/fibrinogen/i.test(n)) return 399;
+      if (/factor.*v.*leiden|factor.*5.*leiden/i.test(n)) return 1299;
+      if (/mthfr/i.test(n)) return 999;
+      if (/hemoglobin.*electro|hplc.*hb|hb.*variant|thalassemia/i.test(n)) return 649;
+      if (/g6pd/i.test(n)) return 399;
+      if (/semen.*analysis|sperm.*count|semen.*examination/i.test(n)) return 499;
+      if (/covid.*(pcr|rt-pcr|corona)/i.test(n)) return 449;
+      if (/covid.*(rapid.*antigen|antigen.*rapid)/i.test(n)) return 199;
+      if (/covid.*(igg|igm|antibody)/i.test(n)) return 299;
+      if (/acth.*stim|synacthen/i.test(n)) return 1799;
+      if (/dexamethasone.*suppress/i.test(n)) return 1299;
+      if (/lactose.*(breath|h2)|sibo.*breath|breath.*test/i.test(n)) return 1599;
+      if (/fecal.*fat.*72|72.*hour.*fat/i.test(n)) return 1599;
       // Subcategory-based pricing
-      if (/allergy.*panel.*food|food.*allergy.*panel|food.*panel/i.test(n)) return 1999;
-      if (/allergy.*panel.*inhalant|inhalant.*panel/i.test(n)) return 2199;
-      if (/copper/i.test(n)) return 349;
-      if (/zinc.*serum|serum.*zinc/i.test(n)) return 449;
-      if (/selenium/i.test(n)) return 899;
-      if (/iodine.*urine|urine.*iodine/i.test(n)) return 699;
-      if (/hla.*b27/i.test(n)) return 1499;
-      if (/ana.*(titer|screen|profile)/i.test(n)) return 599;
-      if (/anti.*dsdna/i.test(n)) return 699;
-      if (/anti.*ccp/i.test(n)) return 799;
-      if (/rheumatoid.*factor|rf.*factor/i.test(n)) return 399;
-      if (/complement.*c3|c3.*complement/i.test(n)) return 499;
-      if (/complement.*c4|c4.*complement/i.test(n)) return 499;
-      if (/vitamin.*a|retinol/i.test(n)) return 599;
-      if (/vitamin.*e|tocopherol/i.test(n)) return 699;
-      if (/folate|folic.*acid/i.test(n)) return 399;
-      if (/coq10|coenzyme.*q/i.test(n)) return 1499;
-      if (/carnitine/i.test(n)) return 999;
-      if (/amino.*acid.*profile/i.test(n)) return 1999;
-      if (/heavy.*metal|lead.*blood|mercury|arsenic|cadmium/i.test(n)) return 1199;
-      if (/drug.*screen|toxicology|drug.*panel/i.test(n)) return 1499;
-      if (/breath.*test.*(lactose|sibo|glucose)/i.test(n)) return 1799;
-      if (/c.*reactive.*protein|crp.*quantitative|crp/i.test(n) && !/hs.crp|high.*sensitivity/i.test(n)) return 349;
-      if (/rbc.*count|red.*cell.*count/i.test(n)) return 99;
-      if (/wbc.*count|white.*cell.*count|total.*count.*wbc/i.test(n)) return 99;
-      // Health Packages
-      if (/basic.*health.*checkup|basic.*checkup/i.test(n)) return 899;
-      if (/executive.*health.*checkup|executive.*checkup/i.test(n)) return 1999;
-      if (/wellness.*package.*complete|wellness.*package/i.test(n)) return 3499;
+      if (/allergy.*panel.*food|food.*allergy.*panel|food.*panel/i.test(n)) return 1799;
+      if (/allergy.*panel.*inhalant|inhalant.*panel/i.test(n)) return 1999;
+      if (/copper/i.test(n)) return 299;
+      if (/zinc.*serum|serum.*zinc/i.test(n)) return 399;
+      if (/selenium/i.test(n)) return 799;
+      if (/iodine.*urine|urine.*iodine/i.test(n)) return 599;
+      if (/hla.*b27/i.test(n)) return 1299;
+      if (/ana.*(titer|screen|profile)/i.test(n)) return 549;
+      if (/anti.*dsdna/i.test(n)) return 599;
+      if (/anti.*ccp/i.test(n)) return 699;
+      if (/rheumatoid.*factor|rf.*factor/i.test(n)) return 349;
+      if (/complement.*c3|c3.*complement/i.test(n)) return 449;
+      if (/complement.*c4|c4.*complement/i.test(n)) return 449;
+      if (/vitamin.*a|retinol/i.test(n)) return 549;
+      if (/vitamin.*e|tocopherol/i.test(n)) return 649;
+      if (/folate|folic.*acid/i.test(n)) return 349;
+      if (/coq10|coenzyme.*q/i.test(n)) return 1299;
+      if (/carnitine/i.test(n)) return 899;
+      if (/amino.*acid.*profile/i.test(n)) return 1799;
+      if (/heavy.*metal|lead.*blood|mercury|arsenic|cadmium/i.test(n)) return 999;
+      if (/drug.*screen|toxicology|drug.*panel/i.test(n)) return 1299;
+      if (/breath.*test.*(lactose|sibo|glucose)/i.test(n)) return 1599;
+      if (/c.*reactive.*protein|crp.*quantitative|crp/i.test(n) && !/hs.crp|high.*sensitivity/i.test(n)) return 299;
+      if (/rbc.*count|red.*cell.*count/i.test(n)) return 79;
+      if (/wbc.*count|white.*cell.*count|total.*count.*wbc/i.test(n)) return 79;
+      // Health Packages — Hyderbad market aligned (Thyrocare Aarogyam / Apollo Xpert benchmarks)
+      if (/basic.*health.*checkup|basic.*checkup/i.test(n)) return 799;
+      if (/executive.*health.*checkup|executive.*checkup/i.test(n)) return 1699;
+      if (/wellness.*package.*complete|wellness.*package/i.test(n)) return 2999;
       return null; // use original price
     };
     const hydPrice = hyderabadPricing(t.name, t.category, t.subcategory, t.price);
     const finalPrice = hydPrice !== null ? hydPrice : t.price;
     let mrp;
-    if (finalPrice <= 299) mrp = Math.round(finalPrice * 2.5);
-    else if (finalPrice <= 599) mrp = Math.round(finalPrice * 2.2);
-    else if (finalPrice <= 999) mrp = Math.round(finalPrice * 2.0);
-    else if (finalPrice <= 1999) mrp = Math.round(finalPrice * 1.8);
-    else if (finalPrice <= 4999) mrp = Math.round(finalPrice * 1.6);
-    else mrp = Math.round(finalPrice * 1.4);
+    if (finalPrice <= 199) mrp = Math.round(finalPrice * 2.2);
+    else if (finalPrice <= 499) mrp = Math.round(finalPrice * 2.0);
+    else if (finalPrice <= 999) mrp = Math.round(finalPrice * 1.8);
+    else if (finalPrice <= 1999) mrp = Math.round(finalPrice * 1.6);
+    else if (finalPrice <= 4999) mrp = Math.round(finalPrice * 1.5);
+    else mrp = Math.round(finalPrice * 1.3);
     return { ...t, price: finalPrice, mrp, offerPrice: finalPrice };
   });
 
@@ -1167,6 +1158,35 @@ const seedTests = [
                       </select>
                     </div>
                   )}
+
+                  {/* Prescription Upload */}
+                  <div style={{ marginTop: 12, marginBottom: 16, borderTop: '1px solid #f0f0f0', paddingTop: 14 }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <FileText size={13} color="#0F5DA8" /> Upload Prescription (optional)
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--text-light)', marginBottom: 10 }}>Have a prescription? Upload it so we can match your tests accurately.</p>
+                    {prescription ? (
+                      <div style={{ border: '1px solid #d1d5db', borderRadius: 8, padding: '10px 12px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontSize: 20 }}>📎</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prescription.name}</div>
+                          <div style={{ fontSize: 11, color: '#2e7d32', display: 'flex', alignItems: 'center', gap: 3 }}><CheckCircle size={11} weight="fill" /> Uploaded</div>
+                        </div>
+                        <button type="button" onClick={() => { setPrescription(null); if (prescriptionRef.current) prescriptionRef.current.value = ''; }}
+                          style={{ background: '#fee2e2', border: 'none', borderRadius: 4, padding: '3px 8px', fontSize: 11, color: '#dc2626', cursor: 'pointer', fontWeight: 500 }}>Remove</button>
+                      </div>
+                    ) : (
+                      <div style={{ border: '1px dashed #d1d5db', borderRadius: 8, padding: '12px', textAlign: 'center', cursor: 'pointer', background: '#fafafa' }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#0F5DA8'; e.currentTarget.style.background = '#eef4ff'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.background = '#fafafa'; }}
+                        onClick={() => prescriptionRef.current?.click()}>
+                        <input ref={prescriptionRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
+                          onChange={e => { const f = e.target.files?.[0]; if (f) setPrescription(f); }} />
+                        <span style={{ fontSize: 11, color: '#6b7280' }}>📄 Click to upload prescription (PDF or image)</span>
+                      </div>
+                    )}
+                  </div>
+
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => setBookingStep(1)} className="btn-outline" style={{ flex: 1 }}>Back</button>
                     <button onClick={() => {
@@ -1420,7 +1440,7 @@ const seedTests = [
                     }}
                     onMouseEnter={e => { e.currentTarget.style.background = '#22C55E'; e.currentTarget.style.color = '#fff'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#22C55E'; }}>
-                    View All 81 →
+                    View All 117 →
                   </button>
                 </div>
 
@@ -1479,7 +1499,7 @@ const seedTests = [
                                   </span>
                                 )}
                               </div>
-                              <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0F5DA8', margin: 0 }}>{pkg.name}</h3>
+                              <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0F5DA8', margin: 0, cursor: 'pointer' }} onClick={() => setSelectedTest(pkg)}>{pkg.name}</h3>
                               <p style={{ fontSize: 13, color: 'var(--text-light)', lineHeight: 1.5, marginTop: 6, marginBottom: 12 }}>{pkg.description}</p>
                               {/* Meta tags */}
                               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -1561,7 +1581,7 @@ const seedTests = [
                 }}>
                   <h3 style={{ color: '#fff', fontSize: 16, margin: 0 }}>Need a different test combination?</h3>
                   <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '6px 0 14px' }}>
-                    Browse all 81 health packages across 28 categories
+                    Browse all 117 health packages across 28 categories
                   </p>
                   <button onClick={() => navigate('/health-packages')}
                     style={{

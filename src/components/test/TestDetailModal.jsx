@@ -78,7 +78,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         <Section title="Test Details" icon={Flask}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Contains:</div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>1 Test</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>{isPackage ? (test.description?.match(/(\d+)\+?\s*(parameters|tests|params)/i)?.[0] || 'Multiple parameters') : '1 Test'}</div>
             <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Sample Type:</div>
             <div style={{ fontSize: 13, fontWeight: 600 }}>{data?.sampleType || 'Blood Sample'}</div>
             <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Home Collection:</div>
@@ -401,7 +401,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
               background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
               border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             }}>
-            Book This Test — ₹{test.offerPrice || test.price}
+            {isPackage ? 'Book This Package' : 'Book This Test'} — ₹{test.offerPrice || test.price}
           </button>
           <button onClick={onClose}
             style={{

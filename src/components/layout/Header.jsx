@@ -69,7 +69,7 @@ const navLinks = [
   { label: 'Health Packages', path: '/services', icon: Heartbeat },
   { label: 'Corporate Healthcare', path: '/services', icon: SuitcaseSimple },
   { label: 'Health Insurance', path: '/services', icon: Shield },
-  { label: 'Blog', path: '/book-appointment', icon: Globe },
+  { label: 'Blog', path: '/blog', icon: Globe },
   { label: 'Book Appointment', path: '/book-appointment', icon: Phone },
 ];
 

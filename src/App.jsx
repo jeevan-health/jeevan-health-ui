@@ -28,6 +28,7 @@ import WellnessHub from './pages/WellnessHub';
 import FoodDiary from './pages/FoodDiary';
 import HealthPackages from './pages/HealthPackages';
 import PackageDetail from './pages/PackageDetail';
+import BookAppointment from './pages/BookAppointment';
 import './data/initGlobals'; // initialize __packagesByAxis when __allTests is ready
 
 function ProtectedRoute({ children }) {
@@ -68,7 +69,8 @@ export default function App() {
           <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/my-test-orders" element={<ProtectedRoute><MyTestOrders /></ProtectedRoute>} />
           <Route path="/test-results/:orderId" element={<ProtectedRoute><TestResults /></ProtectedRoute>} />
-          <Route path="/book-appointment" element={<Contact />} />
+          <Route path="/book-appointment" element={<BookAppointment />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/wellness" element={<WellnessHub />} />
           <Route path="/food-diary" element={<ProtectedRoute><FoodDiary /></ProtectedRoute>} />
           <Route path="/health-packages" element={<HealthPackages />} />
