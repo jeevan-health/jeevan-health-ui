@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   House, StackSimple, Info, User, Pill, Flask, Phone,
   Stethoscope, Syringe, Heart, FirstAidKit, Baby, ChartBar,
   SuitcaseSimple, Monitor, Shield, Globe, Buildings, Users as UsersIcon,
-  Clock, CaretDown, List, X, Heartbeat, MagnifyingGlass,
+  Clock, CaretDown, List, X, Heartbeat,
   Envelope, Clipboard, Brain, Bone, WhatsappLogo, 
 } from '@phosphor-icons/react';
 
@@ -73,53 +73,11 @@ const navLinks = [
   { label: 'Book Appointment', path: '/book-appointment', icon: Phone },
 ];
 
-const searchSuggestions = [
-  { label: 'Full Body Checkup', type: 'Package', path: '/services' },
-  { label: 'Complete Blood Count (CBC)', type: 'Lab Test', path: '/diagnostics' },
-  { label: 'Lipid Profile', type: 'Lab Test', path: '/diagnostics' },
-  { label: 'General Medicine', type: 'Doctor Specialty', path: '/doctor-consultation' },
-  { label: 'Pediatrics', type: 'Doctor Specialty', path: '/doctor-consultation' },
-  { label: 'Cardiology', type: 'Doctor Specialty', path: '/doctor-consultation' },
-  { label: 'Paracetamol 500mg', type: 'Medicine', path: '/pharmacy' },
-  { label: 'Nursing Care', type: 'Service', path: '/services' },
-  { label: 'Physiotherapy', type: 'Service', path: '/services' },
-  { label: 'Vaccination', type: 'Service', path: '/services' },
-];
-
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const searchRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
-
-  const allSearchItems = [
-    ...navLinks.filter(l => l.path).map(l => ({ label: l.label, path: l.path, icon: l.icon })),
-    ...serviceGroups.flatMap(g => g.items),
-    ...searchSuggestions,
-  ];
-
-  const uniqueLabels = new Map();
-  allSearchItems.forEach(item => {
-    if (!uniqueLabels.has(item.label)) uniqueLabels.set(item.label, item);
-  });
-
-  const filteredResults = searchQuery.trim()
-    ? Array.from(uniqueLabels.values()).filter(item =>
-        item.label.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 8)
-    : searchSuggestions;
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (searchRef.current && !searchRef.current.contains(e.target)) setShowSearch(false);
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
 
   return (
     <>
@@ -189,49 +147,6 @@ export default function Header() {
           </button>
         </div>
       </header>
-
-      {/* Search Bar Row */}
-      <div className="search-bar-row">
-        <div className="search-bar-inner" ref={searchRef}>
-          <div className="search-bar-main">
-            <MagnifyingGlass size={22} weight="bold" style={{ color: '#0F5DA8', flexShrink: 0 }} />
-            <input type="text" placeholder="Search doctor, lab test, medicine, or health service…"
-              value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setShowSearch(true); }}
-              onFocus={() => setShowSearch(true)} className="search-input" />
-            {searchQuery && (
-              <button onClick={() => { setSearchQuery(''); setShowSearch(true); }} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', padding: 4 }}>
-                <X size={18} weight="bold" />
-              </button>
-            )}
-          </div>
-
-          {/* Search Suggestions Dropdown */}
-          {showSearch && (
-            <div className="search-dropdown">
-              {filteredResults.length > 0 ? (
-                filteredResults.map(item => (
-                  <Link key={item.label} to={item.path} onClick={() => { setSearchQuery(''); setShowSearch(false); }}
-                    className="search-result-item">
-                    {'icon' in item && item.icon ? (
-                      <item.icon size={18} style={{ color: '#0F5DA8', flexShrink: 0 }} />
-                    ) : (
-                      <MagnifyingGlass size={18} style={{ color: '#0F5DA8', flexShrink: 0 }} />
-                    )}
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</div>
-                      {'type' in item && <div style={{ fontSize: 11, color: '#888' }}>{item.type}</div>}
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div style={{ padding: '16px 20px', fontSize: 13, color: '#999', textAlign: 'center' }}>
-                  No results found for "{searchQuery}"
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Mobile Menu */}
       {mobileOpen && (
