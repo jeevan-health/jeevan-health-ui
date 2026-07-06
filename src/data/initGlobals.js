@@ -1,16 +1,10 @@
 import { getPackagesByAxis } from '../utils/packageGenerator';
+import { seedTests } from './seedData';
 
 export function ensureGlobals() {
   if (window.__packagesByAxis) return;
-  const tests = window.__allTests;
-  if (tests && tests.length > 0) {
-    window.__packagesByAxis = getPackagesByAxis(tests);
-  }
+  window.__allTests = seedTests;
+  window.__packagesByAxis = getPackagesByAxis(seedTests);
 }
 
-// Poll until Diagnostics sets __allTests or max 5s
-let attempts = 0;
-const t = setInterval(() => {
-  ensureGlobals();
-  if (window.__packagesByAxis || ++attempts > 50) clearInterval(t);
-}, 100);
+ensureGlobals();
