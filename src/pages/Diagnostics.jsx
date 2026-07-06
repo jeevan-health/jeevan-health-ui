@@ -1015,21 +1015,6 @@ const seedTests = [
             </div>
           )}
 
-          {/* Single toggle button in hero */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-            <button onClick={() => {
-              if (mode === 'packages') { setMode('tests'); setSearch(''); setCategory(''); }
-              else { setMode('packages'); setPackageSearch(''); packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-            }}
-              style={{
-                padding: '8px 22px', borderRadius: 20, fontSize: 13, fontWeight: 600,
-                background: 'rgba(255,255,255,0.15)', color: '#fff',
-                border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit',
-                transition: 'all 0.15s',
-              }}>
-              {mode === 'packages' ? 'View Diagnostic Tests' : 'View Health Packages'}
-            </button>
-          </div>
         </div>
       </div>
 
