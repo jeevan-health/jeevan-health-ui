@@ -607,12 +607,12 @@ export default function Diagnostics() {
             <button onClick={() => setShowCart(!showCart)} style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
               {showCart ? 'Hide' : 'View'} Cart
             </button>
-            {cart.length > 0 && (
-              <button onClick={() => (setShowForm(true), setBookingStep(1))}
-                style={{ padding: '5px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', marginLeft: 'auto' }}>
-                Book Tests
-              </button>
-            )}
+{cart.length > 0 && (
+  <button onClick={() => { setShowForm(true); setBookingStep(1); }}
+    style={{ padding: '5px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', marginLeft: 'auto' }}>
+    Book Tests
+  </button>
+)}
           </div>
 
           {/* Cart dropdown */}
@@ -1054,12 +1054,12 @@ export default function Diagnostics() {
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => setBookingStep(1)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>Back</button>
-                    <button onClick={() => { if (bookedFor || patientInfo.name.trim()) setBookingStep(3); }} style={{ flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 700, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Continue</button>
-                  </div>
-                </>
-              )}
+<button onClick={() => setBookingStep(3)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 12, fontWeight: 700, background: '#0F5DA8', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Continue</button>
+              </div>
+            </>
+          )}
 
-              {bookingStep === 3 && (
+          {bookingStep === 3 && (
                 <>
                   <h3 style={{ fontSize: 14, marginBottom: 2 }}>Schedule Home Collection</h3>
                   <p style={{ fontSize: 11, color: '#e65100', fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1183,7 +1183,7 @@ export default function Diagnostics() {
           <div style={{ fontSize: 11, color: 'var(--text-light)' }}>{cart.length} test{cart.length !== 1 ? 's' : ''} selected</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#e53935' }}>₹{cartTotal}</div>
         </div>
-        <button onClick={() => cart.length > 0 ? (setShowForm(true), setBookingStep(1)) : document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' })}
+        <button onClick={() => { if (cart.length > 0) { setShowForm(true); setBookingStep(1); } else { document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' }); } }}
           style={{
             padding: '10px 28px', borderRadius: 10, fontSize: 13, fontWeight: 700,
             background: cart.length > 0 ? '#FF3B30' : '#0F5DA8', color: '#fff', border: 'none',
