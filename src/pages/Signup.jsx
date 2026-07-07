@@ -1,93 +1,81 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Envelope, Phone, ArrowRight, CaretLeft } from '@phosphor-icons/react';
-import api from '../services/api';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import useAuthStore from '../stores/authStore';
 
 export default function Signup() {
-  const [identifier, setIdentifier] = useState('');
-  const [method, setMethod] = useState('phone');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { verifyOtp } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleSendOtp = async (e) => {
+  async function handleSendOtp(e) {
     e.preventDefault();
+    if (phone.length !== 10) { setError('Enter a valid 10-digit phone number'); return; }
     setError('');
     setLoading(true);
-    try {
-      await api.post('/auth/send-otp', { identifier, type: method });
-      navigate('/verify-otp', { state: { identifier, type: method } });
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP');
-    } finally {
-      setLoading(false);
-    }
-  };
+    await new Promise(r => setTimeout(r, 800));
+    setLoading(false);
+    setStep(2);
+  }
+
+  async function handleVerify(e) {
+    e.preventDefault();
+    if (otp.length < 4) { setError('Enter the OTP'); return; }
+    setError('');
+    setLoading(true);
+    const ok = await verifyOtp(phone, otp);
+    setLoading(false);
+    if (ok) navigate('/dashboard');
+    else setError('Invalid OTP. Try again.');
+  }
 
   return (
-    <div className="min-h-screen px-6 py-12" style={{ background: 'linear-gradient(180deg, #ecfeff 0%, #ffffff 100%)' }}>
-      <div className="flex flex-col min-h-full max-w-sm mx-auto">
-        <button onClick={() => navigate('/onboarding')} className="flex items-center gap-1.5 text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-          <CaretLeft size={16} /> Back
-        </button>
-
-        <div className="mb-8">
-          <h1 className="section-title mb-2">Get Started</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Enter your phone number or email to receive an OTP
-          </p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-body)', padding: 16 }}>
+      <div className="card" style={{ maxWidth: 400, width: '100%', padding: 32 }}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ fontSize: 36, marginBottom: 8 }}>🏥</div>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>Welcome to Jeevan HealthCare</h1>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>Login to book tests and manage your health</p>
         </div>
 
-        <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
-          {/* Method toggle */}
-          <div className="flex gap-2 p-1 rounded-xl" style={{ background: 'var(--cyan-100)' }}>
-            {[
-              { value: 'phone', label: 'Phone', icon: Phone },
-              { value: 'email', label: 'Email', icon: Envelope },
-            ].map(({ value, label, icon: Icon }) => (
-              <button key={value} type="button" onClick={() => { setMethod(value); setIdentifier(''); setError(''); }}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                style={{
-                  background: method === value ? '#fff' : 'transparent',
-                  color: method === value ? 'var(--primary)' : 'var(--text-secondary)',
-                  boxShadow: method === value ? 'var(--shadow)' : 'none',
-                }}>
-                <Icon size={16} className="inline mr-1.5" /> {label}
-              </button>
-            ))}
-          </div>
+        {error && <div style={{ padding: '10px 14px', background: '#fee2e2', color: '#dc2626', borderRadius: 8, fontSize: 12, marginBottom: 12 }}>{error}</div>}
 
-          <div>
-            <label>{method === 'phone' ? 'Phone Number' : 'Email Address'}</label>
-            <div className="input flex items-center p-0 overflow-hidden">
-              <span className="px-3" style={{ color: 'var(--text-muted)' }}>
-                {method === 'phone' ? <Phone size={18} /> : <Envelope size={18} />}
-              </span>
-              <input type={method === 'phone' ? 'tel' : 'email'}
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder={method === 'phone' ? '+91 98765 43210' : 'you@example.com'}
-                className="flex-1 py-3.5 pr-4 outline-none border-none bg-transparent text-base"
-                required
-                style={{ color: 'var(--text)' }} />
+        {step === 1 ? (
+          <form onSubmit={handleSendOtp}>
+            <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>Phone Number</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span style={{ padding: '10px 0', fontSize: 14, color: 'var(--text-secondary)' }}>+91</span>
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="Enter your phone number" className="input" required />
             </div>
-          </div>
+            <button type="submit" className="btn btn-primary btn-block btn-lg mt-4" disabled={loading}>
+              {loading ? 'Sending OTP...' : 'Send OTP'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerify}>
+            <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>Enter OTP</label>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>OTP sent to +91 {phone}</p>
+            <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="Enter OTP" className="input" required />
+            <button type="submit" className="btn btn-primary btn-block btn-lg mt-4" disabled={loading}>
+              {loading ? 'Verifying...' : 'Verify & Login'}
+            </button>
+            <button type="button" onClick={() => setStep(1)} style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: 12, width: '100%', textAlign: 'center' }}>
+              Change phone number
+            </button>
+          </form>
+        )}
 
-          {error && <p className="text-sm font-medium" style={{ color: 'var(--red-500)' }}>{error}</p>}
-
-          <button type="submit" disabled={loading || !identifier} className="btn btn-primary w-full">
-            {loading ? 'Sending...' : 'Send OTP'}
-            <ArrowRight size={20} weight="bold" />
-          </button>
-        </form>
-
-        <p className="text-sm text-center mt-6" style={{ color: 'var(--text-secondary)' }}>
-          Already have an account?{' '}
-          <button onClick={() => navigate('/verify-otp', { state: { identifier: '', type: 'phone' } })}
-            className="font-semibold" style={{ color: 'var(--primary)' }}>
-            Sign In
-          </button>
+        <p style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 16 }}>
+          By continuing, you agree to our Terms & Privacy Policy
         </p>
+        <div style={{ textAlign: 'center', marginTop: 8 }}>
+          <Link to="/" style={{ fontSize: 12, color: 'var(--primary)' }}>← Back to Home</Link>
+        </div>
       </div>
     </div>
   );
