@@ -163,9 +163,9 @@ export default function Dashboard() {
       <main className="dash-main">
 
         {/* ===== HEADER ===== */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700 }}>
+        <div className="dash-header-wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
+          <div className="dash-header-left" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
               {p.name.charAt(0)}
             </div>
             <div>
@@ -174,15 +174,15 @@ export default function Dashboard() {
               <p style={{ fontSize: 12, color: 'var(--text-light)' }}>Last Health Check: <strong>{p.lastCheckup}</strong></p>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="dash-header-right" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div className="dash-score-ring" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <HealthScoreRing score={p.healthScore} />
               <div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Health Score</div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: p.healthScore >= 80 ? '#16a34a' : '#eab308' }}>{p.healthScore}/100</div>
+                <div className="dash-score-text" style={{ fontSize: 22, fontWeight: 800, color: p.healthScore >= 80 ? '#16a34a' : '#eab308' }}>{p.healthScore}/100</div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="dash-actions" style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">📋 Book a Test</button>
               <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline btn-sm">📤 Upload Prescription</button>
             </div>
@@ -196,7 +196,7 @@ export default function Dashboard() {
 
         {/* ===== OVERVIEW CARDS ===== */}
         {activeSection === 'overview' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
+          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
             {[
               { icon: '📅', label: 'Upcoming Bookings', value: upcoming.length, color: '#2563eb', bg: '#dbeafe' },
               { icon: '🧪', label: 'Reports Available', value: reports.length, color: '#16a34a', bg: '#dcfce7' },
@@ -330,7 +330,7 @@ export default function Dashboard() {
 
         {/* ===== FAMILY MEMBERS ===== */}
         <Section id="family" title="Family Members" icon="👨‍👩‍👧‍👦" active={activeSection}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
+          <div className="dash-family-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
             {family.map(m => (
               <div key={m.id} className="card" style={{ cursor: 'pointer' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
@@ -503,7 +503,7 @@ export default function Dashboard() {
         {/* ===== HEALTH TRENDS & SCORE (shown in overview) ===== */}
         {activeSection === 'overview' && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12, marginBottom: 24 }}>
+            <div className="dash-section-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12, marginBottom: 24 }}>
               {/* Health Trends */}
               <div className="card">
                 <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -518,7 +518,7 @@ export default function Dashboard() {
                         {' '}{store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value}%
                       </span>
                     </div>
-                    <TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" />
+                    <div className="dash-trend-svg"><TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" /></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-light)', marginTop: 2 }}>
                       {store.healthTrends.hba1c.map((h, i) => (
                         <span key={i}>{h.date}</span>
@@ -560,7 +560,7 @@ export default function Dashboard() {
             </div>
 
             {/* Notifications + Prescriptions + Recommendations */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 24 }}>
+            <div className="dash-section-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 24 }}>
               {/* Notifications */}
               <div className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -659,12 +659,37 @@ export default function Dashboard() {
 
       </main>
 
-      {/* Mobile bottom spacer */}
       <style>{`
         @media (max-width: 768px) {
           .dash-sidebar { display: none !important; }
           .dash-mobile-nav { display: block !important; }
-          .dash-main { padding: 16px 12px; padding-bottom: 80px; }
+          .dash-main { padding: 12px 10px !important; padding-bottom: 80px !important; }
+          .dash-main h1 { font-size: 17px !important; }
+          .dash-main .dash-header-wrap { flex-direction: column !important; align-items: stretch !important; }
+          .dash-main .dash-header-left { width: 100% !important; }
+          .dash-main .dash-header-right { width: 100% !important; justify-content: space-between !important; }
+          .dash-main .dash-score-ring svg { width: 56px !important; height: 56px !important; }
+          .dash-main .dash-score-text { font-size: 16px !important; }
+          .dash-main .dash-actions { flex-direction: row !important; }
+          .dash-main .dash-actions button { flex: 1 !important; font-size: 11px !important; padding: 8px 12px !important; white-space: nowrap !important; }
+          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .dash-main .overview-grid > div { padding: 14px 10px !important; }
+          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 22px !important; }
+          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 20px !important; }
+          .dash-main .card { padding: 14px !important; border-radius: 16px !important; }
+          .dash-main .card h2, .dash-main .card h3 { font-size: 13px !important; }
+          .dash-mobile-nav button { padding: 8px 8px !important; font-size: 11px !important; gap: 4px !important; }
+          .dash-mobile-nav button span:last-child { font-size: 10px !important; }
+          .dash-section-grid-2 { grid-template-columns: 1fr !important; }
+          .dash-trend-svg svg { width: 100% !important; height: auto !important; }
+          .dash-family-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .dash-main .dash-score-ring { display: none !important; }
+          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .dash-main .dash-actions { flex-direction: column !important; }
+          .dash-main .dash-header-right { flex-direction: column !important; align-items: stretch !important; gap: 8px !important; }
+          .dash-family-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
