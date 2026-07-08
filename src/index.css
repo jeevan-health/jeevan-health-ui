@@ -280,3 +280,6 @@ img { max-width: 100%; height: auto; }
 .stats-glass-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important; border-color: rgba(255,255,255,0.3) !important; }
 
 .stats-counter { transition: all 0.3s; }
+
+.hl-cat-card:hover { border-color: var(--primary) !important; box-shadow: 0 4px 16px rgba(15,93,168,0.1); transform: translateY(-2px); }
+.hl-cat-card:hover span:last-child { color: var(--primary) !important; }

@@ -28,6 +28,7 @@ export default function Home() {
       <HowItWorks />
       <StatsSection />
       <Testimonials />
+      <HealthLibrarySection />
       <FaqSection />
     </div>
   );
@@ -597,6 +598,52 @@ function StatsSection() {
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
             <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HealthLibrarySection() {
+  const categories = [
+    { icon: '🧪', label: 'Tests A-Z', desc: '500+ diagnostic tests with normal ranges & preparation guides', color: '#0F5DA8' },
+    { icon: '🦠', label: 'Diseases', desc: 'Diabetes, thyroid, heart disease & more health conditions', color: '#dc2626' },
+    { icon: '🤒', label: 'Symptom Checker', desc: 'Check symptoms & find recommended diagnostic tests', color: '#7c3aed' },
+    { icon: '📝', label: 'Health Blogs', desc: 'Expert articles on preventive care, nutrition & wellness', color: '#16a34a' },
+    { icon: '📋', label: 'Preparation Guides', desc: 'Fasting rules, medication guidance & test-day tips', color: '#e65100' },
+    { icon: '📊', label: 'Normal Values', desc: 'Reference ranges for all lab tests by age & gender', color: '#0891b2' },
+  ];
+  return (
+    <div className="page-section" style={{ background: '#fff', borderBottom: '1px solid var(--border)' }}>
+      <div className="container">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 4 }}>
+          <span style={{ fontSize: 22 }}>🩺</span>
+          <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>Jeevan Health Library</h2>
+        </div>
+        <p className="section-subtitle text-center">Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
+        <div style={{ display: 'flex', maxWidth: 540, margin: '0 auto 20px', border: '2px solid var(--primary)', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
+          <input type="text" placeholder="🔍 Search health topics, tests, symptoms, diseases..." style={{ flex: 1, border: 'none', padding: '10px 14px', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
+          <Link to="/health-library" style={{ padding: '10px 18px', background: 'var(--primary)', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>Search</Link>
+        </div>
+        <div className="grid-3" style={{ gap: 12 }}>
+          {categories.map(c => (
+            <Link key={c.label} to="/health-library" style={{ textDecoration: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#f8f9fa', borderRadius: 14, border: '1px solid #e8edf2', transition: 'all 0.2s' }}
+                className="hl-cat-card">
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
+                  {c.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{c.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{c.desc}</div>
+                </div>
+                <span style={{ color: '#ccc', fontSize: 16 }}>→</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 20 }}>
+          <Link to="/health-library" className="btn btn-primary btn-lg" style={{ fontSize: 13, padding: '10px 28px' }}>🔵 Explore Health Library</Link>
         </div>
       </div>
     </div>
