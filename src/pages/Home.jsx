@@ -53,7 +53,12 @@ function HeroSection() {
           <input type="text" placeholder="Search for a test (e.g., CBC, HbA1c, Thyroid)..." />
           <Link to="/diagnostics"><button>🔍 Search</button></Link>
         </div>
-        <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link to="/upload-prescription" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+            📄 Upload Prescription
+          </Link>
+        </div>
+        <div style={{ marginTop: 8, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link to="/diagnostics" className="btn btn-primary btn-lg">Book a Test</Link>
           <Link to="/services" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.5)' }}>View Packages</Link>
         </div>
