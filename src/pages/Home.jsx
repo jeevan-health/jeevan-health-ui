@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
 import { getPackagesByAxis } from '../utils/packageGenerator';
+import SmartSearch from '../components/layout/SmartSearch';
 
 const faqs = [
   { q: 'How do I book a test?', a: 'Simply search for the test you need, select a convenient time slot, and our phlebotomist will visit your home for sample collection.' },
@@ -66,9 +67,8 @@ function HeroSection() {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
             <Link to="/services" className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>📦 Book Health Package</Link>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, background: '#fff', borderRadius: 10, padding: '4px 4px 4px 16px', maxWidth: 480 }}>
-            <input type="text" placeholder="Search Tests..." style={{ flex: 1, border: 'none', background: 'transparent', padding: '8px 0', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
-            <Link to="/diagnostics" style={{ padding: '8px 18px', background: '#0B5DA8', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>🔍 Search</Link>
+          <div style={{ marginBottom: 20, maxWidth: 480 }}>
+            <SmartSearch placeholder="🔍 Search tests, symptoms, diseases..." />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: 'flex', gap: 2 }}>
