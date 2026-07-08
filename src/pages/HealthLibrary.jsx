@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SmartSearch from '../components/layout/SmartSearch';
 
 const tests = [
   { letter: 'A', items: ['AFP Test', 'Allergy Test', 'Amylase Test'] },
@@ -43,9 +44,8 @@ export default function HealthLibrary() {
       <div style={{ background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', padding: '36px 16px', textAlign: 'center', color: '#fff' }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🩺 Jeevan Health Library</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto 16px' }}>Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
-        <div style={{ display: 'flex', maxWidth: 500, margin: '0 auto', border: '2px solid rgba(255,255,255,0.3)', borderRadius: 10, overflow: 'hidden', background: '#fff' }}>
-          <input type="text" placeholder="🔍 Search health topics, tests, symptoms..." style={{ flex: 1, border: 'none', padding: '10px 14px', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
-          <button style={{ padding: '10px 18px', background: '#FF3B30', color: '#fff', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Search</button>
+        <div style={{ maxWidth: 500, margin: '0 auto' }}>
+          <SmartSearch placeholder="🔍 Search health topics, tests, symptoms..." />
         </div>
       </div>
 

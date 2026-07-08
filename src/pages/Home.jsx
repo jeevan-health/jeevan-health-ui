@@ -621,9 +621,8 @@ function HealthLibrarySection() {
           <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>Jeevan Health Library</h2>
         </div>
         <p className="section-subtitle text-center">Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
-        <div style={{ display: 'flex', maxWidth: 540, margin: '0 auto 20px', border: '2px solid var(--primary)', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
-          <input type="text" placeholder="🔍 Search health topics, tests, symptoms, diseases..." style={{ flex: 1, border: 'none', padding: '10px 14px', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
-          <Link to="/health-library" style={{ padding: '10px 18px', background: 'var(--primary)', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>Search</Link>
+        <div style={{ maxWidth: 540, margin: '0 auto 20px' }}>
+          <SmartSearch placeholder="🔍 Search health topics, tests, symptoms, diseases..." />
         </div>
         <div className="grid-3" style={{ gap: 12 }}>
           {categories.map(c => (

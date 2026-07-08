@@ -2,6 +2,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
+import SmartSearch from '../components/layout/SmartSearch';
 
 const CATS = [...new Set(seedTests.map(t => t.category))].filter(Boolean);
 
@@ -33,9 +34,11 @@ export default function Diagnostics() {
       <div style={{ background: 'var(--bg-light)', borderBottom: '1px solid var(--border)', padding: '20px 0', position: 'sticky', top: 'var(--header-height)', zIndex: 50 }}>
         <div className="container">
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input type="text" placeholder="Search tests..." value={search}
-              onChange={e => { setSearch(e.target.value); setParams(e.target.value ? { q: e.target.value } : {}); }}
-              className="input" style={{ flex: 1, minWidth: 200 }} />
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <SmartSearch placeholder="🔍 Search tests..." value={search}
+                onChange={v => { setSearch(v); setParams(v ? { q: v } : {}); }}
+                onSubmit={v => { setSearch(v); setParams(v ? { q: v } : {}); }} />
+            </div>
             <select value={category} onChange={e => setCategory(e.target.value)} className="select" style={{ width: 'auto', minWidth: 140 }}>
               <option value="">All Categories</option>
               {CATS.map(c => <option key={c} value={c}>{c}</option>)}

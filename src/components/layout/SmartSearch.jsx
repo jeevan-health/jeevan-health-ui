@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { searchTests, getPopularSearches } from '../../utils/searchIntelligence';
 
-export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms, diseases...', onSearch, autoFocus }) {
-  const [query, setQuery] = useState('');
+export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms, diseases...', onSearch, autoFocus, value: externalValue, onChange: externalOnChange, onSubmit: externalOnSubmit }) {
+  const isControlled = externalValue !== undefined;
+  const [internalQuery, setInternalQuery] = useState('');
+  const query = isControlled ? externalValue : internalQuery;
+  const setQuery = isControlled ? externalOnChange || (() => {}) : setInternalQuery;
   const [results, setResults] = useState([]);
   const [popular, setPopular] = useState([]);
   const [focusIndex, setFocusIndex] = useState(-1);
@@ -28,13 +31,19 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
   }, []);
 
   const select = useCallback((slug) => {
-    setOpen(false); setQuery('');
+    setOpen(false);
+    if (!isControlled) setInternalQuery('');
     if (onSearch) onSearch(slug);
     else navigate(`/test/${slug}`);
-  }, [navigate, onSearch]);
+  }, [navigate, onSearch, isControlled]);
 
   const handleKey = (e) => {
     const items = [...results.map(r => r.test?.slug || r.symptom), ...popular.map(p => p)];
+    if (e.key === 'Enter' && focusIndex < 0) {
+      if (externalOnSubmit) externalOnSubmit(query);
+      else if (query.trim()) navigate(`/diagnostics?q=${encodeURIComponent(query.trim())}`);
+      return;
+    }
     if (!items.length) return;
     if (e.key === 'ArrowDown') { e.preventDefault(); setFocusIndex(i => Math.min(i + 1, items.length - 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusIndex(i => Math.max(i - 1, -1)); }
@@ -45,17 +54,22 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
     }
   };
 
+  const handleChange = (val) => {
+    if (isControlled && externalOnChange) externalOnChange(val);
+    else if (!isControlled) setInternalQuery(val);
+  };
+
   const slugify = (name) => name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
 
   return (
     <div ref={ref} style={{ position: 'relative', width: '100%' }}>
       <div style={{ display: 'flex', border: '2px solid #d0d5dd', borderRadius: 10, overflow: 'hidden', background: '#fff', transition: 'border-color 0.2s' }}>
         <span style={{ padding: '8px 0 8px 12px', fontSize: 14, color: '#999' }}>🔍</span>
-        <input type="text" value={query} onChange={e => setQuery(e.target.value)}
+        <input type="text" value={query} onChange={e => handleChange(e.target.value)}
           onKeyDown={handleKey} onFocus={() => query.trim() && setOpen(true)} autoFocus={autoFocus}
           placeholder={placeholder}
           style={{ flex: 1, border: 'none', padding: '9px 8px', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
-        {query && <button onClick={() => { setQuery(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
+        {query && <button onClick={() => { handleChange(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
       </div>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #e8edf2', zIndex: 9999, maxHeight: 420, overflow: 'auto' }}>
