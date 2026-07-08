@@ -269,4 +269,14 @@ img { max-width: 100%; height: auto; }
   .how-cta h3, .testimonials-cta h3 { font-size: 15px !important; }
   .how-cta .btn, .testimonials-cta .btn { width: 100%; }
   .journey-banner { font-size: 10px !important; }
+  .stats-glass-card { padding: 18px 12px !important; }
+  .stats-counter { font-size: 24px !important; }
 }
+@media (max-width: 768px) {
+  .stats-glass-card { padding: 20px 14px !important; }
+}
+
+.stats-glass-card { transition: transform 0.3s, box-shadow 0.3s; }
+.stats-glass-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important; border-color: rgba(255,255,255,0.3) !important; }
+
+.stats-counter { transition: all 0.3s; }

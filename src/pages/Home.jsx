@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
@@ -26,6 +26,7 @@ export default function Home() {
       <PackagesSection pkgs={pkgs} />
       <WhyChooseJeevan />
       <HowItWorks />
+      <StatsSection />
       <Testimonials />
       <FaqSection />
     </div>
@@ -513,6 +514,85 @@ function Testimonials() {
 
         <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, color: '#fff' }}>
           <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Join Thousands of Families Who Trust Jeevan Healthcare</h3>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatsSection() {
+  const stats = [
+    { icon: '👨‍👩‍👧', value: 100000, suffix: '+', label: 'Patients Served', desc: 'Trusted by over one lakh patients for diagnostics and healthcare services.' },
+    { icon: '🧪', value: 5000, suffix: '+', label: 'Tests Available', desc: 'Wide range of diagnostic tests covering preventive and specialized healthcare needs.' },
+    { icon: '📦', value: 150, suffix: '+', label: 'Health Packages', desc: 'Customized health checkup packages for individuals, families, and corporates.' },
+    { icon: '❤️', value: 98, suffix: '%', label: 'Satisfied Patients', desc: 'High patient satisfaction through quality service and reliable healthcare support.' },
+    { icon: '🏆', value: 15, suffix: '+', label: 'Years of Healthcare Experience', desc: 'Years of dedicated service delivering trusted healthcare solutions.' },
+    { icon: '🏢', value: 100, suffix: '+', label: 'Corporate Clients', desc: 'Supporting organizations with employee health checkups and wellness programs.' },
+  ];
+  const [visible, setVisible] = useState(false);
+  const [counts, setCounts] = useState(stats.map(() => 0));
+  const ref = useRef();
+  const badges = ['NABL Certified Labs', 'Trained Healthcare Professionals', 'Secure Digital Reports', 'Home Collection Available', 'Doctor Support Available'];
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const durations = [2000, 1500, 1200, 1000, 1000, 1200];
+    const startTimes = stats.map(() => Date.now());
+    const initial = stats.map(() => 0);
+    const raf = () => {
+      const now = Date.now();
+      const next = stats.map((s, i) => {
+        const elapsed = now - startTimes[i];
+        const progress = Math.min(elapsed / durations[i], 1);
+        return Math.round(progress * s.value);
+      });
+      setCounts(next);
+      if (next.some((c, i) => c < stats[i].value)) requestAnimationFrame(raf);
+    };
+    requestAnimationFrame(raf);
+  }, [visible]);
+
+  return (
+    <div className="page-section" style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1a73e8 50%, #E8F4FD 100%)', position: 'relative', overflow: 'hidden' }}>
+      <div ref={ref} className="container" style={{ position: 'relative', zIndex: 1 }}>
+        <h2 className="section-title text-center" style={{ color: '#fff' }}>Trusted Healthcare Partner for Thousands of Families</h2>
+        <p className="section-subtitle text-center" style={{ color: 'rgba(255,255,255,0.8)' }}>Delivering reliable diagnostics and healthcare services with quality, convenience, and compassion.</p>
+        <div className="grid-3" style={{ gap: 14, marginTop: 20 }}>
+          {stats.map((s, i) => (
+            <div key={s.label} className="stats-glass-card" style={{
+              background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', borderRadius: 20, padding: '22px 16px', textAlign: 'center',
+              border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+            }}>
+              <div style={{ fontSize: 36, marginBottom: 8, lineHeight: 1 }}>{s.icon}</div>
+              <div className="stats-counter" style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 4 }}>
+                {counts[i].toLocaleString()}{s.suffix}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#FFD54F', marginBottom: 6 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 20, marginBottom: 24 }}>
+          {badges.map(b => (
+            <span key={b} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: 20 }}>
+              <span style={{ color: '#22C55E', fontSize: 12 }}>✓</span> {b}
+            </span>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', padding: '22px', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 10 }}>Experience Trusted Healthcare at Your Doorstep</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
             <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
