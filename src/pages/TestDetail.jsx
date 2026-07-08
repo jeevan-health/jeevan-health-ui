@@ -1,12 +1,14 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
-  CaretLeft, Flask, CheckCircle, Clock, MapPin, Phone, WhatsappLogo,
-  FileText, Heartbeat, Warning, Shield, User, Sparkle, ShoppingCart,
-  Plus, Minus, Star, ArrowRight, X, CaretDown, Coin, CreditCard,
+  CaretLeft, Flask, CheckCircle, Clock, Phone, WhatsappLogo,
+  FileText, Heartbeat, Star, ArrowRight, CaretDown,
+  Plus, Minus, Sparkle, User,
 } from '@phosphor-icons/react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
 import { seedTests } from '../data/seedData';
+import useCartStore from '../stores/cartStore';
+import { getRelatedTests, getRelatedDiseases, getRelatedPackages } from '../utils/testRecommendations';
 
 function Section({ icon: Icon, title, children, open, onToggle }) {
   return (
@@ -52,9 +54,10 @@ export default function TestDetail() {
   const [test, setTest] = useState(null);
   const [education, setEducation] = useState(null);
   const [openSections, setOpenSections] = useState({});
-  const [cart, setCart] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('jeevan_cart') || '[]'); } catch { return []; }
-  });
+  const [addedRecs, setAddedRecs] = useState([]);
+  const cartItems = useCartStore(s => s.items);
+  const addItem = useCartStore(s => s.addItem);
+  const removeItem = useCartStore(s => s.removeItem);
 
   useEffect(() => {
     const found = getTestBySlug(slug);
@@ -64,28 +67,23 @@ export default function TestDetail() {
     }
   }, [slug]);
 
-  const addToCart = () => {
+  const inCart = test && cartItems.some(i => i.id === test.id || i.name === test.name);
+  const related = test ? getRelatedTests(test.name) : [];
+  const diseases = test ? getRelatedDiseases(test.name) : [];
+  const packages = test ? getRelatedPackages(test.name, seedTests) : [];
+
+  const toggleCart = () => {
     if (!test) return;
-    setCart(prev => {
-      if (prev.find(i => i.id === test.id || i.name === test.name)) return prev;
-      const updated = [...prev, { ...test, qty: 1 }];
-      localStorage.setItem('jeevan_cart', JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-      return updated;
-    });
+    if (inCart) removeItem(test.id, 'test');
+    else addItem({ id: test.id, name: test.name, price: test.price || test.mrp, offerPrice: test.offerPrice, type: 'test' });
   };
 
-  const removeFromCart = () => {
-    if (!test) return;
-    setCart(prev => {
-      const updated = prev.filter(i => i.id !== test.id && i.name !== test.name);
-      localStorage.setItem('jeevan_cart', JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-      return updated;
-    });
+  const addRelated = (t) => {
+    addItem({ id: t.id, name: t.name, price: t.price || t.mrp, offerPrice: t.offerPrice, type: 'test' });
+    setAddedRecs(prev => [...prev, t.id]);
   };
 
-  const inCart = test && cart.some(i => i.id === test.id || i.name === test.name);
+  const slugify = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   if (!test || !education) {
     return (
@@ -350,6 +348,73 @@ export default function TestDetail() {
           </div>
         </Section>
 
+        {/* AI RECOMMENDATIONS */}
+        {related.length > 0 && (
+          <div style={{ background: 'linear-gradient(135deg, #F5FAFF, #fff)', borderRadius: 16, border: '1px solid #e0e8f0', padding: 16, marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+              <Sparkle size={16} color="#0F5DA8" weight="fill" />
+              <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>🩺 Recommended by Jeevan Health Assistant</h3>
+            </div>
+            <p style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
+              Based on the test you're viewing, these related tests are commonly ordered together. Consult a doctor for personalized recommendations.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {related.slice(0, 5).map(r => {
+                const t = seedTests.find(s => s.name === r.name);
+                if (!t) return null;
+                const added = addedRecs.includes(t.id) || cartItems.some(i => i.id === t.id);
+                const stars = '⭐'.repeat(r.priority - 2);
+                return (
+                  <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🧪</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 1 }}>{t.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>
+                        {stars} {r.reason}
+                      </div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#0F5DA8', marginTop: 2 }}>₹{t.offerPrice || t.price}</div>
+                    </div>
+                    <button onClick={() => addRelated(t)} disabled={added}
+                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: added ? '#dcfce7' : '#0F5DA8', color: added ? '#166534' : '#fff', border: 'none', cursor: added ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                      {added ? '✓ Added' : '+ Add Test'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {diseases.length > 0 && (
+              <div style={{ marginTop: 12, padding: '10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', marginBottom: 6 }}>🦠 This test helps evaluate:</div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {diseases.map(d => (
+                    <span key={d} style={{ fontSize: 10, background: '#FEF2F2', color: '#dc2626', padding: '2px 8px', borderRadius: 6, fontWeight: 500 }}>{d}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {packages.length > 0 && (
+              <div style={{ marginTop: 10, background: '#FFF8E1', borderRadius: 10, padding: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#E65100', marginBottom: 6 }}>📦 Recommended Packages</div>
+                {packages.map(p => (
+                  <Link key={p.name} to={`/package/${slugify(p.name)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>⭐ {p.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.testCount} Tests · ₹{p.bundlePrice}</div>
+                    </div>
+                    <span style={{ fontSize: 10, color: '#E65100', fontWeight: 600 }}>View →</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            <Link to="/contact" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 10, padding: '8px', background: '#EEF2FF', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#0F5DA8', textDecoration: 'none' }}>
+              <User size={14} /> Not sure? Consult a Doctor for personalized recommendations
+            </Link>
+          </div>
+        )}
+
         {/* RELATED TESTS */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -357,7 +422,7 @@ export default function TestDetail() {
           </h3>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
             {seedTests.filter(t => t.category === test.category && t.id !== test.id).slice(0, 8).map(t => (
-              <Link key={t.id} to={`/test/${t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+              <Link key={t.id} to={`/test/${slugify(t.name)}`}
                 style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 500, background: '#f8f9fa', border: '1px solid #e8edf2', color: 'var(--text-dark)', textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Flask size={12} color="#0F5DA8" /> {t.name.length > 28 ? t.name.slice(0, 28) + '...' : t.name}
               </Link>
@@ -381,7 +446,7 @@ export default function TestDetail() {
         <button onClick={() => navigate('/diagnostics')} style={{ padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, background: '#f0f0f0', color: 'var(--text-dark)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
           All Tests
         </button>
-        <button onClick={inCart ? removeFromCart : addToCart} style={{ padding: '9px 20px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: inCart ? '#fee2e2' : '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4, boxShadow: inCart ? 'none' : '0 4px 14px rgba(255,59,48,0.3)' }}>
+        <button onClick={toggleCart} style={{ padding: '9px 20px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: inCart ? '#fee2e2' : '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4, boxShadow: inCart ? 'none' : '0 4px 14px rgba(255,59,48,0.3)' }}>
           {inCart ? <><Minus size={14} /> Remove</> : <><Plus size={14} /> Add to Cart</>}
         </button>
       </div>

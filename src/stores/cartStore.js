@@ -4,6 +4,9 @@ const useCartStore = create((set, get) => ({
   items: JSON.parse(localStorage.getItem('jh_cart') || '[]'),
   coupon: null,
   discount: 0,
+  cartOpen: false,
+
+  setCartOpen: (v) => set({ cartOpen: v }),
 
   addItem: (item) => {
     const exists = get().items.find(i => i.id === item.id && i.type === item.type);

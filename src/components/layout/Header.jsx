@@ -7,8 +7,9 @@ import SmartSearch from './SmartSearch';
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const count = useCartStore(s => s.getCount());
+  const setCartOpen = useCartStore(s => s.setCartOpen);
 
   return (
     <header className="site-header" style={{ position: 'sticky', top: 0, zIndex: 1000, background: '#fff', borderBottom: '1px solid var(--border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
@@ -35,7 +36,7 @@ export default function Header() {
         </a>
 
         <div className="hdr-right" style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <button className="hdr-btn hdr-cart" style={{ position: 'relative', padding: '6px 10px', fontSize: 13, border: '1px solid var(--border)', borderRadius: 8, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
+          <button onClick={() => setCartOpen(true)} className="hdr-btn hdr-cart" style={{ position: 'relative', padding: '6px 10px', fontSize: 13, border: '1px solid var(--border)', borderRadius: 8, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
             🛒
             {count > 0 && <span style={{ background: 'var(--primary)', color: '#fff', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10, lineHeight: '16px', marginLeft: 2 }}>{count > 9 ? '9+' : count}</span>}
           </button>
