@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 50" fill="none">
+  <!-- Icon -->
+  <rect x="0" y="5" width="40" height="40" rx="8" fill="#0B5DA8"/>
+  <path d="M20 13v24M8 25h24" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="20" cy="25" r="14" stroke="white" stroke-width="1.2" fill="none" opacity="0.25"/>
+  <!-- Text -->
+  <text x="50" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#1a1a1a">Jeevan</text>
+  <text x="50" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="500" fill="#0B5DA8">HealthCare</text>
+  <!-- at Home tag -->
+  <rect x="128" y="20" rx="4" width="48" height="20" fill="#E8F5E9"/>
+  <text x="152" y="34" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" fill="#2E7D32" text-anchor="middle">at Home</text>
+</svg>
