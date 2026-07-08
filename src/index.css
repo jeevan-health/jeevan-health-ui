@@ -193,6 +193,8 @@ img { max-width: 100%; height: auto; }
   .page-content { padding-bottom: 80px; }
   .hero h1 { font-size: 24px; }
   .hero p { font-size: 13px; }
+  .hero .container { grid-template-columns: 1fr !important; }
+  .hero .container > div:last-child { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
   .dash-layout { flex-direction: column; }
   .dash-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding: 0; display: flex; overflow-x: auto; }
   .dash-sidebar a { white-space: nowrap; padding: 10px 14px; font-size: 12px; }

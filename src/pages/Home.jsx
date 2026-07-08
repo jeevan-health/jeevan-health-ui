@@ -44,23 +44,70 @@ export default function Home() {
 }
 
 function HeroSection() {
+  const stats = [
+    { label: '5000+ Tests', icon: '🔬' },
+    { label: 'Free Home Collection', icon: '🚚' },
+    { label: 'NABL Certified Labs', icon: '🏥' },
+    { label: 'Reports in 24 Hours', icon: '⏱️' },
+  ];
   return (
-    <div className="hero">
-      <div className="container">
-        <h1>Your Health, Our Priority</h1>
-        <p>Book diagnostic tests from home. Free sample collection by trained phlebotomists. NABL certified labs. Reports delivered digitally.</p>
-        <div className="hero-search">
-          <input type="text" placeholder="Search for a test (e.g., CBC, HbA1c, Thyroid)..." />
-          <Link to="/diagnostics"><button>🔍 Search</button></Link>
+    <div className="hero" style={{ background: 'linear-gradient(135deg, #0B5DA8 0%, #1565C0 50%, #1a73e8 100%)', padding: '40px 16px 48px', overflow: 'hidden' }}>
+      <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
+        <div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+            {stats.map(s => (
+              <span key={s.label} style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {s.icon} {s.label}
+              </span>
+            ))}
+          </div>
+          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.15, margin: '0 0 6px', letterSpacing: -0.5 }}>
+            Book Lab Tests <br /><span style={{ color: '#FFD54F' }}>At Home</span>
+          </h1>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.6, maxWidth: 480 }}>
+            India's most trusted diagnostics platform. Free sample collection by trained phlebotomists.
+            NABL certified labs. Accurate digital reports delivered to your doorstep.
+          </p>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+            <Link to="/diagnostics" className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>Book Lab Tests</Link>
+            <Link to="/upload-prescription" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>📄 Upload Prescription</Link>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+            <Link to="/services" className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>📦 Book Health Package</Link>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, background: '#fff', borderRadius: 10, padding: '4px 4px 4px 16px', maxWidth: 480 }}>
+            <input type="text" placeholder="Search Tests..." style={{ flex: 1, border: 'none', background: 'transparent', padding: '8px 0', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
+            <Link to="/diagnostics" style={{ padding: '8px 18px', background: '#0B5DA8', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>🔍 Search</Link>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 2 }}>
+              {[1,2,3,4,5].map(i => <span key={i} style={{ fontSize: 16, color: '#FFD54F' }}>★</span>)}
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>4.9</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>50,000+ Happy Patients</span>
+          </div>
         </div>
-        <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/upload-prescription" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
-            📄 Upload Prescription
-          </Link>
-        </div>
-        <div style={{ marginTop: 8, display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/diagnostics" className="btn btn-primary btn-lg">Book a Test</Link>
-          <Link to="/services" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.5)' }}>View Packages</Link>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ fontSize: 48, marginBottom: 6 }}>👨‍👩‍👧‍👦</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Family</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Full Family Care</div>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ fontSize: 48, marginBottom: 6 }}>👨‍⚕️</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Doctor</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Expert Guidance</div>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ fontSize: 48, marginBottom: 6 }}>🩺</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Phlebotomist</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Home Collection</div>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
+            <div style={{ fontSize: 48, marginBottom: 6 }}>👴</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Senior Citizen</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Elderly Care</div>
+          </div>
         </div>
       </div>
     </div>
