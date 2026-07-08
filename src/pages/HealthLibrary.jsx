@@ -41,7 +41,7 @@ const symptoms = [
 export default function HealthLibrary() {
   return (
     <div>
-      <div style={{ background: 'linear-gradient(135deg, #1866C9, #00D9FF)', padding: '36px 16px', textAlign: 'center', color: '#fff' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', padding: '36px 16px', textAlign: 'center', color: '#fff' }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🩺 Jeevan Health Library</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto 16px' }}>Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
         <div style={{ maxWidth: 500, margin: '0 auto' }}>
@@ -99,7 +99,7 @@ export default function HealthLibrary() {
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', padding: '28px 16px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff' }}>
+      <div style={{ textAlign: 'center', padding: '28px 16px', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff' }}>
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Need Help Finding the Right Test?</h3>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginBottom: 14, maxWidth: 400, margin: '0 auto 14px' }}>Upload your prescription or consult with our health advisors for personalized recommendations.</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>

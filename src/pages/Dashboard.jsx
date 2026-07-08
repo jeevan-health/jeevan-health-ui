@@ -165,7 +165,7 @@ export default function Dashboard() {
         {/* ===== HEADER ===== */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700 }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700 }}>
               {p.name.charAt(0)}
             </div>
             <div>
@@ -334,7 +334,7 @@ export default function Dashboard() {
             {family.map(m => (
               <div key={m.id} className="card" style={{ cursor: 'pointer' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: m.relation === 'Self' ? 'linear-gradient(135deg, #1866C9, #00D9FF)' : '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: m.relation === 'Self' ? '#fff' : '#64748b' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: m.relation === 'Self' ? 'linear-gradient(135deg, #1866C9, #0F4A96)' : '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: m.relation === 'Self' ? '#fff' : '#64748b' }}>
                     {m.relation === 'Self' ? '👤' : m.gender === 'Female' ? '👩' : m.gender === 'Male' ? '👦' : '👤'}
                   </div>
                   <div>
@@ -449,7 +449,7 @@ export default function Dashboard() {
         {/* ===== HEALTH WALLET ===== */}
         <Section id="wallet" title="Health Wallet" icon="💳" active={activeSection}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
-            <div className="card" style={{ background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff', border: 'none' }}>
+            <div className="card" style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', border: 'none' }}>
               <div style={{ fontSize: 13, opacity: 0.85 }}>Wallet Balance</div>
               <div style={{ fontSize: 32, fontWeight: 800, margin: '4px 0' }}>₹{wallet.balance}</div>
               <div style={{ fontSize: 12, opacity: 0.75 }}>Use for test bookings & health services</div>

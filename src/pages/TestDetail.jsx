@@ -112,7 +112,7 @@ export default function TestDetail() {
         </button>
 
         {/* FULL TEST NAME + ABBREVIATION + ALTERNATE NAMES */}
-        <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 16 }}>
+        <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 100%)', borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span style={{ background: '#FFD54F', color: '#1866C9', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>INDIVIDUAL TEST</span>
             {test.fasting_required && <span style={{ background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: 6, fontSize: 10 }}>Fasting Required</span>}

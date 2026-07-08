@@ -76,7 +76,7 @@ export default function FloatingActions() {
         ))}
 
         <button onClick={() => setExpanded(e => !e)} className="fab-main-btn" style={{
-          width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff', border: 'none',
+          width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', border: 'none',
           boxShadow: '0 4px 16px rgba(24, 102, 201,0.35)', cursor: 'pointer', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'transform 0.2s', fontFamily: 'inherit',
         }}>

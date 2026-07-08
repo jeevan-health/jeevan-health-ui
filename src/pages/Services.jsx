@@ -105,7 +105,7 @@ export default function Services() {
   return (
     <div style={{ paddingBottom: 80 }}>
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+      <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: '0 0 8px', letterSpacing: -0.5 }}>
             Complete Healthcare at Your Doorstep

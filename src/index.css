@@ -56,7 +56,7 @@
   --shadow-cyan: 0 4px 14px rgba(0, 217, 255, 0.35);
 
   /* Spacing */
-  --card-padding: 30px;
+  --card-padding: 24px;
   --section-gap: 24px;
 
   /* Layout */
@@ -78,7 +78,7 @@ img { max-width: 100%; height: auto; }
 
 .btn { padding: 10px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(24, 102, 201, 0.3); }
-.btn-primary:hover { background: var(--brand-primary); color: var(--text-dark); box-shadow: var(--shadow-cyan); transform: translateY(-2px); }
+.btn-primary:hover { background: var(--brand-primary); color: #fff; box-shadow: var(--shadow-cyan); transform: translateY(-2px); }
 .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
 .btn-outline:hover { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateY(-2px); }
 .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 12px; }
@@ -200,7 +200,7 @@ img { max-width: 100%; height: auto; }
 .feature-card .icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 22px; }
 
 /* Section titles */
-.section-title { font-size: 32px; font-weight: 700; margin-bottom: 4px; color: var(--text-dark); letter-spacing: -0.02em; }
+.section-title { font-size: 28px; font-weight: 700; margin-bottom: 4px; color: var(--text-dark); letter-spacing: -0.02em; }
 .section-subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 24px; }
 
 /* Floating WhatsApp */

@@ -190,7 +190,7 @@ function PopularTests({ popular }) {
             return (
               <div key={t.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <Link to={`/test/${slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                  <div style={{ background: `linear-gradient(135deg, #1866C9, #00D9FF)`, padding: '20px 16px', position: 'relative' }}>
+                  <div style={{ background: `linear-gradient(135deg, #1866C9, #0F4A96)`, padding: '20px 16px', position: 'relative' }}>
                     {badge && <span style={{ position: 'absolute', top: 8, left: 8, background: badgeColors[badge], color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badge}</span>}
                     <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>🔬 {t.category}</span>
                     <div style={{ fontSize: 36, textAlign: 'center' }}>{icon}</div>
@@ -270,7 +270,7 @@ function CategoriesSection() {
 
 function PackagesSection({ pkgs }) {
   const gradients = [
-    'linear-gradient(135deg, #1866C9, #00D9FF)',
+    'linear-gradient(135deg, #1866C9, #0F4A96)',
     'linear-gradient(135deg, #16a34a, #22c55e)',
     'linear-gradient(135deg, #7c3aed, #a855f7)',
     'linear-gradient(135deg, #dc2626, #ef4444)',
@@ -359,7 +359,7 @@ function HowItWorks() {
           <div className="timeline-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, position: 'relative', zIndex: 1 }}>
             {steps.map((s, i) => (
               <div key={s.title} className="timeline-step" style={{ textAlign: 'center' }}>
-                <div className="timeline-dot" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(24, 102, 201,0.25)', position: 'relative', zIndex: 2 }}>
+                <div className="timeline-dot" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(24, 102, 201,0.25)', position: 'relative', zIndex: 2 }}>
                   {s.icon}
                 </div>
                 <div className="timeline-card" style={{ background: '#fff', borderRadius: 16, padding: '14px 10px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
@@ -486,7 +486,7 @@ function Testimonials() {
 
         <div className="videos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
           {videos.map(v => (
-            <div key={v.name} style={{ background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, padding: '20px 16px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s' }}
+            <div key={v.name} style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', borderRadius: 16, padding: '20px 16px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s' }}
               className="video-card">
               <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, fontSize: 18 }}>▶</div>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{v.title}</div>
