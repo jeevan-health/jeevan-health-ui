@@ -118,15 +118,15 @@ function PackagesSection({ pkgs }) {
       <h2 className="section-title">Health Packages</h2>
       <p className="section-subtitle">Comprehensive health checkup packages</p>
       <div className="grid-4">
-        {pkgs.map(p => (
+        {pkgs.filter(Boolean).map(p => (
           <Link key={p.name} to={`/package/${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="card" style={{ textDecoration: 'none' }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{p.axis} Package</div>
             <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{p.name}</h3>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{p.tests.length} tests included</p>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{p.testCount} tests included</p>
             <div className="footer">
               <div>
-                <span className="price">₹{p.offerPrice || p.price}</span>
-                {(p.offerPrice && p.offerPrice < p.price) && <span className="mrp">₹{p.price}</span>}
+                <span className="price">₹{p.bundlePrice}</span>
+                {p.totalMrp > p.bundlePrice && <span className="mrp">₹{p.totalMrp}</span>}
               </div>
             </div>
           </Link>
