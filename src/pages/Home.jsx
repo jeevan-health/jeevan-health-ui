@@ -33,6 +33,7 @@ export default function Home() {
   return (
     <div>
       <HeroSection />
+      <TrustStrip />
       <FeaturesSection />
       <PopularTests popular={popular} />
       <PackagesSection pkgs={pkgs} />
@@ -109,6 +110,24 @@ function HeroSection() {
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Elderly Care</div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function TrustStrip() {
+  const items = [
+    'NABL Certified', 'Free Home Collection', 'Same Day Collection',
+    'Secure Payment', 'Doctor Support', 'Digital Reports', '24x7 Support',
+  ];
+  return (
+    <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '12px 0' }}>
+      <div className="container" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+        {items.map(item => (
+          <span key={item} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', padding: '4px 10px', background: '#f0fdf4', borderRadius: 6 }}>
+            <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 11 }}>✔</span> {item}
+          </span>
+        ))}
       </div>
     </div>
   );
