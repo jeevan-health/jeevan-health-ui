@@ -246,20 +246,27 @@ img { max-width: 100%; height: auto; }
   .trust-feature-card > div:first-child { font-size: 36px !important; }
 }
 
-@media (max-width: 900px) {
-  .timeline-grid { grid-template-columns: repeat(3, 1fr) !important; }
-  .timeline-line { display: none; }
-}
-@media (max-width: 520px) {
-  .timeline-grid { grid-template-columns: 1fr !important; max-width: 320px; margin: 0 auto; }
-  .timeline-step + .timeline-step { margin-top: 0; }
-  .timeline-card { min-height: auto !important; }
-  .how-cta h3 { font-size: 15px !important; }
-  .how-cta .btn { width: 100%; }
-  .journey-banner { font-size: 10px !important; }
-}
-
 .timeline-step { transition: transform 0.2s; }
 .timeline-step:hover { transform: translateY(-4px); }
 .timeline-step:hover .timeline-card { border-color: #20B7F5; box-shadow: 0 6px 20px rgba(15,93,168,0.1); }
 .timeline-step:hover .timeline-dot { box-shadow: 0 6px 16px rgba(15,93,168,0.35); }
+
+.video-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(15,93,168,0.3) !important; }
+.video-card:hover > div:first-child { background: rgba(255,255,255,0.3) !important; }
+
+@media (max-width: 900px) {
+  .timeline-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .timeline-line { display: none; }
+}
+@media (max-width: 768px) {
+  .testimonials-layout { grid-template-columns: 1fr !important; }
+  .videos-grid { grid-template-columns: 1fr !important; }
+  .stories-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 520px) {
+  .timeline-grid { grid-template-columns: 1fr !important; max-width: 320px; margin: 0 auto; }
+  .timeline-card { min-height: auto !important; }
+  .how-cta h3, .testimonials-cta h3 { font-size: 15px !important; }
+  .how-cta .btn, .testimonials-cta .btn { width: 100%; }
+  .journey-banner { font-size: 10px !important; }
+}

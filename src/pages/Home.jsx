@@ -1,14 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
 import { getPackagesByAxis } from '../utils/packageGenerator';
-
-const testimonials = [
-  { name: 'Priya Sharma', text: 'Excellent service! The phlebotomist was on time and very professional. Reports came within 24 hours.', rating: 5 },
-  { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare for all my family health checkups. Great prices and reliable reports.', rating: 5 },
-  { name: 'Anita Desai', text: 'The home collection service is a lifesaver for my elderly parents. So convenient and safe.', rating: 5 },
-];
 
 const faqs = [
   { q: 'How do I book a test?', a: 'Simply search for the test you need, select a convenient time slot, and our phlebotomist will visit your home for sample collection.' },
@@ -396,18 +390,134 @@ function HowItWorks() {
 }
 
 function Testimonials() {
+  const reviews = [
+    { name: 'Priya Sharma', text: 'Excellent home collection service. The phlebotomist was on time and very professional. Reports came within 24 hours.', rating: 5, tag: '🩸 Blood Test at Home', img: '👩' },
+    { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare for all my family health checkups. Great prices and reliable reports every time.', rating: 5, tag: '👨‍👩‍👧 Full Body Checkup', img: '👨' },
+    { name: 'Anita Desai', text: 'The home collection service is a lifesaver for my elderly parents. So convenient and safe. Highly recommend!', rating: 5, tag: '👵 Senior Care Package', img: '👵' },
+    { name: 'Vikram Singh', text: 'Corporate health camp was well organised. All employees got their reports on time with detailed analysis.', rating: 5, tag: '🏢 Corporate Health Camp', img: '👨‍💼' },
+    { name: 'Sneha Patel', text: 'The doctor consultation after my reports helped me understand my health better. Truly comprehensive care.', rating: 5, tag: '👨‍⚕️ Doctor Consultation', img: '👩‍⚕️' },
+  ];
+
+  const videos = [
+    { title: 'My Jeevan Experience', name: 'Meera Joshi', location: 'Mumbai', topic: 'Home Sample Collection' },
+    { title: 'Care for My Parents', name: 'Arun Kapoor', location: 'Delhi', topic: 'Elderly Care Experience' },
+    { title: 'Corporate Wellness', name: 'Neha Gupta', location: 'Pune', topic: 'Corporate Health Camp' },
+  ];
+
+  const stories = [
+    { icon: '🩸', title: 'Diabetes Management Journey', before: 'High sugar levels (HbA1c 8.5)', after: 'Regular testing + doctor guidance', result: 'Better health monitoring (HbA1c 6.8)', color: '#dc2626' },
+    { icon: '👴', title: 'Senior Citizen Care Story', before: '80-yr-old with limited mobility', after: 'Home diagnostics support', result: 'Regular monitoring, family peace of mind', color: '#0F5DA8' },
+  ];
+
+  const photos = [
+    { emoji: '👩', label: 'Patient' },
+    { emoji: '👴', label: 'Senior Care' },
+    { emoji: '👨‍👩‍👧', label: 'Family' },
+    { emoji: '🏠', label: 'Home Collection' },
+  ];
+
+  const [activeReview, setActiveReview] = useState(0);
+  const next = useCallback(() => setActiveReview(i => (i + 1) % reviews.length), [reviews.length]);
+  useEffect(() => { const t = setInterval(next, 4000); return () => clearInterval(t); }, [next]);
+
   return (
-    <div className="page-section container">
-      <h2 className="section-title text-center">What Our Patients Say</h2>
-      <p className="section-subtitle text-center">Trusted by thousands of happy patients</p>
-      <div className="grid-3" style={{ marginTop: 16 }}>
-        {testimonials.map(t => (
-          <div key={t.name} className="card">
-            <div style={{ fontSize: 16, marginBottom: 4 }}>{'⭐'.repeat(t.rating)}</div>
-            <p style={{ fontSize: 13, fontStyle: 'italic', marginBottom: 12, lineHeight: 1.6 }}>"{t.text}"</p>
-            <p style={{ fontSize: 12, fontWeight: 600 }}>- {t.name}</p>
+    <div className="page-section" style={{ background: '#F5FAFF' }}>
+      <div className="container">
+        <h2 className="section-title text-center">❤️ Loved by Thousands of Happy Patients</h2>
+        <p className="section-subtitle text-center">Real experiences from patients who trusted Jeevan for their healthcare journey.</p>
+
+        <div className="grid-4" style={{ gap: 12, marginBottom: 24 }}>
+          {[
+            { label: '2,00,000+', sub: 'Home Collections' },
+            { label: '50,000+', sub: 'Happy Families' },
+            { label: '4.9 ⭐', sub: 'Google Rating' },
+            { label: '10+ Years', sub: 'Healthcare Experience' },
+          ].map(s => (
+            <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
+              <div className="stats-count" style={{ fontSize: 20, fontWeight: 800, color: '#0F5DA8', marginBottom: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="testimonials-layout" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 20, marginBottom: 24 }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: '24px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#0F5DA8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Google Rating</div>
+            <div style={{ fontSize: 36, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>4.9</div>
+            <div style={{ fontSize: 22, marginBottom: 8, letterSpacing: 4 }}>⭐⭐⭐⭐⭐</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12 }}>Based on <strong style={{ color: '#1a1a1a' }}>500+ Reviews</strong></div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#0F5DA8', marginBottom: 14 }}>
+              <span>✅</span> Verified Patients
+            </div>
+            <div style={{ width: 32, height: 32, margin: '0 auto', background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 700 }}>G</div>
           </div>
-        ))}
+
+          <div style={{ background: '#fff', borderRadius: 20, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 20 }}>{reviews[activeReview].img}</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{reviews[activeReview].name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{reviews[activeReview].tag}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 14, letterSpacing: 2 }}>{'⭐'.repeat(reviews[activeReview].rating)}</div>
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.7, color: '#1a1a1a', fontStyle: 'italic', marginBottom: 14 }}>"{reviews[activeReview].text}"</p>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+              {reviews.map((_, i) => (
+                <button key={i} onClick={() => setActiveReview(i)} style={{ width: i === activeReview ? 24 : 8, height: 8, borderRadius: 4, border: 'none', background: i === activeReview ? '#0F5DA8' : '#d0d5dd', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>📸 Patient Moments</h3>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+          {photos.map(p => (
+            <div key={p.emoji} style={{ flex: 1, minWidth: 100, background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
+              <div style={{ fontSize: 36, marginBottom: 4 }}>{p.emoji}</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)' }}>{p.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="videos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+          {videos.map(v => (
+            <div key={v.name} style={{ background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, padding: '20px 16px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s' }}
+              className="video-card">
+              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, fontSize: 18 }}>▶</div>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{v.title}</div>
+              <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>{v.name}, {v.location}</div>
+              <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, marginTop: 4 }}>{v.topic}</div>
+            </div>
+          ))}
+        </div>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>🏆 Success Stories</h3>
+        <div className="stories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 24 }}>
+          {stories.map(s => (
+            <div key={s.title} style={{ background: '#fff', borderRadius: 16, padding: '18px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2', borderLeft: `4px solid ${s.color}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 24 }}>{s.icon}</span>
+                <h4 style={{ fontSize: 13, fontWeight: 700 }}>{s.title}</h4>
+              </div>
+              <div style={{ fontSize: 11, lineHeight: 1.8 }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#dc2626' }}>⬤</span> Before: {s.before}</div>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#20B7F5' }}>⬤</span> Process: {s.after}</div>
+                <div style={{ display: 'flex', gap: 6 }}><span style={{ color: '#16a34a' }}>⬤</span> Result: {s.result}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, color: '#fff' }}>
+          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Join Thousands of Families Who Trust Jeevan Healthcare</h3>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+          </div>
+        </div>
       </div>
     </div>
   );
