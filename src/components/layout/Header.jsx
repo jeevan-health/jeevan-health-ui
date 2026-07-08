@@ -43,7 +43,7 @@ export default function Header() {
       <header className="site-header">
         <div className="header-inner">
           <Link to="/" className="header-logo">
-            <img src="/logo.svg" alt="Jeevan HealthCare" width="150" height="38" style={{ display: 'block' }} />
+            <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 38, display: 'block' }} />
           </Link>
           <nav>
             <ul className="nav-list">
