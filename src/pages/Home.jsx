@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
 import { getPackagesByAxis } from '../utils/packageGenerator';
 
@@ -27,7 +28,9 @@ export default function Home() {
       <TrustStrip />
       <QuickActions />
       <PopularTests popular={popular} />
+      <CategoriesSection />
       <PackagesSection pkgs={pkgs} />
+      <WhyChooseJeevan />
       <HowItWorks />
       <Testimonials />
       <FaqSection />
@@ -62,7 +65,7 @@ function HeroSection() {
           </p>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             <Link to="/diagnostics" className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>Book Lab Tests</Link>
-            <Link to="/upload-prescription" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>📄 Upload Prescription</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
             <Link to="/services" className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>📦 Book Health Package</Link>
@@ -128,7 +131,7 @@ function QuickActions() {
   const actions = [
     { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#0B5DA8' },
     { icon: '📦', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#16a34a' },
-    { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', path: '/upload-prescription', color: '#dc2626' },
+    { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', color: '#dc2626' },
     { icon: '👨‍⚕️', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/contact', color: '#7c3aed' },
     { icon: '💊', label: 'Medicine Delivery', desc: 'Medicines delivered to your doorstep', path: '/contact', color: '#e65100' },
     { icon: '🏠', label: 'Home Nursing', desc: 'Trained nurses at home', path: '/contact', color: '#0891b2' },
@@ -137,26 +140,30 @@ function QuickActions() {
     <div className="page-section" style={{ background: '#f8f9fa' }}>
       <div className="container">
         <div className="grid-3" style={{ gap: 14 }}>
-          {actions.map(a => (
-            <Link key={a.label} to={a.path}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',
-                background: '#fff', borderRadius: 14, textDecoration: 'none',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #e8edf2',
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.boxShadow = `0 4px 16px ${a.color}20`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'none'; }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: `${a.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
-                {a.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{a.label}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.desc}</div>
-              </div>
-              <span style={{ color: '#ccc', fontSize: 18 }}>→</span>
-            </Link>
-          ))}
+          {actions.map(a => {
+            const Tag = a.path ? Link : 'button';
+            const extraProps = a.path ? { to: a.path } : { onClick: () => useUploadModal.getState().setOpen(true), type: 'button' };
+            return (
+              <Tag key={a.label} {...extraProps}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',
+                  background: '#fff', borderRadius: 14, textDecoration: 'none',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #e8edf2',
+                  transition: 'all 0.15s', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', textAlign: 'left', width: '100%',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.boxShadow = `0 4px 16px ${a.color}20`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'none'; }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: `${a.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
+                  {a.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{a.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.desc}</div>
+                </div>
+                <span style={{ color: '#ccc', fontSize: 18 }}>→</span>
+              </Tag>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -164,59 +171,166 @@ function QuickActions() {
 }
 
 function PopularTests({ popular }) {
+  const catIcons = { Hematology: '🩸', Diabetes: '🩸', Thyroid: '🦋', Cardiac: '❤️', Vitamins: '💊', Fever: '🌡️', 'Full Body': '🧬', Anemia: '🩸', Hormones: '🧪', Arthritis: '🦴', Pregnancy: '🤰', Cancer: '🎗️', STD: '🔬', Allergy: '🤧', Liver: '🫁' };
+  const badges = ['Trending', 'Most Booked', 'Recommended', 'Trending', 'Most Booked', 'Recommended', 'Trending', 'Most Booked'];
+  const badgeColors = { Trending: '#dc2626', 'Most Booked': '#16a34a', Recommended: '#7c3aed' };
   return (
-    <div className="page-section" style={{ background: 'var(--bg-light)' }}>
+    <div className="page-section" style={{ background: '#f8f9fa' }}>
       <div className="container">
-        <h2 className="section-title">Popular Tests</h2>
-        <p className="section-subtitle">Most booked diagnostic tests</p>
-        <div className="grid-4">
-          {popular.map(t => (
-            <Link key={t.id} to={`/test/${t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="test-card">
-              <div>
-                <h3>{t.name}</h3>
-                <div className="cat">{t.category}</div>
-                <div className="desc">{t.description}</div>
-              </div>
-              <div className="footer">
-                <div>
-                  <span className="price">₹{t.offerPrice || t.price}</span>
-                  {t.offerPrice && <span className="mrp">₹{t.price}</span>}
-                </div>
-                <span className="badge badge-green">Free Home Collection</span>
-              </div>
-            </Link>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+          <div>
+            <h2 className="section-title" style={{ margin: 0 }}>Popular Tests</h2>
+            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>Most booked diagnostic tests</p>
+          </div>
+          <Link to="/diagnostics" className="btn btn-outline" style={{ fontSize: 12 }}>View All Tests →</Link>
         </div>
-        <div className="text-center mt-4">
-          <Link to="/diagnostics" className="btn btn-outline">View All Tests →</Link>
+        <div className="grid-4" style={{ gap: 14 }}>
+          {popular.map((t, i) => {
+            const slug = t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            const mrp = t.mrp || Math.round(t.price * 2.2);
+            const offerPrice = t.offerPrice || t.price;
+            const icon = catIcons[t.category] || '🔬';
+            const badge = badges[i];
+            return (
+              <div key={t.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <Link to={`/test/${slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <div style={{ background: `linear-gradient(135deg, #0B5DA8, #1a73e8)`, padding: '20px 16px', position: 'relative' }}>
+                    {badge && <span style={{ position: 'absolute', top: 8, left: 8, background: badgeColors[badge], color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badge}</span>}
+                    <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>🔬 {t.category}</span>
+                    <div style={{ fontSize: 36, textAlign: 'center' }}>{icon}</div>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: '#fff', textAlign: 'center', margin: '6px 0 0' }}>{t.name}</h3>
+                  </div>
+                </Link>
+                <div style={{ padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: '#dc2626' }}>₹{offerPrice}</span>
+                    {offerPrice < mrp && <span style={{ fontSize: 12, color: '#aaa', textDecoration: 'line-through' }}>₹{mrp}</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#16a34a', background: '#f0fdf4', padding: '2px 8px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3 }}>🚚 Free Home Collection</span>
+                    {t.report_time && <span style={{ fontSize: 10, color: 'var(--text-secondary)', background: '#f5f6fa', padding: '2px 8px', borderRadius: 4 }}>⏱️ {t.report_time}</span>}
+                  </div>
+                  {t.preparation_instructions && (
+                    <p style={{ fontSize: 10, color: '#999', marginBottom: 10, lineHeight: 1.4 }}>
+                      📋 {t.preparation_instructions.length > 60 ? t.preparation_instructions.slice(0, 60) + '...' : t.preparation_instructions}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Link to={`/test/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '7px 0', background: '#0B5DA8', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
+                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>Compare</button>
+                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>+ Add</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-function PackagesSection({ pkgs }) {
+function CategoriesSection() {
+  const cats = [
+    { icon: '🩸', label: 'Diabetes', cat: 'Diabetes' },
+    { icon: '❤️', label: 'Heart', cat: 'Cardiac' },
+    { icon: '🫘', label: 'Kidney', cat: 'Full Body' },
+    { icon: '🫁', label: 'Liver', cat: 'Liver' },
+    { icon: '💊', label: 'Vitamin', cat: 'Vitamins' },
+    { icon: '🧪', label: 'Hormones', cat: 'Hormones' },
+    { icon: '🩸', label: 'Anemia', cat: 'Anemia' },
+    { icon: '🦴', label: 'Arthritis', cat: 'Arthritis' },
+    { icon: '🤰', label: 'Pregnancy', cat: 'Pregnancy' },
+    { icon: '🎗️', label: 'Cancer Screening', cat: 'Cancer' },
+    { icon: '🤧', label: 'Allergy', cat: 'Allergy' },
+    { icon: '🌡️', label: 'Fever', cat: 'Fever' },
+    { icon: '🦠', label: 'Infection', cat: 'STD' },
+    { icon: '🦋', label: 'Thyroid', cat: 'Thyroid' },
+    { icon: '🧬', label: 'Full Body', cat: 'Full Body' },
+  ];
   return (
     <div className="page-section container">
-      <h2 className="section-title">Health Packages</h2>
-      <p className="section-subtitle">Comprehensive health checkup packages</p>
-      <div className="grid-4">
-        {pkgs.filter(Boolean).map(p => (
-          <Link key={p.name} to={`/package/${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="card" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{p.axis} Package</div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{p.name}</h3>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{p.testCount} tests included</p>
-            <div className="footer">
-              <div>
-                <span className="price">₹{p.bundlePrice}</span>
-                {p.totalMrp > p.bundlePrice && <span className="mrp">₹{p.totalMrp}</span>}
-              </div>
-            </div>
+      <h2 className="section-title">Browse by Category</h2>
+      <p className="section-subtitle">Find the right test by health concern</p>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
+        {cats.map(c => (
+          <Link key={c.cat} to={`/diagnostics?cat=${c.cat}`}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+              padding: '14px 16px', borderRadius: 12, textDecoration: 'none',
+              background: '#fff', border: '1px solid #e8edf2', minWidth: 90,
+              transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#0B5DA8'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(11,93,168,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
+            <span style={{ fontSize: 28 }}>{c.icon}</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'center', lineHeight: 1.2 }}>{c.label}</span>
           </Link>
         ))}
       </div>
-      <div className="text-center mt-4">
-        <Link to="/services" className="btn btn-outline">View All Packages →</Link>
+    </div>
+  );
+}
+
+function PackagesSection({ pkgs }) {
+  const gradients = [
+    'linear-gradient(135deg, #0B5DA8, #1a73e8)',
+    'linear-gradient(135deg, #16a34a, #22c55e)',
+    'linear-gradient(135deg, #7c3aed, #a855f7)',
+    'linear-gradient(135deg, #dc2626, #ef4444)',
+  ];
+  const badges = ['Most Booked', 'Top Rated', 'Best Value', 'Popular'];
+  return (
+    <div className="page-section" style={{ background: '#f8f9fa' }}>
+      <div className="container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+          <div>
+            <h2 className="section-title" style={{ margin: 0 }}>Health Packages</h2>
+            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>Comprehensive health checkup packages</p>
+          </div>
+          <Link to="/services" className="btn btn-outline" style={{ fontSize: 12 }}>View All Packages →</Link>
+        </div>
+        <div className="grid-4" style={{ gap: 14 }}>
+          {pkgs.filter(Boolean).slice(0, 4).map((p, i) => {
+            const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            const discPct = Math.round((1 - p.bundlePrice / p.totalMrp) * 100);
+            return (
+              <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ background: gradients[i % gradients.length], padding: '16px 16px 20px', position: 'relative' }}>
+                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badges[i]}</span>
+                  <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct}% OFF</span>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.axis} Package</div>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.2 }}>{p.name}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>₹{p.bundlePrice}</span>
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'line-through' }}>₹{p.totalMrp}</span>
+                  </div>
+                </div>
+                <div style={{ padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    <span>📋 {p.testCount} Tests</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
+                    {[
+                      { icon: '🚚', label: 'Free Home Collection' },
+                      { icon: '👨‍⚕️', label: 'Doctor Consultation' },
+                      { icon: '⏱️', label: 'Report in 24 Hours' },
+                    ].map(f => (
+                      <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
+                        <span style={{ width: 14, textAlign: 'center' }}>{f.icon}</span>
+                        <span>{f.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Link to={`/package/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#0B5DA8', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
+                    <Link to={`/package/${slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>View Details</Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -224,25 +338,57 @@ function PackagesSection({ pkgs }) {
 
 function HowItWorks() {
   const steps = [
-    { icon: '🔍', title: 'Search Test', desc: 'Search for any diagnostic test or package' },
-    { icon: '📅', title: 'Book Slot', desc: 'Choose your preferred date & time' },
-    { icon: '🚚', title: 'Home Collection', desc: 'Phlebotomist visits your home for sample' },
-    { icon: '📊', title: 'Get Reports', desc: 'Digital reports delivered via WhatsApp/Email' },
+    { icon: '🛒', title: 'Book Your Test', desc: 'Search from 2000+ tests and health packages. Book instantly online or upload your prescription.', badge: 'Easy Online Booking', badge2: 'Prescription Upload' },
+    { icon: '📅', title: 'Choose Your Slot', desc: 'Select your preferred date and convenient home collection time.', badge: 'Flexible Time Slots', badge2: 'Same Day Availability' },
+    { icon: '🏠', title: 'Home Sample Collection', desc: 'Certified healthcare professionals collect samples safely at your doorstep.', badge: 'Hygienic Collection', badge2: 'Trained Phlebotomists' },
+    { icon: '🔬', title: 'Advanced Lab Testing', desc: 'Your samples are processed using advanced technology and quality-controlled laboratories.', badge: 'Quality Checked', badge2: 'Accurate Results' },
+    { icon: '📱', title: 'Get Digital Reports', desc: 'Receive your reports securely through WhatsApp, email, or patient dashboard.', badge: 'Anytime Access', badge2: 'Download & Share' },
+    { icon: '👨‍⚕️', title: 'Doctor Consultation', desc: 'Understand your results with expert medical guidance and follow-up recommendations.', badge: 'Expert Consultation', badge2: 'Health Guidance' },
   ];
   return (
-    <div className="page-section" style={{ background: 'var(--bg-light)' }}>
+    <div className="page-section" style={{ background: 'linear-gradient(180deg, #F5FAFF 0%, #ffffff 100%)', position: 'relative', overflow: 'hidden' }}>
+      <div className="how-bg-decoration" />
       <div className="container">
-        <h2 className="section-title text-center">How It Works</h2>
-        <p className="section-subtitle text-center">4 simple steps to get tested</p>
-        <div className="grid-4" style={{ marginTop: 16 }}>
-          {steps.map((s, i) => (
-            <div key={s.title} className="card text-center" style={{ padding: 20 }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>{s.icon}</div>
-              <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, margin: '0 auto 8px' }}>{i + 1}</div>
-              <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{s.title}</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.desc}</p>
-            </div>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 6 }}>
+          <span style={{ fontSize: 24 }}>🏥</span>
+          <h2 className="section-title" style={{ margin: 0, fontSize: 22 }}>How Jeevan Makes Healthcare Simple</h2>
+        </div>
+        <p className="section-subtitle text-center">From booking your test to receiving expert medical advice, we make your healthcare journey smooth, safe, and convenient.</p>
+        <div className="journey-banner" style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 24, padding: '8px 16px', background: 'rgba(15,93,168,0.06)', borderRadius: 30, fontSize: 11, fontWeight: 600, color: '#0F5DA8', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
+          <span>Book</span><span style={{ color: '#20B7F5' }}>→</span><span>Collect</span><span style={{ color: '#20B7F5' }}>→</span><span>Test</span><span style={{ color: '#20B7F5' }}>→</span><span>Report</span><span style={{ color: '#20B7F5' }}>→</span><span>Consult</span>
+          <span style={{ background: '#22C55E', color: '#fff', fontSize: 9, padding: '1px 8px', borderRadius: 10, marginLeft: 6 }}>Completed in 24-48 Hours</span>
+        </div>
+        <div className="timeline-wrapper" style={{ position: 'relative', paddingTop: 20 }}>
+          <div className="timeline-line" style={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 3, background: 'linear-gradient(90deg, #0F5DA8, #20B7F5, #0F5DA8)', borderRadius: 2, zIndex: 0 }} />
+          <div className="timeline-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, position: 'relative', zIndex: 1 }}>
+            {steps.map((s, i) => (
+              <div key={s.title} className="timeline-step" style={{ textAlign: 'center' }}>
+                <div className="timeline-dot" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(15,93,168,0.25)', position: 'relative', zIndex: 2 }}>
+                  {s.icon}
+                </div>
+                <div className="timeline-card" style={{ background: '#fff', borderRadius: 16, padding: '14px 10px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#0F5DA8', background: '#EEF2FF', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 6, alignSelf: 'center' }}>Step {String(i + 1).padStart(2, '0')}</div>
+                  <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 6, lineHeight: 1.2 }}>{s.title}</h3>
+                  <p style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10, flex: 1 }}>{s.desc}</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#16a34a', fontWeight: 600 }}>
+                      <span>✓</span> {s.badge}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#16a34a', fontWeight: 600 }}>
+                      <span>✓</span> {s.badge2}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, color: '#fff' }}>
+          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Ready to Start Your Health Check?</h3>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Test Now</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+          </div>
         </div>
       </div>
     </div>
@@ -280,6 +426,63 @@ function FaqSection() {
               <p style={{ padding: '0 16px 12px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{faq.a}</p>
             </details>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WhyChooseJeevan() {
+  const features = [
+    { icon: '🏅', title: 'NABL Certified Labs', desc: 'Advanced testing facilities following strict quality standards for accurate and reliable results.', badge: 'Quality Assured Reports' },
+    { icon: '🩺', title: 'Expert Phlebotomists', desc: 'Trained healthcare professionals ensuring safe, hygienic, and painless sample collection.', badge: 'Trained Professionals' },
+    { icon: '🏠', title: 'Convenient Home Collection', desc: 'Book lab tests from your home without waiting in queues or visiting diagnostic centers.', badge: 'Available 7 Days a Week' },
+    { icon: '💰', title: 'Affordable Pricing', desc: 'Transparent pricing with quality diagnostics at competitive rates. No hidden charges.', badge: 'No Hidden Charges' },
+    { icon: '📱', title: 'Digital Reports', desc: 'Receive secure reports online anytime through WhatsApp, email, or patient dashboard.', badge: 'Anytime Access' },
+    { icon: '👨‍⚕️', title: 'Doctor Consultation', desc: 'Get expert medical guidance and understand your health reports better.', badge: 'Expert Medical Support' },
+    { icon: '👨‍👩‍👧', title: 'Complete Family Care', desc: 'Manage healthcare needs for parents, children, and loved ones under one platform.', badge: 'Family Health Records' },
+    { icon: '🛡️', title: 'Safe & Hygienic Collection', desc: 'Strict safety protocols with sterile equipment and infection control practices.', badge: 'Safety First' },
+  ];
+  return (
+    <div className="page-section" style={{ background: '#F5FAFF' }}>
+      <div className="container">
+        <div className="grid-4" style={{ gap: 12, marginBottom: 20 }}>
+          {[
+            { label: '10+ Years', sub: 'Experience' },
+            { label: '2 Lakh+', sub: 'Home Collections' },
+            { label: '500+', sub: 'Corporate Clients' },
+            { label: '2000+', sub: 'Diagnostic Tests' },
+          ].map(s => (
+            <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '16px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#0F5DA8', marginBottom: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+        <h2 className="section-title text-center">Why Thousands of Families Trust Jeevan Healthcare</h2>
+        <p className="section-subtitle text-center">Reliable diagnostics, expert healthcare professionals, and convenient home healthcare services designed around your family's needs.</p>
+        <div className="grid-4" style={{ gap: 14, marginTop: 20 }}>
+          {features.map(f => (
+            <div key={f.title} className="trust-feature-card" style={{
+              background: '#fff', borderRadius: 20, padding: '24px 18px', textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid #e8edf2',
+              transition: 'all 0.2s',
+            }}>
+              <div style={{ fontSize: 48, marginBottom: 12, lineHeight: 1 }}>{f.icon}</div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: '#1a1a1a' }}>{f.title}</h3>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>{f.desc}</p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
+                ✔ {f.badge}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 20, color: '#fff' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Experience Trusted Healthcare at Your Doorstep</h3>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 28px', fontSize: 14 }}>🔵 Book Health Test Now</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 28px', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 ﻿import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
 
 const CATS = [...new Set(seedTests.map(t => t.category))].filter(Boolean);
@@ -50,6 +51,13 @@ export default function Diagnostics() {
       </div>
 
       <div className="page-section container">
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>📄 Have a prescription?</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Upload your doctor's prescription and we'll recommend the right tests.</div>
+          </div>
+          <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>📤 Upload Prescription</button>
+        </div>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} test{results.length !== 1 ? 's' : ''} found</p>
         <div className="grid-3">
           {results.map(t => (

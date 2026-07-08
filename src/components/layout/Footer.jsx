@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import useUploadModal from '../../stores/uploadModalStore';
 
 export default function Footer() {
   return (
@@ -21,6 +22,7 @@ export default function Footer() {
           <h4>Quick Links</h4>
           <Link to="/diagnostics">Book a Test</Link>
           <Link to="/services">Health Packages</Link>
+          <button onClick={() => useUploadModal.getState().setOpen(true)} className="footer-link-btn">📄 Upload Prescription</button>
           <Link to="/my-orders">My Orders</Link>
           <Link to="/about">About Us</Link>
           <Link to="/contact">Contact</Link>

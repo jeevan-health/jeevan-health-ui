@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import useCartStore from '../../stores/cartStore';
+import useUploadModal from '../../stores/uploadModalStore';
 import { seedTests } from '../../data/seedData';
 
 export default function Header() {
@@ -94,9 +95,9 @@ export default function Header() {
           🚨 Emergency
         </a>
 
-        <Link to="/upload-prescription" className="hdr-btn hdr-upload" style={{ flexShrink: 0 }}>
+        <button onClick={() => useUploadModal.getState().setOpen(true)} className="hdr-btn hdr-upload" style={{ flexShrink: 0, fontFamily: 'inherit', cursor: 'pointer' }}>
           📤 Upload
-        </Link>
+        </button>
 
         <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" className="hdr-btn hdr-wa" style={{ flexShrink: 0 }}>
           💬 WhatsApp
