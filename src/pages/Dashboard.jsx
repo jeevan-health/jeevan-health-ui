@@ -67,7 +67,7 @@ function HealthScoreRing({ score }) {
   );
 }
 
-function TrendMiniBar({ values, color = '#0F5DA8' }) {
+function TrendMiniBar({ values, color = '#1866C9' }) {
   if (!values || values.length < 2) return null;
   const max = Math.max(...values.map(v => v.value)) * 1.15;
   const min = Math.min(...values.map(v => v.value)) * 0.85;
@@ -129,12 +129,12 @@ export default function Dashboard() {
           style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: vertical ? '10px 20px' : '10px 14px',
             fontSize: 13, fontWeight: activeSection === item.key ? 600 : 500,
-            color: activeSection === item.key ? '#0F5DA8' : 'var(--text-body)',
+            color: activeSection === item.key ? '#1866C9' : 'var(--text-body)',
             background: activeSection === item.key ? '#e8f0fe' : 'transparent',
             border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             whiteSpace: 'nowrap', borderRadius: vertical ? 0 : 0, textAlign: 'left', width: vertical ? '100%' : 'auto',
-            borderRight: vertical && activeSection === item.key ? '3px solid #0F5DA8' : '3px solid transparent',
-            borderBottom: !vertical && activeSection === item.key ? '2px solid #0F5DA8' : '2px solid transparent',
+            borderRight: vertical && activeSection === item.key ? '3px solid #1866C9' : '3px solid transparent',
+            borderBottom: !vertical && activeSection === item.key ? '2px solid #1866C9' : '2px solid transparent',
           }}>
           <span>{item.icon}</span> <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
         </button>
@@ -148,7 +148,7 @@ export default function Dashboard() {
       <aside className="dash-sidebar" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#0F5DA8' }}>My Health</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>My Health</div>
           </div>
           {renderNav(true)}
         </div>
@@ -165,7 +165,7 @@ export default function Dashboard() {
         {/* ===== HEADER ===== */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700 }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700 }}>
               {p.name.charAt(0)}
             </div>
             <div>
@@ -318,7 +318,7 @@ export default function Dashboard() {
                   {inv.gst && <div style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 2 }}>{inv.gst}</div>}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0F5DA8' }}>₹{inv.amount}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#1866C9' }}>₹{inv.amount}</div>
                   <Badge variant="green">Paid ✅</Badge>
                   <button className="btn btn-outline btn-sm">📄 Invoice</button>
                   <button className="btn btn-outline btn-sm">🧾 Receipt</button>
@@ -334,7 +334,7 @@ export default function Dashboard() {
             {family.map(m => (
               <div key={m.id} className="card" style={{ cursor: 'pointer' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: m.relation === 'Self' ? 'linear-gradient(135deg, #0F5DA8, #1a73e8)' : '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: m.relation === 'Self' ? '#fff' : '#64748b' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: m.relation === 'Self' ? 'linear-gradient(135deg, #1866C9, #00D9FF)' : '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: m.relation === 'Self' ? '#fff' : '#64748b' }}>
                     {m.relation === 'Self' ? '👤' : m.gender === 'Female' ? '👩' : m.gender === 'Male' ? '👦' : '👤'}
                   </div>
                   <div>
@@ -346,7 +346,7 @@ export default function Dashboard() {
                   Last Checkup: {m.lastCheckup}
                 </div>
                 {m.abhaId && (
-                  <div style={{ fontSize: 10, color: '#0F5DA8', background: '#e8f0fe', padding: '2px 8px', borderRadius: 6, display: 'inline-block', marginBottom: 8 }}>
+                  <div style={{ fontSize: 10, color: '#1866C9', background: '#e8f0fe', padding: '2px 8px', borderRadius: 6, display: 'inline-block', marginBottom: 8 }}>
                     ABHA: {m.abhaId}
                   </div>
                 )}
@@ -359,8 +359,8 @@ export default function Dashboard() {
 
             {/* Add Member Card */}
             <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', borderStyle: 'dashed' }} onClick={() => setShowFamilyModal(true)}>
-              <div style={{ fontSize: 32, marginBottom: 8, color: '#0F5DA8' }}>+</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#0F5DA8' }}>Add Member</div>
+              <div style={{ fontSize: 32, marginBottom: 8, color: '#1866C9' }}>+</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#1866C9' }}>Add Member</div>
             </div>
           </div>
 
@@ -449,7 +449,7 @@ export default function Dashboard() {
         {/* ===== HEALTH WALLET ===== */}
         <Section id="wallet" title="Health Wallet" icon="💳" active={activeSection}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
-            <div className="card" style={{ background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', color: '#fff', border: 'none' }}>
+            <div className="card" style={{ background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff', border: 'none' }}>
               <div style={{ fontSize: 13, opacity: 0.85 }}>Wallet Balance</div>
               <div style={{ fontSize: 32, fontWeight: 800, margin: '4px 0' }}>₹{wallet.balance}</div>
               <div style={{ fontSize: 12, opacity: 0.75 }}>Use for test bookings & health services</div>
@@ -518,7 +518,7 @@ export default function Dashboard() {
                         {' '}{store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value}%
                       </span>
                     </div>
-                    <TrendMiniBar values={store.healthTrends.hba1c} color="#0F5DA8" />
+                    <TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-light)', marginTop: 2 }}>
                       {store.healthTrends.hba1c.map((h, i) => (
                         <span key={i}>{h.date}</span>
@@ -540,7 +540,7 @@ export default function Dashboard() {
                 </div>
                 {[
                   { label: 'Blood Health', score: 90, color: '#22C55E' },
-                  { label: 'Heart Health', score: 85, color: '#0F5DA8' },
+                  { label: 'Heart Health', score: 85, color: '#1866C9' },
                   { label: 'Diabetes Risk', score: 70, color: '#EAB308', invert: true },
                 ].map(item => (
                   <div key={item.label} style={{ marginBottom: 6 }}>
@@ -570,7 +570,7 @@ export default function Dashboard() {
                       <span style={{ background: '#dc2626', color: '#fff', fontSize: 10, padding: '1px 6px', borderRadius: 8 }}>{store.unreadCount()}</span>
                     )}
                   </h3>
-                  <button onClick={() => setShowNotifs(!showNotifs)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: '#0F5DA8', fontFamily: 'inherit' }}>
+                  <button onClick={() => setShowNotifs(!showNotifs)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: '#1866C9', fontFamily: 'inherit' }}>
                     {showNotifs ? 'Hide' : 'View All'}
                   </button>
                 </div>
@@ -623,7 +623,7 @@ export default function Dashboard() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 12, fontWeight: 600 }}>{rec.name}</div>
                         <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{rec.why}</div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0F5DA8', marginTop: 1 }}>₹{rec.price}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#1866C9', marginTop: 1 }}>₹{rec.price}</div>
                       </div>
                       <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}>Book Now</button>
                     </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const PACKAGES = [
-  { name: 'Basic Health Checkup', price: 999, mrp: 2499, tests: 52, badge: null, color: '#0F5DA8',
+  { name: 'Basic Health Checkup', price: 999, mrp: 2499, tests: 52, badge: null, color: '#1866C9',
     features: { 'Blood Tests': true, 'Diabetes Screening': true, 'Thyroid Profile': true, 'Vitamin Tests': false, 'Heart Health Tests': false, 'Liver Function': true, 'Kidney Function': true, 'ECG': false, 'Doctor Consultation': true, 'Home Collection': true, 'Digital Reports': true },
     bestFor: 'Annual Checkup', slug: 'basic-health-checkup' },
   { name: 'Executive Health Checkup', price: 1999, mrp: 4999, tests: 78, badge: 'Most Popular', color: '#16a34a',
@@ -30,7 +30,7 @@ export default function PackageCompare() {
       </div>
 
       <label style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12, cursor: 'pointer' }}>
-        <input type="checkbox" checked={onlyDiff} onChange={e => setOnlyDiff(e.target.checked)} style={{ accentColor: '#0F5DA8' }} />
+        <input type="checkbox" checked={onlyDiff} onChange={e => setOnlyDiff(e.target.checked)} style={{ accentColor: '#1866C9' }} />
         Show only differences
       </label>
 

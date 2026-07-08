@@ -7,7 +7,7 @@ import {
 } from '@phosphor-icons/react';
 
 const quickActions = [
-  { icon: Stethoscope, label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/doctor-consultation', color: '#0F5DA8', tag: 'Available' },
+  { icon: Stethoscope, label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/doctor-consultation', color: '#1866C9', tag: 'Available' },
   { icon: Flask, label: 'Lab Tests', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#22C55E', tag: 'Popular' },
   { icon: Heart, label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/health-packages', color: '#e53935', tag: 'Save 60%' },
   { icon: Pill, label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },
@@ -19,7 +19,7 @@ const quickActions = [
 
 const categories = [
   {
-    icon: Stethoscope, title: 'Home Healthcare Services', color: '#0F5DA8',
+    icon: Stethoscope, title: 'Home Healthcare Services', color: '#1866C9',
     items: [
       'Doctor Consultation at Home', 'Medicine Delivery at Home',
       'Lab Tests & Diagnostics at Home', 'X-Ray, ECG, EEG at Home',
@@ -92,7 +92,7 @@ const categories = [
     ],
   },
   {
-    icon: UsersIcon, title: 'Community & Public Health Engagement', color: '#0F5DA8',
+    icon: UsersIcon, title: 'Community & Public Health Engagement', color: '#1866C9',
     items: [
       'Free Medical Camps & CSR Activities',
       'Health Awareness & Preventive Screening Drives',
@@ -105,7 +105,7 @@ export default function Services() {
   return (
     <div style={{ paddingBottom: 80 }}>
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1565C0 50%, #1a73e8 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+      <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: '0 0 8px', letterSpacing: -0.5 }}>
             Complete Healthcare at Your Doorstep
@@ -195,7 +195,7 @@ export default function Services() {
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Need help choosing a service?</h3>
         <p style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 16 }}>Call us or WhatsApp for free guidance</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="tel:+919700104108" style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg, #0F5DA8, #0C6BC4)', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <a href="tel:+919700104108" style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Phone size={16} weight="fill" /> Call +91 97001 04108
           </a>
           <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: '#25d366', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>

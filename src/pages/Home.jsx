@@ -43,7 +43,7 @@ function HeroSection() {
     { label: 'Reports in 24 Hours', icon: '⏱️' },
   ];
   return (
-    <div className="hero" style={{ background: 'linear-gradient(135deg, #0B5DA8 0%, #1565C0 50%, #1a73e8 100%)', padding: '40px 16px 48px', overflow: 'hidden' }}>
+    <div className="hero" style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', padding: '40px 16px 48px', overflow: 'hidden' }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -125,7 +125,7 @@ function TrustStrip() {
 
 function QuickActions() {
   const actions = [
-    { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#0B5DA8' },
+    { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#1866C9' },
     { icon: '📦', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#16a34a' },
     { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', color: '#dc2626' },
     { icon: '👨‍⚕️', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/contact', color: '#7c3aed' },
@@ -190,7 +190,7 @@ function PopularTests({ popular }) {
             return (
               <div key={t.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <Link to={`/test/${slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                  <div style={{ background: `linear-gradient(135deg, #0B5DA8, #1a73e8)`, padding: '20px 16px', position: 'relative' }}>
+                  <div style={{ background: `linear-gradient(135deg, #1866C9, #00D9FF)`, padding: '20px 16px', position: 'relative' }}>
                     {badge && <span style={{ position: 'absolute', top: 8, left: 8, background: badgeColors[badge], color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badge}</span>}
                     <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>🔬 {t.category}</span>
                     <div style={{ fontSize: 36, textAlign: 'center' }}>{icon}</div>
@@ -212,7 +212,7 @@ function PopularTests({ popular }) {
                     </p>
                   )}
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/test/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '7px 0', background: '#0B5DA8', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
+                    <Link to={`/test/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '7px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
                     <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>Compare</button>
                     <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>+ Add</button>
                   </div>
@@ -257,7 +257,7 @@ function CategoriesSection() {
               background: '#fff', border: '1px solid #e8edf2', minWidth: 90,
               transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#0B5DA8'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(11,93,168,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#1866C9'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(11,93,168,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
             <span style={{ fontSize: 28 }}>{c.icon}</span>
             <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'center', lineHeight: 1.2 }}>{c.label}</span>
@@ -270,7 +270,7 @@ function CategoriesSection() {
 
 function PackagesSection({ pkgs }) {
   const gradients = [
-    'linear-gradient(135deg, #0B5DA8, #1a73e8)',
+    'linear-gradient(135deg, #1866C9, #00D9FF)',
     'linear-gradient(135deg, #16a34a, #22c55e)',
     'linear-gradient(135deg, #7c3aed, #a855f7)',
     'linear-gradient(135deg, #dc2626, #ef4444)',
@@ -319,7 +319,7 @@ function PackagesSection({ pkgs }) {
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/package/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#0B5DA8', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
+                    <Link to={`/package/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
                     <Link to={`/package/${slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>View Details</Link>
                   </div>
                 </div>
@@ -350,20 +350,20 @@ function HowItWorks() {
           <h2 className="section-title" style={{ margin: 0, fontSize: 22 }}>How Jeevan Makes Healthcare Simple</h2>
         </div>
         <p className="section-subtitle text-center">From booking your test to receiving expert medical advice, we make your healthcare journey smooth, safe, and convenient.</p>
-        <div className="journey-banner" style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 24, padding: '8px 16px', background: 'rgba(15,93,168,0.06)', borderRadius: 30, fontSize: 11, fontWeight: 600, color: '#0F5DA8', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
+        <div className="journey-banner" style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 24, padding: '8px 16px', background: 'rgba(24, 102, 201,0.06)', borderRadius: 30, fontSize: 11, fontWeight: 600, color: '#1866C9', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
           <span>Book</span><span style={{ color: '#20B7F5' }}>→</span><span>Collect</span><span style={{ color: '#20B7F5' }}>→</span><span>Test</span><span style={{ color: '#20B7F5' }}>→</span><span>Report</span><span style={{ color: '#20B7F5' }}>→</span><span>Consult</span>
           <span style={{ background: '#22C55E', color: '#fff', fontSize: 9, padding: '1px 8px', borderRadius: 10, marginLeft: 6 }}>Completed in 24-48 Hours</span>
         </div>
         <div className="timeline-wrapper" style={{ position: 'relative', paddingTop: 20 }}>
-          <div className="timeline-line" style={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 3, background: 'linear-gradient(90deg, #0F5DA8, #20B7F5, #0F5DA8)', borderRadius: 2, zIndex: 0 }} />
+          <div className="timeline-line" style={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 3, background: 'linear-gradient(90deg, #1866C9, #20B7F5, #1866C9)', borderRadius: 2, zIndex: 0 }} />
           <div className="timeline-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, position: 'relative', zIndex: 1 }}>
             {steps.map((s, i) => (
               <div key={s.title} className="timeline-step" style={{ textAlign: 'center' }}>
-                <div className="timeline-dot" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(15,93,168,0.25)', position: 'relative', zIndex: 2 }}>
+                <div className="timeline-dot" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(24, 102, 201,0.25)', position: 'relative', zIndex: 2 }}>
                   {s.icon}
                 </div>
                 <div className="timeline-card" style={{ background: '#fff', borderRadius: 16, padding: '14px 10px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#0F5DA8', background: '#EEF2FF', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 6, alignSelf: 'center' }}>Step {String(i + 1).padStart(2, '0')}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#1866C9', background: '#E8F1FC', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 6, alignSelf: 'center' }}>Step {String(i + 1).padStart(2, '0')}</div>
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 6, lineHeight: 1.2 }}>{s.title}</h3>
                   <p style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10, flex: 1 }}>{s.desc}</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -379,7 +379,7 @@ function HowItWorks() {
             ))}
           </div>
         </div>
-        <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, color: '#fff' }}>
+        <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
           <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Ready to Start Your Health Check?</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Test Now</Link>
@@ -408,7 +408,7 @@ function Testimonials() {
 
   const stories = [
     { icon: '🩸', title: 'Diabetes Management Journey', before: 'High sugar levels (HbA1c 8.5)', after: 'Regular testing + doctor guidance', result: 'Better health monitoring (HbA1c 6.8)', color: '#dc2626' },
-    { icon: '👴', title: 'Senior Citizen Care Story', before: '80-yr-old with limited mobility', after: 'Home diagnostics support', result: 'Regular monitoring, family peace of mind', color: '#0F5DA8' },
+    { icon: '👴', title: 'Senior Citizen Care Story', before: '80-yr-old with limited mobility', after: 'Home diagnostics support', result: 'Regular monitoring, family peace of mind', color: '#1866C9' },
   ];
 
   const photos = [
@@ -436,7 +436,7 @@ function Testimonials() {
             { label: '10+ Years', sub: 'Healthcare Experience' },
           ].map(s => (
             <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
-              <div className="stats-count" style={{ fontSize: 20, fontWeight: 800, color: '#0F5DA8', marginBottom: 2 }}>{s.label}</div>
+              <div className="stats-count" style={{ fontSize: 20, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.sub}</div>
             </div>
           ))}
@@ -444,11 +444,11 @@ function Testimonials() {
 
         <div className="testimonials-layout" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 20, marginBottom: 24 }}>
           <div style={{ background: '#fff', borderRadius: 20, padding: '24px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#0F5DA8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Google Rating</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Google Rating</div>
             <div style={{ fontSize: 36, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>4.9</div>
             <div style={{ fontSize: 22, marginBottom: 8, letterSpacing: 4 }}>⭐⭐⭐⭐⭐</div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12 }}>Based on <strong style={{ color: '#1a1a1a' }}>500+ Reviews</strong></div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#0F5DA8', marginBottom: 14 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#E8F1FC', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#1866C9', marginBottom: 14 }}>
               <span>✅</span> Verified Patients
             </div>
             <div style={{ width: 32, height: 32, margin: '0 auto', background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 700 }}>G</div>
@@ -468,7 +468,7 @@ function Testimonials() {
             <p style={{ fontSize: 14, lineHeight: 1.7, color: '#1a1a1a', fontStyle: 'italic', marginBottom: 14 }}>"{reviews[activeReview].text}"</p>
             <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
               {reviews.map((_, i) => (
-                <button key={i} onClick={() => setActiveReview(i)} style={{ width: i === activeReview ? 24 : 8, height: 8, borderRadius: 4, border: 'none', background: i === activeReview ? '#0F5DA8' : '#d0d5dd', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
+                <button key={i} onClick={() => setActiveReview(i)} style={{ width: i === activeReview ? 24 : 8, height: 8, borderRadius: 4, border: 'none', background: i === activeReview ? '#1866C9' : '#d0d5dd', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
               ))}
             </div>
           </div>
@@ -486,7 +486,7 @@ function Testimonials() {
 
         <div className="videos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
           {videos.map(v => (
-            <div key={v.name} style={{ background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, padding: '20px 16px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s' }}
+            <div key={v.name} style={{ background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, padding: '20px 16px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s' }}
               className="video-card">
               <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, fontSize: 18 }}>▶</div>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{v.title}</div>
@@ -513,7 +513,7 @@ function Testimonials() {
           ))}
         </div>
 
-        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 16, color: '#fff' }}>
+        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
           <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Join Thousands of Families Who Trust Jeevan Healthcare</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
@@ -566,7 +566,7 @@ function StatsSection() {
   }, [visible]);
 
   return (
-    <div className="page-section" style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1a73e8 50%, #E8F4FD 100%)', position: 'relative', overflow: 'hidden' }}>
+    <div className="page-section" style={{ background: 'linear-gradient(135deg, #1866C9 0%, #00D9FF 50%, #F4FCFF 100%)', position: 'relative', overflow: 'hidden' }}>
       <div ref={ref} className="container" style={{ position: 'relative', zIndex: 1 }}>
         <h2 className="section-title text-center" style={{ color: '#fff' }}>Trusted Healthcare Partner for Thousands of Families</h2>
         <p className="section-subtitle text-center" style={{ color: 'rgba(255,255,255,0.8)' }}>Delivering reliable diagnostics and healthcare services with quality, convenience, and compassion.</p>
@@ -606,7 +606,7 @@ function StatsSection() {
 
 function HealthLibrarySection() {
   const categories = [
-    { icon: '🧪', label: 'Tests A-Z', desc: '500+ diagnostic tests with normal ranges & preparation guides', color: '#0F5DA8' },
+    { icon: '🧪', label: 'Tests A-Z', desc: '500+ diagnostic tests with normal ranges & preparation guides', color: '#1866C9' },
     { icon: '🦠', label: 'Diseases', desc: 'Diabetes, thyroid, heart disease & more health conditions', color: '#dc2626' },
     { icon: '🤒', label: 'Symptom Checker', desc: 'Check symptoms & find recommended diagnostic tests', color: '#7c3aed' },
     { icon: '📝', label: 'Health Blogs', desc: 'Expert articles on preventive care, nutrition & wellness', color: '#16a34a' },
@@ -690,7 +690,7 @@ function WhyChooseJeevan() {
             { label: '2000+', sub: 'Diagnostic Tests' },
           ].map(s => (
             <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '16px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#0F5DA8', marginBottom: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.sub}</div>
             </div>
           ))}
@@ -713,7 +713,7 @@ function WhyChooseJeevan() {
             </div>
           ))}
         </div>
-        <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', borderRadius: 20, color: '#fff' }}>
+        <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 20, color: '#fff' }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Experience Trusted Healthcare at Your Doorstep</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 28px', fontSize: 14 }}>🔵 Book Health Test Now</Link>

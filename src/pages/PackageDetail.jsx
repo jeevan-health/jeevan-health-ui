@@ -7,7 +7,7 @@ import {
 } from '@phosphor-icons/react';
 
 const axisMeta = {
-  organ: { icon: Heartbeat, color: '#0F5DA8', label: 'Organ Wise' },
+  organ: { icon: Heartbeat, color: '#1866C9', label: 'Organ Wise' },
   disease: { icon: Warning, color: '#c62828', label: 'Disease Wise' },
   disorder: { icon: Shield, color: '#7b1fa2', label: 'Disorder Wise' },
   age: { icon: User, color: '#2e7d32', label: 'Age Wise' },
@@ -149,7 +149,7 @@ const PackageDetail = () => {
   if (!pkg) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-light)', fontSize: 14 }}>
-        Package not found. <span style={{ color: '#0F5DA8', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/services')}>View all packages</span>
+        Package not found. <span style={{ color: '#1866C9', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/services')}>View all packages</span>
       </div>
     );
   }
@@ -229,7 +229,7 @@ const PackageDetail = () => {
         {pkgTests.length > 0 && (
           <div style={{ marginBottom: 24 }}>
             <h2 style={{ fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Drop size={18} color="#0F5DA8" /> Included Tests ({pkg.testCount})
+              <Drop size={18} color="#1866C9" /> Included Tests ({pkg.testCount})
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {pkgTests.map(t => (
@@ -273,12 +273,12 @@ const PackageDetail = () => {
         {content.whoShouldTake && (
           <div style={{ marginBottom: 24 }}>
             <h2 style={{ fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <User size={18} color="#0F5DA8" /> Who Should Take This Package
+              <User size={18} color="#1866C9" /> Who Should Take This Package
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
               {content.whoShouldTake.map((w, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0F5DA8', flexShrink: 0 }} />
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1866C9', flexShrink: 0 }} />
                   <span style={{ color: 'var(--text-body)' }}>{w}</span>
                 </div>
               ))}
@@ -300,9 +300,9 @@ const PackageDetail = () => {
         {content.reportTime && (
           <div style={{ marginBottom: 24 }}>
             <h2 style={{ fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FileText size={18} color="#1565c0" /> Report Time
+              <FileText size={18} color="#0F4A96" /> Report Time
             </h2>
-            <div style={{ background: '#e3f2fd', padding: '12px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#1565c0' }}>
+            <div style={{ background: '#e3f2fd', padding: '12px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0F4A96' }}>
               {content.reportTime}
             </div>
           </div>
@@ -317,7 +317,7 @@ const PackageDetail = () => {
             <button onClick={shareWhatsApp} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <WhatsappLogo size={16} weight="fill" /> Share
             </button>
-            <button onClick={() => navigate('/services')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => navigate('/services')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#fff', color: '#1866C9', border: '1px solid #1866C9', cursor: 'pointer', fontFamily: 'inherit' }}>
               View All Packages
             </button>
           </div>

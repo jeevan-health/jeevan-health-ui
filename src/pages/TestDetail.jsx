@@ -15,7 +15,7 @@ function Section({ icon: Icon, title, children, open, onToggle }) {
     <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', marginBottom: 10 }}>
       <button onClick={onToggle} style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', textAlign: 'left' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {Icon && <Icon size={18} color="#0F5DA8" />}
+          {Icon && <Icon size={18} color="#1866C9" />}
           {title}
         </span>
         <CaretDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0, color: '#999' }} />
@@ -36,12 +36,12 @@ function ListItems({ items }) {
 }
 
 function Tag({ label, color, bg }) {
-  return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: bg || '#e8f0fe', color: color || '#0F5DA8', display: 'inline-block' }}>{label}</span>;
+  return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: bg || '#e8f0fe', color: color || '#1866C9', display: 'inline-block' }}>{label}</span>;
 }
 
 function InfoBox({ children, bg, color, icon: Icon }) {
   return (
-    <div style={{ marginTop: 8, padding: '8px 12px', background: bg || '#e8f0fe', borderRadius: 8, fontSize: 11, color: color || '#0F5DA8', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+    <div style={{ marginTop: 8, padding: '8px 12px', background: bg || '#e8f0fe', borderRadius: 8, fontSize: 11, color: color || '#1866C9', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
       {Icon && <Icon size={14} weight="fill" style={{ flexShrink: 0, marginTop: 1 }} />}
       <span>{children}</span>
     </div>
@@ -112,9 +112,9 @@ export default function TestDetail() {
         </button>
 
         {/* FULL TEST NAME + ABBREVIATION + ALTERNATE NAMES */}
-        <div style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1565C0 50%, #1a73e8 100%)', borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 16 }}>
+        <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ background: '#FFD54F', color: '#0F5DA8', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>INDIVIDUAL TEST</span>
+            <span style={{ background: '#FFD54F', color: '#1866C9', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>INDIVIDUAL TEST</span>
             {test.fasting_required && <span style={{ background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: 6, fontSize: 10 }}>Fasting Required</span>}
           </div>
           <h1 style={{ fontSize: 22, fontWeight: 800, margin: '8px 0 4px', letterSpacing: -0.3 }}>
@@ -144,7 +144,7 @@ export default function TestDetail() {
           </div>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
             <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Collection</span>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#0F5DA8', marginTop: 2 }}>Free Home</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9', marginTop: 2 }}>Free Home</div>
           </div>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
             <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Duration</span>
@@ -159,7 +159,7 @@ export default function TestDetail() {
         {/* 1. WHAT IS THIS TEST */}
         <Section icon={Heartbeat} title="What Is This Test?" open={openSections.whatIs} onToggle={() => toggle('whatIs')}>
           <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{w.purpose}</p>
-          <InfoBox icon={CheckCircle} bg="#e8f0fe" color="#0F5DA8">{w.screeningOrDiagnostic}</InfoBox>
+          <InfoBox icon={CheckCircle} bg="#e8f0fe" color="#1866C9">{w.screeningOrDiagnostic}</InfoBox>
           <div style={{ marginTop: 10 }}>
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Why Is This Test Done?</div>
             <ListItems items={w.whyDone} />
@@ -222,7 +222,7 @@ export default function TestDetail() {
             'No need to travel or wait in queues — we come to you',
             'Results delivered digitally on WhatsApp, Email, and App',
           ]} />
-          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={CheckCircle}>
+          <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
             One visit, no waiting, complete convenience. Book online and we take care of the rest.
           </InfoBox>
         </Section>
@@ -236,7 +236,7 @@ export default function TestDetail() {
           <p style={{ margin: '0 0 8px' }}>{education.reportDelivery}</p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
             <Tag label="WhatsApp Delivery" color="#25d366" bg="#e8f5e9" />
-            <Tag label="Email Delivery" color="#0F5DA8" bg="#e8f0fe" />
+            <Tag label="Email Delivery" color="#1866C9" bg="#e8f0fe" />
             <Tag label="Mobile App" color="#7c3aed" bg="#f5f3ff" />
             <Tag label="Download PDF" color="#e65100" bg="#fff3e0" />
             <Tag label="Doctor Reviewed" color="#2e7d32" bg="#e8f5e9" />
@@ -258,13 +258,13 @@ export default function TestDetail() {
         <Section icon={Shield} title="Medical Accuracy & Trust" open={openSections.accuracy} onToggle={() => toggle('accuracy')}>
           <p style={{ margin: '0 0 8px' }}>{education.accuracy}</p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-            <Tag label="NABL Certified" color="#0F5DA8" />
+            <Tag label="NABL Certified" color="#1866C9" />
             <Tag label="ISO Compliant" color="#2e7d32" bg="#e8f5e9" />
             <Tag label="Doctor Reviewed" color="#7c3aed" bg="#f5f3ff" />
             <Tag label="Digital Reports" color="#e65100" bg="#fff3e0" />
-            <Tag label="Quality Control" color="#0F5DA8" bg="#e8f0fe" />
+            <Tag label="Quality Control" color="#1866C9" bg="#e8f0fe" />
           </div>
-          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={Shield}>
+          <InfoBox bg="#e8f0fe" color="#1866C9" icon={Shield}>
             All samples processed at NABL-certified labs with automated analyzers and rigorous quality control protocols for reliable results.
           </InfoBox>
         </Section>
@@ -284,7 +284,7 @@ export default function TestDetail() {
           <p style={{ margin: '0 0 10px' }}>{education.customization.doctorRecommendation}</p>
           <p style={{ margin: '0 0 6px' }}><strong>Can I add more parameters?</strong></p>
           <p style={{ margin: '0 0 6px' }}>{education.customization.addMoreParameters}</p>
-          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={CheckCircle}>
+          <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
             Add this test to your cart and browse other tests to build a comprehensive health checkup package.
           </InfoBox>
         </Section>
@@ -302,7 +302,7 @@ export default function TestDetail() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <span style={{ fontSize: 24, fontWeight: 800, color: '#e53935' }}>{education.cost.price}</span>
             <Tag label="No Hidden Charges" color="#2e7d32" bg="#e8f5e9" />
-            <Tag label="Free Home Collection" color="#0F5DA8" bg="#e8f0fe" />
+            <Tag label="Free Home Collection" color="#1866C9" bg="#e8f0fe" />
           </div>
           <p style={{ margin: '0 0 6px' }}><strong>Is home collection free?</strong></p>
           <p style={{ margin: '0 0 10px' }}>{education.cost.homeCollection}</p>
@@ -314,7 +314,7 @@ export default function TestDetail() {
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Payment Methods:</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {education.cost.paymentMethods.map((m, i) => (
-                <Tag key={i} label={m} color="#0F5DA8" bg="#e8f0fe" />
+                <Tag key={i} label={m} color="#1866C9" bg="#e8f0fe" />
               ))}
             </div>
           </div>
@@ -326,7 +326,7 @@ export default function TestDetail() {
             Follow these steps after receiving your test report:
           </p>
           <ListItems items={education.postTestGuidance} />
-          <InfoBox bg="#e8f0fe" color="#0F5DA8" icon={CheckCircle}>
+          <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
             Jeevan HealthCare provides free doctor consultation with every test. We are here to support you through your health journey.
           </InfoBox>
         </Section>
@@ -352,7 +352,7 @@ export default function TestDetail() {
         {related.length > 0 && (
           <div style={{ background: 'linear-gradient(135deg, #F5FAFF, #fff)', borderRadius: 16, border: '1px solid #e0e8f0', padding: 16, marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-              <Sparkle size={16} color="#0F5DA8" weight="fill" />
+              <Sparkle size={16} color="#1866C9" weight="fill" />
               <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>🩺 Recommended by Jeevan Health Assistant</h3>
             </div>
             <p style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
@@ -366,16 +366,16 @@ export default function TestDetail() {
                 const stars = '⭐'.repeat(r.priority - 2);
                 return (
                   <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🧪</div>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#E8F1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🧪</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 1 }}>{t.name}</div>
                       <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>
                         {stars} {r.reason}
                       </div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#0F5DA8', marginTop: 2 }}>₹{t.offerPrice || t.price}</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', marginTop: 2 }}>₹{t.offerPrice || t.price}</div>
                     </div>
                     <button onClick={() => addRelated(t)} disabled={added}
-                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: added ? '#dcfce7' : '#0F5DA8', color: added ? '#166534' : '#fff', border: 'none', cursor: added ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: added ? '#dcfce7' : '#1866C9', color: added ? '#166534' : '#fff', border: 'none', cursor: added ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                       {added ? '✓ Added' : '+ Add Test'}
                     </button>
                   </div>
@@ -409,7 +409,7 @@ export default function TestDetail() {
               </div>
             )}
 
-            <Link to="/contact" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 10, padding: '8px', background: '#EEF2FF', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#0F5DA8', textDecoration: 'none' }}>
+            <Link to="/contact" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 10, padding: '8px', background: '#E8F1FC', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#1866C9', textDecoration: 'none' }}>
               <User size={14} /> Not sure? Consult a Doctor for personalized recommendations
             </Link>
           </div>
@@ -418,13 +418,13 @@ export default function TestDetail() {
         {/* RELATED TESTS */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Flask size={16} color="#0F5DA8" /> Related Tests
+            <Flask size={16} color="#1866C9" /> Related Tests
           </h3>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
             {seedTests.filter(t => t.category === test.category && t.id !== test.id).slice(0, 8).map(t => (
               <Link key={t.id} to={`/test/${slugify(t.name)}`}
                 style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 500, background: '#f8f9fa', border: '1px solid #e8edf2', color: 'var(--text-dark)', textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Flask size={12} color="#0F5DA8" /> {t.name.length > 28 ? t.name.slice(0, 28) + '...' : t.name}
+                <Flask size={12} color="#1866C9" /> {t.name.length > 28 ? t.name.slice(0, 28) + '...' : t.name}
               </Link>
             ))}
           </div>
@@ -433,7 +433,7 @@ export default function TestDetail() {
 
       {/* BOTTOM CTA */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', padding: '8px 16px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#0F5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Phone size={18} weight="fill" color="#fff" />
         </a>
         <a href={`https://wa.me/919700104108?text=${encodeURIComponent('Hi! I want to know more about ' + education.fullName + ' (' + (education.abbreviation || '') + ') test')}`} target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

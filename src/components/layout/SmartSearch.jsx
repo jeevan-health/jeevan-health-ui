@@ -104,7 +104,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <span style={{ fontSize: 16 }}>🩸</span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{r.test?.name}</span>
-                  {r.matchType === 'exact' && <span style={{ fontSize: 9, background: '#EEF2FF', color: '#0F5DA8', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>Best Match</span>}
+                  {r.matchType === 'exact' && <span style={{ fontSize: 9, background: '#E8F1FC', color: '#1866C9', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>Best Match</span>}
                 </div>
                 {r.aliases?.length > 0 && (
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 4 }}>
@@ -130,7 +130,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
               <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Popular Searches</div>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {popular.map(p => (
-                  <span key={p} onClick={() => navigate(`/diagnostics?q=${encodeURIComponent(p)}`)} style={{ fontSize: 10, background: '#f5f5f5', padding: '3px 8px', borderRadius: 6, cursor: 'pointer', color: '#0F5DA8' }}>
+                  <span key={p} onClick={() => navigate(`/diagnostics?q=${encodeURIComponent(p)}`)} style={{ fontSize: 10, background: '#f5f5f5', padding: '3px 8px', borderRadius: 6, cursor: 'pointer', color: '#1866C9' }}>
                     🔹 {p}
                   </span>
                 ))}

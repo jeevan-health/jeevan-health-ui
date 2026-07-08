@@ -200,16 +200,16 @@ export default function Footer() {
   const [subscribed, setSubscribed] = useState(false);
 
   return (
-    <footer style={{ background: '#0C4A8A', color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
+    <footer style={{ background: '#0F4A96', color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
       {/* PRE-FOOTER CTA */}
-      <div style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #1a73e8 100%)', padding: '40px 16px', textAlign: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #00D9FF 100%)', padding: '40px 16px', textAlign: 'center' }}>
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Ready to Book Your Health Checkup?</h2>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 16 }}>
             Book Lab Tests · Home Collection · Doctor Consultation · Digital Reports
           </p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#fff', color: '#0F5DA8', fontWeight: 700, padding: '12px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 14 }}>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#fff', color: '#1866C9', fontWeight: 700, padding: '12px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 14 }}>
               Book Lab Test
             </Link>
             <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', fontWeight: 700, padding: '12px 28px', borderRadius: 10, border: '2px solid rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>
@@ -404,7 +404,7 @@ export default function Footer() {
               />
               <button
                 onClick={() => { if (email) { setSubscribed(true); setEmail(''); setTimeout(() => setSubscribed(false), 3000); } }}
-                style={{ padding: '8px 16px', background: '#FFD54F', color: '#0C4A8A', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+                style={{ padding: '8px 16px', background: '#FFD54F', color: '#0F4A96', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
               >
                 Subscribe
               </button>

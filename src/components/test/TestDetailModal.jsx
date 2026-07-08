@@ -14,7 +14,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
   const data = testDetailData[test.name] || null;
   const education = isPackage ? getPackageEducation(test) : getTestEducation(test);
 
-  const Section = ({ title, icon: Icon, children, color = '#0F5DA8' }) => (
+  const Section = ({ title, icon: Icon, children, color = '#1866C9' }) => (
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         {Icon && <Icon size={18} weight="fill" color={color} />}
@@ -24,7 +24,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
     </div>
   );
 
-  const Pill = ({ label, bg = '#e8f0fe', color = '#0F5DA8' }) => (
+  const Pill = ({ label, bg = '#e8f0fe', color = '#1866C9' }) => (
     <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: bg, color, margin: '2px 4px 2px 0' }}>{label}</span>
   );
 
@@ -113,11 +113,11 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* When Should You Take This Test */}
         {data?.whenToTake && (
-          <Section title="WHEN SHOULD YOU TAKE THIS TEST?" icon={Clock} color="#1565c0">
+          <Section title="WHEN SHOULD YOU TAKE THIS TEST?" icon={Clock} color="#0F4A96">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.whenToTake.map((w, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
-                  <span style={{ color: '#1565c0', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                  <span style={{ color: '#0F4A96', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
                   <span style={{ color: 'var(--text-body)' }}>{w}</span>
                 </div>
               ))}
@@ -136,9 +136,9 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
                 {combo.items.map((item, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
-                    <span style={{ color: '#0F5DA8', fontWeight: 600 }}>{item.name}</span>
+                    <span style={{ color: '#1866C9', fontWeight: 600 }}>{item.name}</span>
                     <span>
-                      <span style={{ fontWeight: 600, color: i === 0 ? '#0F5DA8' : 'var(--text-dark)' }}>₹{item.offerPrice || item.price}</span>
+                      <span style={{ fontWeight: 600, color: i === 0 ? '#1866C9' : 'var(--text-dark)' }}>₹{item.offerPrice || item.price}</span>
                       {item.mrp && item.mrp > (item.offerPrice || item.price) && (
                         <span style={{ fontSize: 11, color: 'var(--text-light)', textDecoration: 'line-through', marginLeft: 3 }}>₹{item.mrp}</span>
                       )}
@@ -169,13 +169,13 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Also Booked */}
         {alsoBooked.length > 0 && (
-          <Section title="ALSO BOOKED BY OTHERS" icon={Plus} color="#0F5DA8">
+          <Section title="ALSO BOOKED BY OTHERS" icon={Plus} color="#1866C9">
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {alsoBooked.map((item, i) => (
                 <button key={i} onClick={() => onAddAlsoBooked(item)}
                   style={{
                     padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                    background: '#e8f0fe', color: '#0F5DA8', border: 'none', cursor: 'pointer',
+                    background: '#e8f0fe', color: '#1866C9', border: 'none', cursor: 'pointer',
                     fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6,
                     transition: 'background 0.15s',
                   }}
@@ -196,7 +196,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         )}
 
         {/* Sample Collection */}
-        <Section title="SAMPLE COLLECTION" icon={Drop} color="#1565c0">
+        <Section title="SAMPLE COLLECTION" icon={Drop} color="#0F4A96">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
             <span style={{ color: 'var(--text-light)' }}>Sample Type:</span>
             <span style={{ fontWeight: 600 }}>{data?.sampleType || 'Blood (Vein sample)'}</span>
@@ -220,7 +220,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.procedure.map((step, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
-                  <span style={{ color: '#0F5DA8', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                  <span style={{ color: '#1866C9', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
                   <span style={{ color: 'var(--text-body)' }}>{step}</span>
                 </div>
               ))}
@@ -281,8 +281,8 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         </Section>
 
         {/* Report Delivery */}
-        <Section title="REPORT DELIVERY" icon={Clock} color="#1565c0">
-          <div style={{ background: '#e3f2fd', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#1565c0' }}>
+        <Section title="REPORT DELIVERY" icon={Clock} color="#0F4A96">
+          <div style={{ background: '#e3f2fd', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0F4A96' }}>
             Usually within {test.report_time || '12-24 hours'} — Faster in metro cities
           </div>
         </Section>
@@ -328,11 +328,11 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         </Section>
 
         {/* Safety & Risks */}
-        <Section title="SAFETY & RISKS" icon={Shield} color="#0F5DA8">
+        <Section title="SAFETY & RISKS" icon={Shield} color="#1866C9">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
             {['Minimal pain during blood draw', 'Rare bruising at puncture site', 'Extremely safe procedure'].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ color: '#0F5DA8', fontWeight: 700 }}>✓</span>
+                <span style={{ color: '#1866C9', fontWeight: 700 }}>✓</span>
                 <span style={{ color: 'var(--text-body)' }}>{item}</span>
               </div>
             ))}
@@ -353,7 +353,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* FAQ Accordion */}
         {education.length > 0 && (
-          <Section title={isPackage ? "HEALTH PACKAGE FAQ" : "FREQUENTLY ASKED QUESTIONS"} icon={FileText} color={isPackage ? "#0F5DA8" : "#7b1fa2"}>
+          <Section title={isPackage ? "HEALTH PACKAGE FAQ" : "FREQUENTLY ASKED QUESTIONS"} icon={FileText} color={isPackage ? "#1866C9" : "#7b1fa2"}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {education.map((section, si) => {
                 const Icon = iconMap[section.icon] || Info;
@@ -406,7 +406,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
           <button onClick={onClose}
             style={{
               width: '100%', padding: '10px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-              background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8',
+              background: '#fff', color: '#1866C9', border: '1px solid #1866C9',
               cursor: 'pointer', fontFamily: 'inherit',
             }}>
             Talk to a Doctor

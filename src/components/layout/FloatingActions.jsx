@@ -3,7 +3,7 @@ import useUploadModal from '../../stores/uploadModalStore';
 
 const ACTIONS = [
   { icon: '💬', label: 'Chat on WhatsApp', href: 'https://wa.me/919700104108', color: '#25D366', pulse: true },
-  { icon: '📞', label: 'Call Now', href: 'tel:+919700104108', color: '#0F5DA8', pulse: false },
+  { icon: '📞', label: 'Call Now', href: 'tel:+919700104108', color: '#1866C9', pulse: false },
   { icon: '📄', label: 'Upload Prescription', action: 'upload', color: '#FF9800', pulse: false },
   { icon: '🆘', label: 'Need Help?', action: 'help', color: '#20B7F5', pulse: false },
 ];
@@ -76,8 +76,8 @@ export default function FloatingActions() {
         ))}
 
         <button onClick={() => setExpanded(e => !e)} className="fab-main-btn" style={{
-          width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #0F5DA8, #1a73e8)', color: '#fff', border: 'none',
-          boxShadow: '0 4px 16px rgba(15,93,168,0.35)', cursor: 'pointer', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', color: '#fff', border: 'none',
+          boxShadow: '0 4px 16px rgba(24, 102, 201,0.35)', cursor: 'pointer', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'transform 0.2s', fontFamily: 'inherit',
         }}>
           {expanded ? '✕' : '+'}

@@ -82,7 +82,7 @@ export default function CartDrawer() {
                           <span style={{ padding: '4px 10px', fontSize: 12, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{i.qty || 1}</span>
                           <button onClick={() => updateQty(i.id, i.type, (i.qty || 1) + 1)} style={{ border: 'none', background: '#f5f6fa', padding: '4px 8px', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>+</button>
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0F5DA8' }}>₹{itemTotal(i).toLocaleString()}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>₹{itemTotal(i).toLocaleString()}</span>
                         <button onClick={() => removeItem(i.id, i.type)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}>🗑️</button>
                       </div>
                     </div>
@@ -92,12 +92,12 @@ export default function CartDrawer() {
 
               {recTests.length > 0 && (
                 <div style={{ marginTop: 16, background: '#F5FAFF', borderRadius: 12, padding: '12px' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#0F5DA8', marginBottom: 8 }}>⚡ Frequently Added Together</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', marginBottom: 8 }}>⚡ Frequently Added Together</div>
                   {recTests.map(t => (
                     <div key={t.name} onClick={() => { const s = useCartStore.getState(); s.addItem({ id: t.id, name: t.name, price: t.price || t.mrp, offerPrice: t.offerPrice, type: 'test' }); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', cursor: 'pointer' }}>
-                      <span style={{ width: 16, height: 16, borderRadius: 4, border: '2px solid #0F5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#0F5DA8' }}>+</span>
+                      <span style={{ width: 16, height: 16, borderRadius: 4, border: '2px solid #1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#1866C9' }}>+</span>
                       <span style={{ fontSize: 12, flex: 1 }}>{t.name}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#0F5DA8' }}>₹{t.offerPrice || t.price}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#1866C9' }}>₹{t.offerPrice || t.price}</span>
                     </div>
                   ))}
                 </div>
