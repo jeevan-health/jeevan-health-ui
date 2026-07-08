@@ -35,7 +35,7 @@ export default function Diagnostics() {
         <div className="container">
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <SmartSearch placeholder="?? Search tests..." value={search}
+              <SmartSearch placeholder="🔍 Search tests..." value={search}
                 onChange={v => { setSearch(v); setParams(v ? { q: v } : {}); }}
                 onSubmit={v => { setSearch(v); setParams(v ? { q: v } : {}); }} />
             </div>
@@ -45,9 +45,9 @@ export default function Diagnostics() {
             </select>
             <select value={priceRange} onChange={e => setPriceRange(e.target.value)} className="select" style={{ width: 'auto', minWidth: 120 }}>
               <option value="">All Prices</option>
-              <option value="budget">Under ?500</option>
-              <option value="mid">?500 - ?1500</option>
-              <option value="premium">Above ?1500</option>
+              <option value="budget">Under ₹500</option>
+              <option value="mid">₹500 - ₹1500</option>
+              <option value="premium">Above ₹1500</option>
             </select>
           </div>
         </div>
@@ -56,10 +56,10 @@ export default function Diagnostics() {
       <div className="page-section container">
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>?? Have a prescription?</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>📋 Have a prescription?</div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Upload your doctor's prescription and we'll recommend the right tests.</div>
           </div>
-          <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>?? Upload Prescription</button>
+          <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>📤 Upload Prescription</button>
         </div>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} test{results.length !== 1 ? 's' : ''} found</p>
         <div className="grid-3">
@@ -74,8 +74,8 @@ export default function Diagnostics() {
               </div>
               <div className="footer" style={{ marginTop: 12 }}>
                 <div>
-                  <span className="price">?{t.offerPrice || t.price}</span>
-                  {t.offerPrice && <span className="mrp">?{t.price}</span>}
+                  <span className="price">₹{t.offerPrice || t.price}</span>
+                  {t.offerPrice && <span className="mrp">₹{t.price}</span>}
                   <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 2 }}>Free Home Collection</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
