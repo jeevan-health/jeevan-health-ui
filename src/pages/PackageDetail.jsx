@@ -149,7 +149,7 @@ const PackageDetail = () => {
   if (!pkg) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-light)', fontSize: 14 }}>
-        Package not found. <span style={{ color: '#0F5DA8', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/health-packages')}>View all packages</span>
+        Package not found. <span style={{ color: '#0F5DA8', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/services')}>View all packages</span>
       </div>
     );
   }
@@ -185,7 +185,7 @@ const PackageDetail = () => {
   return (
     <div className="page-container">
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '16px' }}>
-        <button onClick={() => navigate('/health-packages')}
+        <button onClick={() => navigate('/services')}
           style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, marginBottom: 16 }}>
           <CaretLeft size={16} /> Back to all packages
         </button>
@@ -317,7 +317,7 @@ const PackageDetail = () => {
             <button onClick={shareWhatsApp} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <WhatsappLogo size={16} weight="fill" /> Share
             </button>
-            <button onClick={() => navigate('/health-packages')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => navigate('/services')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#fff', color: '#0F5DA8', border: '1px solid #0F5DA8', cursor: 'pointer', fontFamily: 'inherit' }}>
               View All Packages
             </button>
           </div>

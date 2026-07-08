@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import useAuthStore from './stores/authStore';
@@ -25,6 +25,17 @@ function Loading() {
   return <div className="page-section container text-center" style={{ padding: '80px 16px' }}>Loading...</div>;
 }
 
+function NotFound() {
+  return (
+    <div className="page-section container text-center" style={{ padding: '80px 16px' }}>
+      <div style={{ fontSize: 48, marginBottom: 12 }}>🔬</div>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Page Not Found</h1>
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>The page you are looking for does not exist.</p>
+      <Link to="/" className="btn btn-primary">Go Home</Link>
+    </div>
+  );
+}
+
 export default function App() {
   const fetchProfile = useAuthStore(s => s.fetchProfile);
   const isAuth = useAuthStore(s => s.isAuthenticated);
@@ -47,6 +58,7 @@ export default function App() {
             <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
