@@ -3,15 +3,6 @@ import { Link } from 'react-router-dom';
 import { seedTests } from '../data/seedData';
 import { getPackagesByAxis } from '../utils/packageGenerator';
 
-const features = [
-  { icon: '🏥', title: 'NABL Certified Labs', desc: 'All tests processed in accredited laboratories' },
-  { icon: '🚚', title: 'Free Home Collection', desc: 'Trained phlebotomists collect samples at your doorstep' },
-  { icon: '📱', title: 'Digital Reports', desc: 'Get reports on WhatsApp, Email & Mobile App' },
-  { icon: '⏱️', title: 'Fast Results', desc: 'Most reports delivered within 24-48 hours' },
-  { icon: '💰', title: 'Best Prices', desc: 'Affordable rates with regular discounts & offers' },
-  { icon: '👨‍⚕️', title: 'Expert Guidance', desc: 'Doctor-reviewed reports with interpretation' },
-];
-
 const testimonials = [
   { name: 'Priya Sharma', text: 'Excellent service! The phlebotomist was on time and very professional. Reports came within 24 hours.', rating: 5 },
   { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare for all my family health checkups. Great prices and reliable reports.', rating: 5 },
@@ -34,7 +25,7 @@ export default function Home() {
     <div>
       <HeroSection />
       <TrustStrip />
-      <FeaturesSection />
+      <QuickActions />
       <PopularTests popular={popular} />
       <PackagesSection pkgs={pkgs} />
       <HowItWorks />
@@ -133,19 +124,40 @@ function TrustStrip() {
   );
 }
 
-function FeaturesSection() {
+function QuickActions() {
+  const actions = [
+    { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#0B5DA8' },
+    { icon: '📦', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#16a34a' },
+    { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', path: '/upload-prescription', color: '#dc2626' },
+    { icon: '👨‍⚕️', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/contact', color: '#7c3aed' },
+    { icon: '💊', label: 'Medicine Delivery', desc: 'Medicines delivered to your doorstep', path: '/contact', color: '#e65100' },
+    { icon: '🏠', label: 'Home Nursing', desc: 'Trained nurses at home', path: '/contact', color: '#0891b2' },
+  ];
   return (
-    <div className="page-section container">
-      <h2 className="section-title text-center">Why Choose Jeevan HealthCare?</h2>
-      <p className="section-subtitle text-center">India's most trusted diagnostics platform</p>
-      <div className="grid-3" style={{ marginTop: 16 }}>
-        {features.map(f => (
-          <div key={f.title} className="card feature-card">
-            <div className="icon" style={{ background: 'var(--primary-light)' }}>{f.icon}</div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{f.title}</h3>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{f.desc}</p>
-          </div>
-        ))}
+    <div className="page-section" style={{ background: '#f8f9fa' }}>
+      <div className="container">
+        <div className="grid-3" style={{ gap: 14 }}>
+          {actions.map(a => (
+            <Link key={a.label} to={a.path}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',
+                background: '#fff', borderRadius: 14, textDecoration: 'none',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #e8edf2',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.boxShadow = `0 4px 16px ${a.color}20`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'none'; }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: `${a.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
+                {a.icon}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{a.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.desc}</div>
+              </div>
+              <span style={{ color: '#ccc', fontSize: 18 }}>→</span>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
