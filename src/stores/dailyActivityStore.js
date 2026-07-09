@@ -185,19 +185,33 @@ const useDailyActivityStore = create((set, get) => ({
 
   lastCoachMessage: null,
 
+  _autoSave: (todayData, scores) => {
+    const todayStr = today();
+    const state = get();
+    const exists = state.history.find(d => d.date === todayStr);
+    let newHistory;
+    if (exists) {
+      newHistory = state.history.map(d => d.date === todayStr ? { date: todayStr, score: scores.total, activities: { ...todayData }, scores } : d);
+    } else {
+      newHistory = [...state.history, { date: todayStr, score: scores.total, activities: { ...todayData }, scores }];
+    }
+    const streak = getStreakFromHistory(newHistory);
+    try { localStorage.setItem('jh_daily_activity', JSON.stringify({ lastScore: scores.total, streak, lastUpdated: todayStr })); } catch {}
+    return { history: newHistory, streak, lastCoachMessage: getCoachMessage(scores, 'Ashwin') };
+  },
+
   updateActivity: (category, field, value) => set(state => {
-    const updated = {
-      ...state.today,
-      [category]: { ...state.today[category], [field]: value },
-    };
+    const updated = { ...state.today, [category]: { ...state.today[category], [field]: value } };
     const scores = computeDailyScore(updated);
-    return { today: updated, currentScore: scores };
+    const saved = get()._autoSave(updated, scores);
+    return { today: updated, currentScore: scores, ...saved };
   }),
 
   setActivity: (category, data) => set(state => {
     const updated = { ...state.today, [category]: { ...state.today[category], ...data } };
     const scores = computeDailyScore(updated);
-    return { today: updated, currentScore: scores };
+    const saved = get()._autoSave(updated, scores);
+    return { today: updated, currentScore: scores, ...saved };
   }),
 
   saveDay: () => set(state => {

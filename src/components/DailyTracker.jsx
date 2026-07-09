@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import useDailyActivityStore, { computeDailyScore } from '../stores/dailyActivityStore';
 
 function ScoreCircle({ score, size = 100 }) {
@@ -372,6 +372,7 @@ function CoachMessage({ message }) {
 export default function DailyTracker() {
   const store = useDailyActivityStore();
   const [tab, setTab] = useState('today');
+  const [savedAt, setSavedAt] = useState(null);
 
   const todayScore = useMemo(() => {
     if (store.currentScore) return store.currentScore.total;
@@ -380,6 +381,15 @@ export default function DailyTracker() {
   }, [store.currentScore, store.today]);
 
   const week = store.getWeekSummary();
+
+  useEffect(() => {
+    setSavedAt(new Date());
+    const timer = setInterval(() => setSavedAt(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, [store.history.length]);
+
+  const timeAgo = savedAt ? Math.floor((Date.now() - savedAt) / 1000) : 0;
+  const autoSaveLabel = timeAgo < 5 ? 'Auto-saving...' : timeAgo < 60 ? `Saved ${timeAgo}s ago` : `Saved ${Math.floor(timeAgo / 60)}m ago`;
 
   return (
     <div style={{ marginBottom: 24 }}>
@@ -402,7 +412,7 @@ export default function DailyTracker() {
         <div>
           <CoachMessage message={store.lastCoachMessage} />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
             <ScoreCircle score={todayScore} size={96} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>Today's Health Score</div>
@@ -419,10 +429,12 @@ export default function DailyTracker() {
             </div>
           </div>
 
-          <button onClick={() => { store.saveDay(); }}
-            style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 14, minHeight: 44 }}>
-            💾 Save Today's Activity
-          </button>
+          {/* Real-time auto-save indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, padding: '6px 12px', background: '#F0FDF4', borderRadius: 8, fontSize: 11, color: '#16a34a' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+            <span style={{ flex: 1 }}>Live tracking — {autoSaveLabel}</span>
+            <span style={{ fontSize: 10, color: '#94a3b8' }}>⚡ real-time</span>
+          </div>
 
           {/* Activity summaries */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -490,10 +502,10 @@ export default function DailyTracker() {
             <VitalsTracker vitals={store.today.vitals} onUpdate={store.setActivity} />
           </TrackerSection>
 
-          <button onClick={() => { store.saveDay(); }}
-            style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 8, minHeight: 44 }}>
-            💾 Save Today's Activity
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '8px 12px', background: '#F0FDF4', borderRadius: 8, fontSize: 11, color: '#16a34a' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+            <span>Auto-saving in real-time — {autoSaveLabel}</span>
+          </div>
         </div>
       )}
 
@@ -514,6 +526,9 @@ export default function DailyTracker() {
           )}
         </div>
       )}
+      <style>{`
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+      `}</style>
     </div>
   );
 }
