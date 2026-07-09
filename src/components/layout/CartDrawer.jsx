@@ -132,7 +132,13 @@ export default function CartDrawer() {
           </div>
         )}
       </div>
-      <style>{`@keyframes cartSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
+      <style>{`
+        @keyframes cartSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @media (max-width: 480px) {
+          .cart-drawer-inner { font-size: 11px !important; }
+          .cart-drawer-inner .btn { padding: 10px 8px !important; font-size: 11px !important; min-height: 42px; }
+        }
+      `}</style>
     </div>
   );
 }

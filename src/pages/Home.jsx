@@ -31,6 +31,28 @@ export default function Home() {
       <Testimonials />
       <HealthLibrarySection />
       <FaqSection />
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-search { border-radius: 12px !important; }
+        }
+        @media (max-width: 600px) {
+          .trust-strip-inner { gap: 4px !important; }
+          .trust-strip-inner span { font-size: 10px !important; padding: 3px 8px !important; }
+          .quick-action-card { padding: 12px 14px !important; gap: 10px !important; }
+          .quick-action-card > div:first-child { width: 36px !important; height: 36px !important; font-size: 16px !important; }
+          .quick-action-card > div:last-child > div:first-child { font-size: 12px !important; }
+          .quick-action-card > div:last-child > div:last-child { font-size: 10px !important; }
+        }
+        @media (max-width: 480px) {
+          .popular-test-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+          .why-choose-grid { grid-template-columns: 1fr !important; }
+          .why-cta-section { padding: 20px 16px !important; }
+          .why-cta-section h3 { font-size: 15px !important; }
+          .why-cta-section .btn { width: 100% !important; }
+          .hero .hero-stats-grid { gap: 6px !important; }
+          .hero .hero-stat { padding: 8px !important; font-size: 10px !important; }
+        }
+      `}</style>
     </div>
   );
 }

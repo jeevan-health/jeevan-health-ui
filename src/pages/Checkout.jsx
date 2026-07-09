@@ -674,8 +674,30 @@ export default function Checkout() {
       )}
 
       <style>{`
+        @media (max-width: 768px) {
+          .checkout-step-card { padding: 16px !important; }
+          .checkout-actions { flex-direction: column !important; gap: 8px !important; }
+          .checkout-actions .btn { width: 100% !important; justify-content: center !important; }
+          .checkout-time-slots { grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+          .checkout-date-chips { gap: 4px !important; }
+          .checkout-date-chips button { min-width: 60px !important; font-size: 10px !important; padding: 6px 8px !important; }
+          .checkout-review-card { padding: 14px !important; }
+          .checkout-items-list > div { flex-wrap: wrap !important; gap: 6px !important; }
+          .checkout-payment-options { grid-template-columns: 1fr !important; }
+        }
         @media (max-width: 600px) {
           .grid-2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+          .checkout-main { padding: 12px 10px !important; }
+          .checkout-main h3 { font-size: 14px !important; }
+          .checkout-main .card { padding: 12px !important; border-radius: 14px !important; }
+          .checkout-date-chips button { min-width: 50px !important; font-size: 9px !important; padding: 5px 6px !important; }
+          .checkout-time-slots { grid-template-columns: 1fr 1fr !important; gap: 4px !important; }
+          .checkout-time-slots button { padding: 8px 10px !important; font-size: 11px !important; }
+          .checkout-patient-list > div { padding: 10px !important; }
+          .checkout-add-patient-btn { flex-direction: column !important; gap: 6px !important; }
+          .checkout-add-patient-btn input { width: 100% !important; }
         }
       `}</style>
     </div>

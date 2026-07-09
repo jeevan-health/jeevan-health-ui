@@ -1157,31 +1157,44 @@ export default function Dashboard() {
           .dash-mobile-nav { display: block !important; }
           .dash-main { padding: 12px 10px !important; padding-bottom: 80px !important; }
           .dash-main h1 { font-size: 17px !important; }
-          .dash-main .dash-header-wrap { flex-direction: column !important; align-items: stretch !important; }
+          .dash-main .dash-header-wrap { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
           .dash-main .dash-header-left { width: 100% !important; }
           .dash-main .dash-header-right { width: 100% !important; justify-content: space-between !important; }
           .dash-main .dash-score-ring svg { width: 56px !important; height: 56px !important; }
           .dash-main .dash-score-text { font-size: 16px !important; }
-          .dash-main .dash-actions { flex-direction: row !important; }
-          .dash-main .dash-actions button { flex: 1 !important; font-size: 11px !important; padding: 8px 12px !important; white-space: nowrap !important; }
-          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .dash-main .dash-actions { flex-direction: row !important; gap: 8px !important; }
+          .dash-main .dash-actions button { flex: 1 !important; font-size: 11px !important; padding: 10px 12px !important; white-space: nowrap !important; min-height: 38px !important; }
+          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
           .dash-main .overview-grid > div { padding: 14px 10px !important; }
           .dash-main .overview-grid > div > div:nth-child(1) { font-size: 22px !important; }
           .dash-main .overview-grid > div > div:nth-child(2) { font-size: 20px !important; }
           .dash-main .card { padding: 14px !important; border-radius: 16px !important; }
           .dash-main .card h2, .dash-main .card h3 { font-size: 13px !important; }
-          .dash-mobile-nav button { padding: 8px 8px !important; font-size: 11px !important; gap: 4px !important; }
+          .dash-main .card > div { gap: 8px !important; }
+          .dash-mobile-nav button { padding: 8px 8px !important; font-size: 11px !important; gap: 4px !important; min-height: 38px !important; }
           .dash-mobile-nav button span:last-child { font-size: 10px !important; }
-          .dash-section-grid-2 { grid-template-columns: 1fr !important; }
+          .dash-section-grid-2 { grid-template-columns: 1fr !important; gap: 10px !important; }
           .dash-trend-svg svg { width: 100% !important; height: auto !important; }
-          .dash-family-grid { grid-template-columns: 1fr 1fr !important; }
+          .dash-family-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+          .dash-main .btn { min-height: 36px; }
+          .dash-main .btn-sm { min-height: 32px; padding: 6px 10px !important; }
         }
         @media (max-width: 480px) {
           .dash-main .dash-score-ring { display: none !important; }
-          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-          .dash-main .dash-actions { flex-direction: column !important; }
-          .dash-main .dash-header-right { flex-direction: column !important; align-items: stretch !important; gap: 8px !important; }
+          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+          .dash-main .overview-grid > div { padding: 10px 8px !important; }
+          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 18px !important; }
+          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 16px !important; }
+          .dash-main .dash-actions { flex-direction: column !important; gap: 6px !important; }
+          .dash-main .dash-header-right { flex-direction: column !important; align-items: stretch !important; gap: 6px !important; }
+          .dash-main .dash-header-left > div:first-child { width: 40px !important; height: 40px !important; font-size: 18px !important; }
           .dash-family-grid { grid-template-columns: 1fr !important; }
+          .dash-main h1 { font-size: 15px !important; }
+          .dash-main p { font-size: 11px !important; }
+          .dash-main .card { padding: 10px 12px !important; }
+          .dash-main .panel-body { padding: 12px !important; }
+          .dash-main .input, .dash-main .select { padding: 8px 10px !important; font-size: 11px !important; }
+          .dash-main .grid-2 { gap: 6px !important; }
         }
       `}</style>
     </div>
