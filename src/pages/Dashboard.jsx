@@ -161,6 +161,7 @@ export default function Dashboard() {
     else if (tab === 'profile' && activeSection !== 'profile') setActiveSection('profile');
     else if (!tab && activeSection !== 'overview') setActiveSection('overview');
   }, [searchParams]);
+  const [comingSoon, setComingSoon] = useState(null);
   useEffect(() => { if (comingSoon) { const t = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(t); } }, [comingSoon]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   const [editingFamily, setEditingFamily] = useState(null);
@@ -182,7 +183,6 @@ export default function Dashboard() {
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [healthStep, setHealthStep] = useState(1);
   const [healthSubTab, setHealthSubTab] = useState('overview');
-  const [comingSoon, setComingSoon] = useState(null);
   const [healthForm, setHealthForm] = useState({
     personalProfile: { ageGroup: '', gender: '', location: '' },
     lifestyle: { smoking: 'never', alcohol: 'never', exercise: 'frequent', sleep: 'good', stress: 'low' },
