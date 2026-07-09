@@ -49,6 +49,24 @@ const defaultRoles = {
       { view: false, create: false, edit: false, delete: false },
     ])),
   },
+  phlebotomist: {
+    label: 'Phlebotomist', color: '#059669', bg: '#ecfdf5',
+    permissions: Object.fromEntries(MODULES.map(m => [
+      m.id,
+      m.id === 'dashboard' ? { view: true, create: false, edit: false, delete: false } :
+      m.id === 'orders' ? { view: true, create: false, edit: true, delete: false } :
+      { view: false, create: false, edit: false, delete: false },
+    ])),
+  },
+  doctor: {
+    label: 'Doctor', color: '#7c3aed', bg: '#f5f3ff',
+    permissions: Object.fromEntries(MODULES.map(m => [
+      m.id,
+      m.id === 'dashboard' ? { view: true, create: false, edit: false, delete: false } :
+      m.id === 'orders' ? { view: true, create: false, edit: false, delete: false } :
+      { view: false, create: false, edit: false, delete: false },
+    ])),
+  },
   user: {
     label: 'User', color: '#475569', bg: '#f1f5f9',
     permissions: Object.fromEntries(MODULES.map(m => [m.id, { view: false, create: false, edit: false, delete: false }])),

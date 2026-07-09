@@ -36,9 +36,20 @@ const AdminDoctors = lazy(() => import('./pages/admin/AdminDoctors'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
+const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
+const PhlebotomistLayout = lazy(() => import('./components/phlebotomist/PhlebotomistLayout'));
+const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
+const DoctorLayout = lazy(() => import('./components/doctor/DoctorLayout'));
+
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
+  const user = useAuthStore(s => s.user);
   if (!isAuth) return <Navigate to="/signup" />;
+  // Role-based redirect
+  const role = user?.role || 'user';
+  if (role === 'phlebotomist') return <Navigate to="/phlebotomist" />;
+  if (role === 'doctor') return <Navigate to="/doctor" />;
+  if (role === 'super_admin' || role === 'admin' || role === 'staff') return <Navigate to="/admin" />;
   return children;
 }
 
@@ -48,6 +59,8 @@ function AdminGuard({ children }) {
   if (!isAuth) return <Navigate to="/admin/login" />;
   const role = user?.role || 'user';
   if (role === 'user') return <Navigate to="/dashboard" />;
+  if (role === 'phlebotomist') return <Navigate to="/phlebotomist" />;
+  if (role === 'doctor') return <Navigate to="/doctor" />;
   return children;
 }
 
@@ -112,6 +125,12 @@ export default function App() {
             <Route path="patients" element={<AdminPatients />} />
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="contacts" element={<AdminContacts />} />
+          </Route>
+          <Route path="/phlebotomist" element={<Protected><PhlebotomistLayout /></Protected>}>
+            <Route index element={<PhlebotomistDashboard />} />
+          </Route>
+          <Route path="/doctor" element={<Protected><DoctorLayout /></Protected>}>
+            <Route index element={<DoctorDashboard />} />
           </Route>
         </Routes>
       </Suspense>
