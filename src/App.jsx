@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import useAuthStore from './stores/authStore';
 import AdminLayout from './components/admin/AdminLayout';
+import RoleLayout from './components/role/RoleLayout';
 
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
@@ -37,18 +38,32 @@ const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
-const PhlebotomistLayout = lazy(() => import('./components/phlebotomist/PhlebotomistLayout'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
-const DoctorLayout = lazy(() => import('./components/doctor/DoctorLayout'));
+const NurseDashboard = lazy(() => import('./pages/role/NurseDashboard'));
+const CaregiverDashboard = lazy(() => import('./pages/role/CaregiverDashboard'));
+const PhysioDashboard = lazy(() => import('./pages/role/PhysioDashboard'));
+const RadiologyDashboard = lazy(() => import('./pages/role/RadiologyDashboard'));
+const PharmacyDashboard = lazy(() => import('./pages/role/PharmacyDashboard'));
+const EmergencyDashboard = lazy(() => import('./pages/role/EmergencyDashboard'));
+const DispatchDashboard = lazy(() => import('./pages/role/DispatchDashboard'));
+
+// Field roles that redirect to their own portal (not admin panel)
+const FIELD_ROLES = ['nurse', 'caregiver', 'physiotherapist', 'radiologist', 'pharmacy', 'emergency', 'dispatch', 'phlebotomist', 'doctor'];
 
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   const user = useAuthStore(s => s.user);
   if (!isAuth) return <Navigate to="/signup" />;
-  // Role-based redirect
   const role = user?.role || 'user';
   if (role === 'phlebotomist') return <Navigate to="/phlebotomist" />;
   if (role === 'doctor') return <Navigate to="/doctor" />;
+  if (role === 'nurse') return <Navigate to="/nurse" />;
+  if (role === 'caregiver') return <Navigate to="/caregiver" />;
+  if (role === 'physiotherapist') return <Navigate to="/physio" />;
+  if (role === 'radiologist') return <Navigate to="/radiology" />;
+  if (role === 'pharmacy') return <Navigate to="/pharmacy" />;
+  if (role === 'emergency') return <Navigate to="/emergency" />;
+  if (role === 'dispatch') return <Navigate to="/dispatch" />;
   if (role === 'super_admin' || role === 'admin' || role === 'staff') return <Navigate to="/admin" />;
   return children;
 }
@@ -59,8 +74,7 @@ function AdminGuard({ children }) {
   if (!isAuth) return <Navigate to="/admin/login" />;
   const role = user?.role || 'user';
   if (role === 'user') return <Navigate to="/dashboard" />;
-  if (role === 'phlebotomist') return <Navigate to="/phlebotomist" />;
-  if (role === 'doctor') return <Navigate to="/doctor" />;
+  if (FIELD_ROLES.includes(role)) return <Navigate to={`/${role === 'physiotherapist' ? 'physio' : role === 'radiologist' ? 'radiology' : role}`} />;
   return children;
 }
 
@@ -126,11 +140,41 @@ export default function App() {
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
-          <Route path="/phlebotomist" element={<Protected><PhlebotomistLayout /></Protected>}>
+          {/* Phlebotomist Portal */}
+          <Route path="/phlebotomist" element={<Protected><RoleLayout role="phlebotomist" /></Protected>}>
             <Route index element={<PhlebotomistDashboard />} />
           </Route>
-          <Route path="/doctor" element={<Protected><DoctorLayout /></Protected>}>
+          {/* Doctor Portal */}
+          <Route path="/doctor" element={<Protected><RoleLayout role="doctor" /></Protected>}>
             <Route index element={<DoctorDashboard />} />
+          </Route>
+          {/* Nurse Portal */}
+          <Route path="/nurse" element={<Protected><RoleLayout role="nurse" /></Protected>}>
+            <Route index element={<NurseDashboard />} />
+          </Route>
+          {/* Caregiver Portal */}
+          <Route path="/caregiver" element={<Protected><RoleLayout role="caregiver" /></Protected>}>
+            <Route index element={<CaregiverDashboard />} />
+          </Route>
+          {/* Physiotherapist Portal */}
+          <Route path="/physio" element={<Protected><RoleLayout role="physiotherapist" /></Protected>}>
+            <Route index element={<PhysioDashboard />} />
+          </Route>
+          {/* Radiology Portal */}
+          <Route path="/radiology" element={<Protected><RoleLayout role="radiologist" /></Protected>}>
+            <Route index element={<RadiologyDashboard />} />
+          </Route>
+          {/* Pharmacy Portal */}
+          <Route path="/pharmacy" element={<Protected><RoleLayout role="pharmacy" /></Protected>}>
+            <Route index element={<PharmacyDashboard />} />
+          </Route>
+          {/* Emergency Portal */}
+          <Route path="/emergency" element={<Protected><RoleLayout role="emergency" /></Protected>}>
+            <Route index element={<EmergencyDashboard />} />
+          </Route>
+          {/* Dispatch Portal */}
+          <Route path="/dispatch" element={<Protected><RoleLayout role="dispatch" /></Protected>}>
+            <Route index element={<DispatchDashboard />} />
           </Route>
         </Routes>
       </Suspense>
