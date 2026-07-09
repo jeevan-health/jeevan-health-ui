@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { computeHealthScore } from './dashboardStore.js';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
