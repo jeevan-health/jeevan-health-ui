@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import {
   CaretLeft, Flask, CheckCircle, Clock, Phone, WhatsappLogo,
   FileText, Heartbeat, Star, ArrowRight, CaretDown,
-  Plus, Minus, Sparkle, User, Warning,
+  Plus, Minus, Sparkle, User, Warning, MapPin, Shield, Coin,
 } from '@phosphor-icons/react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
 import { seedTests } from '../data/seedData';
