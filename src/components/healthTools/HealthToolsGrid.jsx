@@ -4,7 +4,10 @@ import HealthToolModal from './HealthToolModal';
 import BmiCalculator from './BmiCalculator';
 import BpCalculator from './BpCalculator';
 import HeartHealthCalculator from './HeartHealthCalculator';
-import WomenHealth from './WomenHealth';
+import MenstrualCycleCalc from './MenstrualCycleCalc';
+import OvulationFertility from './OvulationFertility';
+import PregnancyDueDateCalc from './PregnancyDueDateCalc';
+import PregnancyHealthTracker from './PregnancyHealthTracker';
 import ChildGrowthCalculator from './ChildGrowthCalculator';
 import { IdealWeightCalc, CalorieCalc, DiabetesRiskCalc, BoneHealthCalc, StressWellnessCalc } from './ExtraCalculators';
 
@@ -12,8 +15,10 @@ const CALCULATORS = {
   bmi: { comp: BmiCalculator, title: 'BMI Calculator', icon: '⚖️' },
   bp: { comp: BpCalculator, title: 'Blood Pressure Tracker', icon: '🫀' },
   heart: { comp: HeartHealthCalculator, title: 'Heart Health Assessment', icon: '❤️' },
-  women: { comp: WomenHealth, title: "Women's Health", icon: '👩' },
-  pregnancy: { comp: WomenHealth, title: 'Pregnancy Due Date', icon: '🤰' },
+  menstrual: { comp: MenstrualCycleCalc, title: 'Menstrual Cycle Calculator', icon: '📅' },
+  ovulation: { comp: OvulationFertility, title: 'Ovulation & Fertility', icon: '🌸' },
+  pregnancy: { comp: PregnancyDueDateCalc, title: 'Pregnancy Due Date Calculator', icon: '🤰' },
+  pregnancyTracker: { comp: PregnancyHealthTracker, title: 'Pregnancy Health Tracker', icon: '👶' },
   child: { comp: ChildGrowthCalculator, title: 'Child Growth Tracker', icon: '👶' },
   diabetes: { comp: DiabetesRiskCalc, title: 'Diabetes Risk Calculator', icon: '🩸' },
   calorie: { comp: CalorieCalc, title: 'Daily Calorie Calculator', icon: '🔥' },

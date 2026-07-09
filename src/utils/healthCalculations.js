@@ -148,16 +148,20 @@ export function dailyCalorie(age, gender, heightCm, weightKg, activityLevel) {
   return Math.round(bmr * factor);
 }
 
-export function diabetesRisk(age, bmi, familyHistory, exercise, bloodSugar) {
+export function diabetesRisk(age, gender, heightCm, weightKg, familyHistory, exercise, smoking, bloodPressure, bloodSugar) {
   let score = 0;
   if (age >= 60) score += 15;
   else if (age >= 50) score += 10;
   else if (age >= 40) score += 5;
+  const bmi = heightCm && weightKg ? calcBMI(heightCm, weightKg) : 0;
   if (bmi >= 30) score += 20;
   else if (bmi >= 25) score += 10;
   if (familyHistory === 'yes') score += 20;
   if (exercise === 'sedentary') score += 10;
   else if (exercise === 'light') score += 5;
+  if (smoking === 'yes') score += 10;
+  if (bloodPressure === 'high') score += 10;
+  else if (bloodPressure === 'elevated') score += 5;
   if (bloodSugar >= 126) score += 25;
   else if (bloodSugar >= 100) score += 15;
   if (score >= 50) return { label: 'High Risk', color: '#EF4444', icon: '🔴', score };
@@ -165,7 +169,7 @@ export function diabetesRisk(age, bmi, familyHistory, exercise, bloodSugar) {
   return { label: 'Low Risk', color: '#16A34A', icon: '🟢', score };
 }
 
-export function boneHealthRisk(age, gender, weight, previousFractures, familyHistory) {
+export function boneHealthRisk(age, gender, weight, heightCm, previousFractures, familyHistory, menopauseStatus, vitaminD, calciumIntake, physicalActivity) {
   let score = 0;
   if (age >= 60) score += 25;
   else if (age >= 50) score += 15;
@@ -175,6 +179,14 @@ export function boneHealthRisk(age, gender, weight, previousFractures, familyHis
   else if (weight < 60) score += 8;
   if (previousFractures === 'yes') score += 25;
   if (familyHistory === 'yes') score += 20;
+  if (gender === 'female' && menopauseStatus === 'post') score += 15;
+  else if (gender === 'female' && menopauseStatus === 'peri') score += 8;
+  if (vitaminD === 'deficient') score += 15;
+  else if (vitaminD === 'insufficient') score += 8;
+  if (calciumIntake === 'low') score += 15;
+  else if (calciumIntake === 'moderate') score += 5;
+  if (physicalActivity === 'sedentary') score += 10;
+  else if (physicalActivity === 'light') score += 5;
   if (score >= 50) return { label: 'High Risk', color: '#EF4444', icon: '🔴', score };
   if (score >= 25) return { label: 'Moderate Risk', color: '#F59E0B', icon: '🟡', score };
   return { label: 'Low Risk', color: '#16A34A', icon: '🟢', score };
@@ -232,6 +244,7 @@ export function getRecommendedTests(tool, data = {}) {
     tests.push({ name: 'Fasting Blood Sugar', price: 199, reason: 'Fasting glucose level' });
     tests.push({ name: 'Postprandial Blood Sugar', price: 199, reason: 'Post-meal glucose' });
     tests.push({ name: 'Urine Routine', price: 199, reason: 'Kidney function screen' });
+    tests.push({ name: 'Kidney Function Test', price: 499, reason: 'Kidney health assessment' });
     packages.push({ name: 'Diabetes Screening Package', price: 1999 });
   }
   if (tool === 'bone') {
@@ -240,14 +253,14 @@ export function getRecommendedTests(tool, data = {}) {
     tests.push({ name: 'Bone Density Scan (DEXA)', price: 2499, reason: 'Bone density measurement' });
     packages.push({ name: 'Bone Health Package', price: 3999 });
   }
-  if (tool === 'women') {
+  if (tool === 'women' || tool === 'menstrual' || tool === 'ovulation') {
     tests.push({ name: 'CBC', price: 399, reason: 'Anemia screening' });
     tests.push({ name: 'Thyroid Profile', price: 499, reason: 'Hormonal balance' });
     tests.push({ name: 'Iron Studies', price: 599, reason: 'Iron deficiency check' });
     tests.push({ name: 'Vitamin D', price: 899, reason: 'Bone & immune health' });
     tests.push({ name: 'Vitamin B12', price: 549, reason: 'Energy & nerve health' });
   }
-  if (tool === 'pregnancy') {
+  if (tool === 'pregnancy' || tool === 'pregnancyTracker') {
     tests.push({ name: 'CBC', price: 399, reason: 'Anemia screening' });
     tests.push({ name: 'Blood Group & Rh Typing', price: 299, reason: 'Blood type compatibility' });
     tests.push({ name: 'Blood Sugar Screening', price: 199, reason: 'Gestational diabetes' });
@@ -258,6 +271,7 @@ export function getRecommendedTests(tool, data = {}) {
     tests.push({ name: 'CBC', price: 399, reason: 'General health screening' });
     tests.push({ name: 'Vitamin D', price: 899, reason: 'Bone growth essential' });
     tests.push({ name: 'Iron Profile', price: 599, reason: 'Iron deficiency check' });
+    tests.push({ name: 'Thyroid Profile', price: 499, reason: 'Growth & metabolism (when indicated)' });
   }
   if (tool === 'calorie') {
     packages.push({ name: 'Weight Management Package', price: 2999 });
@@ -271,8 +285,10 @@ export const TOOLS = [
   { key: 'bmi', icon: '⚖️', label: 'BMI', color: '#3B82F6' },
   { key: 'bp', icon: '🫀', label: 'Blood Pressure', color: '#EF4444' },
   { key: 'heart', icon: '❤️', label: 'Heart Health', color: '#DC2626' },
-  { key: 'women', icon: '👩', label: "Women's Health", color: '#EC4899' },
-  { key: 'pregnancy', icon: '🤰', label: 'Pregnancy', color: '#8B5CF6' },
+  { key: 'menstrual', icon: '📅', label: 'Menstrual Cycle', color: '#EC4899' },
+  { key: 'ovulation', icon: '🌸', label: 'Ovulation & Fertility', color: '#F472B6' },
+  { key: 'pregnancy', icon: '🤰', label: 'Pregnancy Due Date', color: '#8B5CF6' },
+  { key: 'pregnancyTracker', icon: '👶', label: 'Pregnancy Tracker', color: '#A78BFA' },
   { key: 'child', icon: '👶', label: 'Child Growth', color: '#10B981' },
   { key: 'diabetes', icon: '🩸', label: 'Diabetes Risk', color: '#F59E0B' },
   { key: 'calorie', icon: '🔥', label: 'Daily Calories', color: '#F97316' },

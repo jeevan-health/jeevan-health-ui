@@ -18,14 +18,15 @@ export default function HealthToolModal({ open, onClose, title, icon, children }
           padding: '16px 20px', borderBottom: '1px solid #e8edf2',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button onClick={onClose} style={{
+              width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0',
+              background: '#f8f9fa', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569',
+              padding: 0, lineHeight: 1,
+            }}>←</button>
             <span style={{ fontSize: 24 }}>{icon}</span>
             <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{title}</span>
           </div>
-          <button onClick={onClose} style={{
-            width: 32, height: 32, borderRadius: '50%', border: 'none',
-            background: '#f1f5f9', cursor: 'pointer', fontSize: 16, fontFamily: 'inherit',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b',
-          }}>✕</button>
         </div>
 
         {/* Body */}
