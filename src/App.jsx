@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import useAuthStore from './stores/authStore';
+import AdminLayout from './components/admin/AdminLayout';
 
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
@@ -18,9 +19,25 @@ const UploadPrescription = lazy(() => import('./pages/UploadPrescription'));
 const HealthLibrary = lazy(() => import('./pages/HealthLibrary'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminCatalog = lazy(() => import('./pages/admin/AdminCatalog'));
+const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
+const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
+
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   if (!isAuth) return <Navigate to="/signup" />;
+  return children;
+}
+
+function AdminGuard({ children }) {
+  const isAuth = useAuthStore(s => s.isAuthenticated);
+  const user = useAuthStore(s => s.user);
+  if (!isAuth) return <Navigate to="/signup" />;
+  const role = user?.role || 'user';
+  if (role === 'user') return <Navigate to="/dashboard" />;
   return children;
 }
 
@@ -68,6 +85,14 @@ export default function App() {
           </Route>
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="catalog" element={<AdminCatalog />} />
+            <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="contacts" element={<AdminContacts />} />
+          </Route>
         </Routes>
       </Suspense>
     </BrowserRouter>

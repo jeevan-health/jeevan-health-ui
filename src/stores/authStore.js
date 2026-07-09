@@ -1,5 +1,18 @@
 import { create } from 'zustand';
 
+const ADMINS = { '9999999999': 'super_admin' };
+
+const loadUsers = () => { try { return JSON.parse(localStorage.getItem('jh_users') || '[]'); } catch { return []; } };
+const saveUsers = (users) => localStorage.setItem('jh_users', JSON.stringify(users));
+
+function registerUser(user) {
+  const users = loadUsers();
+  const idx = users.findIndex(u => u.id === user.id || u.phone === user.phone);
+  if (idx >= 0) { users[idx] = { ...users[idx], ...user, updatedAt: new Date().toISOString() }; }
+  else { users.unshift({ ...user, role: 'user', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }); }
+  saveUsers(users);
+}
+
 const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: !!localStorage.getItem('jh_token'),
@@ -7,24 +20,30 @@ const useAuthStore = create((set, get) => ({
   family: [],
   addresses: [],
 
-  setUser: (user) => set({ user, isAuthenticated: true }),
+  setUser: (user) => {
+    const enriched = { ...user, role: user.role || (ADMINS[user.phone] || ADMINS[user.email]) || 'user' };
+    set({ user: enriched, isAuthenticated: true });
+    registerUser(enriched);
+  },
 
   login: async (phone) => {
     set({ isLoading: true });
     await new Promise(r => setTimeout(r, 500));
-    const user = { id: '1', phone, name: 'User', email: '' };
+    const user = { id: Date.now().toString(), phone, name: phone === '9999999999' ? 'Super Admin' : 'User', email: '', role: ADMINS[phone] || 'user' };
     localStorage.setItem('jh_token', 'mock-token');
     localStorage.setItem('jh_user', JSON.stringify(user));
     set({ user, isAuthenticated: true, isLoading: false });
+    registerUser(user);
   },
 
   verifyOtp: async (phone, otp) => {
     set({ isLoading: true });
     await new Promise(r => setTimeout(r, 500));
-    const user = { id: '1', phone, name: phone === '9999999999' ? 'Demo User' : 'User', email: '' };
+    const user = { id: Date.now().toString(), phone, name: phone === '9999999999' ? 'Super Admin' : 'User', email: '', role: ADMINS[phone] || 'user' };
     localStorage.setItem('jh_token', 'mock-token');
     localStorage.setItem('jh_user', JSON.stringify(user));
     set({ user, isAuthenticated: true, isLoading: false });
+    registerUser(user);
     return true;
   },
 
@@ -32,23 +51,29 @@ const useAuthStore = create((set, get) => ({
     set({ isLoading: true });
     await new Promise(r => setTimeout(r, 1200));
     const user = {
-      id: 'google_1',
+      id: 'google_' + Date.now(),
       name: 'Ashwin Kumar',
       email: 'ashwin.kumar@gmail.com',
       phone: '+91 98765 43210',
       avatar: null,
       provider: 'google',
+      role: 'user',
     };
     localStorage.setItem('jh_token', 'mock-token-google');
     localStorage.setItem('jh_user', JSON.stringify(user));
     set({ user, isAuthenticated: true, isLoading: false });
+    registerUser(user);
     return true;
   },
 
   fetchProfile: async () => {
     try {
       const stored = localStorage.getItem('jh_user');
-      if (stored) set({ user: JSON.parse(stored), isAuthenticated: true });
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const enriched = { ...parsed, role: parsed.role || ADMINS[parsed.phone] || 'user' };
+        set({ user: enriched, isAuthenticated: true });
+      }
     } catch { /* noop */ }
   },
 
@@ -69,12 +94,28 @@ const useAuthStore = create((set, get) => ({
     localStorage.removeItem('jh_user');
     set({ user: null, isAuthenticated: false });
   },
+
+  // Admin helpers
+  getUsers: () => loadUsers(),
+
+  updateUserRole: (userId, role) => {
+    const users = loadUsers();
+    const u = users.find(x => x.id === userId);
+    if (u) { u.role = role; u.updatedAt = new Date().toISOString(); saveUsers(users); }
+  },
+
+  deleteUser: (userId) => {
+    saveUsers(loadUsers().filter(u => u.id !== userId));
+  },
 }));
 
-// Load stored data
 const stored = localStorage.getItem('jh_user');
 if (stored) {
-  try { useAuthStore.getState().setUser(JSON.parse(stored)); } catch { /* noop */ }
+  try {
+    const parsed = JSON.parse(stored);
+    const enriched = { ...parsed, role: parsed.role || ADMINS[parsed.phone] || 'user' };
+    useAuthStore.getState().setUser(enriched);
+  } catch { /* noop */ }
 }
 const fam = localStorage.getItem('jh_family');
 if (fam) {

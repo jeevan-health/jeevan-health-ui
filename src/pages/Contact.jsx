@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import useAdminStore from '../stores/adminStore';
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: '', phone: '', message: '' });
+  const [sent, setSent] = useState(false);
+  const addContact = useAdminStore(s => s.addContact);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.name || !form.message) return;
+    addContact(form);
+    setSent(true);
+    setForm({ name: '', phone: '', message: '' });
+    setTimeout(() => setSent(false), 3000);
+  };
   return (
     <div className="page-section container" style={{ maxWidth: 700 }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Contact Us</h1>
@@ -24,20 +37,20 @@ export default function Contact() {
 
       <div className="card" style={{ padding: 24 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Send us a message</h2>
-        <form onSubmit={e => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Your Name</label>
-            <input type="text" className="input" placeholder="Enter your name" />
+            <input type="text" className="input" placeholder="Enter your name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
           </div>
           <div className="form-group">
             <label>Phone Number</label>
-            <input type="tel" className="input" placeholder="Enter your phone" />
+            <input type="tel" className="input" placeholder="Enter your phone" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
           </div>
           <div className="form-group">
             <label>Message</label>
-            <textarea className="input" rows={4} placeholder="How can we help you?" style={{ resize: 'vertical' }} />
+            <textarea className="input" rows={4} placeholder="How can we help you?" style={{ resize: 'vertical' }} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} required />
           </div>
-          <button type="submit" className="btn btn-primary btn-block">Send Message</button>
+          <button type="submit" className="btn btn-primary btn-block">{sent ? '✓ Message Sent!' : 'Send Message'}</button>
         </form>
       </div>
 
