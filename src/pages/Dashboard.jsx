@@ -258,34 +258,71 @@ export default function Dashboard() {
 
         {/* ===== HEADER ===== */}
         <div className="dash-header-wrap" style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
-              {p.name.charAt(0)}
+          {/* Top row: Avatar + Name | Health Trends | Health Score */}
+          <div className="dash-header-top" style={{ display: 'flex', alignItems: 'stretch', gap: 14, marginBottom: 14 }}>
+            {/* Avatar + Name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
+                {p.name.charAt(0)}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>👋 Good {p.greeting.includes('Morning') ? 'Morning' : 'Evening'} {p.name.split(' ')[0]}</h1>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>Last Check: <strong>{p.lastCheckup}</strong></p>
+              </div>
             </div>
-            <div style={{ flex: 1 }}>
-              <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>👋 Good {p.greeting.includes('Morning') ? 'Morning' : 'Evening'} {p.name}</h1>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '2px 0' }}>Last Check: <strong>{p.lastCheckup}</strong></p>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2 }}>Health Score</div>
-              <div className="dash-score-text" style={{ fontSize: 24, fontWeight: 800, color: p.healthScore != null && p.healthScore >= 80 ? '#16a34a' : '#94a3b8' }}>{p.healthScore != null ? `${p.healthScore}/100` : '--/100'}</div>
+
+            {/* Health Trends mini */}
+            {activeSection === 'overview' && store.healthTrends.hba1c.length > 0 && (
+              <div className="dash-hdr-trend" style={{ flexShrink: 0, minWidth: 0, display: 'flex', alignItems: 'center' }}>
+                <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)' }}>📈 HbA1c</div>
+                  <TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" />
+                  <TrendArrow value={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value} prev={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 2]?.value} />
+                </div>
+              </div>
+            )}
+
+            {/* Health Score compact */}
+            <div className="dash-hdr-score" style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+              {store.healthData && healthScoreComputed ? (
+                <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 14px 4px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: healthScoreComputed.recommendation.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                    {healthScoreComputed.recommendation.icon}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>HEALTH SCORE</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
+                    <div style={{ fontSize: 9, color: healthScoreComputed.recommendation.color, fontWeight: 600, lineHeight: 1.1 }}>{healthScoreComputed.recommendation.zone}</div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>
+                  <div style={{ fontSize: 22 }}>🩺</div>
+                  <div>
+                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>HEALTH SCORE</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#1866C9', lineHeight: 1.2 }}>--/100</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* CTA buttons */}
           {!store.healthData && (
-            <button onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 14, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 48, marginBottom: 10 }}>
+            <button onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 12, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 44, marginBottom: 10 }}>
               🩺 Start Health Assessment
             </button>
           )}
           <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 56 }}>
-              <span style={{ fontSize: 24, flexShrink: 0 }}>🧪</span>
+            <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
+              <span style={{ fontSize: 22, flexShrink: 0 }}>🧪</span>
               <div style={{ lineHeight: 1.3 }}>
                 <div style={{ fontWeight: 700 }}>Book a Test</div>
                 <div style={{ fontSize: 11, opacity: 0.8 }}>Home Collection</div>
               </div>
             </button>
-            <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 14, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 56 }}>
-              <span style={{ fontSize: 24, flexShrink: 0 }}>📄</span>
+            <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
+              <span style={{ fontSize: 22, flexShrink: 0 }}>📄</span>
               <div style={{ lineHeight: 1.3 }}>
                 <div style={{ fontWeight: 700 }}>Upload Report</div>
                 <div style={{ fontSize: 11, opacity: 0.8 }}>Prescription</div>
@@ -1382,6 +1419,12 @@ export default function Dashboard() {
           .dash-main { padding: 12px 10px !important; padding-bottom: 80px !important; }
           .dash-main h1 { font-size: 18px !important; }
           .dash-main .dash-header-wrap { width: 100% !important; }
+          .dash-header-top { flex-direction: column !important; gap: 10px !important; }
+          .dash-hdr-trend { width: 100% !important; }
+          .dash-hdr-trend > div { width: 100% !important; justify-content: space-between !important; }
+          .dash-hdr-trend svg { width: 80px !important; }
+          .dash-hdr-score { width: 100% !important; }
+          .dash-hdr-score > div { width: 100% !important; justify-content: center !important; }
           .dash-main .dash-actions { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
           .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
           .dash-main .overview-grid > div { padding: 14px 10px !important; }
@@ -1403,7 +1446,7 @@ export default function Dashboard() {
           .dash-main .btn-sm { min-height: 34px; padding: 6px 10px !important; font-size: 11px !important; }
         }
         @media (max-width: 480px) {
-          .dash-main .dash-header-wrap > div:first-child > div:last-child { display: none !important; }
+          .dash-hdr-trend { display: none !important; }
           .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
           .dash-main .overview-grid > div { padding: 12px 8px !important; }
           .dash-main .overview-grid > div > div:nth-child(1) { font-size: 22px !important; }
