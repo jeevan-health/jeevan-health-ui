@@ -6,6 +6,7 @@ import {
   CheckCircle, Drop, FileText, Plus, Minus, CaretLeft, WhatsappLogo, FacebookLogo, Copy,
 } from '@phosphor-icons/react';
 import useCartStore from '../stores/cartStore';
+import useCmsStore from '../stores/cmsStore';
 
 const axisMeta = {
   organ: { icon: Heartbeat, color: '#1866C9', label: 'Organ Wise' },
@@ -115,7 +116,9 @@ const PackageDetail = () => {
   const [pkg, setPkg] = useState(null);
   const [tests, setTests] = useState([]);
   const [ready, setReady] = useState(false);
-  const content = packageContent[slug] || {};
+  const cmsContent = useCmsStore(s => s.content);
+  const overrides = cmsContent.healthPackages?.overrides?.[slug] || {};
+  const content = { ...(packageContent[slug] || {}), ...overrides };
 
   useEffect(() => {
     const check = () => {

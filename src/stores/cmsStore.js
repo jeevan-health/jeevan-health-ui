@@ -92,6 +92,18 @@ const defaults = {
     ],
     active: true,
   },
+  healthPackages: {
+    pageTitle: 'Book Health Packages Online',
+    pageSubtitle: 'Comprehensive health checkup packages from ₹499. Free home collection. Doctor consultation included.',
+    featured: [
+      { slug: 'full-body-health', badge: 'Most Booked', gradient: 'linear-gradient(135deg, #1866C9, #0F4A96)' },
+      { slug: 'diabetes-care', badge: 'Top Rated', gradient: 'linear-gradient(135deg, #16a34a, #22c55e)' },
+      { slug: 'cardiac-care', badge: 'Best Value', gradient: 'linear-gradient(135deg, #7c3aed, #a855f7)' },
+      { slug: 'womens-health', badge: 'Popular', gradient: 'linear-gradient(135deg, #dc2626, #ef4444)' },
+    ],
+    overrides: {},
+    active: true,
+  },
   diagnostics: {
     pageTitle: 'Book Lab Tests Online at Home',
     pageSubtitle: '5000+ diagnostic tests. Free home collection. NABL certified labs. Accurate digital reports.',
@@ -251,6 +263,43 @@ const useCmsStore = create((set, get) => ({
   deleteDiagnosticsCategory: (id) => {
     const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
     content.diagnostics.categories = content.diagnostics.categories.filter(c => c.id !== id);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  // Health Packages
+  updateHealthPackages: (data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)), healthPackages: { ...get().content.healthPackages, ...data } };
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateHealthPackageFeatured: (index, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    if (content.healthPackages.featured[index]) {
+      content.healthPackages.featured[index] = { ...content.healthPackages.featured[index], ...data };
+      save(CMS_KEY, content);
+      set({ content });
+    }
+  },
+
+  addHealthPackageFeatured: (entry) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.healthPackages.featured = [...content.healthPackages.featured, entry];
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  removeHealthPackageFeatured: (index) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.healthPackages.featured = content.healthPackages.featured.filter((_, i) => i !== index);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateHealthPackageOverride: (slug, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.healthPackages.overrides[slug] = { ...(content.healthPackages.overrides[slug] || {}), ...data };
     save(CMS_KEY, content);
     set({ content });
   },

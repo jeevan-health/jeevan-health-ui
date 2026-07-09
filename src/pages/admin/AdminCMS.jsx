@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import useCmsStore from '../../stores/cmsStore';
+import { getPackagesByAxis } from '../../utils/packageGenerator';
+import { seedTests } from '../../data/seedData';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const labelStyle = { fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4, fontWeight: 500 };
@@ -18,6 +20,11 @@ export default function AdminCMS() {
   const addFaq = useCmsStore(s => s.addFaq);
   const updateFaq = useCmsStore(s => s.updateFaq);
   const deleteFaq = useCmsStore(s => s.deleteFaq);
+  const updateHealthPackages = useCmsStore(s => s.updateHealthPackages);
+  const updateHealthPackageFeatured = useCmsStore(s => s.updateHealthPackageFeatured);
+  const addHealthPackageFeatured = useCmsStore(s => s.addHealthPackageFeatured);
+  const removeHealthPackageFeatured = useCmsStore(s => s.removeHealthPackageFeatured);
+  const updateHealthPackageOverride = useCmsStore(s => s.updateHealthPackageOverride);
   const resetContent = useCmsStore(s => s.resetContent);
 
   const [tab, setTab] = useState('hero');
@@ -34,6 +41,7 @@ export default function AdminCMS() {
   const TABS = [
     { id: 'hero', label: 'Hero' },
     { id: 'services', label: 'Services' },
+    { id: 'packages', label: 'Packages' },
     { id: 'diagnostics', label: 'Diagnostics' },
     { id: 'trust', label: 'Trust Strip' },
     { id: 'testimonials', label: 'Testimonials' },
@@ -69,6 +77,9 @@ export default function AdminCMS() {
 
       {/* SERVICES */}
       {tab === 'services' && <ServicesSection services={content.services || []} updateService={updateService} addService={addService} deleteService={deleteService} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
+
+      {/* PACKAGES */}
+      {tab === 'packages' && <PackagesSection content={content} cms={useCmsStore.getState()} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
 
       {/* TRUST STRIP */}
       {tab === 'trust' && <TrustSection data={content.trustStrip || {}} updateTrustStrip={updateTrustStrip} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
@@ -310,6 +321,134 @@ function FaqsSection({ faqs, addFaq, updateFaq, deleteFaq, inputStyle, FormField
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
               <button onClick={handleAdd} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* PACKAGES */
+function PackagesSection({ content, cms, inputStyle, FormField, sectionCard }) {
+  const hp = content.healthPackages || {};
+  const allPkgs = Object.values(getPackagesByAxis(seedTests)).flat();
+  const [pageSettings, setPageSettings] = useState({ pageTitle: hp.pageTitle, pageSubtitle: hp.pageSubtitle });
+  const [selectedSlug, setSelectedSlug] = useState('');
+  const [overrideForm, setOverrideForm] = useState({ benefits: '', whoShouldTake: '', preparation: '', reportTime: '' });
+  const [showFeaturedAdd, setShowFeaturedAdd] = useState(false);
+  const [featuredForm, setFeaturedForm] = useState({ slug: '', badge: '', gradient: 'linear-gradient(135deg, #1866C9, #0F4A96)' });
+
+  useEffect(() => {
+    setPageSettings({ pageTitle: hp.pageTitle, pageSubtitle: hp.pageSubtitle });
+  }, [hp.pageTitle, hp.pageSubtitle]);
+
+  useEffect(() => {
+    if (selectedSlug) {
+      const o = hp.overrides?.[selectedSlug] || {};
+      setOverrideForm({
+        benefits: (o.benefits || []).join('\n'),
+        whoShouldTake: (o.whoShouldTake || []).join('\n'),
+        preparation: o.preparation || '',
+        reportTime: o.reportTime || '',
+      });
+    }
+  }, [selectedSlug, hp.overrides]);
+
+  const savePageSettings = () => cms.updateHealthPackages(pageSettings);
+
+  const saveOverride = () => {
+    cms.updateHealthPackageOverride(selectedSlug, {
+      benefits: overrideForm.benefits.split('\n').filter(Boolean),
+      whoShouldTake: overrideForm.whoShouldTake.split('\n').filter(Boolean),
+      preparation: overrideForm.preparation,
+      reportTime: overrideForm.reportTime,
+    });
+  };
+
+  const handleAddFeatured = () => {
+    if (!featuredForm.slug) return;
+    cms.addHealthPackageFeatured(featuredForm);
+    setShowFeaturedAdd(false);
+    setFeaturedForm({ slug: '', badge: '', gradient: 'linear-gradient(135deg, #1866C9, #0F4A96)' });
+  };
+
+  const selectedPkg = allPkgs.find(p => p.slug === selectedSlug);
+  const nonFeaturedPkgs = allPkgs.filter(p => !(hp.featured || []).some(f => f.slug === p.slug));
+
+  return (
+    <div>
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Page Settings</h4>
+        <FormField label="Page Title"><input value={pageSettings.pageTitle} onChange={e => setPageSettings({ ...pageSettings, pageTitle: e.target.value })} style={inputStyle} /></FormField>
+        <FormField label="Page Subtitle"><textarea rows={2} value={pageSettings.pageSubtitle} onChange={e => setPageSettings({ ...pageSettings, pageSubtitle: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField>
+        <button onClick={savePageSettings} style={{ marginTop: 4, padding: '8px 20px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>Save Page Settings</button>
+      </div>
+
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Featured Packages (Home Page)</h4>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, color: '#64748b' }}>{(hp.featured || []).length} featured</span>
+          <button onClick={() => setShowFeaturedAdd(true)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ Add Featured</button>
+        </div>
+        {(hp.featured || []).map((f, i) => {
+          const pkg = allPkgs.find(p => p.slug === f.slug);
+          return (
+            <div key={i} style={{ ...sectionCard, marginBottom: 8, padding: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 4, height: 36, borderRadius: 2, background: f.gradient || '#1866C9' }} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: '#0f172a' }}>{pkg?.name || f.slug}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>Badge: {f.badge || '—'} | {f.slug}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button onClick={() => { const b = prompt('Badge:', f.badge); if (b) cms.updateHealthPackageFeatured(i, { badge: b }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Badge</button>
+                <button onClick={() => { const g = prompt('Gradient:', f.gradient); if (g) cms.updateHealthPackageFeatured(i, { gradient: g }); }} style={{ background: 'none', border: 'none', color: '#8b5cf6', cursor: 'pointer', fontSize: 12 }}>Gradient</button>
+                <button onClick={() => { if (confirm('Remove from featured?')) cms.removeHealthPackageFeatured(i); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Remove</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Package Detail Overrides</h4>
+        <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px' }}>Customize benefits, who-should-take, preparation, and report time per package.</p>
+        <select value={selectedSlug} onChange={e => setSelectedSlug(e.target.value)} style={{ ...inputStyle, marginBottom: 12 }}>
+          <option value="">— Select a package —</option>
+          {allPkgs.map(p => <option key={p.slug} value={p.slug}>{p.name} ({p.axis})</option>)}
+        </select>
+        {selectedPkg && (
+          <div>
+            <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
+              <FormField label="Benefits (one per line)">
+                <textarea rows={5} value={overrideForm.benefits} onChange={e => setOverrideForm({ ...overrideForm, benefits: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Early detection...&#10;Monitor...&#10;..." />
+              </FormField>
+              <FormField label="Who Should Take (one per line)">
+                <textarea rows={5} value={overrideForm.whoShouldTake} onChange={e => setOverrideForm({ ...overrideForm, whoShouldTake: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Regular consumers...&#10;People on...&#10;..." />
+              </FormField>
+            </div>
+            <FormField label="Preparation Instructions"><textarea rows={2} value={overrideForm.preparation} onChange={e => setOverrideForm({ ...overrideForm, preparation: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField>
+            <FormField label="Report Time"><input value={overrideForm.reportTime} onChange={e => setOverrideForm({ ...overrideForm, reportTime: e.target.value })} style={inputStyle} placeholder="24-48 hours" /></FormField>
+            <button onClick={saveOverride} style={{ marginTop: 8, padding: '8px 20px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>Save Override for "{selectedPkg.name}"</button>
+          </div>
+        )}
+      </div>
+
+      {showFeaturedAdd && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowFeaturedAdd(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Add Featured Package</h4>
+            <select value={featuredForm.slug} onChange={e => setFeaturedForm({ ...featuredForm, slug: e.target.value })} style={{ ...inputStyle, marginBottom: 10 }}>
+              <option value="">— Select a package —</option>
+              {nonFeaturedPkgs.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}
+            </select>
+            <input placeholder="Badge text (e.g. Most Booked)" value={featuredForm.badge} onChange={e => setFeaturedForm({ ...featuredForm, badge: e.target.value })} style={{ ...inputStyle, marginBottom: 10 }} />
+            <input placeholder="Gradient CSS (e.g. linear-gradient(135deg, #1866C9, #0F4A96))" value={featuredForm.gradient} onChange={e => setFeaturedForm({ ...featuredForm, gradient: e.target.value })} style={{ ...inputStyle, marginBottom: 10 }} />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowFeaturedAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
+              <button onClick={handleAddFeatured} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add</button>
             </div>
           </div>
         </div>

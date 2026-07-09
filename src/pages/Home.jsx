@@ -8,7 +8,12 @@ import useCmsStore from '../stores/cmsStore';
 
 export default function Home() {
   const popular = seedTests.slice(0, 8);
-  const pkgs = Object.values(getPackagesByAxis(seedTests)).flat().slice(0, 4);
+  const allPkgs = Object.values(getPackagesByAxis(seedTests)).flat();
+  const cmsContent = useCmsStore(s => s.content);
+  const featured = cmsContent.healthPackages?.featured || [];
+  const pkgs = featured.length > 0
+    ? featured.map(f => allPkgs.find(p => p.slug === f.slug)).filter(Boolean).slice(0, 4)
+    : allPkgs.slice(0, 4);
 
   return (
     <div>
@@ -17,7 +22,7 @@ export default function Home() {
       <QuickActions />
       <PopularTests popular={popular} />
       <CategoriesSection />
-      <PackagesSection pkgs={pkgs} />
+      <PackagesSection pkgs={pkgs} featured={featured} />
       <WhyChooseJeevan />
       <HowItWorks />
       <StatsSection />
@@ -355,14 +360,7 @@ function CategoriesSection() {
   );
 }
 
-function PackagesSection({ pkgs }) {
-  const gradients = [
-    'linear-gradient(135deg, #1866C9, #0F4A96)',
-    'linear-gradient(135deg, #16a34a, #22c55e)',
-    'linear-gradient(135deg, #7c3aed, #a855f7)',
-    'linear-gradient(135deg, #dc2626, #ef4444)',
-  ];
-  const badges = ['Most Booked', 'Top Rated', 'Best Value', 'Popular'];
+function PackagesSection({ pkgs, featured }) {
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
       <div className="container">
@@ -375,12 +373,13 @@ function PackagesSection({ pkgs }) {
         </div>
         <div className="grid-4" style={{ gap: 14 }}>
           {pkgs.filter(Boolean).slice(0, 4).map((p, i) => {
+            const f = featured?.[i];
             const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
             const discPct = Math.round((1 - p.bundlePrice / p.totalMrp) * 100);
             return (
               <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                <div style={{ background: gradients[i % gradients.length], padding: '16px 16px 20px', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badges[i]}</span>
+                <div style={{ background: f?.gradient || '#1866C9', padding: '16px 16px 20px', position: 'relative' }}>
+                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{f?.badge || 'Popular'}</span>
                   <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct}% OFF</span>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.axis} Package</div>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.2 }}>{p.name}</h3>

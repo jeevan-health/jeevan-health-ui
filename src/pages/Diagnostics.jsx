@@ -1,19 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import useCartStore from '../stores/cartStore';
 import { seedTests } from '../data/seedData';
 import SmartSearch from '../components/layout/SmartSearch';
-
-const CATS = [...new Set(seedTests.map(t => t.category))].filter(Boolean);
+import useCmsStore from '../stores/cmsStore';
 
 export default function Diagnostics() {
   const navigate = useNavigate();
   const addItem = useCartStore(s => s.addItem);
+  const cmsContent = useCmsStore(s => s.content);
+  const diag = cmsContent.diagnostics || {};
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get('q') || '');
   const [category, setCategory] = useState(params.get('cat') || '');
   const [priceRange, setPriceRange] = useState('');
+
+  const CATS = [...new Set(seedTests.map(t => t.category))].filter(Boolean);
+  const cmsCats = (diag.categories || []).filter(c => c.active !== false);
+  const priceRanges = diag.priceRanges || [];
+
+  useEffect(() => {
+    if (diag.pageTitle) document.title = diag.pageTitle;
+  }, [diag.pageTitle]);
 
   const results = useMemo(() => {
     return seedTests.filter(t => {
@@ -22,15 +31,14 @@ export default function Diagnostics() {
         if (!t.name.toLowerCase().includes(q) && !(t.category || '').toLowerCase().includes(q)) return false;
       }
       if (category && t.category !== category) return false;
-      if (priceRange) {
+      if (priceRange !== '' && priceRanges[priceRange]) {
         const p = t.offerPrice || t.price;
-        if (priceRange === 'budget' && p > 500) return false;
-        if (priceRange === 'mid' && (p < 500 || p > 1500)) return false;
-        if (priceRange === 'premium' && p < 1500) return false;
+        const { min, max } = priceRanges[priceRange];
+        if (p < min || p > max) return false;
       }
       return true;
     });
-  }, [search, category, priceRange]);
+  }, [search, category, priceRange, priceRanges]);
 
   return (
     <div>
@@ -44,13 +52,11 @@ export default function Diagnostics() {
             </div>
             <select value={category} onChange={e => setCategory(e.target.value)} className="select" style={{ width: 'auto', minWidth: 140 }}>
               <option value="">All Categories</option>
-              {CATS.map(c => <option key={c} value={c}>{c}</option>)}
+              {(cmsCats.length ? cmsCats : CATS.map(c => ({ name: c }))).map(c => <option key={c.name || c} value={c.name || c}>{c.name || c}</option>)}
             </select>
             <select value={priceRange} onChange={e => setPriceRange(e.target.value)} className="select" style={{ width: 'auto', minWidth: 120 }}>
               <option value="">All Prices</option>
-              <option value="budget">Under ₹500</option>
-              <option value="mid">₹500 - ₹1500</option>
-              <option value="premium">Above ₹1500</option>
+              {priceRanges.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
             </select>
             <Link to="/dashboard" style={{ padding: '6px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, color: 'var(--primary)', border: '1px solid var(--primary)', background: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>📊 Dashboard</Link>
           </div>
@@ -58,12 +64,18 @@ export default function Diagnostics() {
       </div>
 
       <div className="page-section container">
+        {(diag.pageTitle || diag.pageSubtitle) && (
+          <div style={{ marginBottom: 16 }}>
+            {diag.pageTitle && <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', margin: '0 0 4px' }}>{diag.pageTitle}</h1>}
+            {diag.pageSubtitle && <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>{diag.pageSubtitle}</p>}
+          </div>
+        )}
         <div className="diag-presc-banner" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>📋 Have a prescription?</div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Upload your doctor's prescription and we'll recommend the right tests.</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{diag.bannerHeading || '📋 Have a prescription?'}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{diag.bannerText || "Upload your doctor's prescription and we'll recommend the right tests."}</div>
           </div>
-          <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>📤 Upload Prescription</button>
+          <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>{diag.bannerCta || '📤 Upload Prescription'}</button>
         </div>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} test{results.length !== 1 ? 's' : ''} found</p>
         <div className="grid-3">
@@ -80,7 +92,7 @@ export default function Diagnostics() {
                 <div>
                   <span className="price">₹{t.offerPrice || t.price}</span>
                   {t.offerPrice && <span className="mrp">₹{t.price}</span>}
-                  <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 2 }}>Free Home Collection</div>
+                  <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 2 }}>{diag.freeHomeCollectionTag || 'Free Home Collection'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <Link to={`/test/${t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="btn btn-outline btn-sm">Details</Link>
