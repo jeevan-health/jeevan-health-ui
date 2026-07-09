@@ -157,7 +157,7 @@ function QuickActions() {
     { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#1866C9' },
     { icon: '📦', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#16a34a' },
     { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', color: '#dc2626' },
-    { icon: '👨‍⚕️', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/contact', color: '#7c3aed' },
+    { icon: '👨‍⚕️', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/consult-doctor', color: '#7c3aed' },
     { icon: '💊', label: 'Medicine Delivery', desc: 'Medicines delivered to your doorstep', path: '/contact', color: '#e65100' },
     { icon: '🏠', label: 'Home Nursing', desc: 'Trained nurses at home', path: '/contact', color: '#0891b2' },
   ];

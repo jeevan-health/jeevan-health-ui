@@ -17,6 +17,7 @@ export default function Layout() {
   const navItems = [
     { to: '/', icon: '🏠', label: 'Home', match: '/' },
     { to: '/diagnostics', icon: '🔬', label: 'Tests', match: '/diagnostics' },
+    { to: '/consult-doctor', icon: '🩺', label: 'Doctor', match: '/consult-doctor' },
     { to: isAuth ? '/dashboard?tab=bookings' : '/signup', icon: '📅', label: 'Bookings', match: '/dashboard', tab: 'bookings' },
     { to: isAuth ? '/dashboard?tab=health' : '/signup', icon: '🩺', label: 'Health', match: '/dashboard', tab: 'health' },
     { to: isAuth ? '/dashboard?tab=profile' : '/signup', icon: '👤', label: 'Profile', match: '/dashboard', tab: 'profile' },

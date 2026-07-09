@@ -37,6 +37,9 @@ export default function Header() {
           <a href="https://wa.me/919700104108" target="_blank" rel="noopener noreferrer" className="hdr-btn hdr-wa" style={{ flexShrink: 0 }}>
             💬
           </a>
+          <Link to="/consult-doctor" className="hdr-consult" style={{ flexShrink: 0, textDecoration: 'none', fontSize: 12, fontWeight: 600, color: '#1866C9', padding: '6px 10px', borderRadius: 8, whiteSpace: 'nowrap', display: 'none' }}>
+            👨‍⚕️ Consult
+          </Link>
           <button onClick={() => setCartOpen(true)} className="hdr-btn hdr-cart" style={{ position: 'relative', flexShrink: 0, fontFamily: 'inherit', cursor: 'pointer' }}>
             🛒
             {count > 0 && <span className="cart-count-badge" style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: '50%', background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{count > 9 ? '9+' : count}</span>}

@@ -18,12 +18,12 @@ const iconMap = {
 const fallback = {
   heroCtas: [
     { label: 'Book Lab Test', link: '/diagnostics', color: '#FF3B30' },
-    { label: 'Consult Doctor', link: '/doctor-consultation' },
+    { label: 'Consult Doctor', link: '/consult-doctor' },
     { label: 'WhatsApp', link: 'https://wa.me/919700104108', color: '#25d366' },
   ],
   trustBadges: ['NABL Labs', 'Free Home Collection', 'Digital Reports', '24×7 Support'],
   quickActions: [
-    { icon: 'Stethoscope', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/doctor-consultation', color: '#1866C9', tag: 'Available' },
+    { icon: 'Stethoscope', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/consult-doctor', color: '#1866C9', tag: 'Available' },
     { icon: 'Flask', label: 'Lab Tests', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#22C55E', tag: 'Popular' },
     { icon: 'Heart', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#e53935', tag: 'Save 60%' },
     { icon: 'Pill', label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },

@@ -13,7 +13,7 @@ const socialLinks = [
 const services = [
   { label: 'Lab Tests', path: '/diagnostics' },
   { label: 'Health Packages', path: '/services' },
-  { label: 'Doctor Consultation', path: '/contact' },
+  { label: 'Doctor Consultation', path: '/consult-doctor' },
   { label: 'Medicine Delivery', path: '/services' },
   { label: 'Pharmacy', path: '/services' },
   { label: 'Home Sample Collection', path: '/diagnostics' },
