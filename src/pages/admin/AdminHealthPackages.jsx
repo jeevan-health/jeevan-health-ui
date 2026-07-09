@@ -82,7 +82,7 @@ export default function AdminHealthPackages() {
       status: pkg.status || 'Draft',
     };
     setForm(mapped);
-    setEditingId(id);
+    setEditingId(pkg.id);
     setActiveSection('identity');
     setShowForm(true);
     window.scrollTo(0, 0);
