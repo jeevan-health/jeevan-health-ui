@@ -121,7 +121,7 @@ export default function AdminOrders() {
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Patient</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Tests</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Amount</th>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Collector</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Phlebotomist</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Status</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Date</th>
                 <th style={{ textAlign: 'right', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Action</th>
@@ -168,7 +168,7 @@ export default function AdminOrders() {
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {selected.collectionDate && !selected.phlebotomist && (
-                <ActionBtn label="Assign Collector" color="#8b5cf6" onClick={() => { setShowAssign(true); }} />
+                <ActionBtn label="Assign Phlebotomist" color="#8b5cf6" onClick={() => { setShowAssign(true); }} />
               )}
               {selected.collectionDate && (
                 <ActionBtn label="Reschedule" color="#f59e0b" onClick={() => { setNewDate(selected.collectionDate || ''); setNewTime(selected.collectionTime || ''); setShowReschedule(true); }} />
@@ -190,7 +190,7 @@ export default function AdminOrders() {
             <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Tests:</span> <strong>{(selected.tests || []).map(t => t.name || t).join(', ')}</strong></div>
             {selected.phlebotomist && (
               <div style={{ gridColumn: '1 / -1' }}>
-                <span style={{ color: '#64748b' }}>Collector:</span> <strong>{selected.phlebotomist.name}</strong>
+                <span style={{ color: '#64748b' }}>Phlebotomist:</span> <strong>{selected.phlebotomist.name}</strong>
                 <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 8 }}>({selected.phlebotomist.phone})</span>
                 <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 8 }}>assigned {formatDate(selected.phlebotomist.assignedAt)}</span>
               </div>
@@ -227,10 +227,10 @@ export default function AdminOrders() {
         </div>
       )}
 
-      {/* Assign Collector Modal */}
-      {showAssign && <Modal title="Assign Collector" onClose={() => setShowAssign(false)} onConfirm={handleAssign} confirmLabel="Assign">
+      {/* Assign Phlebotomist Modal */}
+      {showAssign && <Modal title="Assign Phlebotomist" onClose={() => setShowAssign(false)} onConfirm={handleAssign} confirmLabel="Assign">
         <select value={phleboId} onChange={e => setPhleboId(e.target.value)} style={inputStyle}>
-          <option value="">Select collector...</option>
+          <option value="">Select phlebotomist...</option>
           {phlebotomists.filter(p => p.status !== 'offline').map(p => (
             <option key={p.id} value={p.id}>{p.name} ({p.phone}) — {p.status || 'available'}</option>
           ))}
