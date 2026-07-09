@@ -16,6 +16,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const About = lazy(() => import('./pages/About'));
 const UploadPrescription = lazy(() => import('./pages/UploadPrescription'));
 const HealthLibrary = lazy(() => import('./pages/HealthLibrary'));
+const Checkout = lazy(() => import('./pages/Checkout'));
 
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
@@ -62,6 +63,7 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/upload-prescription" element={<UploadPrescription />} />
             <Route path="/health-library" element={<HealthLibrary />} />
+            <Route path="/checkout" element={<Protected><Checkout /></Protected>} />
             <Route path="*" element={<NotFound />} />
           </Route>
           <Route path="/signup" element={<Signup />} />

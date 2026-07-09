@@ -127,7 +127,7 @@ export default function CartDrawer() {
             {discAmt > 0 && <div style={{ fontSize: 11, fontWeight: 600, color: '#16a34a', marginBottom: 8 }}>🎁 You Saved ₹{discAmt.toLocaleString()}</div>}
             <div style={{ display: 'flex', gap: 8 }}>
               <Link to="/diagnostics" onClick={() => setCartOpen(false)} className="btn btn-outline" style={{ flex: 1, fontSize: 12, padding: '10px', textAlign: 'center' }}>Continue Shopping</Link>
-              <Link to="/services" onClick={() => setCartOpen(false)} className="btn btn-primary" style={{ flex: 1, fontSize: 12, padding: '10px', textAlign: 'center' }}>Proceed to Book →</Link>
+              <Link to="/checkout" onClick={() => setCartOpen(false)} className="btn btn-primary" style={{ flex: 1, fontSize: 12, padding: '10px', textAlign: 'center' }}>Proceed to Book →</Link>
             </div>
           </div>
         )}
