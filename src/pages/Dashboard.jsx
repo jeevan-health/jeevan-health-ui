@@ -1438,7 +1438,7 @@ export default function Dashboard() {
                         { key: 'cancer', label: 'Cancer', icon: '🎗️' },
                       ].map(opt => (
                         <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, cursor: 'pointer', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 10, background: healthForm.familyHistory[opt.key] ? '#e8f0fe' : '#fff', userSelect: 'none', transition: 'all 0.15s' }}>
-                          <input type="checkbox" checked={healthForm.familyHistory[opt.key]} onChange={e => setHealthForm(f => ({ ...f, familyHistory: { ...f.familyHistory, [opt.key]: e.target.checked } }))} style={{ accentColor: '#1866C9' }} />
+                          <input type="checkbox" checked={!!healthForm.familyHistory[opt.key]} onChange={e => setHealthForm(f => ({ ...f, familyHistory: { ...f.familyHistory, [opt.key]: e.target.checked } }))} style={{ accentColor: '#1866C9' }} />
                           <span>{opt.icon}</span>
                           <span style={{ fontWeight: healthForm.familyHistory[opt.key] ? 600 : 400 }}>{opt.label}</span>
                         </label>
