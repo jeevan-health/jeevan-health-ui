@@ -500,7 +500,10 @@ export default function Checkout() {
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Address</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <span style={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Address</span>
+          <button onClick={() => setStep(0)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>Change</button>
+        </div>
         <div style={{ fontSize: 12 }}>
           <div style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{address.fullName}</div>
           <div style={{ color: 'var(--text-body)' }}>{address.addressLine}</div>
@@ -510,7 +513,10 @@ export default function Checkout() {
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Patient & Schedule</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <span style={{ fontSize: 11, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Patient & Schedule</span>
+          <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>Change</button>
+        </div>
         <div style={{ fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
           <div><span style={{ color: 'var(--text-secondary)' }}>Patient: </span><span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{selectedPatient?.name} ({selectedPatient?.relation})</span></div>
           <div><span style={{ color: 'var(--text-secondary)' }}>Date: </span><span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{fmtDateFull(selectedDate)}</span></div>
@@ -630,15 +636,9 @@ export default function Checkout() {
 
       {/* Navigation buttons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-        {step > 0 ? (
-          <button onClick={() => { setStep(s => s - 1); setError(''); }} className="btn btn-outline" style={{ padding: '10px 24px' }}>
-            ← Back
-          </button>
-        ) : (
-          <Link to="/diagnostics" className="btn btn-outline" style={{ padding: '10px 24px', textDecoration: 'none' }}>
-            ← Cancel
-          </Link>
-        )}
+        <button onClick={() => { if (step > 0) { setStep(s => s - 1); setError(''); } else { navigate(-1); } }} className="btn btn-outline" style={{ padding: '10px 24px' }}>
+          ← Back
+        </button>
         {step < STEPS.length - 1 ? (
           <button onClick={handleNext} className="btn btn-primary" style={{ padding: '10px 28px' }}>
             Continue →

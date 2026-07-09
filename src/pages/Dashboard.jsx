@@ -565,7 +565,7 @@ export default function Dashboard() {
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
-                    <button onClick={addFamily} className="btn btn-primary btn-block">Add Member</button>
+                    <button onClick={addFamily} className="btn btn-primary btn-block">{editingFamily ? 'Save Changes' : 'Add Member'}</button>
                   </div>
                 </div>
               </div>

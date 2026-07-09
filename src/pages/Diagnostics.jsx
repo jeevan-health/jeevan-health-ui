@@ -52,6 +52,7 @@ export default function Diagnostics() {
               <option value="mid">₹500 - ₹1500</option>
               <option value="premium">Above ₹1500</option>
             </select>
+            <Link to="/dashboard" style={{ padding: '6px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, color: 'var(--primary)', border: '1px solid var(--primary)', background: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>📊 Dashboard</Link>
           </div>
         </div>
       </div>

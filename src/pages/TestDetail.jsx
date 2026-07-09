@@ -398,7 +398,7 @@ export default function TestDetail() {
               <div style={{ marginTop: 10, background: '#FFF8E1', borderRadius: 10, padding: 10 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#E65100', marginBottom: 6 }}>📦 Recommended Packages</div>
                 {packages.map(p => (
-                  <Link key={p.name} to={`/package/${slugify(p.name)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                  <Link key={p.name} to={`/package/${p.slug || slugify(p.name)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <div>
                       <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>⭐ {p.name}</div>
                       <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.testCount} Tests · ₹{p.bundlePrice}</div>
