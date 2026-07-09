@@ -95,6 +95,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('overview');
   const [showFamilyModal, setShowFamilyModal] = useState(false);
+  const [editingFamily, setEditingFamily] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: '', email: '', phone: '', bloodGroup: '', dob: '', gender: '' });
   const [showReportModal, setShowReportModal] = useState(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -117,9 +120,31 @@ export default function Dashboard() {
 
   const addFamily = () => {
     if (!familyForm.name || !familyForm.relation || !familyForm.age) return;
-    store.addFamilyMember({ ...familyForm, age: parseInt(familyForm.age), bloodGroup: '--', lastCheckup: 'N/A', abhaId: '', gender: familyForm.gender || 'Not specified' });
+    if (editingFamily) {
+      store.updateFamilyMember(editingFamily, { ...familyForm, age: parseInt(familyForm.age) });
+    } else {
+      store.addFamilyMember({ ...familyForm, age: parseInt(familyForm.age), bloodGroup: '--', lastCheckup: 'N/A', abhaId: '', gender: familyForm.gender || 'Not specified' });
+    }
     setFamilyForm({ name: '', relation: '', age: '', gender: '' });
     setShowFamilyModal(false);
+    setEditingFamily(null);
+  };
+
+  const openFamilyEdit = (m) => {
+    setFamilyForm({ name: m.name, relation: m.relation, age: String(m.age), gender: m.gender });
+    setEditingFamily(m.id);
+    setShowFamilyModal(true);
+  };
+
+  const openProfileEdit = () => {
+    setProfileForm({ name: p.name, email: p.email, phone: p.phone, bloodGroup: p.bloodGroup, dob: p.dob, gender: p.gender });
+    setShowProfileModal(true);
+  };
+
+  const saveProfile = () => {
+    if (!profileForm.name || !profileForm.phone) return;
+    store.updateProfile(profileForm);
+    setShowProfileModal(false);
   };
 
   const renderNav = (vertical) => (
@@ -350,10 +375,12 @@ export default function Dashboard() {
                     ABHA: {m.abhaId}
                   </div>
                 )}
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button className="btn btn-outline btn-sm">View Records</button>
-                  <button className="btn btn-outline btn-sm">Book Test</button>
-                </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button className="btn btn-outline btn-sm">View Records</button>
+                    <button className="btn btn-outline btn-sm">Book Test</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ color: '#1866C9' }}>Edit</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Remove ${m.name}?`)) store.removeFamilyMember(m.id); }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>Remove</button>
+                  </div>
               </div>
             ))}
 
@@ -369,8 +396,8 @@ export default function Dashboard() {
             <div className="panel-overlay" onClick={() => setShowFamilyModal(false)}>
               <div className="panel" onClick={e => e.stopPropagation()}>
                 <div className="panel-header">
-                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>Add Family Member</h3>
-                  <button onClick={() => setShowFamilyModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
+                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>{editingFamily ? 'Edit Family Member' : 'Add Family Member'}</h3>
+                  <button onClick={() => { setShowFamilyModal(false); setEditingFamily(null); setFamilyForm({ name: '', relation: '', age: '', gender: '' }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
                 </div>
                 <div className="panel-body">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -642,7 +669,7 @@ export default function Dashboard() {
               {[
                 { label: 'Full Name', value: p.name },
                 { label: 'Phone', value: p.phone },
-                { label: 'Email', value: p.email },
+                { label: 'Email', value: p.email || '—' },
                 { label: 'Blood Group', value: p.bloodGroup },
                 { label: 'Date of Birth', value: p.dob },
                 { label: 'Gender', value: p.gender },
@@ -653,9 +680,67 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <button className="btn btn-outline btn-sm" style={{ marginTop: 12 }}>Edit Profile</button>
+            <button className="btn btn-outline btn-sm" style={{ marginTop: 12 }} onClick={openProfileEdit}>Edit Profile</button>
           </div>
         </Section>
+
+        {/* Profile Edit Modal */}
+        {showProfileModal && (
+          <div className="panel-overlay" onClick={() => setShowProfileModal(false)}>
+            <div className="panel" onClick={e => e.stopPropagation()}>
+              <div className="panel-header">
+                <h3 style={{ fontSize: 15, fontWeight: 700 }}>Edit Profile</h3>
+                <button onClick={() => setShowProfileModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
+              </div>
+              <div className="panel-body">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div className="grid-2">
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Full Name *</label>
+                      <input className="input" value={profileForm.name} onChange={e => setProfileForm(f => ({ ...f, name: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Phone *</label>
+                      <input className="input" value={profileForm.phone} onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Email</label>
+                    <input className="input" value={profileForm.email} onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
+                  </div>
+                  <div className="grid-2">
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Blood Group</label>
+                      <select className="select" value={profileForm.bloodGroup} onChange={e => setProfileForm(f => ({ ...f, bloodGroup: e.target.value }))}>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Gender</label>
+                      <select className="select" value={profileForm.gender} onChange={e => setProfileForm(f => ({ ...f, gender: e.target.value }))}>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Date of Birth</label>
+                    <input className="input" value={profileForm.dob} onChange={e => setProfileForm(f => ({ ...f, dob: e.target.value }))} placeholder="e.g. 15 Mar 1990" />
+                  </div>
+                  <button onClick={saveProfile} className="btn btn-primary btn-block">Save Changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
 

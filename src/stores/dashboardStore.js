@@ -110,8 +110,20 @@ const useDashboardStore = create((set, get) => ({
     notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n),
   })),
 
+  updateProfile: (updates) => set(state => ({
+    profile: { ...state.profile, ...updates },
+  })),
+
   addFamilyMember: (member) => set(state => ({
     family: [...state.family, { ...member, id: `FM${Date.now()}` }],
+  })),
+
+  updateFamilyMember: (id, updates) => set(state => ({
+    family: state.family.map(m => m.id === id ? { ...m, ...updates } : m),
+  })),
+
+  removeFamilyMember: (id) => set(state => ({
+    family: state.family.filter(m => m.id !== id),
   })),
 
   cancelBooking: (id) => set(state => ({
