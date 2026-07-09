@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { seedTests } from '../../data/seedData';
 import useAdminStore from '../../stores/adminStore';
+import { generateAllTestsData } from '../../utils/generateTestData';
 
 const STORAGE_KEY = 'jeevan_testMaster';
 const CATEGORIES = ['Hematology', 'Diabetes', 'Thyroid', 'Cardiac', 'Vitamins', 'Full Body', 'Anemia', 'Fever', 'Cancer', 'Hormones', 'Allergy', 'Arthritis', 'Pregnancy', 'Liver', 'STD', 'Kidney'];
@@ -528,7 +529,14 @@ export default function AdminTestMaster() {
             <option value="all">All Status</option>
             {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', marginLeft: 'auto' }}>+ Add Test</button>
+          <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>+ Add Test</button>
+          <button onClick={() => {
+            if (!confirm(`Generate complete data for all ${seedTests.length} tests? This will overwrite existing data.`)) return;
+            const data = generateAllTestsData();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            setExtendedData(data);
+            alert(`Generated complete data for ${Object.keys(data).length} tests!`);
+          }} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>⚡ Generate All</button>
         </div>
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 700 }}>
