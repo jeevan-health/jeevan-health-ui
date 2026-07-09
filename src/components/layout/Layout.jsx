@@ -7,6 +7,7 @@ import CartDrawer from './CartDrawer';
 import useAuthStore from '../../stores/authStore';
 import useUploadModal from '../../stores/uploadModalStore';
 import useCartStore from '../../stores/cartStore';
+import SEOMeta from './SEOMeta';
 
 export default function Layout() {
   const loc = useLocation();
@@ -32,6 +33,7 @@ export default function Layout() {
 
   return (
     <>
+      <SEOMeta />
       <Header />
       <main className="page-content">
         <div className="app-page">

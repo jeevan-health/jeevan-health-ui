@@ -87,6 +87,76 @@ const defaults = {
     ctaWhatsapp: '919700104108',
     active: true,
   },
+  blog: {
+    pageTitle: 'Health Blog',
+    pageSubtitle: 'Expert articles on preventive care, nutrition & wellness — straight from our healthcare professionals.',
+    posts: [
+      {
+        id: 1,
+        title: 'Why Regular Health Checkups Are Essential for a Healthy Life',
+        slug: 'why-regular-health-checkups-essential',
+        excerpt: 'Regular health checkups help detect potential health issues before they become serious. Learn why preventive screenings matter.',
+        content: 'Prevention is always better than cure. Regular health checkups are the cornerstone of preventive healthcare, helping detect potential health issues before they become serious.\n\nMost chronic diseases like diabetes, hypertension, and heart disease develop silently over years. By the time symptoms appear, significant damage may already be done. Regular screenings can catch these conditions early when they are most treatable.\n\nFor adults over 30, an annual health checkup is recommended. This should include blood pressure screening, blood sugar tests, cholesterol profile, and organ function assessments. Early detection through regular checkups can reduce healthcare costs by up to 50% and significantly improve treatment outcomes.\n\nAt Jeevan Healthcare, we offer comprehensive health checkup packages designed for every age group and lifestyle. Our free home collection service makes it convenient to get tested without disrupting your daily routine.',
+        author: 'Dr. Priya Sharma',
+        category: 'Preventive Care',
+        tags: ['health checkup', 'preventive care', 'wellness'],
+        image: '',
+        publishedAt: '2025-12-15',
+        active: true,
+      },
+      {
+        id: 2,
+        title: 'Understanding Your Blood Test Results: A Complete Guide',
+        slug: 'understanding-blood-test-results',
+        excerpt: 'Confused by your lab report? This guide explains common blood test parameters and what your results mean.',
+        content: 'Blood tests are among the most common medical investigations, providing valuable insights into your overall health. Understanding your results can help you take proactive steps toward better health.\n\nComplete Blood Count (CBC): This measures red blood cells, white blood cells, and platelets. Abnormal levels can indicate anemia, infection, or clotting disorders.\n\nLipid Profile: Measures cholesterol and triglycerides. High LDL (bad cholesterol) increases heart disease risk, while HDL (good cholesterol) protects against it.\n\nBlood Sugar (Glucose): Fasting glucose above 126 mg/dL may indicate diabetes. HbA1c provides a 3-month average of blood sugar levels.\n\nLiver Function Tests: ALT, AST, and GGT enzymes indicate liver health. Elevated levels may suggest fatty liver, hepatitis, or alcohol-related damage.\n\nKidney Function Tests: Creatinine and BUN measure how well your kidneys filter waste. Abnormal results warrant further investigation.\n\nThyroid Profile: TSH, T3, and T4 levels help diagnose thyroid disorders, which affect metabolism, energy, and weight.',
+        author: 'Jeevan Health Team',
+        category: 'Health Education',
+        tags: ['blood test', 'lab report', 'health education'],
+        image: '',
+        publishedAt: '2025-11-20',
+        active: true,
+      },
+      {
+        id: 3,
+        title: 'The Role of Diet and Nutrition in Managing Diabetes',
+        slug: 'diet-nutrition-managing-diabetes',
+        excerpt: 'Discover how proper nutrition and dietary choices can help manage and even reverse type 2 diabetes.',
+        content: 'Diet plays a crucial role in managing diabetes. With the right food choices, many people with type 2 diabetes can achieve excellent blood sugar control and even reduce their medication dependence.\n\nFocus on Low Glycemic Index Foods: Foods with a low GI release glucose slowly, preventing blood sugar spikes. Include whole grains, legumes, most vegetables, and nuts in your diet.\n\nProtein-Rich Meals: Protein helps stabilize blood sugar and promotes satiety. Include lean meats, fish, eggs, tofu, and Greek yogurt in your meals.\n\nHealthy Fats: Monounsaturated and polyunsaturated fats improve insulin sensitivity. Sources include olive oil, avocados, nuts, seeds, and fatty fish.\n\nFiber Intake: Aim for 25-30 grams of fiber daily. Soluble fiber, found in oats, apples, and beans, helps slow glucose absorption.\n\nPortion Control: Even healthy foods can raise blood sugar if eaten in large quantities. Use the plate method — fill half with non-starchy vegetables, a quarter with lean protein, and a quarter with complex carbohydrates.',
+        author: 'Nutritionist Ananya Reddy',
+        category: 'Disease Management',
+        tags: ['diabetes', 'nutrition', 'diet'],
+        image: '',
+        publishedAt: '2025-10-05',
+        active: true,
+      },
+      {
+        id: 4,
+        title: 'Home Sample Collection: What to Expect and How to Prepare',
+        slug: 'home-sample-collection-guide',
+        excerpt: 'Everything you need to know about preparing for a home blood collection visit — from fasting guidelines to what to keep ready.',
+        content: 'Home sample collection makes health testing convenient and stress-free. Here\'s what you need to know to ensure a smooth experience.\n\nFasting Requirements: Many tests require fasting for 8-12 hours. During this time, only plain water is allowed. Schedule your collection first thing in the morning to make fasting easier.\n\nHydration: Drink plenty of water before your collection (unless instructed otherwise). Good hydration makes veins easier to find and the process more comfortable.\n\nMedications: Continue taking your regular medications unless specifically instructed otherwise. Inform the phlebotomist about all medications you are taking.\n\nWhat to Keep Ready: Have your prescription or test order ready, along with a valid ID. Ensure there\'s a clean, well-lit space for the collection.\n\nAfter Collection: Apply pressure to the site for 2-3 minutes. Avoid strenuous activity for a few hours. Stay hydrated and eat a light meal after fasting tests.\n\nReport Timeline: Most reports are delivered within 24-48 hours via WhatsApp, email, and your patient dashboard.',
+        author: 'Jeevan Health Team',
+        category: 'Patient Guide',
+        tags: ['home collection', 'sample collection', 'patient guide'],
+        image: '',
+        publishedAt: '2025-09-18',
+        active: true,
+      },
+    ],
+    active: true,
+  },
+  seo: {
+    routes: {
+      '/': { title: 'Jeevan Healthcare — Trusted Diagnostics at Your Doorstep', description: 'Book lab tests from home with free sample collection. 5000+ tests, NABL certified labs, reports in 24 hours.', ogImage: '' },
+      '/diagnostics': { title: 'Book Lab Tests Online at Home — Jeevan Healthcare', description: '5000+ diagnostic tests with free home collection. NABL certified labs. Accurate digital reports in 24 hours.', ogImage: '' },
+      '/services': { title: 'Complete Healthcare at Your Doorstep — Jeevan Healthcare', description: 'Doctor consultations, lab tests, pharmacy, nursing, physiotherapy & more — all from one trusted platform.', ogImage: '' },
+      '/blog': { title: 'Health Blog — Jeevan Healthcare', description: 'Expert articles on preventive care, nutrition, wellness, and disease management from our healthcare professionals.', ogImage: '' },
+      '/contact': { title: 'Contact Us — Jeevan Healthcare', description: 'Get in touch with Jeevan Healthcare for appointments, queries, feedback, and support. We are here to help.', ogImage: '' },
+      '/about': { title: 'About Us — Jeevan Healthcare', description: 'Learn about Jeevan Healthcare\'s mission, team, and journey in providing trusted diagnostic services across India.', ogImage: '' },
+      '/health-library': { title: 'Health Library — Jeevan Healthcare', description: 'Comprehensive health information, test guides, symptom checker, and wellness resources.', ogImage: '' },
+    },
+  },
   stats: [
     { value: 100, suffix: 'K+', label: 'Patients Served', description: 'Trusted by families across India' },
     { value: 5000, suffix: '+', label: 'Tests Available', description: 'Comprehensive diagnostic menu' },
@@ -321,6 +391,57 @@ const useCmsStore = create((set, get) => ({
   deleteFaq: (id) => {
     const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
     content.faqs = content.faqs.filter(f => f.id !== id);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  // Blog
+  addBlogPost: (post) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    const maxId = Math.max(...content.blog.posts.map(p => p.id), 0);
+    content.blog.posts = [{ ...post, id: maxId + 1 }, ...content.blog.posts];
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateBlogPost: (id, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.blog.posts = content.blog.posts.map(p => p.id === id ? { ...p, ...data } : p);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  deleteBlogPost: (id) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.blog.posts = content.blog.posts.filter(p => p.id !== id);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateBlogPage: (data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)), blog: { ...get().content.blog, ...data } };
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  // SEO
+  updateSeoRoute: (route, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.seo.routes[route] = { ...(content.seo.routes[route] || {}), ...data };
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  addSeoRoute: (route, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.seo.routes[route] = data;
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  deleteSeoRoute: (route) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    delete content.seo.routes[route];
     save(CMS_KEY, content);
     set({ content });
   },

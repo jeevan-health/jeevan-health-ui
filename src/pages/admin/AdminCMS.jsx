@@ -32,6 +32,13 @@ export default function AdminCMS() {
   const addHealthPackageFeatured = useCmsStore(s => s.addHealthPackageFeatured);
   const removeHealthPackageFeatured = useCmsStore(s => s.removeHealthPackageFeatured);
   const updateHealthPackageOverride = useCmsStore(s => s.updateHealthPackageOverride);
+  const addBlogPost = useCmsStore(s => s.addBlogPost);
+  const updateBlogPost = useCmsStore(s => s.updateBlogPost);
+  const deleteBlogPost = useCmsStore(s => s.deleteBlogPost);
+  const updateBlogPage = useCmsStore(s => s.updateBlogPage);
+  const updateSeoRoute = useCmsStore(s => s.updateSeoRoute);
+  const addSeoRoute = useCmsStore(s => s.addSeoRoute);
+  const deleteSeoRoute = useCmsStore(s => s.deleteSeoRoute);
   const resetContent = useCmsStore(s => s.resetContent);
 
   const [tab, setTab] = useState('hero');
@@ -53,6 +60,8 @@ export default function AdminCMS() {
     { id: 'trust', label: 'Trust Strip' },
     { id: 'testimonials', label: 'Testimonials' },
     { id: 'faqs', label: 'FAQs' },
+    { id: 'blog', label: 'Blog' },
+    { id: 'seo', label: 'SEO' },
   ];
 
   return (
@@ -99,6 +108,12 @@ export default function AdminCMS() {
 
       {/* FAQS */}
       {tab === 'faqs' && <FaqsSection faqs={content.faqs || []} addFaq={addFaq} updateFaq={updateFaq} deleteFaq={deleteFaq} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
+
+      {/* BLOG */}
+      {tab === 'blog' && <BlogSection content={content} addBlogPost={addBlogPost} updateBlogPost={updateBlogPost} deleteBlogPost={deleteBlogPost} updateBlogPage={updateBlogPage} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
+
+      {/* SEO */}
+      {tab === 'seo' && <SeoSection content={content} updateSeoRoute={updateSeoRoute} addSeoRoute={addSeoRoute} deleteSeoRoute={deleteSeoRoute} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
     </div>
   );
 }
@@ -624,6 +639,119 @@ function DiagnosticsSection({ content, cms, inputStyle, FormField, sectionCard }
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* BLOG */
+function BlogSection({ content, addBlogPost, updateBlogPost, deleteBlogPost, updateBlogPage, inputStyle, FormField, sectionCard }) {
+  const blog = content.blog || {};
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ title: '', slug: '', excerpt: '', content: '', author: '', category: '', tags: '', image: '', publishedAt: new Date().toISOString().slice(0, 10) });
+
+  const resetForm = () => setForm({ title: '', slug: '', excerpt: '', content: '', author: '', category: '', tags: '', image: '', publishedAt: new Date().toISOString().slice(0, 10) });
+
+  const handleSave = () => {
+    if (!form.title || !form.slug) return;
+    const post = { ...form, tags: form.tags.split(',').map(t => t.trim()).filter(Boolean), active: true };
+    if (editingId) { updateBlogPost(editingId, post); setEditingId(null); }
+    else addBlogPost(post);
+    setShowAdd(false);
+    resetForm();
+  };
+
+  const handleEdit = (post) => {
+    setEditingId(post.id);
+    setForm({ title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content, author: post.author, category: post.category, tags: (post.tags || []).join(', '), image: post.image || '', publishedAt: post.publishedAt });
+    setShowAdd(true);
+  };
+
+  return (
+    <div>
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Blog Page Settings</h4>
+        <FormField label="Page Title"><input value={blog.pageTitle} onChange={e => updateBlogPage({ pageTitle: e.target.value })} style={inputStyle} /></FormField>
+        <FormField label="Page Subtitle"><textarea rows={2} value={blog.pageSubtitle} onChange={e => updateBlogPage({ pageSubtitle: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <span style={{ fontSize: 13, color: '#64748b' }}>{(blog.posts || []).filter(p => p.active !== false).length} active posts</span>
+        <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ New Post</button>
+      </div>
+      {(blog.posts || []).map(post => (
+        <div key={post.id} style={sectionCard}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: '#1866C9', padding: '2px 6px', borderRadius: 4 }}>{post.category}</span>
+                <span style={{ fontSize: 10, color: '#94a3b8' }}>{post.publishedAt}</span>
+                {!post.active && <span style={{ fontSize: 10, color: '#ef4444', fontWeight: 600 }}>Inactive</span>}
+              </div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{post.title}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{post.excerpt}</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>By {post.author} | {(post.tags || []).join(', ')}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 4, marginLeft: 12 }}>
+              <button onClick={() => updateBlogPost(post.id, { active: !post.active })} style={{ background: 'none', border: 'none', color: post.active ? '#f59e0b' : '#22c55e', cursor: 'pointer', fontSize: 12 }}>{post.active ? 'Hide' : 'Show'}</button>
+              <button onClick={() => handleEdit(post)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
+              <button onClick={() => { if (confirm('Delete?')) deleteBlogPost(post.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+            </div>
+          </div>
+        </div>
+      ))}
+      {showAdd && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflowY: 'auto' }}>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? 'Edit Post' : 'New Post'}</h4>
+            <input placeholder="Title *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
+            <input placeholder="Slug * (e.g. my-article-title)" value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
+            <input placeholder="Author" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+              <input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
+              <input placeholder="Published date" type="date" value={form.publishedAt} onChange={e => setForm({ ...form, publishedAt: e.target.value })} style={{ ...inputStyle, width: 140 }} />
+            </div>
+            <input placeholder="Featured image URL" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
+            <input placeholder="Tags (comma separated)" value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} />
+            <textarea rows={2} placeholder="Excerpt" value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginBottom: 8 }} />
+            <label style={{ fontSize: 11, color: '#64748b', marginBottom: 4, display: 'block' }}>Content (blank line = paragraph break)</label>
+            <textarea rows={8} placeholder="Write your article..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
+              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? 'Update' : 'Publish'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* SEO */
+function SeoSection({ content, updateSeoRoute, addSeoRoute, deleteSeoRoute, inputStyle, FormField, sectionCard }) {
+  const routes = content.seo?.routes || {};
+  const [newRoute, setNewRoute] = useState('');
+
+  return (
+    <div>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Set meta title, description, and OG image per route. Changes reflect site-wide via SEOMeta component.</p>
+      {Object.entries(routes).map(([route, meta]) => (
+        <div key={route} style={sectionCard}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1866C9', fontFamily: 'monospace' }}>{route}</span>
+            <button onClick={() => { if (confirm(`Delete SEO for "${route}"?`)) deleteSeoRoute(route); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Remove</button>
+          </div>
+          <FormField label="Meta Title"><input value={meta.title || ''} onChange={e => updateSeoRoute(route, { title: e.target.value })} style={inputStyle} /></FormField>
+          <FormField label="Meta Description"><textarea rows={2} value={meta.description || ''} onChange={e => updateSeoRoute(route, { description: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField>
+          <FormField label="OG Image URL"><input value={meta.ogImage || ''} onChange={e => updateSeoRoute(route, { ogImage: e.target.value })} style={inputStyle} placeholder="https://..." /></FormField>
+        </div>
+      ))}
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }}>Add Route</h4>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input placeholder="/your-route" value={newRoute} onChange={e => setNewRoute(e.target.value)} style={inputStyle} />
+          <button onClick={() => { if (newRoute) { addSeoRoute(newRoute, { title: '', description: '', ogImage: '' }); setNewRoute(''); } }} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>Add</button>
+        </div>
+      </div>
     </div>
   );
 }

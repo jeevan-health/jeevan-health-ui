@@ -18,6 +18,8 @@ const About = lazy(() => import('./pages/About'));
 const UploadPrescription = lazy(() => import('./pages/UploadPrescription'));
 const HealthLibrary = lazy(() => import('./pages/HealthLibrary'));
 const Checkout = lazy(() => import('./pages/Checkout'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
@@ -85,6 +87,8 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/upload-prescription" element={<UploadPrescription />} />
             <Route path="/health-library" element={<HealthLibrary />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/checkout" element={<Protected><Checkout /></Protected>} />
             <Route path="*" element={<NotFound />} />
           </Route>
