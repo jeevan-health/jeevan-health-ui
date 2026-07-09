@@ -33,7 +33,7 @@ export default function Diagnostics() {
     <div>
       <div style={{ background: 'var(--bg-light)', borderBottom: '1px solid var(--border)', padding: '20px 0', position: 'sticky', top: 'var(--header-height)', zIndex: 50 }}>
         <div className="container">
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="diag-filters" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <div style={{ flex: 1, minWidth: 200 }}>
               <SmartSearch placeholder="🔍 Search tests..." value={search}
                 onChange={v => { setSearch(v); setParams(v ? { q: v } : {}); }}
@@ -54,7 +54,7 @@ export default function Diagnostics() {
       </div>
 
       <div className="page-section container">
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div className="diag-presc-banner" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 200 }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>📋 Have a prescription?</div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Upload your doctor's prescription and we'll recommend the right tests.</div>
@@ -87,6 +87,17 @@ export default function Diagnostics() {
           ))}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .diag-filters { flex-direction: column !important; }
+          .diag-filters > div { min-width: 0 !important; width: 100% !important; }
+          .diag-filters select { width: 100% !important; min-width: 0 !important; }
+          .diag-presc-banner { flex-direction: column !important; align-items: stretch !important; text-align: center !important; }
+          .diag-presc-banner button { width: 100% !important; }
+          .grid-3 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

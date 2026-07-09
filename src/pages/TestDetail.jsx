@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import {
   CaretLeft, Flask, CheckCircle, Clock, Phone, WhatsappLogo,
   FileText, Heartbeat, Star, ArrowRight, CaretDown,
-  Plus, Minus, Sparkle, User,
+  Plus, Minus, Sparkle, User, Warning,
 } from '@phosphor-icons/react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
 import { seedTests } from '../data/seedData';
@@ -96,8 +96,8 @@ export default function TestDetail() {
           </button>
         </div>
       </div>
-    );
-  }
+  );
+}
 
   const toggle = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   const w = education.whatIsThis;
@@ -133,7 +133,7 @@ export default function TestDetail() {
         </div>
 
         {/* QUICK STATS */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8, marginBottom: 16 }}>
+        <div className="td-section-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8, marginBottom: 16 }}>
           <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
             <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Price</span>
             <div style={{ fontSize: 18, fontWeight: 800, color: '#e53935', marginTop: 2 }}>{'\u20B9'}{test.offerPrice || test.price}</div>
@@ -450,6 +450,14 @@ export default function TestDetail() {
           {inCart ? <><Minus size={14} /> Remove</> : <><Plus size={14} /> Add to Cart</>}
         </button>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .td-section-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 480px) {
+          .td-section-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
