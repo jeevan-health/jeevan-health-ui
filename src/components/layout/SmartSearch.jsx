@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { searchTests, getPopularSearches } from '../../utils/searchIntelligence';
+import { packageList } from '../../data/healthPackages';
 
 export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms, diseases...', onSearch, autoFocus, value: externalValue, onChange: externalOnChange, onSubmit: externalOnSubmit }) {
   const isControlled = externalValue !== undefined;
@@ -11,8 +12,19 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
   const [popular, setPopular] = useState([]);
   const [focusIndex, setFocusIndex] = useState(-1);
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState('all');
   const ref = useRef();
   const navigate = useNavigate();
+
+  const pkgResults = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase().trim();
+    return packageList.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.conditions?.some(c => c.toLowerCase().includes(q)) ||
+      p.benefits?.some(b => b.toLowerCase().includes(q))
+    ).slice(0, 4);
+  }, [query]);
 
   useEffect(() => {
     const q = query.trim();
@@ -72,8 +84,50 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
       </div>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #e8edf2', zIndex: 9999, maxHeight: 420, overflow: 'auto' }}>
-          {results.length === 0 && <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No tests found. Try searching for a symptom or disease.</div>}
-          {results.map((r, i) => {
+          {/* Filter tabs */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #e8edf2', padding: '6px 8px', gap: 4, background: '#fafafa', position: 'sticky', top: 0, zIndex: 1 }}>
+            {[
+              { key: 'all', label: `All (${results.length + pkgResults.length})` },
+              { key: 'tests', label: `Individual (${results.length})` },
+              { key: 'packages', label: `Packages (${pkgResults.length})` },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setFilter(tab.key)}
+                style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: filter === tab.key ? '#1866C9' : 'transparent', color: filter === tab.key ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit', transition: 'all 0.15s' }}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {filter === 'tests' && results.length === 0 && (
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No tests found. Try searching for a symptom or disease.</div>
+          )}
+          {filter === 'all' && results.length === 0 && pkgResults.length === 0 && (
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No tests or packages found. Try a different search term.</div>
+          )}
+          {filter === 'packages' && pkgResults.length === 0 && (
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No packages found. Try a different search term.</div>
+          )}
+
+          {/* Package results */}
+          {(filter === 'all' || filter === 'packages') && pkgResults.length > 0 && (
+            <div>
+              {filter !== 'packages' && <div style={{ padding: '6px 14px', fontSize: 10, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', background: '#f8fafc' }}>Health Packages</div>}
+              {pkgResults.map(pkg => (
+                <Link key={pkg.slug} to={`/package/${pkg.slug}`} onClick={() => { setOpen(false); if (!isControlled) setInternalQuery(''); }}
+                  style={{ padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', borderBottom: '1px solid #f0f0f0' }}>
+                  <span style={{ fontSize: 16 }}>📦</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{pkg.name}</div>
+                    <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 600 }}>₹{pkg.offerPrice} · {pkg.testCount} tests · {pkg.discount}% off</div>
+                  </div>
+                  <span style={{ fontSize: 10, color: '#1866C9', fontWeight: 600 }}>View →</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Test results */}
+          {(filter === 'all' || filter === 'tests') && results.map((r, i) => {
             if (r.matchType === 'symptom') {
               return (
                 <div key={`sym-${r.symptom}`} style={{ borderBottom: '1px solid #f0f0f0' }}>

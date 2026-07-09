@@ -2,18 +2,13 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
-import { getPackagesByAxis } from '../utils/packageGenerator';
+import { packageList } from '../data/healthPackages';
 import SmartSearch from '../components/layout/SmartSearch';
 import useCmsStore from '../stores/cmsStore';
 
 export default function Home() {
   const popular = seedTests.slice(0, 8);
-  const allPkgs = Object.values(getPackagesByAxis(seedTests)).flat();
-  const cmsContent = useCmsStore(s => s.content);
-  const featured = cmsContent.healthPackages?.featured || [];
-  const pkgs = featured.length > 0
-    ? featured.map(f => allPkgs.find(p => p.slug === f.slug)).filter(Boolean).slice(0, 4)
-    : allPkgs.slice(0, 4);
+  const pkgs = packageList.slice(0, 4);
 
   return (
     <div>
@@ -380,30 +375,25 @@ function PackagesSection({ pkgs, featured }) {
         </div>
         <div className="grid-4" style={{ gap: 14 }}>
           {pkgs.filter(Boolean).slice(0, 4).map((p, i) => {
-            const f = featured?.[i];
-            const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-            const discPct = Math.round((1 - p.bundlePrice / p.totalMrp) * 100);
+            const discPct = p.discount || Math.round((1 - p.offerPrice / p.mrp) * 100);
             return (
               <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                <div style={{ background: f?.gradient || '#1866C9', padding: '16px 16px 20px', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{f?.badge || 'Popular'}</span>
+                <div style={{ background: p.color || '#1866C9', padding: '16px 16px 20px', position: 'relative' }}>
+                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct >= 50 ? 'Best Value' : 'Popular'}</span>
                   <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct}% OFF</span>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.axis} Package</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.testCount || 'Multiple'} Tests</div>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.2 }}>{p.name}</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>₹{p.bundlePrice}</span>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'line-through' }}>₹{p.totalMrp}</span>
+                    <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>₹{p.offerPrice}</span>
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'line-through' }}>₹{p.mrp}</span>
                   </div>
                 </div>
                 <div style={{ padding: '12px 14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>
-                    <span>📋 {p.testCount} Tests</span>
-                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
                     {[
                       { icon: '🚚', label: 'Free Home Collection' },
                       { icon: '👨‍⚕️', label: 'Doctor Consultation' },
-                      { icon: '⏱️', label: 'Report in 24 Hours' },
+                      { icon: '⏱️', label: `Report in ${p.reportTime || '24 Hours'}` },
                     ].map(f => (
                       <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
                         <span style={{ width: 14, textAlign: 'center' }}>{f.icon}</span>
@@ -412,8 +402,8 @@ function PackagesSection({ pkgs, featured }) {
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/package/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
-                    <Link to={`/package/${slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>View Details</Link>
+                    <Link to={`/package/${p.slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
+                    <Link to={`/package/${p.slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>View Details</Link>
                   </div>
                 </div>
               </div>
