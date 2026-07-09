@@ -40,6 +40,7 @@ const AdminPatients = lazy(() => import('./pages/admin/AdminPatients'));
 const AdminDoctors = lazy(() => import('./pages/admin/AdminDoctors'));
 const AdminStaffOnboarding = lazy(() => import('./pages/admin/AdminStaffOnboarding'));
 const AdminDoctorOnboarding = lazy(() => import('./pages/admin/AdminDoctorOnboarding'));
+const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
@@ -164,6 +165,7 @@ export default function App() {
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
             <Route path="doctor-onboarding" element={<AdminDoctorOnboarding />} />
+            <Route path="inventory" element={<AdminInventory />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="patients" element={<AdminPatients />} />
             <Route path="coupons" element={<AdminCoupons />} />
