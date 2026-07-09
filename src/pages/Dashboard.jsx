@@ -49,6 +49,10 @@ function StepIndicator({ current }) {
   );
 }
 
+const nowH = new Date().getHours();
+const GREETING = nowH < 12 ? 'Morning' : nowH < 17 ? 'Afternoon' : 'Evening';
+const GREETING_ICON = nowH < 12 ? '🌅' : nowH < 17 ? '☀️' : '🌙';
+
 const navItems = [
   { key: 'overview', label: 'Dashboard', icon: '🏠' },
   { key: 'bookings', label: 'Bookings', icon: '📅' },
@@ -195,8 +199,9 @@ export default function Dashboard() {
   const timeSlots = ['7:00 AM – 9:00 AM', '9:00 AM – 11:00 AM', '11:00 AM – 1:00 PM', '4:00 PM – 6:00 PM', '6:00 PM – 8:00 PM'];
 
   const store = useDashboardStore();
+  const authUser = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
-  const p = store.profile;
+  const p = { ...store.profile, name: authUser?.name || store.profile.name, phone: authUser?.phone || store.profile.phone };
   const reports = store.reports;
   const family = store.family;
   const upcoming = store.upcomingBookings;
@@ -288,7 +293,7 @@ export default function Dashboard() {
                 {p.name.charAt(0)}
               </div>
               <div style={{ minWidth: 0 }}>
-                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>👋 Good {p.greeting.includes('Morning') ? 'Morning' : 'Evening'} {p.name.split(' ')[0]}</h1>
+                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{GREETING_ICON} Good {GREETING} {p.name.split(' ')[0]}</h1>
                 <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>Last Check: <strong>{p.lastCheckup}</strong></p>
               </div>
             </div>
