@@ -1,5 +1,11 @@
 import { seedTests } from './seedData';
 
+const ESSENTIAL_TESTS = ['Complete Blood Count (CBC)', 'ESR (Erythrocyte Sedimentation Rate)', 'Hemoglobin', 'Platelet Count', 'Blood Sugar (Fasting)', 'HbA1c', 'Kidney Function Test (KFT)', 'Serum Creatinine', 'Blood Urea / BUN', 'Uric Acid', 'Liver Function Test (LFT)', 'SGOT / AST', 'SGPT / ALT', 'Total Bilirubin', 'Direct Bilirubin', 'Lipid Profile', 'Total Cholesterol', 'HDL Cholesterol', 'LDL Cholesterol', 'Triglycerides', 'TSH', 'T3 (Free)', 'T4 (Free)', 'Vitamin D Total', 'Vitamin B12', 'Urine Routine & Microscopy', 'Serum Electrolytes (Na, K, Cl)', 'Total Protein', 'Albumin', 'Globulin', 'Calcium (Serum)', 'Phosphorus', 'Alkaline Phosphatase (ALP)', 'GGT', 'LDH', 'Iron Studies', 'Ferritin', 'TIBC', 'RDW', 'MPV', 'Reticulocyte Count', 'Absolute Eosinophil Count', 'Serum Magnesium', 'Globulin', 'A/G Ratio', 'BUN/Creatinine Ratio', 'eGFR', 'Anion Gap', 'Osmolality (Serum)', 'Random Blood Sugar (RBS)', 'Blood Group & RH Typing'];
+
+const ADVANCED_TESTS = [...ESSENTIAL_TESTS, 'hs-CRP', 'Insulin (Fasting)', 'C-Peptide', 'Free T3', 'Free T4', 'Anti-TPO Antibody', 'Folate', 'Calcium (Ionized)', 'Magnesium', 'Zinc (Serum)', 'Copper (Serum)', 'Selenium (Serum)', 'Vitamin A', 'Vitamin E', 'Homocysteine', 'Lipoprotein (a)', 'Apolipoprotein A1', 'Apolipoprotein B', 'DHEA-S', 'SHBG', 'Cortisol (Morning)', 'Procalcitonin', 'Haptoglobin', 'Transferrin', 'Soluble Transferrin Receptor', 'Creatine Kinase (CK)', 'CK-MB', 'Myoglobin', 'Troponin I', 'NT-proBNP', 'Cystatin C', 'Beta-2 Microglobulin'];
+
+const EXECUTIVE_TESTS = [...ADVANCED_TESTS, 'ANA (Antinuclear Antibody)', 'Anti-CCP Antibody', 'Rheumatoid Factor (RF)', 'ANA Profile', 'Anti-dsDNA', 'C3 Complement', 'C4 Complement', 'Total IgE', 'RAST - Food Panel', 'RAST - Inhalant Panel', 'PSA (Total)', 'Free PSA', 'CA 125', 'CA 19-9', 'CEA', 'AFP', 'CA 15-3', 'Beta-hCG (Quantitative)', 'Testosterone (Total)', 'Testosterone (Free)', 'FSH', 'LH', 'Estradiol (E2)', 'Progesterone', 'Prolactin', 'AMH', 'IGF-1', 'Growth Hormone (GH)', 'ACTH', 'Aldosterone', 'Renin (Direct)', 'Metanephrines (Plasma)'];
+
 const packages = [
   {
     id: 'essential-full-body', name: 'Jeevan Essential Full Body Checkup', priority: 5,
@@ -12,7 +18,7 @@ const packages = [
     whoShouldTake: ['Healthy adults for annual screening', 'Age 25+ for baseline health checkup', 'Family history of chronic diseases', 'Sedentary lifestyle or desk job', 'Insurance or corporate requirement'],
     preparation: 'Fasting for 10-12 hours required. Water is allowed.',
     conditions: ['Diabetes & Prediabetes', 'High Cholesterol', 'Thyroid Disorders', 'Liver & Kidney Disease', 'Vitamin Deficiencies', 'Anemia'],
-    testsIncluded: ['Complete Blood Count (CBC)', 'ESR (Erythrocyte Sedimentation Rate)', 'Hemoglobin', 'Platelet Count', 'Blood Sugar (Fasting)', 'HbA1c', 'Kidney Function Test (KFT)', 'Serum Creatinine', 'Blood Urea / BUN', 'Uric Acid', 'Liver Function Test (LFT)', 'SGOT / AST', 'SGPT / ALT', 'Total Bilirubin', 'Direct Bilirubin', 'Lipid Profile', 'Total Cholesterol', 'HDL Cholesterol', 'LDL Cholesterol', 'Triglycerides', 'TSH', 'T3 (Free)', 'T4 (Free)', 'Vitamin D Total', 'Vitamin B12', 'Urine Routine & Microscopy', 'Serum Electrolytes (Na, K, Cl)', 'Total Protein', 'Albumin', 'Globulin', 'Calcium (Serum)', 'Phosphorus', 'Alkaline Phosphatase (ALP)', 'GGT', 'LDH', 'Iron Studies', 'Ferritin', 'TIBC', 'RDW', 'MPV', 'Reticulocyte Count', 'Absolute Eosinophil Count', 'Serum Magnesium', 'Globulin', 'A/G Ratio', 'BUN/Creatinine Ratio', 'eGFR', 'Anion Gap', 'Osmolality (Serum)', 'Random Blood Sugar (RBS)', 'Blood Group & RH Typing'],
+    testsIncluded: ESSENTIAL_TESTS,
     faqs: [
       { q: 'What is included in this package?', a: '50 tests covering CBC, diabetes, heart, liver, kidney, thyroid, vitamins, and more.' },
       { q: 'Is fasting required?', a: 'Yes, 10-12 hours of fasting is required for accurate blood sugar and lipid results.' },
@@ -32,7 +38,7 @@ const packages = [
     whoShouldTake: ['Age 30+ for comprehensive screening', 'Family history of multiple diseases', 'Those wanting complete health picture', 'Annual corporate wellness programs', 'Pre-existing condition monitoring'],
     preparation: 'Fasting for 10-12 hours required.',
     conditions: ['All conditions on Essential plus:', 'Insulin Resistance', 'Systemic Inflammation', 'Electrolyte Imbalance', 'Bone Health Disorders', 'Advanced Anemia Types'],
-    testsIncluded: [...packages.find(p => p.id === 'essential-full-body').testsIncluded, 'hs-CRP', 'Insulin (Fasting)', 'C-Peptide', 'Free T3', 'Free T4', 'Anti-TPO Antibody', 'Folate', 'Calcium (Ionized)', 'Magnesium', 'Zinc (Serum)', 'Copper (Serum)', 'Selenium (Serum)', 'Vitamin A', 'Vitamin E', 'Homocysteine', 'Lipoprotein (a)', 'Apolipoprotein A1', 'Apolipoprotein B', 'DHEA-S', 'SHBG', 'Cortisol (Morning)', 'Procalcitonin', 'Haptoglobin', 'Transferrin', 'Soluble Transferrin Receptor', 'Creatine Kinase (CK)', 'CK-MB', 'Myoglobin', 'Troponin I', 'NT-proBNP', 'Cystatin C', 'Beta-2 Microglobulin'],
+    testsIncluded: ADVANCED_TESTS,
     faqs: [
       { q: 'How is Advanced different from Essential?', a: 'Advanced adds 25+ extra tests covering inflammation markers, cardiac risk, deeper hormone analysis, and trace elements.' },
       { q: 'Is fasting required?', a: 'Yes, 10-12 hours fasting required.' },
@@ -50,7 +56,7 @@ const packages = [
     whoShouldTake: ['Senior executives and business leaders', 'Age 35+ for premium screening', 'High-stress professionals', 'Those wanting most comprehensive checkup', 'Corporate CXO health programs'],
     preparation: 'Fasting for 10-12 hours required.',
     conditions: ['All conditions on Advanced plus:', 'Hormonal Imbalances', 'Autoimmune Disorders', 'Bone & Joint Health', 'Cancer Risk Assessment', 'Nutritional Optimization'],
-    testsIncluded: [...packages.find(p => p.id === 'advanced-full-body').testsIncluded, 'ANA (Antinuclear Antibody)', 'Anti-CCP Antibody', 'Rheumatoid Factor (RF)', 'ANA Profile', 'Anti-dsDNA', 'C3 Complement', 'C4 Complement', 'Total IgE', 'RAST - Food Panel', 'RAST - Inhalant Panel', 'PSA (Total)', 'Free PSA', 'CA 125', 'CA 19-9', 'CEA', 'AFP', 'CA 15-3', 'Beta-hCG (Quantitative)', 'Testosterone (Total)', 'Testosterone (Free)', 'FSH', 'LH', 'Estradiol (E2)', 'Progesterone', 'Prolactin', 'AMH', 'IGF-1', 'Growth Hormone (GH)', 'ACTH', 'Aldosterone', 'Renin (Direct)', 'Metanephrines (Plasma)'],
+    testsIncluded: EXECUTIVE_TESTS,
     faqs: [
       { q: 'What makes Executive different?', a: '100 tests including cancer markers, autoimmune screening, comprehensive hormone profiling, and advanced cardiac risk assessment.' },
       { q: 'Who is this for?', a: 'Senior executives, business owners, and anyone wanting the most comprehensive health screening available.' },
@@ -155,7 +161,7 @@ const packages = [
     whoShouldTake: ['All adults age 50+', 'Those with multiple health conditions', 'Patients on long-term medications', 'Reduced mobility or independence concerns', 'Annual health checkup for seniors'],
     preparation: 'Fasting for 10-12 hours required. Continue regular medications.',
     conditions: ['Hypertension', 'Diabetes', 'High Cholesterol', 'Osteoporosis', 'Osteoarthritis', 'Hypothyroidism', 'CKD (Chronic Kidney Disease)', 'Fatty Liver', 'Anemia of Chronic Disease', 'Vitamin D Deficiency'],
-    testsIncluded: packages.find(p => p.id === 'advanced-full-body').testsIncluded,
+    testsIncluded: ADVANCED_TESTS,
     faqs: [
       { q: 'Is this suitable for seniors on multiple medications?', a: 'Yes, it monitors organ function to detect medication side effects early.' },
       { q: 'Can I take my medications before the test?', a: 'Continue regular medications unless your doctor advises otherwise. Bring a list of all medications.' },

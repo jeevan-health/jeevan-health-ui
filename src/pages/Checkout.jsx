@@ -7,11 +7,19 @@ import { seedTests } from '../data/seedData';
 const STEPS = ['Address', 'Patient', 'Date & Time', 'Review', 'Payment'];
 
 const TIME_SLOTS = [
-  { label: '7:00 AM – 9:00 AM', value: '7-9', type: 'Morning' },
-  { label: '9:00 AM – 11:00 AM', value: '9-11', type: 'Morning' },
-  { label: '11:00 AM – 1:00 PM', value: '11-13', type: 'Midday' },
-  { label: '4:00 PM – 6:00 PM', value: '16-18', type: 'Evening' },
-  { label: '6:00 PM – 8:00 PM', value: '18-20', type: 'Evening' },
+  { label: '7:00 AM – 8:00 AM', value: '7-8', type: 'Morning', icon: '🌅' },
+  { label: '8:00 AM – 9:00 AM', value: '8-9', type: 'Morning', icon: '🌅' },
+  { label: '9:00 AM – 10:00 AM', value: '9-10', type: 'Morning', icon: '🌅' },
+  { label: '10:00 AM – 11:00 AM', value: '10-11', type: 'Morning', icon: '🌤️' },
+  { label: '11:00 AM – 12:00 PM', value: '11-12', type: 'Midday', icon: '☀️' },
+  { label: '12:00 PM – 1:00 PM', value: '12-13', type: 'Midday', icon: '☀️' },
+  { label: '1:00 PM – 2:00 PM', value: '13-14', type: 'Afternoon', icon: '🌤️' },
+  { label: '2:00 PM – 3:00 PM', value: '14-15', type: 'Afternoon', icon: '🌤️' },
+  { label: '3:00 PM – 4:00 PM', value: '15-16', type: 'Afternoon', icon: '🌤️' },
+  { label: '4:00 PM – 5:00 PM', value: '16-17', type: 'Evening', icon: '🌆' },
+  { label: '5:00 PM – 6:00 PM', value: '17-18', type: 'Evening', icon: '🌆' },
+  { label: '6:00 PM – 7:00 PM', value: '18-19', type: 'Evening', icon: '🌆' },
+  { label: '7:00 PM – 8:00 PM', value: '19-20', type: 'Evening', icon: '🌆' },
 ];
 
 const generateDates = () => {
@@ -430,61 +438,129 @@ export default function Checkout() {
     </div>
   );
 
-  const renderDateTime = () => (
-    <div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text-dark)' }}>📅 Select Date & Time</h3>
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Choose a convenient slot for home sample collection.</p>
+  const renderDateTime = () => {
+    const timeGroups = TIME_SLOTS.reduce((acc, s) => {
+      if (!acc[s.type]) acc[s.type] = [];
+      acc[s.type].push(s);
+      return acc;
+    }, {});
+    const groupOrder = ['Morning', 'Midday', 'Afternoon', 'Evening'];
+    const groupIcons = { Morning: '🌅', Midday: '☀️', Afternoon: '🌤️', Evening: '🌆' };
 
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>Date</div>
-      <div style={{ display: 'flex', gap: 6, overflow: 'auto', paddingBottom: 8, marginBottom: 16 }}>
-        {dates.map(d => (
-          <button
-            key={d.toISOString()}
-            onClick={() => { setSelectedDate(d); setSelectedSlot(null); }}
-            style={{
-              flexShrink: 0, padding: '8px 14px', borderRadius: 10, border: `2px solid ${selectedDate?.toDateString() === d.toDateString() ? 'var(--primary)' : 'var(--border)'}`,
-              background: selectedDate?.toDateString() === d.toDateString() ? 'var(--primary)' : '#fff',
-              color: selectedDate?.toDateString() === d.toDateString() ? '#fff' : 'var(--text-body)',
-              cursor: 'pointer', fontSize: 12, fontWeight: selectedDate?.toDateString() === d.toDateString() ? 700 : 500,
-              fontFamily: 'inherit', textAlign: 'center', minWidth: 80,
-            }}
-          >
-            <div style={{ fontSize: 10, opacity: 0.8, marginBottom: 2 }}>{isToday(d) ? 'Today' : fmtDate(d).split(' ')[0]}</div>
-            <div>{fmtDate(d).split(' ').slice(1).join(' ')}</div>
-          </button>
-        ))}
-      </div>
+    return (
+      <div>
+        <div style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4a7a 100%)', borderRadius: 16, padding: '18px 18px 20px', marginBottom: 20, color: '#fff' }}>
+          <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 2 }}>📅 Schedule Collection</div>
+          <div style={{ fontSize: 12, opacity: 0.8 }}>Pick a date and time for your free home sample collection</div>
+        </div>
 
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>Time Slot</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {TIME_SLOTS.map(s => (
-          <button
-            key={s.value}
-            onClick={() => setSelectedSlot(s.value)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10,
-              border: `2px solid ${selectedSlot === s.value ? 'var(--primary)' : 'var(--border)'}`,
-              background: selectedSlot === s.value ? 'var(--primary-light)' : '#fff',
-              cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, textAlign: 'left',
-            }}
-          >
-            <span style={{ fontSize: 16 }}>{s.type === 'Morning' ? '🌅' : s.type === 'Midday' ? '☀️' : '🌆'}</span>
-            <div style={{ flex: 1 }}>
-              <span style={{ fontWeight: selectedSlot === s.value ? 700 : 500, color: 'var(--text-dark)' }}>{s.label}</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)', marginLeft: 6 }}>{s.type}</span>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: '#e8f0fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>📅</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>Select Date</div>
+              <div style={{ fontSize: 11, color: '#888' }}>Choose your preferred collection day</div>
             </div>
-            <div style={{
-              width: 18, height: 18, borderRadius: '50%', border: `2px solid ${selectedSlot === s.value ? 'var(--primary)' : '#d0d5dd'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: selectedSlot === s.value ? 'var(--primary)' : 'transparent',
-            }}>
-              {selectedSlot === s.value && <span style={{ color: '#fff', fontSize: 10 }}>✓</span>}
+          </div>
+          <div style={{ display: 'flex', gap: 8, overflow: 'auto', paddingBottom: 8, scrollSnapType: 'x mandatory' }}>
+            {dates.map(d => {
+              const active = selectedDate?.toDateString() === d.toDateString();
+              const today = isToday(d);
+              const parts = fmtDate(d).split(' ');
+              return (
+                <button
+                  key={d.toISOString()}
+                  onClick={() => { setSelectedDate(d); setSelectedSlot(null); }}
+                  style={{
+                    flexShrink: 0, scrollSnapAlign: 'start',
+                    padding: '10px 6px', borderRadius: 14,
+                    border: `2px solid ${active ? '#1a4a7a' : '#e8edf2'}`,
+                    background: active ? '#1a4a7a' : '#fff',
+                    color: active ? '#fff' : '#333',
+                    cursor: 'pointer', fontSize: 12, fontWeight: active ? 700 : 500,
+                    fontFamily: 'inherit', textAlign: 'center', minWidth: 72,
+                    transition: 'all 0.2s', boxShadow: active ? '0 4px 12px rgba(26,74,122,0.25)' : 'none',
+                  }}
+                >
+                  <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4, opacity: active ? 0.9 : 0.6 }}>
+                    {today ? 'Today' : parts[0]}
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.2 }}>{parts[1]}</div>
+                  <div style={{ fontSize: 9, opacity: active ? 0.8 : 0.5, marginTop: 2 }}>{parts[2]}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: '#fff3e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>⏰</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>Select Time Slot</div>
+              <div style={{ fontSize: 11, color: '#888' }}>1-hour slots available throughout the day</div>
             </div>
-          </button>
-        ))}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {groupOrder.map(group => {
+              const slots = timeGroups[group];
+              if (!slots) return null;
+              return (
+                <div key={group}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, padding: '0 2px' }}>
+                    <span style={{ fontSize: 14 }}>{groupIcons[group]}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{group}</span>
+                    <div style={{ flex: 1, height: 1, background: '#f0f0f0' }} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                    {slots.map(s => {
+                      const active = selectedSlot === s.value;
+                      return (
+                        <button
+                          key={s.value}
+                          onClick={() => setSelectedSlot(s.value)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '8px 10px', borderRadius: 10,
+                            border: `2px solid ${active ? '#1a4a7a' : '#e8edf2'}`,
+                            background: active ? '#f0f7ff' : '#fff',
+                            cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, textAlign: 'left',
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          <div style={{
+                            width: 20, height: 20, borderRadius: '50%',
+                            border: `2px solid ${active ? '#1a4a7a' : '#d0d5dd'}`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: active ? '#1a4a7a' : 'transparent', flexShrink: 0,
+                          }}>
+                            {active && <span style={{ color: '#fff', fontSize: 9 }}>✓</span>}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: active ? 700 : 500, color: active ? '#1a4a7a' : '#333', fontSize: 11 }}>
+                              {s.label}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {selectedDate && selectedSlot && (
+          <div style={{ marginTop: 16, padding: '10px 14px', background: '#e8f5e9', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#2e7d32' }}>
+            <span>✅</span>
+            <span><strong>Collection scheduled:</strong> {fmtDateFull(selectedDate)} at {TIME_SLOTS.find(s => s.value === selectedSlot)?.label}</span>
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderReview = () => (
     <div>
@@ -682,9 +758,6 @@ export default function Checkout() {
           .checkout-step-card { padding: 16px !important; }
           .checkout-actions { flex-direction: column !important; gap: 8px !important; }
           .checkout-actions .btn { width: 100% !important; justify-content: center !important; }
-          .checkout-time-slots { grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
-          .checkout-date-chips { gap: 4px !important; }
-          .checkout-date-chips button { min-width: 60px !important; font-size: 10px !important; padding: 6px 8px !important; }
           .checkout-review-card { padding: 14px !important; }
           .checkout-items-list > div { flex-wrap: wrap !important; gap: 6px !important; }
           .checkout-payment-options { grid-template-columns: 1fr !important; }
@@ -696,9 +769,6 @@ export default function Checkout() {
           .checkout-main { padding: 12px 10px !important; }
           .checkout-main h3 { font-size: 14px !important; }
           .checkout-main .card { padding: 12px !important; border-radius: 14px !important; }
-          .checkout-date-chips button { min-width: 50px !important; font-size: 9px !important; padding: 5px 6px !important; }
-          .checkout-time-slots { grid-template-columns: 1fr 1fr !important; gap: 4px !important; }
-          .checkout-time-slots button { padding: 8px 10px !important; font-size: 11px !important; }
           .checkout-patient-list > div { padding: 10px !important; }
           .checkout-add-patient-btn { flex-direction: column !important; gap: 6px !important; }
           .checkout-add-patient-btn input { width: 100% !important; }

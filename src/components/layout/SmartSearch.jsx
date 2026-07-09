@@ -64,11 +64,10 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
   return (
     <div ref={ref} style={{ position: 'relative', width: '100%' }}>
       <div style={{ display: 'flex', border: '2px solid #d0d5dd', borderRadius: 10, overflow: 'hidden', background: '#fff', transition: 'border-color 0.2s' }}>
-        <span style={{ padding: '8px 0 8px 12px', fontSize: 14, color: '#999' }}>🔍</span>
         <input type="text" value={query} onChange={e => handleChange(e.target.value)}
           onKeyDown={handleKey} onFocus={() => query.trim() && setOpen(true)} autoFocus={autoFocus}
           placeholder={placeholder}
-          style={{ flex: 1, border: 'none', padding: '9px 8px', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
+          style={{ flex: 1, border: 'none', padding: '9px 8px 9px 12px', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
         {query && <button onClick={() => { handleChange(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
       </div>
       {open && (
