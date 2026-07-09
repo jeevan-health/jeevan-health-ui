@@ -38,6 +38,7 @@ const AdminCollection = lazy(() => import('./pages/admin/AdminCollection'));
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminTestMaster = lazy(() => import('./pages/admin/AdminTestMaster'));
+const AdminHealthPackages = lazy(() => import('./pages/admin/AdminHealthPackages'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminCMS = lazy(() => import('./pages/admin/AdminCMS'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
@@ -222,6 +223,7 @@ export default function App() {
             <Route path="users" element={<AdminUsers />} />
             <Route path="permissions" element={<AdminPermissions />} />
             <Route path="test-master" element={<AdminTestMaster />} />
+            <Route path="health-packages" element={<AdminHealthPackages />} />
             <Route path="cms" element={<AdminCMS />} />
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
