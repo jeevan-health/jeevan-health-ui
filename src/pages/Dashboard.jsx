@@ -109,6 +109,9 @@ export default function Dashboard() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [familyForm, setFamilyForm] = useState({ name: '', relation: '', age: '', gender: '' });
   const [fullReportIndex, setFullReportIndex] = useState(null);
+  const [reportSearch, setReportSearch] = useState('');
+  const [reportFilter, setReportFilter] = useState('All Reports');
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(null);
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [healthForm, setHealthForm] = useState({
     smoking: '', alcohol: '', exercise: '', diet: '',
@@ -370,8 +373,8 @@ export default function Dashboard() {
         <Section id="reports" title="My Reports" icon="🧪" active={activeSection}>
           {/* Filter/search bar */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-            <input placeholder="Search reports..." className="input" style={{ maxWidth: 260, fontSize: 12 }} />
-            <select className="select" style={{ maxWidth: 140, fontSize: 12 }}>
+            <input placeholder="Search reports..." className="input" style={{ maxWidth: 260, fontSize: 12 }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />
+            <select className="select" style={{ maxWidth: 140, fontSize: 12 }} value={reportFilter} onChange={e => setReportFilter(e.target.value)}>
               <option>All Reports</option>
               <option>This Month</option>
               <option>Last 3 Months</option>
@@ -379,7 +382,15 @@ export default function Dashboard() {
             </select>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {reports.map((r, i) => (
+            {reports.filter(r => {
+              const match = !reportSearch || r.test.toLowerCase().includes(reportSearch.toLowerCase()) || r.status.toLowerCase().includes(reportSearch.toLowerCase());
+              if (!match) return false;
+              if (reportFilter === 'All Reports') return true;
+              const days = reportFilter === 'This Month' ? 30 : reportFilter === 'Last 3 Months' ? 90 : 180;
+              const d = new Date(r.date);
+              const now = new Date();
+              return (now - d) / (1000 * 60 * 60 * 24) <= days;
+            }).map((r, i) => (
               <div key={r.id} className="card" style={{ padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <div style={{ flex: 1 }}>
@@ -392,8 +403,23 @@ export default function Dashboard() {
                   <Badge variant={r.status === 'Normal' ? 'green' : r.status === 'Low' ? 'orange' : 'yellow'}>{r.status}</Badge>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     <button className="btn btn-outline btn-sm" onClick={() => setFullReportIndex(fullReportIndex === i ? null : i)}>View</button>
-                    <button className="btn btn-outline btn-sm">📥 PDF</button>
-                    <button className="btn btn-outline btn-sm">📤 Share</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => {
+                      const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
+                      const text = `📄 ${r.test} — ${r.date}\n${lines}\n\n— Jeevan HealthCare`;
+                      const blob = new Blob([text], { type: 'text/plain' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a'); a.href = url; a.download = `${r.test.replace(/\s+/g, '_')}.txt`;
+                      a.click(); URL.revokeObjectURL(url);
+                    }}>📥 PDF</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => {
+                      const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
+                      const text = `📄 ${r.test} — ${r.date}\n\n${lines}\n\nShared from Jeevan HealthCare at Home`;
+                      if (navigator.share) {
+                        navigator.share({ title: `${r.test} - Jeevan HealthCare`, text });
+                      } else {
+                        navigator.clipboard.writeText(text).then(() => alert('✅ Report copied to clipboard. Share via WhatsApp, Email, etc.'));
+                      }
+                    }}>📤 Share</button>
                   </div>
                 </div>
 
@@ -402,7 +428,15 @@ export default function Dashboard() {
                   <div style={{ marginTop: 12, padding: 12, background: '#f8f9fa', borderRadius: 10, fontSize: 12 }}>
                     <div style={{ fontWeight: 600, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
                       <span>Test Values</span>
-                      <button className="btn btn-outline btn-sm">📈 View Trend</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => {
+                        const trend = store.healthTrends?.hba1c;
+                        if (trend && trend.length > 1) {
+                          const vals = trend.map(t => `${t.date}: ${t.value}%`).join('\n');
+                          alert(`📈 HbA1c Trend:\n\n${vals}\n\nShowing last ${trend.length} readings`);
+                        } else {
+                          alert('📈 Trend data available only for HbA1c. More trends coming soon.');
+                        }
+                      }}>📈 View Trend</button>
                     </div>
                     <div style={{ display: 'grid', gap: 6 }}>
                       {Object.entries(r.values).map(([key, val]) => (
@@ -414,8 +448,23 @@ export default function Dashboard() {
                       ))}
                     </div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
-                      <button className="btn btn-outline btn-sm">📥 Download All as ZIP</button>
-                      <button className="btn btn-outline btn-sm" style={{ color: '#16a34a', borderColor: '#bbf7d0' }}>🩺 Share with Doctor</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => {
+                        const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
+                        const text = `Jeevan HealthCare Report\nTest: ${r.test}\nDate: ${r.date}\nLab: ${r.lab}\nStatus: ${r.status}\n\n${lines}\n\n— Jeevan HealthCare at Home`;
+                        const blob = new Blob([text], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a'); a.href = url; a.download = `${r.test.replace(/\s+/g, '_')}_Report.txt`;
+                        a.click(); URL.revokeObjectURL(url);
+                      }}>📥 Download All as ZIP</button>
+                      <button className="btn btn-outline btn-sm" style={{ color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
+                        const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
+                        const text = `🩺 ${r.test} — ${r.date}\n\n${lines}\n\nShared from Jeevan HealthCare at Home`;
+                        if (navigator.share) {
+                          navigator.share({ title: `${r.test} - Jeevan HealthCare`, text });
+                        } else {
+                          navigator.clipboard.writeText(text).then(() => alert('✅ Report summary copied! Share it with your doctor via WhatsApp or Email.'));
+                        }
+                      }}>🩺 Share with Doctor</button>
                     </div>
                   </div>
                 )}
@@ -439,8 +488,19 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#1866C9' }}>₹{inv.amount}</div>
                   <Badge variant="green">Paid ✅</Badge>
-                  <button className="btn btn-outline btn-sm">📄 Invoice</button>
-                  <button className="btn btn-outline btn-sm">🧾 Receipt</button>
+                  <button className="btn btn-outline btn-sm" onClick={() => {
+                    const text = `Jeevan HealthCare\nTax Invoice\n\nInvoice No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount: ₹${inv.amount}\nStatus: Paid\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThank you for choosing Jeevan HealthCare at Home!`;
+                    const blob = new Blob([text], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const el = document.createElement('a'); el.href = url; el.download = `Invoice_${inv.id}.txt`; el.click(); URL.revokeObjectURL(url);
+                  }}>📄 Invoice</button>
+                  <button className="btn btn-outline btn-sm" onClick={() => {
+                    const text = `Jeevan HealthCare\nPayment Receipt\n\nReceipt No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount Paid: ₹${inv.amount}\nPayment Method: Online\nStatus: Paid ✅\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThis is a computer-generated receipt.`;
+                    const blob = new Blob([text], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const el = document.createElement('a'); el.href = url; el.download = `Receipt_${inv.id}.txt`; el.click(); URL.revokeObjectURL(url);
+                  }}>🧾 Receipt</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>🔄 Re-book</button>
                 </div>
               </div>
             ))}
@@ -592,8 +652,8 @@ export default function Dashboard() {
                   <div style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 2 }}>📅 {a.date} · 🕘 {a.time}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                  {a.link && <button className="btn btn-green btn-sm">🔗 Join Meeting</button>}
-                  <button className="btn btn-outline btn-sm">Reschedule</button>
+                  {a.link && <button className="btn btn-green btn-sm" onClick={() => window.open(a.link, '_blank')}>🔗 Join Meeting</button>}
+                  <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(a); setRescheduleDate(null); setRescheduleSlot(null); }}>Reschedule</button>
                 </div>
               </div>
             ))}
@@ -618,8 +678,26 @@ export default function Dashboard() {
                     <div><strong>Diagnosis:</strong> {a.diagnosis}</div>
                     <div style={{ marginTop: 4 }}><strong>Prescription:</strong> {a.prescription}</div>
                     {a.followUp && <div style={{ marginTop: 4 }}><strong>Follow-up:</strong> {a.followUp}</div>}
+                    <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                      <button className="btn btn-primary btn-sm" onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(`I need a follow-up appointment for ${a.diagnosis} (Previous: Dr. ${a.doctor}, ${a.date})`)}`, '_blank'); }}>📅 Book Follow-up</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: a.doctor, date: a.date, diagnosis: a.diagnosis, prescription: a.prescription, followUp: a.followUp })}>👁️ View Rx</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => {
+                        const text = `Jeevan HealthCare — Prescription\nDoctor: ${a.doctor}\nDate: ${a.date}\nDiagnosis: ${a.diagnosis}\nPrescription: ${a.prescription}${a.followUp ? `\nFollow-up: ${a.followUp}` : ''}`;
+                        const blob = new Blob([text], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const el = document.createElement('a'); el.href = url; el.download = `Prescription_${a.doctor.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
+                      }}>📥 Download</button>
+                      <button className="btn btn-outline btn-sm" style={{ color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
+                        const text = `🩺 Prescription — Dr. ${a.doctor}\n${a.date}\n\nDiagnosis: ${a.diagnosis}\nRx: ${a.prescription}${a.followUp ? `\nFollow-up: ${a.followUp}` : ''}\n\n— Jeevan HealthCare at Home`;
+                        if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${a.doctor}`, text }); }
+                        else { navigator.clipboard.writeText(text).then(() => alert('✅ Prescription copied!')); }
+                      }}>📤 Share</button>
+                    </div>
                   </div>
                 )}
+                <div style={{ marginTop: 8 }}>
+                  <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>🧪 Book Diagnostic Test</button>
+                </div>
               </div>
             ))}
           </div>
@@ -807,11 +885,24 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {prescriptions.map(p => (
                     <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12 }}>
-                      <div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: 500 }}>🩺 {p.name}</div>
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.date} · {p.medicines}</div>
                       </div>
-                      <button className="btn btn-outline btn-sm">View</button>
+                      <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                        <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: p.name, date: p.date, prescription: p.medicines })}>👁️</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => {
+                          const text = `Jeevan HealthCare — Prescription\nDoctor: ${p.name}\nDate: ${p.date}\nRx: ${p.medicines}`;
+                          const blob = new Blob([text], { type: 'text/plain' });
+                          const url = URL.createObjectURL(blob);
+                          const el = document.createElement('a'); el.href = url; el.download = `Prescription_${p.name.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
+                        }}>📥</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => {
+                          const text = `🩺 Prescription — Dr. ${p.name}\n${p.date}\n\nRx: ${p.medicines}\n\n— Jeevan HealthCare at Home`;
+                          if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${p.name}`, text }); }
+                          else { navigator.clipboard.writeText(text).then(() => alert('✅ Prescription copied!')); }
+                        }}>📤</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -928,6 +1019,43 @@ export default function Dashboard() {
         )}
 
       </main>
+
+      {/* Prescription View Modal */}
+      {showPrescriptionModal && (
+        <div className="panel-overlay" onClick={() => setShowPrescriptionModal(null)}>
+          <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
+            <div className="panel-header">
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>🩺 Prescription</h3>
+              <button onClick={() => setShowPrescriptionModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
+            </div>
+            <div className="panel-body">
+              <div style={{ fontSize: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div><strong>Doctor:</strong> {showPrescriptionModal.doctor}</div>
+                <div><strong>Date:</strong> {showPrescriptionModal.date}</div>
+                {showPrescriptionModal.diagnosis && <div><strong>Diagnosis:</strong> {showPrescriptionModal.diagnosis}</div>}
+                <div style={{ background: '#FFF8E1', padding: 12, borderRadius: 8, border: '1px solid #f0e6b8' }}>
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>📋 Prescribed Medicines</div>
+                  <div>{showPrescriptionModal.prescription}</div>
+                </div>
+                {showPrescriptionModal.followUp && <div><strong>Follow-up:</strong> {showPrescriptionModal.followUp}</div>}
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+                <button className="btn btn-outline btn-sm" style={{ flex: 1 }} onClick={() => {
+                  const text = `Jeevan HealthCare — Prescription\nDoctor: ${showPrescriptionModal.doctor}\nDate: ${showPrescriptionModal.date}${showPrescriptionModal.diagnosis ? `\nDiagnosis: ${showPrescriptionModal.diagnosis}` : ''}\nRx: ${showPrescriptionModal.prescription}${showPrescriptionModal.followUp ? `\nFollow-up: ${showPrescriptionModal.followUp}` : ''}`;
+                  const blob = new Blob([text], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const el = document.createElement('a'); el.href = url; el.download = `Prescription_${showPrescriptionModal.doctor.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
+                }}>📥 Download</button>
+                <button className="btn btn-outline btn-sm" style={{ flex: 1, color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
+                  const text = `🩺 Prescription — Dr. ${showPrescriptionModal.doctor}\n${showPrescriptionModal.date}${showPrescriptionModal.diagnosis ? `\nDiagnosis: ${showPrescriptionModal.diagnosis}` : ''}\nRx: ${showPrescriptionModal.prescription}${showPrescriptionModal.followUp ? `\nFollow-up: ${showPrescriptionModal.followUp}` : ''}\n\n— Jeevan HealthCare at Home`;
+                  if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${showPrescriptionModal.doctor}`, text }); }
+                  else { navigator.clipboard.writeText(text).then(() => alert('✅ Prescription copied!')); }
+                }}>📤 Share</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Health Assessment Modal */}
       {showHealthModal && (
