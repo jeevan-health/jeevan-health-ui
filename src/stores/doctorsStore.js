@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import useAuditStore from './auditStore';
 
 const KEY = 'jh_doctors';
 
@@ -19,19 +20,24 @@ const useDoctorsStore = create((set, get) => ({
     const doctors = [...get().doctors, doctor];
     save(KEY, doctors);
     set({ doctors });
+    useAuditStore.getState().log('create', `Doctor added: ${data.name} (${data.specializations?.join(', ') || '—'})`, 'doctors');
     return doctor;
   },
 
   updateDoctor: (id, data) => {
+    const prev = get().doctors.find(d => d.id === id);
     const doctors = get().doctors.map(d => d.id === id ? { ...d, ...data, updatedAt: new Date().toISOString() } : d);
     save(KEY, doctors);
     set({ doctors });
+    useAuditStore.getState().log('update', `Doctor updated: ${prev?.name || id?.slice(0, 8)}`, 'doctors');
   },
 
   deleteDoctor: (id) => {
+    const prev = get().doctors.find(d => d.id === id);
     const doctors = get().doctors.filter(d => d.id !== id);
     save(KEY, doctors);
     set({ doctors });
+    useAuditStore.getState().log('delete', `Doctor deleted: ${prev?.name || id?.slice(0, 8)}`, 'doctors');
   },
 }));
 

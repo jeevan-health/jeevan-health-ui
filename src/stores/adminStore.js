@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { seedTests } from '../data/seedData';
 import { getOrders, updateOrderStatus, updateOrder } from '../services/localOrderService';
 import useAuthStore from './authStore';
+import useAuditStore from './auditStore';
 
 const COUPONS_KEY = 'jh_coupons';
 const CONTACTS_KEY = 'jh_contacts';
@@ -82,10 +83,12 @@ const useAdminStore = create((set, get) => ({
   refreshOrders: () => set({ orders: getOrders() }),
 
   updateOrder: (id, status, extra) => {
+    const prev = getOrders().find(o => o.id === id);
     if (status) updateOrderStatus(id, status);
     if (extra) updateOrder(id, extra);
     get().refreshOrders();
     get().refreshAnalytics();
+    useAuditStore.getState().log('status_change', `Order ${id?.slice(0, 8)}: ${prev?.status || '?'} → ${status || extra ? 'updated' : '?'}`, 'orders');
   },
 
   // Coupons
@@ -98,12 +101,14 @@ const useAdminStore = create((set, get) => ({
     else coupons.push(coupon);
     save(COUPONS_KEY, coupons);
     set({ coupons });
+    useAuditStore.getState().log(idx >= 0 ? 'update' : 'create', `Coupon ${coupon.code}: ${coupon.discount}% off`, 'coupons');
   },
 
   deleteCoupon: (code) => {
     const coupons = get().coupons.filter(c => c.code !== code);
     save(COUPONS_KEY, coupons);
     set({ coupons });
+    useAuditStore.getState().log('delete', `Coupon deleted: ${code}`, 'coupons');
   },
 
   // Contacts
@@ -113,6 +118,7 @@ const useAdminStore = create((set, get) => ({
     const contacts = [{ ...data, id: Date.now().toString(), createdAt: new Date().toISOString(), read: false }, ...load(CONTACTS_KEY, '[]')];
     save(CONTACTS_KEY, contacts);
     set({ contacts });
+    useAuditStore.getState().log('create', `Contact form submission from ${data.name || data.email || 'unknown'}`, 'contacts');
   },
 
   markContactRead: (id) => {
@@ -126,6 +132,7 @@ const useAdminStore = create((set, get) => ({
     const cats = { ...load(CATALOG_KEY, '{}'), [testId]: overrides };
     save(CATALOG_KEY, cats);
     set({ catalogOverrides: cats });
+    useAuditStore.getState().log('update', `Test override saved for test #${testId}`, 'catalog');
   },
 
   addCustomTest: (test) => {
@@ -134,11 +141,13 @@ const useAdminStore = create((set, get) => ({
     const cats = { ...load(CATALOG_KEY, '{}'), [newTest.id]: newTest };
     save(CATALOG_KEY, cats);
     set({ catalogOverrides: cats });
+    useAuditStore.getState().log('create', `Custom test created: ${test.name}`, 'catalog');
   },
 
   resetCatalog: () => {
     localStorage.removeItem(CATALOG_KEY);
     set({ catalogOverrides: {} });
+    useAuditStore.getState().log('delete', 'Catalog reset to defaults', 'catalog');
   },
 }));
 

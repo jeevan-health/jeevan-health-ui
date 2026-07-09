@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import useAuditStore from './auditStore';
 
 const ADMINS = { '9999999999': 'super_admin' };
 
@@ -32,8 +33,10 @@ const useAuthStore = create((set, get) => ({
     const user = { id: Date.now().toString(), phone, name: phone === '9999999999' ? 'Super Admin' : 'User', email: '', role: ADMINS[phone] || 'user' };
     localStorage.setItem('jh_token', 'mock-token');
     localStorage.setItem('jh_user', JSON.stringify(user));
+    localStorage.setItem('jh_user_phone', phone);
     set({ user, isAuthenticated: true, isLoading: false });
     registerUser(user);
+    useAuditStore.getState().log('login', `User logged in: ${user.name} (${phone})`, 'auth');
   },
 
   verifyOtp: async (phone, otp) => {
@@ -42,8 +45,10 @@ const useAuthStore = create((set, get) => ({
     const user = { id: Date.now().toString(), phone, name: phone === '9999999999' ? 'Super Admin' : 'User', email: '', role: ADMINS[phone] || 'user' };
     localStorage.setItem('jh_token', 'mock-token');
     localStorage.setItem('jh_user', JSON.stringify(user));
+    localStorage.setItem('jh_user_phone', phone);
     set({ user, isAuthenticated: true, isLoading: false });
     registerUser(user);
+    useAuditStore.getState().log('login', `User verified OTP and logged in: ${user.name} (${phone})`, 'auth');
     return true;
   },
 
@@ -90,8 +95,11 @@ const useAuthStore = create((set, get) => ({
   },
 
   logout: () => {
+    const u = get().user;
+    useAuditStore.getState().log('logout', `User logged out: ${u?.name || u?.phone || 'unknown'}`, 'auth');
     localStorage.removeItem('jh_token');
     localStorage.removeItem('jh_user');
+    localStorage.removeItem('jh_user_phone');
     set({ user: null, isAuthenticated: false });
   },
 
@@ -102,10 +110,14 @@ const useAuthStore = create((set, get) => ({
     const users = loadUsers();
     const u = users.find(x => x.id === userId);
     if (u) { u.role = role; u.updatedAt = new Date().toISOString(); saveUsers(users); }
+    useAuditStore.getState().log('update', `User role updated: ${u?.name || userId} → ${role}`, 'users');
   },
 
   deleteUser: (userId) => {
-    saveUsers(loadUsers().filter(u => u.id !== userId));
+    const users = loadUsers();
+    const u = users.find(x => x.id === userId);
+    saveUsers(users.filter(u => u.id !== userId));
+    useAuditStore.getState().log('delete', `User deleted: ${u?.name || u?.phone || userId}`, 'users');
   },
 
   addUser: (userData) => {
@@ -119,6 +131,7 @@ const useAuthStore = create((set, get) => ({
       updatedAt: new Date().toISOString(),
     };
     registerUser(user);
+    useAuditStore.getState().log('create', `User created: ${user.name} (${user.phone}) as ${user.role}`, 'users');
     return user;
   },
 }));

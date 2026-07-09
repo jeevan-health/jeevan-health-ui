@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { path: '/admin/cms', label: 'Website CMS', icon: '🌐' },
   { path: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { path: '/admin/contacts', label: 'Contacts', icon: '✉️' },
+  { path: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
 ];
 
 export default function AdminLayout() {

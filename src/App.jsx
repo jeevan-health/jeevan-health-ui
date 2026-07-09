@@ -41,6 +41,7 @@ const AdminDoctors = lazy(() => import('./pages/admin/AdminDoctors'));
 const AdminStaffOnboarding = lazy(() => import('./pages/admin/AdminStaffOnboarding'));
 const AdminDoctorOnboarding = lazy(() => import('./pages/admin/AdminDoctorOnboarding'));
 const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
+const AdminAuditLog = lazy(() => import('./pages/admin/AdminAuditLog'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
@@ -215,6 +216,7 @@ export default function App() {
             <Route path="patients" element={<AdminPatients />} />
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="contacts" element={<AdminContacts />} />
+            <Route path="audit-log" element={<AdminAuditLog />} />
           </Route>
           {/* Phlebotomist Portal */}
           <Route path="/phlebotomist" element={<Protected><RoleLayout role="phlebotomist" /></Protected>}>

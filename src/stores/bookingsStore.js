@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import useAuditStore from './auditStore';
 
 const KEY = 'jh_bookings';
 
@@ -18,19 +19,24 @@ const useBookingsStore = create((set, get) => ({
     const bookings = [...get().bookings, booking];
     save(KEY, bookings);
     set({ bookings });
+    useAuditStore.getState().log('create', `Booking created for ${data.patientName || data.patientPhone || 'patient'} (${booking.id})`, 'bookings');
     return booking;
   },
 
   updateBooking: (id, data) => {
+    const prev = get().bookings.find(b => b.id === id);
     const bookings = get().bookings.map(b => b.id === id ? { ...b, ...data, updatedAt: new Date().toISOString() } : b);
     save(KEY, bookings);
     set({ bookings });
+    useAuditStore.getState().log('update', `Booking ${id?.slice(0, 8)} updated: ${data.status ? `status → ${data.status}` : 'details changed'}`, 'bookings');
   },
 
   deleteBooking: (id) => {
+    const prev = get().bookings.find(b => b.id === id);
     const bookings = get().bookings.filter(b => b.id !== id);
     save(KEY, bookings);
     set({ bookings });
+    useAuditStore.getState().log('delete', `Booking deleted: ${prev?.patientName || id?.slice(0, 8)}`, 'bookings');
   },
 
   getBookingsByDate: (date) => get().bookings.filter(b => b.date === date),
