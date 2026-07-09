@@ -13,12 +13,18 @@ export default function Layout() {
   const isAuth = useAuthStore(s => s.isAuthenticated);
 
   const navItems = [
-    { to: '/diagnostics', icon: '🔬', label: 'Tests' },
-    { to: '/services', icon: '📦', label: 'Packages' },
-    { to: '#upload', icon: '📄', label: 'Upload', action: () => useUploadModal.getState().setOpen(true) },
-    { to: '#cart', icon: '🛒', label: 'Cart', action: () => useCartStore.getState().setCartOpen(true) },
-    { to: isAuth ? '/dashboard' : '/signup', icon: '👤', label: isAuth ? 'Account' : 'Login' },
+    { to: '/', icon: '🏠', label: 'Home', match: '/' },
+    { to: '/diagnostics', icon: '🔬', label: 'Tests', match: '/diagnostics' },
+    { to: isAuth ? '/dashboard' : '/signup', icon: '📅', label: 'Bookings', match: '/dashboard' },
+    { to: isAuth ? '/dashboard' : '/signup', icon: '📄', label: 'Reports', match: '/dashboard' },
+    { to: isAuth ? '/dashboard' : '/signup', icon: '👤', label: 'Profile', match: '/dashboard' },
   ];
+
+  const isActiveTab = (item) => {
+    if (item.to === '/') return loc.pathname === '/';
+    if (item.match === '/dashboard') return loc.pathname.startsWith('/dashboard');
+    return loc.pathname.startsWith(item.match);
+  };
 
   return (
     <>
@@ -34,19 +40,12 @@ export default function Layout() {
       <FloatingActions />
       <div className="mobile-bottom-bar">
         {navItems.map(item => {
-          const isActive = item.to !== '#' && loc.pathname === item.to;
-          if (item.action) {
-            return (
-              <button key={item.label} onClick={item.action} className={isActive ? 'active' : ''} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, color: 'inherit', padding: '6px 12px', borderRadius: 12, fontWeight: isActive ? 600 : 500, WebkitTapHighlightColor: 'transparent' }}>
-                <span style={{ fontSize: 20 }}>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          }
+          const active = isActiveTab(item);
           return (
-            <Link key={item.label} to={item.to} className={isActive ? 'active' : ''} style={{ textDecoration: 'none' }}>
-              <span style={{ fontSize: 20 }}>{item.icon}</span>
-              <span>{item.label}</span>
+            <Link key={item.label} to={item.to} className={`mbb-item${active ? ' active' : ''}`} style={{ textDecoration: 'none', color: active ? '#1866C9' : '#8E8E93', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '4px 0', fontFamily: 'inherit', fontSize: 10, fontWeight: active ? 600 : 500, WebkitTapHighlightColor: 'transparent', position: 'relative', transition: 'color 0.2s' }}>
+              <span style={{ fontSize: 22, lineHeight: 1.2 }}>{item.icon}</span>
+              <span style={{ lineHeight: 1.2 }}>{item.label}</span>
+              {active && <span style={{ position: 'absolute', top: 2, width: 4, height: 4, borderRadius: '50%', background: '#1866C9' }} />}
             </Link>
           );
         })}

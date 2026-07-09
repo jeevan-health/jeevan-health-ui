@@ -205,50 +205,71 @@ export default function Dashboard() {
       <main className="dash-main">
 
         {/* ===== HEADER ===== */}
-        <div className="dash-header-wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <div className="dash-header-left" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
+        <div className="dash-header-wrap" style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
               {p.name.charAt(0)}
             </div>
-            <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>👋 Welcome Back, {p.name}</h1>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '2px 0' }}>{p.greeting}</p>
-              <p style={{ fontSize: 12, color: 'var(--text-light)' }}>Last Health Check: <strong>{p.lastCheckup}</strong></p>
+            <div style={{ flex: 1 }}>
+              <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>👋 Good {p.greeting.includes('Morning') ? 'Morning' : 'Evening'} {p.name}</h1>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '2px 0' }}>Last Check: <strong>{p.lastCheckup}</strong></p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2 }}>Health Score</div>
+              <div className="dash-score-text" style={{ fontSize: 24, fontWeight: 800, color: p.healthScore >= 80 ? '#16a34a' : '#eab308' }}>{p.healthScore}/100</div>
             </div>
           </div>
-          <div className="dash-header-right" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <div className="dash-score-ring" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <HealthScoreRing score={p.healthScore} />
-              <div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Health Score</div>
-                <div className="dash-score-text" style={{ fontSize: 22, fontWeight: 800, color: p.healthScore >= 80 ? '#16a34a' : '#eab308' }}>{p.healthScore}/100</div>
+          <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 56 }}>
+              <span style={{ fontSize: 24, flexShrink: 0 }}>🧪</span>
+              <div style={{ lineHeight: 1.3 }}>
+                <div style={{ fontWeight: 700 }}>Book a Test</div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>Home Collection</div>
               </div>
-            </div>
-            <div className="dash-actions" style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">📋 Book a Test</button>
-              <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline btn-sm">📤 Upload Prescription</button>
-            </div>
+            </button>
+            <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 14, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 56 }}>
+              <span style={{ fontSize: 24, flexShrink: 0 }}>📄</span>
+              <div style={{ lineHeight: 1.3 }}>
+                <div style={{ fontWeight: 700 }}>Upload Report</div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>Prescription</div>
+              </div>
+            </button>
           </div>
         </div>
 
         {/* Mobile Tab Nav */}
-        <div style={{ display: 'none', marginBottom: 16, background: '#fff', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }} className="dash-mobile-nav">
-          {renderNav(false)}
+        <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 16 }}>
+          <nav style={{ display: 'flex', gap: 4, overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+            {navItems.filter(item => item.key !== 'logout').map(item => (
+              <button key={item.key} onClick={() => setActiveSection(item.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
+                  fontSize: 13, fontWeight: activeSection === item.key ? 600 : 500,
+                  color: activeSection === item.key ? '#1866C9' : '#6B7280',
+                  background: activeSection === item.key ? '#E8F0FE' : '#F3F4F6',
+                  border: activeSection === item.key ? '1px solid #CBD5E1' : '1px solid transparent',
+                  cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 24,
+                  transition: 'all 0.15s', minHeight: 40,
+                }}>
+                <span>{item.icon}</span> <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* ===== OVERVIEW CARDS ===== */}
         {activeSection === 'overview' && (
-          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
+          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 24 }}>
             {[
               { icon: '📅', label: 'Upcoming Bookings', value: upcoming.length, color: '#2563eb', bg: '#dbeafe' },
               { icon: '🧪', label: 'Reports Available', value: reports.length, color: '#16a34a', bg: '#dcfce7' },
               { icon: '👨‍👩‍👧‍👦', label: 'Family Members', value: family.length, color: '#c2410c', bg: '#fed7aa' },
               { icon: '📦', label: 'Active Orders', value: activeOrders, color: '#7c3aed', bg: '#ede9fe' },
             ].map(card => (
-              <div key={card.label} className="card" style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => setActiveSection(card.icon === '📅' ? 'bookings' : card.icon === '🧪' ? 'reports' : card.icon === '👨‍👩‍👧‍👦' ? 'family' : 'wallet')}>
-                <div style={{ fontSize: 28, marginBottom: 4 }}>{card.icon}</div>
-                <div style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.value}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{card.label}</div>
+              <div key={card.label} className="card" style={{ textAlign: 'center', cursor: 'pointer', padding: '18px 12px', borderRadius: 16 }} onClick={() => setActiveSection(card.icon === '📅' ? 'bookings' : card.icon === '🧪' ? 'reports' : card.icon === '👨‍👩‍👧‍👦' ? 'family' : 'wallet')}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>{card.icon}</div>
+                <div style={{ fontSize: 32, fontWeight: 800, color: card.color, lineHeight: 1.1, marginBottom: 4 }}>{card.value}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>{card.label}</div>
               </div>
             ))}
           </div>
@@ -265,20 +286,21 @@ export default function Dashboard() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {upcoming.map(b => (
-                <div key={b.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
-                      🧪 {b.test}
+                <div key={b.id} className="card" style={{ padding: 14, borderRadius: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 2 }}>{b.test}</div>
+                      <Badge variant={b.status === 'Confirmed' ? 'green' : 'yellow'}>{b.status}</Badge>
                     </div>
-                    <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
-                      <span>📅 {b.date}</span>
-                      <span>🕘 {b.time}</span>
-                      <span>📍 {b.location}</span>
-                    </div>
+                    <div style={{ fontSize: 24 }}>🧪</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <Badge variant={b.status === 'Confirmed' ? 'green' : 'yellow'}>{b.status} ✅</Badge>
-                    <button className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>View Details</button>
+                  <div style={{ display: 'flex', gap: 14, fontSize: 12, color: 'var(--text-secondary)', flexWrap: 'wrap', marginBottom: 10 }}>
+                    <span>📅 {b.date}</span>
+                    <span>🕘 {b.time}</span>
+                    <span>📍 {b.location}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>View</button>
                     <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(b); setRescheduleDate(null); setRescheduleSlot(null); }}>Reschedule</button>
                     <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Cancel booking for ${b.test} on ${b.date}?`)) { store.cancelBooking(b.id); } }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>Cancel</button>
                   </div>
@@ -372,9 +394,9 @@ export default function Dashboard() {
         {/* ===== MY REPORTS ===== */}
         <Section id="reports" title="My Reports" icon="🧪" active={activeSection}>
           {/* Filter/search bar */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-            <input placeholder="Search reports..." className="input" style={{ maxWidth: 260, fontSize: 12 }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />
-            <select className="select" style={{ maxWidth: 140, fontSize: 12 }} value={reportFilter} onChange={e => setReportFilter(e.target.value)}>
+          <div className="report-search-bar" style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'nowrap', alignItems: 'center', width: '100%' }}>
+            <input placeholder="Search by test name..." className="input" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />
+            <select className="select" style={{ width: 130, flexShrink: 0, fontSize: 12, padding: '10px 8px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportFilter} onChange={e => setReportFilter(e.target.value)}>
               <option>All Reports</option>
               <option>This Month</option>
               <option>Last 3 Months</option>
@@ -1156,45 +1178,44 @@ export default function Dashboard() {
           .dash-sidebar { display: none !important; }
           .dash-mobile-nav { display: block !important; }
           .dash-main { padding: 12px 10px !important; padding-bottom: 80px !important; }
-          .dash-main h1 { font-size: 17px !important; }
-          .dash-main .dash-header-wrap { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
-          .dash-main .dash-header-left { width: 100% !important; }
-          .dash-main .dash-header-right { width: 100% !important; justify-content: space-between !important; }
-          .dash-main .dash-score-ring svg { width: 56px !important; height: 56px !important; }
-          .dash-main .dash-score-text { font-size: 16px !important; }
-          .dash-main .dash-actions { flex-direction: row !important; gap: 8px !important; }
-          .dash-main .dash-actions button { flex: 1 !important; font-size: 11px !important; padding: 10px 12px !important; white-space: nowrap !important; min-height: 38px !important; }
+          .dash-main h1 { font-size: 18px !important; }
+          .dash-main .dash-header-wrap { width: 100% !important; }
+          .dash-main .dash-actions { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
           .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
           .dash-main .overview-grid > div { padding: 14px 10px !important; }
-          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 22px !important; }
-          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 20px !important; }
+          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 26px !important; }
+          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 26px !important; }
+          .dash-main .overview-grid > div > div:nth-child(3) { font-size: 12px !important; }
           .dash-main .card { padding: 14px !important; border-radius: 16px !important; }
-          .dash-main .card h2, .dash-main .card h3 { font-size: 13px !important; }
+          .dash-main .card h2, .dash-main .card h3 { font-size: 14px !important; }
           .dash-main .card > div { gap: 8px !important; }
-          .dash-mobile-nav button { padding: 8px 8px !important; font-size: 11px !important; gap: 4px !important; min-height: 38px !important; }
-          .dash-mobile-nav button span:last-child { font-size: 10px !important; }
+          .dash-mobile-nav nav { gap: 6px !important; }
+          .dash-mobile-nav button { padding: 8px 14px !important; font-size: 12px !important; min-height: 38px !important; border-radius: 20px !important; }
+          .dash-mobile-nav button span:first-child { font-size: 14px !important; }
+          .report-search-bar { flex-direction: row !important; flex-wrap: nowrap !important; }
+          .report-search-bar select { width: auto !important; min-width: 100px !important; }
           .dash-section-grid-2 { grid-template-columns: 1fr !important; gap: 10px !important; }
           .dash-trend-svg svg { width: 100% !important; height: auto !important; }
           .dash-family-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-          .dash-main .btn { min-height: 36px; }
-          .dash-main .btn-sm { min-height: 32px; padding: 6px 10px !important; }
+          .dash-main .btn { min-height: 40px; font-size: 12px !important; }
+          .dash-main .btn-sm { min-height: 34px; padding: 6px 10px !important; font-size: 11px !important; }
         }
         @media (max-width: 480px) {
-          .dash-main .dash-score-ring { display: none !important; }
+          .dash-main .dash-header-wrap > div:first-child > div:last-child { display: none !important; }
           .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
-          .dash-main .overview-grid > div { padding: 10px 8px !important; }
-          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 18px !important; }
-          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 16px !important; }
-          .dash-main .dash-actions { flex-direction: column !important; gap: 6px !important; }
-          .dash-main .dash-header-right { flex-direction: column !important; align-items: stretch !important; gap: 6px !important; }
-          .dash-main .dash-header-left > div:first-child { width: 40px !important; height: 40px !important; font-size: 18px !important; }
+          .dash-main .overview-grid > div { padding: 12px 8px !important; }
+          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 22px !important; }
+          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 22px !important; }
+          .dash-main .dash-actions { grid-template-columns: 1fr !important; gap: 8px !important; }
           .dash-family-grid { grid-template-columns: 1fr !important; }
-          .dash-main h1 { font-size: 15px !important; }
-          .dash-main p { font-size: 11px !important; }
-          .dash-main .card { padding: 10px 12px !important; }
+          .dash-main h1 { font-size: 16px !important; }
+          .dash-main p { font-size: 12px !important; }
+          .dash-main .card { padding: 12px 12px !important; }
           .dash-main .panel-body { padding: 12px !important; }
-          .dash-main .input, .dash-main .select { padding: 8px 10px !important; font-size: 11px !important; }
+          .dash-main .input, .dash-main .select { padding: 10px 12px !important; font-size: 13px !important; }
           .dash-main .grid-2 { gap: 6px !important; }
+          .report-search-bar { flex-direction: column !important; gap: 6px !important; }
+          .report-search-bar select { width: 100% !important; }
         }
       `}</style>
     </div>
