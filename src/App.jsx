@@ -21,6 +21,8 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminCollection = lazy(() => import('./pages/admin/AdminCollection'));
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminCatalog = lazy(() => import('./pages/admin/AdminCatalog'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
@@ -90,6 +92,8 @@ export default function App() {
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="orders" element={<AdminOrders />} />
+            <Route path="collection" element={<AdminCollection />} />
+            <Route path="reports" element={<AdminReports />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="catalog" element={<AdminCatalog />} />
             <Route path="coupons" element={<AdminCoupons />} />
