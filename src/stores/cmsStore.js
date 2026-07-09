@@ -51,6 +51,42 @@ const defaults = {
     { id: 'nursing', icon: '👩‍⚕️', label: 'Nursing', description: 'Skilled nursing care at home', color: '#8B5CF6', link: '/services/nursing', active: true },
     { id: 'physiotherapy', icon: '🏋️', label: 'Physiotherapy', description: 'Recover with expert physiotherapists', color: '#EC4899', link: '/services/physiotherapy', active: true },
   ],
+  servicesPage: {
+    heroTitle: 'Complete Healthcare at Your Doorstep',
+    heroSubtitle: 'Doctor consultations, lab tests, pharmacy, nursing, physiotherapy, vaccinations & more — all from one trusted platform.',
+    heroCtas: [
+      { label: 'Book Lab Test', link: '/diagnostics', color: '#FF3B30' },
+      { label: 'Consult Doctor', link: '/doctor-consultation' },
+      { label: 'WhatsApp', link: 'https://wa.me/919700104108', color: '#25d366' },
+    ],
+    trustBadges: ['NABL Labs', 'Free Home Collection', 'Digital Reports', '24×7 Support'],
+    quickActions: [
+      { icon: 'Stethoscope', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/doctor-consultation', color: '#1866C9', tag: 'Available' },
+      { icon: 'Flask', label: 'Lab Tests', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#22C55E', tag: 'Popular' },
+      { icon: 'Heart', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#e53935', tag: 'Save 60%' },
+      { icon: 'Pill', label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },
+      { icon: 'User', label: 'Nursing Care', desc: 'Trained nurses at home', path: '/book-appointment', color: '#0891b2', tag: 'New' },
+      { icon: 'Heart', label: 'Physiotherapy', desc: 'Rehab & recovery at home', path: '/book-appointment', color: '#059669', tag: 'Book' },
+      { icon: 'Syringe', label: 'Vaccination', desc: 'All age groups & travel', path: '/book-appointment', color: '#2563eb', tag: 'Home' },
+      { icon: 'Monitor', label: 'Medical Equipment', desc: 'Rent or buy', path: '/book-appointment', color: '#e65100', tag: 'Rent' },
+    ],
+    categories: [
+      { title: 'Home Healthcare Services', color: '#1866C9', items: ['Doctor Consultation at Home', 'Medicine Delivery at Home', 'Lab Tests & Diagnostics at Home', 'X-Ray, ECG, EEG at Home', 'Nursing Care at Home', 'Caregiver Services (Elderly/Patient Care) at Home', 'Physiotherapy at Home', 'Vaccination at Home (All Age Groups & Travel Vaccines)', 'Medical Equipment Rental & Sales', 'Home ICU Setup & Monitoring'] },
+      { title: 'Preventive & Corporate Health Services', color: '#4169E1', items: ['Pre & Post Employment Health Checkups', 'Corporate & Occupational Health Services', 'Health Checkup Packages (Basic, Advanced, Executive & Disease-Specific)', 'Subscription-Based & Annual Health Plans'] },
+      { title: 'Digital Health Tools & Technology', color: '#2563eb', items: ['Real-Time Service Booking & Tracking via App', 'Integration with Health Records (EMR/EHR)', 'Health Trackers & Remote Monitoring Devices', 'Health Insurance Sales & Assistance', 'Symptom Checker, e-Prescriptions, Health Wallet, Reminders', 'Smart Home Health Devices'] },
+      { title: 'Mother & Child Care Services', color: '#0891b2', items: ['Postnatal & Neonatal Care at Home', 'Pediatric Consultations & Vaccinations at Home', 'Lactation Consultation'] },
+      { title: 'Wellness & Lifestyle Management', color: '#059669', items: ['Yoga & Meditation Sessions at Home', 'Dietitian/Nutritionist Consultations', 'Lifestyle Disease Reversal Programs (Diabetes, Obesity, Hypertension)', 'Smoking Cessation Programs'] },
+      { title: 'Specialist Services at Home', color: '#7c3aed', items: ['Oncology Care (Chemo Coordination, Palliative Support)', 'Orthopaedic Rehab & Joint Care', 'Neurological Rehab (Stroke, Parkinson\'s, Dementia)', 'Cardiac Rehab Programs'] },
+      { title: 'Travel & Concierge Healthcare', color: '#0891b2', items: ['Pre-Travel Health Consultations & Vaccinations', 'Medical Assistance for NRIs / Visiting Family', 'Hotel/Apartment-Based Health Services'] },
+      { title: 'B2B & Institutional Services', color: '#dc2626', items: ['Industrial Medical Camps', 'Employee Wellness Programs', 'School/College Health Programs', 'Insurance TPA Coordination & Claim Support'] },
+      { title: 'Community & Public Health Engagement', color: '#1866C9', items: ['Free Medical Camps & CSR Activities', 'Health Awareness & Preventive Screening Drives', 'Health ID Creation & Ayushman Bharat (ABHA) Integration'] },
+    ],
+    ctaHeading: 'Need help choosing a service?',
+    ctaText: 'Call us or WhatsApp for free guidance',
+    ctaPhone: '+919700104108',
+    ctaWhatsapp: '919700104108',
+    active: true,
+  },
   stats: [
     { value: 100, suffix: 'K+', label: 'Patients Served', description: 'Trusted by families across India' },
     { value: 5000, suffix: '+', label: 'Tests Available', description: 'Comprehensive diagnostic menu' },
@@ -171,6 +207,63 @@ const useCmsStore = create((set, get) => ({
     content.services = content.services.filter(s => s.id !== id);
     save(CMS_KEY, content);
     set({ content });
+  },
+
+  // Services Page
+  updateServicesPage: (data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)), servicesPage: { ...get().content.servicesPage, ...data } };
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateServicesPageQuickAction: (index, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    if (content.servicesPage.quickActions[index]) {
+      content.servicesPage.quickActions[index] = { ...content.servicesPage.quickActions[index], ...data };
+      save(CMS_KEY, content);
+      set({ content });
+    }
+  },
+
+  addServicesPageQuickAction: (action) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.servicesPage.quickActions = [...content.servicesPage.quickActions, action];
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  deleteServicesPageQuickAction: (index) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.servicesPage.quickActions = content.servicesPage.quickActions.filter((_, i) => i !== index);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateServicesPageCategory: (index, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    if (content.servicesPage.categories[index]) {
+      content.servicesPage.categories[index] = { ...content.servicesPage.categories[index], ...data };
+      save(CMS_KEY, content);
+      set({ content });
+    }
+  },
+
+  addServicesPageCategoryItem: (catIndex, item) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    if (content.servicesPage.categories[catIndex]) {
+      content.servicesPage.categories[catIndex].items = [...content.servicesPage.categories[catIndex].items, item];
+      save(CMS_KEY, content);
+      set({ content });
+    }
+  },
+
+  deleteServicesPageCategoryItem: (catIndex, itemIndex) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    if (content.servicesPage.categories[catIndex]) {
+      content.servicesPage.categories[catIndex].items = content.servicesPage.categories[catIndex].items.filter((_, i) => i !== itemIndex);
+      save(CMS_KEY, content);
+      set({ content });
+    }
   },
 
   // Trust strip

@@ -14,6 +14,13 @@ export default function AdminCMS() {
   const updateService = useCmsStore(s => s.updateService);
   const addService = useCmsStore(s => s.addService);
   const deleteService = useCmsStore(s => s.deleteService);
+  const updateServicesPage = useCmsStore(s => s.updateServicesPage);
+  const updateServicesPageQuickAction = useCmsStore(s => s.updateServicesPageQuickAction);
+  const addServicesPageQuickAction = useCmsStore(s => s.addServicesPageQuickAction);
+  const deleteServicesPageQuickAction = useCmsStore(s => s.deleteServicesPageQuickAction);
+  const updateServicesPageCategory = useCmsStore(s => s.updateServicesPageCategory);
+  const addServicesPageCategoryItem = useCmsStore(s => s.addServicesPageCategoryItem);
+  const deleteServicesPageCategoryItem = useCmsStore(s => s.deleteServicesPageCategoryItem);
   const addTestimonial = useCmsStore(s => s.addTestimonial);
   const updateTestimonial = useCmsStore(s => s.updateTestimonial);
   const deleteTestimonial = useCmsStore(s => s.deleteTestimonial);
@@ -76,7 +83,7 @@ export default function AdminCMS() {
       {tab === 'hero' && <HeroSection data={h} updateHero={updateHero} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
 
       {/* SERVICES */}
-      {tab === 'services' && <ServicesSection services={content.services || []} updateService={updateService} addService={addService} deleteService={deleteService} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
+      {tab === 'services' && <ServicesSection services={content.services || []} updateService={updateService} addService={addService} deleteService={deleteService} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} content={content} updateServicesPage={updateServicesPage} updateServicesPageQuickAction={updateServicesPageQuickAction} addServicesPageQuickAction={addServicesPageQuickAction} deleteServicesPageQuickAction={deleteServicesPageQuickAction} updateServicesPageCategory={updateServicesPageCategory} addServicesPageCategoryItem={addServicesPageCategoryItem} deleteServicesPageCategoryItem={deleteServicesPageCategoryItem} />}
 
       {/* PACKAGES */}
       {tab === 'packages' && <PackagesSection content={content} cms={useCmsStore.getState()} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
@@ -132,23 +139,12 @@ function HeroSection({ data, updateHero, inputStyle, FormField, sectionCard }) {
 }
 
 /* SERVICES */
-function ServicesSection({ services, updateService, addService, deleteService, inputStyle, FormField, sectionCard }) {
-  const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ icon: '', label: '', description: '', color: '#3B82F6', link: '', active: true });
-
-  const handleAdd = () => {
-    if (!form.label) return;
-    addService(form);
-    setShowAdd(false);
-    setForm({ icon: '', label: '', description: '', color: '#3B82F6', link: '', active: true });
-  };
+function ServicesSection({ services, updateService, addService, deleteService, inputStyle, FormField, sectionCard, content, updateServicesPage, updateServicesPageQuickAction, addServicesPageQuickAction, deleteServicesPageQuickAction, updateServicesPageCategory, addServicesPageCategoryItem, deleteServicesPageCategoryItem }) {
+  const sp = content.servicesPage || {};
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span style={{ fontSize: 13, color: '#64748b' }}>{services.length} services</span>
-        <button onClick={() => setShowAdd(true)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ Add Service</button>
-      </div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Home Page Quick Actions</div>
       {services.map(s => (
         <div key={s.id} style={sectionCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -160,30 +156,106 @@ function ServicesSection({ services, updateService, addService, deleteService, i
               <label style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <input type="checkbox" checked={s.active !== false} onChange={e => updateService(s.id, { active: e.target.checked })} style={{ accentColor: '#3b82f6' }} /> Active
               </label>
-              <button onClick={() => { const l = prompt('New label:', s.label); if (l) updateService(s.id, { label: l }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
+              <button onClick={() => { const l = prompt('Label:', s.label); if (l) updateService(s.id, { label: l }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
               <button onClick={() => { if (confirm(`Delete "${s.label}"?`)) deleteService(s.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
             </div>
           </div>
         </div>
       ))}
-      {showAdd && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAdd(false)}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Add Service</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <input placeholder="Emoji icon (e.g. 🩺)" value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} style={inputStyle} />
-              <input placeholder="Service Name *" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} style={inputStyle} />
-              <input placeholder="Short description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={inputStyle} />
-              <input placeholder="Hex color (e.g. #3B82F6)" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })} style={inputStyle} />
-              <input placeholder="Link path (e.g. /diagnostics)" value={form.link} onChange={e => setForm({ ...form, link: e.target.value })} style={inputStyle} />
+
+      <hr style={{ margin: '24px 0', border: 'none', borderTop: '2px solid #e2e8f0' }} />
+
+      <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Services Page (/services)</div>
+
+      {/* Hero */}
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Hero Banner</h4>
+        <FormField label="Title"><input value={sp.heroTitle} onChange={e => updateServicesPage({ heroTitle: e.target.value })} style={inputStyle} /></FormField>
+        <FormField label="Subtitle"><textarea rows={2} value={sp.heroSubtitle} onChange={e => updateServicesPage({ heroSubtitle: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {(sp.heroCtas || []).map((cta, i) => (
+            <div key={i} style={{ flex: 1, minWidth: 180 }}>
+              <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>CTA {i+1} — {cta.label}</label>
+              <input value={cta.link} onChange={e => { const c = [...(sp.heroCtas || [])]; c[i] = { ...c[i], link: e.target.value }; updateServicesPage({ heroCtas: c }); }} style={{ ...inputStyle, fontSize: 11 }} placeholder="Link" />
             </div>
-            <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
-              <button onClick={handleAdd} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Trust Badges */}
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>Trust Badges</h4>
+        {(sp.trustBadges || []).map((b, i) => (
+          <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' }}>
+            <input value={b} onChange={e => { const t = [...(sp.trustBadges || [])]; t[i] = e.target.value; updateServicesPage({ trustBadges: t }); }} style={inputStyle} />
+            <button onClick={() => { const t = (sp.trustBadges || []).filter((_, j) => j !== i); updateServicesPage({ trustBadges: t }); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14, padding: 4 }}>×</button>
+          </div>
+        ))}
+        <button onClick={() => updateServicesPage({ trustBadges: [...(sp.trustBadges || []), 'New Badge'] })} style={{ marginTop: 4, padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>+ Add Badge</button>
+      </div>
+
+      {/* Quick Actions */}
+      <div style={sectionCard}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>Quick Action Cards</h4>
+          <button onClick={() => { const l = prompt('Label:'); if (l) addServicesPageQuickAction({ icon: 'Sparkle', label: l, desc: '', path: '/', color: '#1866C9', tag: '' }); }} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}>+ Add</button>
+        </div>
+        {(sp.quickActions || []).map((q, i) => (
+          <div key={i} style={{ ...sectionCard, padding: 12, marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 6, background: q.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: q.color }}>{q.icon?.[0] || '•'}</div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{q.label}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{q.desc}</div>
+                </div>
+              </div>
+              <button onClick={() => { if (confirm('Delete?')) deleteServicesPageQuickAction(i); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14 }}>×</button>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <input value={q.label} onChange={e => updateServicesPageQuickAction(i, { label: e.target.value })} style={{ ...inputStyle, fontSize: 11, flex: 1 }} placeholder="Label" />
+              <input value={q.desc} onChange={e => updateServicesPageQuickAction(i, { desc: e.target.value })} style={{ ...inputStyle, fontSize: 11, flex: 2 }} placeholder="Description" />
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+              <input value={q.path} onChange={e => updateServicesPageQuickAction(i, { path: e.target.value })} style={{ ...inputStyle, fontSize: 11, flex: 1 }} placeholder="/path" />
+              <input value={q.color} onChange={e => updateServicesPageQuickAction(i, { color: e.target.value })} style={{ ...inputStyle, fontSize: 11, width: 80 }} placeholder="#color" />
+              <input value={q.tag || ''} onChange={e => updateServicesPageQuickAction(i, { tag: e.target.value })} style={{ ...inputStyle, fontSize: 11, width: 100 }} placeholder="Tag" />
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Categories */}
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>Service Categories</h4>
+        {(sp.categories || []).map((cat, ci) => (
+          <div key={ci} style={{ border: '1px solid #e2e8f0', borderRadius: 10, padding: 12, marginBottom: 10 }}>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+              <input value={cat.title} onChange={e => updateServicesPageCategory(ci, { title: e.target.value })} style={{ ...inputStyle, fontSize: 12, fontWeight: 600, flex: 1 }} />
+              <input value={cat.color} onChange={e => updateServicesPageCategory(ci, { color: e.target.value })} style={{ ...inputStyle, fontSize: 11, width: 100 }} placeholder="#color" />
+            </div>
+            {(cat.items || []).map((item, ii) => (
+              <div key={ii} style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 10, color: cat.color }}>✓</span>
+                <input value={item} onChange={e => { const items = [...(cat.items || [])]; items[ii] = e.target.value; updateServicesPageCategory(ci, { items }); }} style={{ ...inputStyle, fontSize: 11, flex: 1 }} />
+                <button onClick={() => deleteServicesPageCategoryItem(ci, ii)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12, padding: 2 }}>×</button>
+              </div>
+            ))}
+            <button onClick={() => addServicesPageCategoryItem(ci, 'New service item')} style={{ marginTop: 4, padding: '2px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 10, fontFamily: 'inherit', color: '#64748b' }}>+ Add Item</button>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA Section */}
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>CTA Section</h4>
+        <FormField label="Heading"><input value={sp.ctaHeading} onChange={e => updateServicesPage({ ctaHeading: e.target.value })} style={inputStyle} /></FormField>
+        <FormField label="Text"><input value={sp.ctaText} onChange={e => updateServicesPage({ ctaText: e.target.value })} style={inputStyle} /></FormField>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <FormField label="Phone Number"><input value={sp.ctaPhone} onChange={e => updateServicesPage({ ctaPhone: e.target.value })} style={inputStyle} /></FormField>
+          <FormField label="WhatsApp Number"><input value={sp.ctaWhatsapp} onChange={e => updateServicesPage({ ctaWhatsapp: e.target.value })} style={inputStyle} /></FormField>
         </div>
-      )}
+      </div>
     </div>
   );
 }
