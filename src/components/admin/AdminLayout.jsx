@@ -20,6 +20,10 @@ const NAV_ITEMS = [
   { path: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { path: '/admin/contacts', label: 'Contacts', icon: '✉️' },
   { path: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
+  { path: '/admin/seo', label: 'SEO', icon: '🔍' },
+  { path: '/admin/marketing', label: 'Marketing', icon: '📣' },
+  { path: '/admin/crm', label: 'CRM', icon: '🤝' },
+  { path: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
   { path: '/admin/export', label: 'Data Export', icon: '📤' },
 ];
 
