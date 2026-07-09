@@ -1,26 +1,21 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import {
-  CaretLeft, Flask, CheckCircle, Clock, Phone, WhatsappLogo,
-  FileText, Heartbeat, CaretDown,
-  Plus, Minus, Sparkle, User, Warning, MapPin, Shield, Coin,
-} from '@phosphor-icons/react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
 import { seedTests } from '../data/seedData';
 import useCartStore from '../stores/cartStore';
-import { getRelatedTests, getRelatedDiseases, getRelatedPackages } from '../utils/testRecommendations';
+import useUploadModal from '../stores/uploadModalStore';
 
-function Section({ icon: Icon, title, children, open, onToggle }) {
+function Section({ icon, title, children, open, onToggle, id }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', marginBottom: 10 }}>
-      <button onClick={onToggle} style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', textAlign: 'left' }}>
+    <div id={id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', marginBottom: 10, scrollMarginTop: 80 }}>
+      <button onClick={onToggle} style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, color: '#1a1a1a', textAlign: 'left' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {Icon && <Icon size={18} color="#1866C9" />}
+          {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
           {title}
         </span>
-        <CaretDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0, color: '#999' }} />
+        <span style={{ fontSize: 12, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0, color: '#999' }}>▾</span>
       </button>
-      {open && <div style={{ padding: '0 16px 16px', fontSize: 12, color: 'var(--text-body)', lineHeight: 1.6 }}>{children}</div>}
+      {open && <div style={{ padding: '0 16px 16px', fontSize: 12, color: '#555', lineHeight: 1.6 }}>{children}</div>}
     </div>
   );
 }
@@ -39,14 +34,24 @@ function Tag({ label, color, bg }) {
   return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: bg || '#e8f0fe', color: color || '#1866C9', display: 'inline-block' }}>{label}</span>;
 }
 
-function InfoBox({ children, bg, color, icon: Icon }) {
+function InfoBox({ children, bg, color, icon }) {
   return (
-    <div style={{ marginTop: 8, padding: '8px 12px', background: bg || '#e8f0fe', borderRadius: 8, fontSize: 11, color: color || '#1866C9', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-      {Icon && <Icon size={14} weight="fill" style={{ flexShrink: 0, marginTop: 1 }} />}
+    <div style={{ marginTop: 8, padding: '8px 12px', background: bg || '#e8f0fe', borderRadius: 8, fontSize: 11, color: color || '#555', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+      {icon && <span style={{ flexShrink: 0, marginTop: 1 }}>{icon}</span>}
       <span>{children}</span>
     </div>
   );
 }
+
+function Pill({ children, active, color }) {
+  return (
+    <button style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${active ? (color || '#1866C9') : '#ddd'}`, background: active ? `${color || '1866C9'}15` : '#fff', color: active ? (color || '#1866C9') : '#888', fontSize: 11, cursor: 'pointer', fontWeight: active ? 600 : 400, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+      {children}
+    </button>
+  );
+}
+
+const slugify = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 export default function TestDetail() {
   const { slug } = useParams();
@@ -55,6 +60,7 @@ export default function TestDetail() {
   const [education, setEducation] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [addedRecs, setAddedRecs] = useState([]);
+  const [faqFilter, setFaqFilter] = useState('all');
   const cartItems = useCartStore(s => s.items);
   const addItem = useCartStore(s => s.addItem);
   const removeItem = useCartStore(s => s.removeItem);
@@ -63,409 +69,519 @@ export default function TestDetail() {
     const found = getTestBySlug(slug);
     if (found) {
       setTest(found);
-      setEducation(getTestEducation(found));
+      const edu = getTestEducation(found);
+      setEducation(edu);
+      document.title = edu?.seo?.metaTitle || `${found.name} | Jeevan HealthCare at Home`;
     }
   }, [slug]);
 
   const inCart = test && cartItems.some(i => i.id === test.id || i.name === test.name);
-  const related = test ? getRelatedTests(test.name) : [];
-  const diseases = test ? getRelatedDiseases(test.name) : [];
-  const packages = test ? getRelatedPackages(test.name, seedTests) : [];
 
   const toggleCart = () => {
     if (!test) return;
     if (inCart) removeItem(test.id, 'test');
-    else addItem({ id: test.id, name: test.name, price: test.price || test.mrp, offerPrice: test.offerPrice, type: 'test' });
+    else addItem({ id: test.id, name: test.name, price: test.price, offerPrice: test.offerPrice, type: 'test' });
   };
 
-  const addRelated = (t) => {
-    addItem({ id: t.id, name: t.name, price: t.price || t.mrp, offerPrice: t.offerPrice, type: 'test' });
-    setAddedRecs(prev => [...prev, t.id]);
-  };
+  const toggle = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const slugify = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const related = test ? seedTests.filter(t => t.category === test.category && t.id !== test.id).slice(0, 6) : [];
+  const packages = test ? seedTests.filter(t => t.subcategory === 'Health Packages' && t.category === test.category).slice(0, 3) : [];
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareText = `${education?.fullName || test?.name} - Book at home ₹${test?.offerPrice || test?.price} | Jeevan HealthCare at Home`;
 
   if (!test || !education) {
     return (
-      <div className="page-section">
+      <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
         <div className="container" style={{ textAlign: 'center', padding: '40px 16px' }}>
-          <Flask size={48} color="#ccc" />
-          <p style={{ color: 'var(--text-light)', marginTop: 12 }}>Test not found</p>
-          <button onClick={() => navigate('/diagnostics')} className="btn-primary" style={{ marginTop: 16 }}>
-            Back to Diagnostics
-          </button>
+          <span style={{ fontSize: 48 }}>🔬</span>
+          <p style={{ color: '#999', marginTop: 12 }}>Test not found</p>
+          <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ marginTop: 16 }}>Back to Diagnostics</button>
         </div>
       </div>
-  );
-}
+    );
+  }
 
-  const toggle = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   const w = education.whatIsThis;
+  const catColorMap = {
+    'Hematology': '#e11d48', 'Diabetes': '#0891b2', 'Thyroid': '#7c3aed', 'Cardiac': '#dc2626',
+    'Full Body': '#2563eb', 'Liver': '#16a34a', 'Fever': '#ea580c', 'Hormones': '#d946ef',
+    'Vitamins': '#0d9488', 'Anemia': '#b91c1c', 'Cancer': '#86198f', 'Arthritis': '#78716c',
+    'Pregnancy': '#db2777', 'Allergy': '#65a30d', 'STD': '#4f46e5',
+  };
+  const theme = catColorMap[test.category] || '#1866C9';
 
   return (
     <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
-      <div className="container" style={{ maxWidth: 760, paddingBottom: 100 }}>
+      <div className="container" style={{ maxWidth: 800, paddingBottom: 120, margin: '0 auto' }}>
 
         {/* Back */}
-        <button onClick={() => navigate('/diagnostics')} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, padding: '12px 0' }}>
-          <CaretLeft size={14} /> Back to Diagnostics
+        <button onClick={() => navigate('/diagnostics')} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#888', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, padding: '12px 0' }}>
+          ← Back to Diagnostics
         </button>
 
-        {/* FULL TEST NAME + ABBREVIATION + ALTERNATE NAMES */}
-        <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 100%)', borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ background: '#FFD54F', color: '#1866C9', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>INDIVIDUAL TEST</span>
-            {test.fasting_required && <span style={{ background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: 6, fontSize: 10 }}>Fasting Required</span>}
-          </div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, margin: '8px 0 4px', letterSpacing: -0.3 }}>
-            {education.fullName}
-          </h1>
-          {education.abbreviation && (
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: '0 0 4px' }}>
-              Abbreviation: <strong>{education.abbreviation}</strong>
-            </p>
-          )}
-          {education.alternateNames.length > 0 && (
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>
-              Also Known As: {education.alternateNames.join(', ')}
-            </p>
-          )}
+        {/* ===== 1. TEST IDENTITY ===== */}
+        <div style={{ marginBottom: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          <Tag label={test.category || 'Diagnostic'} bg={`${theme}15`} color={theme} />
+          {test.fasting_required && <Tag label="Fasting Required" bg="#fff3e0" color="#e65100" />}
+          {test.subcategory && <Tag label={test.subcategory} bg="#f5f5f5" color="#666" />}
         </div>
 
-        {/* QUICK STATS */}
-        <div className="td-section-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8, marginBottom: 16 }}>
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Price</span>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#e53935', marginTop: 2 }}>{'\u20B9'}{test.offerPrice || test.price}</div>
+        {/* ===== 2. HERO SECTION ===== */}
+        <div style={{ background: `linear-gradient(135deg, ${theme} 0%, ${theme}dd 100%)`, borderRadius: 16, padding: '24px 20px', color: '#fff', marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <span style={{ fontSize: 32 }}>🩸</span>
+            <div>
+              <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, letterSpacing: -0.3 }}>{education.fullName}</h1>
+              {education.scientificName && (
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: '2px 0 0' }}>
+                  <strong>Scientific Name:</strong> {education.scientificName}
+                </p>
+              )}
+            </div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Reports In</span>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#2e7d32', marginTop: 2 }}>{education.reportTime}</div>
+
+          {education.synonyms.length > 0 && (
+            <div style={{ marginTop: 4, marginBottom: 10 }}>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Also Known As: </span>
+              <span style={{ fontSize: 11, color: '#fff', fontWeight: 500 }}>{education.synonyms.join(' · ')}</span>
+            </div>
+          )}
+
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', margin: '8px 0 12px', lineHeight: 1.5 }}>
+            {test.description}
+          </p>
+
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12, fontSize: 11 }}>
+            <span>⭐ 4.8 Rating</span>
+            <span>👥 15,000+ Bookings</span>
+            <span>🏠 Home Collection Available</span>
           </div>
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Collection</span>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9', marginTop: 2 }}>Free Home</div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <div>
+              {test.mrp && test.mrp > (test.offerPrice || test.price) && (
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'line-through' }}>MRP: ₹{test.mrp}</div>
+              )}
+              <div style={{ fontSize: 28, fontWeight: 800 }}>₹{test.offerPrice || test.price}</div>
+              {test.mrp && test.mrp > (test.offerPrice || test.price) && (
+                <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 600 }}>Save ₹{test.mrp - (test.offerPrice || test.price)}</div>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 12px' }}>
+              <span>⏱</span>
+              <span style={{ fontSize: 12 }}>{education.reportTime}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 12px' }}>
+              <span>🩸</span>
+              <span style={{ fontSize: 12 }}>Blood</span>
+            </div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Duration</span>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed', marginTop: 2 }}>{education.duration}</div>
-          </div>
-          <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 12px', textAlign: 'center' }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)' }}>Fasting</span>
-            <div style={{ fontSize: 13, fontWeight: 700, color: test.fasting_required ? '#e65100' : '#2e7d32', marginTop: 2 }}>{test.fasting_required ? 'Required' : 'Not Required'}</div>
+
+          <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+            <button onClick={toggleCart} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 13, fontWeight: 700, padding: '10px 24px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)' }}>
+              {inCart ? '✓ In Cart' : '📋 Book Now'}
+            </button>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ padding: '10px 20px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit' }}>
+              📤 Upload Prescription
+            </button>
           </div>
         </div>
 
-        {/* 1. WHAT IS THIS TEST */}
-        <Section icon={Heartbeat} title="What Is This Test?" open={openSections.whatIs} onToggle={() => toggle('whatIs')}>
-          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{w.purpose}</p>
-          <InfoBox icon={CheckCircle} bg="#e8f0fe" color="#1866C9">{w.screeningOrDiagnostic}</InfoBox>
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Why Is This Test Done?</div>
-            <ListItems items={w.whyDone} />
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>What Health Conditions Can It Detect?</div>
-            <ListItems items={w.conditionsDetected} />
-          </div>
+        {/* ===== 3. QUICK INFO CARDS ===== */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 6, marginBottom: 14 }}>
+          {education.infoCards.map((card, i) => (
+            <div key={i} style={{ background: '#fff', borderRadius: 10, border: '1px solid #e8edf2', padding: '10px 10px', textAlign: 'center' }}>
+              <div style={{ fontSize: 18, marginBottom: 2 }}>{card.icon}</div>
+              <div style={{ fontSize: 9, color: '#999', marginBottom: 2 }}>{card.label}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>{card.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ===== 4. WHAT IS THIS TEST ===== */}
+        <Section icon="🩺" title="Test Overview" open={openSections.overview} onToggle={() => toggle('overview')}>
+          <p style={{ margin: '0 0 10px', fontWeight: 500, fontSize: 13 }}>{w.purpose}</p>
+          <p style={{ margin: '0 0 10px' }}><strong>What is this test?</strong></p>
+          <p style={{ margin: '0 0 10px' }}>{test.description}</p>
+          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">{w.screeningOrDiagnostic}</InfoBox>
         </Section>
 
-        {/* 2. WHO SHOULD TAKE THIS TEST */}
-        <Section icon={User} title="Who Should Take This Test?" open={openSections.who} onToggle={() => toggle('who')}>
+        {/* ===== 5. WHY IS THIS DONE ===== */}
+        <Section icon="❓" title="Why Is This Test Done?" open={openSections.whyDone} onToggle={() => toggle('whyDone')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Purpose of this test:</p>
+          <ListItems items={w.whyDone} />
+          <InfoBox icon="✅" bg="#e8f0fe" color="#1866C9">Regular testing helps in early detection and better health outcomes.</InfoBox>
+        </Section>
+
+        {/* ===== 6. WHAT DOES IT MEASURE ===== */}
+        <Section icon="🔬" title="What Does This Test Measure?" open={openSections.measure} onToggle={() => toggle('measure')}>
+          <p style={{ margin: '0 0 8px' }}>{w.whatItMeasures}</p>
+          {education.biomarker && (
+            <div style={{ marginTop: 8, padding: '10px 12px', background: '#f8f9fa', borderRadius: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>Measured Biomarker:</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: theme }}>{education.biomarker.name}</div>
+            </div>
+          )}
+        </Section>
+
+        {/* ===== 7. BIOMARKER INFORMATION ===== */}
+        {education.biomarker && (
+          <Section icon="🧬" title="Biomarker Information" open={openSections.biomarker} onToggle={() => toggle('biomarker')}>
+            <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8, marginBottom: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: theme, marginBottom: 4 }}>{education.biomarker.name}</div>
+              <p style={{ margin: '0 0 6px', fontSize: 12 }}><strong>What is {education.biomarker.name}?</strong></p>
+              <p style={{ margin: '0 0 8px', fontSize: 12 }}>{education.biomarker.what}</p>
+              <p style={{ margin: '0 0 4px', fontSize: 12 }}><strong>Why is it important?</strong></p>
+              <p style={{ margin: 0, fontSize: 12 }}>{education.biomarker.why}</p>
+            </div>
+          </Section>
+        )}
+
+        {/* ===== 8. WHO SHOULD TAKE THIS TEST ===== */}
+        <Section icon="👤" title="Who Should Take This Test?" open={openSections.who} onToggle={() => toggle('who')}>
           <ListItems items={education.whoShouldTake} />
-          <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
-            Yes, this test is relevant to you if you identify with any of the above criteria. Doctors recommend this test for routine health monitoring.
-          </InfoBox>
-        </Section>
-
-        {/* 3. PARAMETERS MEASURED */}
-        <Section icon={Flask} title="What Does This Test Check?" open={openSections.params} onToggle={() => toggle('params')}>
-          <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--text-light)' }}>The following parameters are analyzed as part of this test:</p>
-          <ListItems items={education.parameters} />
-          <InfoBox bg="#f3e8ff" color="#7c3aed" icon={CheckCircle}>
-            Showing transparency in test parameters builds trust. Every parameter is measured using NABL-certified lab equipment.
-          </InfoBox>
-        </Section>
-
-        {/* 4. PREPARATION & FASTING */}
-        <Section icon={Clock} title="Preparation & Fasting Instructions" open={openSections.prep} onToggle={() => toggle('prep')}>
-          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{education.fastingRequired ? 'Fasting Required' : 'No Fasting Required'}</p>
-          <p style={{ margin: '0 0 8px' }}>{education.preparation}</p>
-          {education.fastingRequired && (
-            <InfoBox bg="#fff3e0" color="#e65100" icon={Warning}>
-              Follow fasting instructions carefully for accurate results. Water is allowed during fasting. Avoid tea, coffee, smoking, and food during the fasting period. Continue regular medications unless your doctor advises otherwise.
-            </InfoBox>
+          {education.whoShouldTakeDetailed && (
+            <div style={{ marginTop: 10 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Recommended for:</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {education.whoShouldTakeDetailed.patientGroups?.map((g, i) => (
+                  <span key={i} style={{ padding: '4px 10px', borderRadius: 8, fontSize: 11, background: `${theme}10`, color: theme, fontWeight: 500 }}>{g.group}</span>
+                ))}
+              </div>
+            </div>
           )}
-          {!education.fastingRequired && (
-            <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
-              No special preparation needed. You can take this test at any time of day without prior fasting. Continue your regular routine.
-            </InfoBox>
+          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">Doctors recommend this test for routine health monitoring and early detection.</InfoBox>
+        </Section>
+
+        {/* ===== 9. SYMPTOMS ===== */}
+        {education.symptoms.length > 0 && (
+          <Section icon="⚠️" title="Symptoms Related To This Test" open={openSections.symptoms} onToggle={() => toggle('symptoms')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>If you experience any of these symptoms, this test may help identify the cause:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {education.symptoms.map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0' }}>
+                  <span style={{ color: '#e65100' }}>⚠</span>
+                  <span style={{ fontSize: 12 }}>{s}</span>
+                </div>
+              ))}
+            </div>
+            <InfoBox icon="💡" bg="#fff3e0" color="#e65100">Having these symptoms doesn't always mean disease. Consult a doctor for proper evaluation.</InfoBox>
+          </Section>
+        )}
+
+        {/* ===== 10. DISEASES / CONDITIONS ===== */}
+        {education.relatedDiseases.length > 0 && (
+          <Section icon="🏥" title="Related Diseases & Conditions" open={openSections.diseases} onToggle={() => toggle('diseases')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>This test helps evaluate the following conditions:</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {education.relatedDiseases.map((d, i) => (
+                <span key={i} style={{ padding: '4px 10px', borderRadius: 8, fontSize: 11, background: '#fef2f2', color: '#dc2626', fontWeight: 500 }}>{d}</span>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* ===== 11. TEST PREPARATION ===== */}
+        <Section icon="📋" title="Test Preparation" open={openSections.prep} onToggle={() => toggle('prep')}>
+          <div style={{ marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 600 }}>{education.fastingRequired ? '🌙 Fasting Required' : '🍽️ No Fasting Required'}</span>
+          </div>
+          <p style={{ margin: '0 0 10px' }}>{education.preparation}</p>
+          {education.fastingRequired ? (
+            <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">Follow fasting instructions carefully. Water is allowed. Avoid tea, coffee, smoking, and food during fasting.</InfoBox>
+          ) : (
+            <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">No special preparation needed. Take the test at any time of day.</InfoBox>
           )}
         </Section>
 
-        {/* 5. SAMPLE COLLECTION PROCESS */}
-        <Section icon={MapPin} title="Sample Collection Process" open={openSections.sample} onToggle={() => toggle('sample')}>
-          <p style={{ margin: '0 0 8px' }}>Your comfort and safety are our priority. Here is how the process works:</p>
-          <ListItems items={education.sampleProcess} />
-          <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
-            Free home sample collection included with every test. Choose your preferred time slot — morning, afternoon, or evening.
-          </InfoBox>
-        </Section>
-
-        {/* 6. TEST DURATION & CONVENIENCE */}
-        <Section icon={Clock} title="Test Duration & Convenience" open={openSections.duration} onToggle={() => toggle('duration')}>
-          <ListItems items={[
-            `The blood collection takes about ${education.duration}`,
-            'The entire home visit is completed within 15-20 minutes',
-            'Can be completed in a single visit — no repeat appointments needed',
-            'Home sample collection is available at your preferred time slot',
-            'No need to travel or wait in queues — we come to you',
-            'Results delivered digitally on WhatsApp, Email, and App',
-          ]} />
-          <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
-            One visit, no waiting, complete convenience. Book online and we take care of the rest.
-          </InfoBox>
-        </Section>
-
-        {/* 7. REPORT DELIVERY */}
-        <Section icon={FileText} title="Report Delivery Timeline" open={openSections.reports} onToggle={() => toggle('reports')}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700 }}>Expected in:</span>
-            <Tag label={education.reportTime} color="#2e7d32" bg="#e8f5e9" />
+        {/* ===== 12. SAMPLE COLLECTION PROCESS ===== */}
+        <Section icon="📦" title="Sample Collection Process" open={openSections.sample} onToggle={() => toggle('sample')}>
+          <p style={{ margin: '0 0 12px' }}>Your comfort and safety are our priority. Here is how the process works:</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 10 }}>
+            {education.sampleProcessSteps.map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < education.sampleProcessSteps.length - 1 ? '1px dashed #eee' : 'none' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${theme}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{step.icon}</div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{step.step}</div>
+                  <div style={{ fontSize: 11, color: '#888' }}>{step.desc}</div>
+                </div>
+                {i < education.sampleProcessSteps.length - 1 && (
+                  <span style={{ marginLeft: 'auto', color: '#ccc', fontSize: 16 }}>↓</span>
+                )}
+              </div>
+            ))}
           </div>
-          <p style={{ margin: '0 0 8px' }}>{education.reportDelivery}</p>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-            <Tag label="WhatsApp Delivery" color="#25d366" bg="#e8f5e9" />
-            <Tag label="Email Delivery" color="#1866C9" bg="#e8f0fe" />
-            <Tag label="Mobile App" color="#7c3aed" bg="#f5f3ff" />
-            <Tag label="Download PDF" color="#e65100" bg="#fff3e0" />
-            <Tag label="Doctor Reviewed" color="#2e7d32" bg="#e8f5e9" />
-          </div>
-          <InfoBox bg="#fff3e0" color="#e65100" icon={Clock}>
-            If your report is delayed beyond the expected time, contact our support team via WhatsApp or phone for an immediate update.
-          </InfoBox>
+          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">Free home sample collection included. Choose your preferred time slot — morning, afternoon, or evening.</InfoBox>
         </Section>
 
-        {/* 8. INTERPRETATION OF RESULTS */}
-        <Section icon={Warning} title="Understanding Your Results" open={openSections.interpretation} onToggle={() => toggle('interpretation')}>
-          <ListItems items={education.interpretation} />
-          <InfoBox bg="#fff3e0" color="#e65100" icon={Warning}>
-            Never self-diagnose based on test results. Always consult a qualified healthcare provider for proper interpretation of your report.
-          </InfoBox>
+        {/* ===== 13. RESULT INTERPRETATION ===== */}
+        <Section icon="📊" title="Result Interpretation" open={openSections.interpretation} onToggle={() => toggle('interpretation')}>
+          {education.normalRange && (
+            <div style={{ marginBottom: 12, overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ background: `${theme}10` }}>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Category</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(education.normalRange).filter(([k]) => k !== 'label').map(([key, val]) => (
+                    <tr key={key}>
+                      <td style={{ padding: '5px 10px', borderBottom: '1px solid #f5f5f5', fontWeight: 500, textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1').trim()}</td>
+                      <td style={{ padding: '5px 10px', borderBottom: '1px solid #f5f5f5' }}>{val}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <ListItems items={education.resultInterpretation} />
+          <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">Never self-diagnose based on test results. Always consult a qualified healthcare provider.</InfoBox>
         </Section>
 
-        {/* 9. MEDICAL ACCURACY & TRUST */}
-        <Section icon={Shield} title="Medical Accuracy & Trust" open={openSections.accuracy} onToggle={() => toggle('accuracy')}>
-          <p style={{ margin: '0 0 8px' }}>{education.accuracy}</p>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-            <Tag label="NABL Certified" color="#1866C9" />
-            <Tag label="ISO Compliant" color="#2e7d32" bg="#e8f5e9" />
-            <Tag label="Doctor Reviewed" color="#7c3aed" bg="#f5f3ff" />
-            <Tag label="Digital Reports" color="#e65100" bg="#fff3e0" />
-            <Tag label="Quality Control" color="#1866C9" bg="#e8f0fe" />
-          </div>
-          <InfoBox bg="#e8f0fe" color="#1866C9" icon={Shield}>
-            All samples processed at NABL-certified labs with automated analyzers and rigorous quality control protocols for reliable results.
-          </InfoBox>
+        {/* ===== 14. NORMAL REFERENCE RANGE ===== */}
+        <Section icon="📏" title="Normal Reference Range" open={openSections.refRange} onToggle={() => toggle('refRange')}>
+          <p style={{ margin: '0 0 8px' }}>Reference ranges may vary slightly between laboratories. The following are standard reference ranges:</p>
+          {education.normalRange && (
+            <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8, marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{education.normalRange.label || 'Reference Range'}</div>
+              {Object.entries(education.normalRange).filter(([k]) => k !== 'label').map(([key, val]) => (
+                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 11, borderBottom: '1px solid #eee' }}>
+                  <span style={{ textTransform: 'capitalize', color: '#666' }}>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                  <span style={{ fontWeight: 600 }}>{val}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <InfoBox icon="💡" bg="#e8f0fe" color="#1866C9">Always interpret your results in consultation with a doctor who knows your medical history.</InfoBox>
         </Section>
 
-        {/* 10. FREQUENCY OF TESTING */}
-        <Section icon={Clock} title="How Often Should You Take This Test?" open={openSections.frequency} onToggle={() => toggle('frequency')}>
-          <p style={{ margin: 0 }}>{education.frequency}</p>
+        {/* ===== 15. RISK LEVEL ===== */}
+        {education.riskLevels.length > 0 && (
+          <Section icon="🚦" title="Risk Level Assessment" open={openSections.risk} onToggle={() => toggle('risk')}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {education.riskLevels.map((r, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: r.color === 'green' ? '#f0fdf4' : r.color === 'orange' ? '#fff7ed' : '#fef2f2', border: `1px solid ${r.color === 'green' ? '#bbf7d0' : r.color === 'orange' ? '#fed7aa' : '#fecaca'}` }}>
+                  <span style={{ fontSize: 20 }}>{r.color === 'green' ? '🟢' : r.color === 'orange' ? '🟡' : '🔴'}</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: r.color === 'green' ? '#166534' : r.color === 'orange' ? '#9a3412' : '#991b1b' }}>{r.level}</div>
+                    <div style={{ fontSize: 11, color: '#666' }}>{r.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* ===== 16. WHAT IF ABNORMAL ===== */}
+        <Section icon="⚠️" title="What If Result Is Abnormal?" open={openSections.abnormal} onToggle={() => toggle('abnormal')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Understanding abnormal results:</p>
+          <p style={{ margin: '0 0 10px' }}>{education.abnormalMeaning}</p>
+          <InfoBox icon="💡" bg="#fff3e0" color="#e65100">Abnormal results do not always mean disease. Many factors including diet, medications, and stress can affect results.</InfoBox>
         </Section>
 
-        {/* 11. CUSTOMIZATION */}
-        <Section icon={Flask} title="Customization & Test Combinations" open={openSections.customization} onToggle={() => toggle('customization')}>
-          <p style={{ margin: '0 0 6px' }}><strong>Can this test be combined with others?</strong></p>
-          <p style={{ margin: '0 0 10px' }}>{education.customization.canCombine}</p>
-          <p style={{ margin: '0 0 6px' }}><strong>Are there advanced versions?</strong></p>
-          <p style={{ margin: '0 0 10px' }}>{education.customization.advancedVersions}</p>
-          <p style={{ margin: '0 0 6px' }}><strong>Can a doctor recommend this test?</strong></p>
-          <p style={{ margin: '0 0 10px' }}>{education.customization.doctorRecommendation}</p>
-          <p style={{ margin: '0 0 6px' }}><strong>Can I add more parameters?</strong></p>
-          <p style={{ margin: '0 0 6px' }}>{education.customization.addMoreParameters}</p>
-          <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
-            Add this test to your cart and browse other tests to build a comprehensive health checkup package.
-          </InfoBox>
+        {/* ===== 17. WHEN TO CONSULT DOCTOR ===== */}
+        <Section icon="👨‍⚕️" title="When To Consult A Doctor?" open={openSections.consult} onToggle={() => toggle('consult')}>
+          <p style={{ margin: '0 0 8px' }}>Consult a doctor if:</p>
+          <ListItems items={education.whenToConsultDoctor} />
+          <InfoBox icon="📞" bg="#e8f5e9" color="#2e7d32">Jeevan HealthCare at Home provides free doctor consultation with every test.</InfoBox>
         </Section>
 
-        {/* 12. SAFETY & COMFORT */}
-        <Section icon={Heartbeat} title="Safety & Comfort" open={openSections.safety} onToggle={() => toggle('safety')}>
-          <ListItems items={education.safety} />
-          <InfoBox bg="#e8f5e9" color="#2e7d32" icon={CheckCircle}>
-            Your safety is our priority. All phlebotomists follow strict hygiene protocols with sterile, single-use equipment.
-          </InfoBox>
-        </Section>
+        {/* ===== 18. TEST LIMITATIONS ===== */}
+        {education.limitations.length > 0 && (
+          <Section icon="🚫" title="Test Limitations" open={openSections.limitations} onToggle={() => toggle('limitations')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>Important considerations for accurate interpretation:</p>
+            <ListItems items={education.limitations} />
+            <InfoBox icon="💡" bg="#f3e8ff" color="#7c3aed">Your doctor will consider these limitations when interpreting your results.</InfoBox>
+          </Section>
+        )}
 
-        {/* 13. COST & BOOKING */}
-        <Section icon={Coin} title="Cost & Booking Information" open={openSections.cost} onToggle={() => toggle('cost')}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <span style={{ fontSize: 24, fontWeight: 800, color: '#e53935' }}>{education.cost.price}</span>
-            <Tag label="No Hidden Charges" color="#2e7d32" bg="#e8f5e9" />
-            <Tag label="Free Home Collection" color="#1866C9" bg="#e8f0fe" />
-          </div>
-          <p style={{ margin: '0 0 6px' }}><strong>Is home collection free?</strong></p>
-          <p style={{ margin: '0 0 10px' }}>{education.cost.homeCollection}</p>
-          <p style={{ margin: '0 0 6px' }}><strong>Why is this test affordable?</strong></p>
-          <p style={{ margin: '0 0 10px' }}>{education.cost.whyAffordable}</p>
-          <p style={{ margin: '0 0 6px' }}><strong>How do I book this test?</strong></p>
-          <p style={{ margin: '0 0 10px' }}>{education.cost.howToBook}</p>
-          <div style={{ marginTop: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Payment Methods:</div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {education.cost.paymentMethods.map((m, i) => (
-                <Tag key={i} label={m} color="#1866C9" bg="#e8f0fe" />
+        {/* ===== 19. MEDICATION INFLUENCE ===== */}
+        {education.medicationInfluence.length > 0 && (
+          <Section icon="💊" title="Medication Influence" open={openSections.medications} onToggle={() => toggle('medications')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>The following medications may affect test results:</p>
+            <ListItems items={education.medicationInfluence} />
+            <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">Always inform your doctor about all medications, supplements, and herbal products you are taking.</InfoBox>
+          </Section>
+        )}
+
+        {/* ===== 20. LIFESTYLE FACTORS ===== */}
+        {education.lifestyleFactors.length > 0 && (
+          <Section icon="🏃" title="Lifestyle Factors" open={openSections.lifestyle} onToggle={() => toggle('lifestyle')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>Lifestyle choices that can affect your results:</p>
+            <ListItems items={education.lifestyleFactors} />
+            <InfoBox icon="💪" bg="#e8f5e9" color="#2e7d32">Healthy lifestyle choices can improve your health parameters over time.</InfoBox>
+          </Section>
+        )}
+
+        {/* ===== 21. SAMPLE QUALITY ISSUES ===== */}
+        {education.sampleQualityIssues.length > 0 && (
+          <Section icon="🔍" title="Sample Quality & Accuracy" open={openSections.quality} onToggle={() => toggle('quality')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>Results may vary due to:</p>
+            <ListItems items={education.sampleQualityIssues} />
+            <InfoBox icon="✅" bg="#e8f0fe" color="#1866C9">Our labs follow strict quality control protocols to ensure accurate results.</InfoBox>
+          </Section>
+        )}
+
+        {/* ===== 22. COMPARE SIMILAR TESTS ===== */}
+        {education.comparableTests.length > 0 && (
+          <Section icon="⚖️" title="Compare Similar Tests" open={openSections.compare} onToggle={() => toggle('compare')}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ background: `${theme}10` }}>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Test</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Difference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {education.comparableTests.map((ct, i) => (
+                    <tr key={i}>
+                      <td style={{ padding: '6px 10px', borderBottom: '1px solid #f5f5f5', fontWeight: 600 }}>{ct.name}</td>
+                      <td style={{ padding: '6px 10px', borderBottom: '1px solid #f5f5f5', color: '#666' }}>{ct.diff}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
+        )}
+
+        {/* ===== 23. RELATED TESTS ===== */}
+        {related.length > 0 && (
+          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 16 }}>🔗</span> Related Tests
+            </h3>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {related.map(t => (
+                <Link key={t.id} to={`/test/${slugify(t.name)}`}
+                  style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 500, background: '#f8f9fa', border: '1px solid #e8edf2', color: '#1a1a1a', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ fontSize: 12 }}>🧪</span> {t.name.length > 25 ? t.name.slice(0, 25) + '...' : t.name}
+                </Link>
               ))}
             </div>
           </div>
-        </Section>
+        )}
 
-        {/* 14. POST-TEST GUIDANCE */}
-        <Section icon={FileText} title="Post-Test Guidance" open={openSections.postTest} onToggle={() => toggle('postTest')}>
-          <p style={{ margin: '0 0 6px', fontSize: 11, color: 'var(--text-light)' }}>
-            Follow these steps after receiving your test report:
-          </p>
-          <ListItems items={education.postTestGuidance} />
-          <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
-            Jeevan HealthCare at Home provides free doctor consultation with every test. We are here to support you through your health journey.
-          </InfoBox>
-        </Section>
+        {/* ===== 24. RECOMMENDED PACKAGES ===== */}
+        {packages.length > 0 && (
+          <div style={{ background: '#fff8e1', borderRadius: 14, border: '1px solid #ffe082', padding: 16, marginBottom: 10 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 16 }}>📦</span> Recommended Packages
+            </h3>
+            {packages.map(p => (
+              <Link key={p.id} to={`/package/${slugify(p.name)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>⭐ {p.name}</div>
+                  <div style={{ fontSize: 11, color: '#888' }}>₹{p.offerPrice || p.price}</div>
+                </div>
+                <span style={{ fontSize: 11, color: '#e65100', fontWeight: 600 }}>View →</span>
+              </Link>
+            ))}
+          </div>
+        )}
 
-        {/* FAQ SECTION */}
-        <Section icon={FileText} title="Frequently Asked Questions" open={openSections.faq} onToggle={() => toggle('faq')}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {education.faqs.map((faq, i) => (
+        {/* ===== 25. FAQ SECTION ===== */}
+        <Section icon="❓" title="Frequently Asked Questions" open={openSections.faq} onToggle={() => toggle('faq')}>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 10, flexWrap: 'wrap' }}>
+            <Pill active={faqFilter === 'all'} onClick={() => setFaqFilter('all')}>All</Pill>
+            <Pill active={faqFilter === 'general'} onClick={() => setFaqFilter('general')}>General</Pill>
+            <Pill active={faqFilter === 'preparation'} onClick={() => setFaqFilter('preparation')}>Preparation</Pill>
+            <Pill active={faqFilter === 'procedure'} onClick={() => setFaqFilter('procedure')}>Procedure</Pill>
+            <Pill active={faqFilter === 'results'} onClick={() => setFaqFilter('results')}>Results</Pill>
+            <Pill active={faqFilter === 'booking'} onClick={() => setFaqFilter('booking')}>Booking</Pill>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {education.faqs.filter(f => faqFilter === 'all' || f.c === faqFilter).map((faq, i) => (
               <div key={i} style={{ border: '1px solid #e8edf2', borderRadius: 8, overflow: 'hidden' }}>
-                <button onClick={() => setOpenSections(prev => ({ ...prev, [`faq_${i}`]: !prev[`faq_${i}`] }))} style={{ width: '100%', padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, fontWeight: 600, color: 'var(--text-dark)', textAlign: 'left' }}>
+                <button onClick={() => setOpenSections(prev => ({ ...prev, [`faq_${i}`]: !prev[`faq_${i}`] }))} style={{ width: '100%', padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, border: 'none', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'left' }}>
                   {faq.q}
-                  <CaretDown size={10} style={{ transform: openSections[`faq_${i}`] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0, color: '#999' }} />
+                  <span style={{ fontSize: 10, transition: 'transform 0.2s', transform: openSections[`faq_${i}`] ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0, color: '#999' }}>▾</span>
                 </button>
                 {openSections[`faq_${i}`] && (
-                  <div style={{ padding: '0 12px 10px', fontSize: 11, color: 'var(--text-light)', lineHeight: 1.5 }}>{faq.a}</div>
+                  <div style={{ padding: '0 12px 10px', fontSize: 11, color: '#888', lineHeight: 1.5 }}>{faq.a}</div>
                 )}
               </div>
             ))}
           </div>
         </Section>
 
-        {/* AI RECOMMENDATIONS */}
-        {related.length > 0 && (
-          <div style={{ background: 'linear-gradient(135deg, #F5FAFF, #fff)', borderRadius: 16, border: '1px solid #e0e8f0', padding: 16, marginBottom: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-              <Sparkle size={16} color="#1866C9" weight="fill" />
-              <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>🩺 Recommended by Jeevan HealthCare at Home Assistant</h3>
-            </div>
-            <p style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
-              Based on the test you're viewing, these related tests are commonly ordered together. Consult a doctor for personalized recommendations.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {related.slice(0, 5).map(r => {
-                const t = seedTests.find(s => s.name === r.name);
-                if (!t) return null;
-                const added = addedRecs.includes(t.id) || cartItems.some(i => i.id === t.id);
-                const stars = '⭐'.repeat(r.priority - 2);
-                return (
-                  <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#E8F1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 16 }}>🧪</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 1 }}>{t.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>
-                        {stars} {r.reason}
-                      </div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', marginTop: 2 }}>₹{t.offerPrice || t.price}</div>
-                    </div>
-                    <button onClick={() => addRelated(t)} disabled={added}
-                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: added ? '#dcfce7' : '#1866C9', color: added ? '#166534' : '#fff', border: 'none', cursor: added ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
-                      {added ? '✓ Added' : '+ Add Test'}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            {diseases.length > 0 && (
-              <div style={{ marginTop: 12, padding: '10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', marginBottom: 6 }}>🦠 This test helps evaluate:</div>
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                  {diseases.map(d => (
-                    <span key={d} style={{ fontSize: 10, background: '#FEF2F2', color: '#dc2626', padding: '2px 8px', borderRadius: 6, fontWeight: 500 }}>{d}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {packages.length > 0 && (
-              <div style={{ marginTop: 10, background: '#FFF8E1', borderRadius: 10, padding: 10 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#E65100', marginBottom: 6 }}>📦 Recommended Packages</div>
-                {packages.map(p => (
-                  <Link key={p.name} to={`/package/${p.slug || slugify(p.name)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a' }}>⭐ {p.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.testCount} Tests · ₹{p.bundlePrice}</div>
-                    </div>
-                    <span style={{ fontSize: 10, color: '#E65100', fontWeight: 600 }}>View →</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            <Link to="/contact" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 10, padding: '8px', background: '#E8F1FC', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#1866C9', textDecoration: 'none' }}>
-              <User size={14} /> Not sure? Consult a Doctor for personalized recommendations
-            </Link>
-          </div>
-        )}
-
-        {/* RELATED TESTS */}
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Flask size={16} color="#1866C9" /> Related Tests
-          </h3>
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-            {seedTests.filter(t => t.category === test.category && t.id !== test.id).slice(0, 8).map(t => (
-              <Link key={t.id} to={`/test/${slugify(t.name)}`}
-                style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 500, background: '#f8f9fa', border: '1px solid #e8edf2', color: 'var(--text-dark)', textDecoration: 'none', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Flask size={12} color="#1866C9" /> {t.name.length > 28 ? t.name.slice(0, 28) + '...' : t.name}
-              </Link>
-            ))}
+        {/* ===== 26. SOCIAL SHARING ===== */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 14, marginBottom: 10 }}>
+          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 8px', color: '#888' }}>📤 Share this test</h3>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <a href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} target="_blank" rel="noopener" style={{ width: 36, height: 36, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none' }}>💬</a>
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener" style={{ width: 36, height: 36, borderRadius: '50%', background: '#1877f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none' }}>f</a>
+            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener" style={{ width: 36, height: 36, borderRadius: '50%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, textDecoration: 'none', color: '#fff' }}>𝕏</a>
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener" style={{ width: 36, height: 36, borderRadius: '50%', background: '#0a66c2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none' }}>in</a>
+            <button onClick={() => { navigator.clipboard?.writeText(shareUrl); }} style={{ width: 36, height: 36, borderRadius: '50%', background: '#f0f0f0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontFamily: 'inherit' }}>🔗</button>
           </div>
         </div>
+
+        {/* ===== 27. SEO FORMATTED CONTENT ===== */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 14, marginBottom: 10 }}>
+          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 6px', color: '#888' }}>📋 Test Information</h3>
+          <div style={{ fontSize: 10, color: '#aaa', lineHeight: 1.6 }}>
+            <p style={{ margin: '0 0 2px' }}>Test: {education.fullName}</p>
+            {education.scientificName && <p style={{ margin: '0 0 2px' }}>Scientific Name: {education.scientificName}</p>}
+            {education.abbreviation && <p style={{ margin: '0 0 2px' }}>Abbreviation: {education.abbreviation}</p>}
+            <p style={{ margin: '0 0 2px' }}>Category: {test.category}</p>
+            <p style={{ margin: '0 0 2px' }}>Price: ₹{test.offerPrice || test.price}</p>
+            <p style={{ margin: '0 0 2px' }}>Report Time: {test.report_time || '24 hours'}</p>
+            <p style={{ margin: 0 }}>Sample: Blood | Home Collection: Free | NABL Certified</p>
+          </div>
+        </div>
+
+        {/* ===== 28. SEO STRUCTURED DATA ===== */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'MedicalTest',
+            name: education.fullName,
+            description: test.description,
+            url: typeof window !== 'undefined' ? window.location.href : '',
+            about: test.category,
+            offers: {
+              '@type': 'Offer',
+              price: test.offerPrice || test.price,
+              priceCurrency: 'INR',
+              availability: 'https://schema.org/InStock',
+            },
+          })
+        }} />
       </div>
 
-      {/* BOTTOM CTA */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', padding: '8px 16px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Phone size={18} weight="fill" color="#fff" />
-        </a>
-        <a href={`https://wa.me/919700104108?text=${encodeURIComponent('Hi! I want to know more about ' + education.fullName + ' (' + (education.abbreviation || '') + ') test')}`} target="_blank" rel="noopener noreferrer" style={{ width: 40, height: 40, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <WhatsappLogo size={18} weight="fill" color="#fff" />
-        </a>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-light)' }}>{education.fullName}</div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#e53935' }}>{'\u20B9'}{test.offerPrice || test.price}</div>
+      {/* ===== STICKY MOBILE BOOKING BAR ===== */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', padding: '8px 16px 12px', display: 'flex', alignItems: 'center', gap: 8, borderTop: '1px solid #eee' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{education.abbreviation || education.fullName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 16, fontWeight: 800, color: '#e53935' }}>₹{test.offerPrice || test.price}</span>
+            {test.mrp && test.mrp > (test.offerPrice || test.price) && (
+              <span style={{ fontSize: 11, color: '#999', textDecoration: 'line-through' }}>₹{test.mrp}</span>
+            )}
+            <span style={{ fontSize: 10, color: '#2e7d32', fontWeight: 600 }}>Free Collection</span>
+          </div>
         </div>
-        <button onClick={() => navigate('/diagnostics')} style={{ padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, background: '#f0f0f0', color: 'var(--text-dark)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
-          All Tests
-        </button>
-        {inCart ? (
-          <button onClick={() => navigate('/checkout')} className="btn btn-primary" style={{ padding: '9px 16px', fontSize: 11, whiteSpace: 'nowrap' }}>
-            Proceed to Book →
-          </button>
-        ) : (
-          <button onClick={toggleCart} style={{ padding: '9px 16px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 4px 14px rgba(255,59,48,0.3)' }}>
-            <Plus size={14} /> Add to Cart
-          </button>
-        )}
-        <button onClick={() => { if (!inCart) addItem({ id: test.id, name: test.name, price: test.price || test.mrp, offerPrice: test.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary" style={{ padding: '9px 16px', fontSize: 11, whiteSpace: 'nowrap' }}>
-          Buy Now
+        <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, textDecoration: 'none', color: '#fff', fontSize: 18 }}>📞</a>
+        <button onClick={toggleCart} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 12, fontWeight: 700, padding: '10px 20px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)', whiteSpace: 'nowrap' }}>
+          {inCart ? '✓ In Cart' : '📋 Book Now'}
         </button>
       </div>
+
       <style>{`
         @media (max-width: 768px) {
-          .td-section-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .page-section { padding: 0; }
+          .container { padding-left: 12px; padding-right: 12px; }
         }
-        @media (max-width: 480px) {
-          .td-section-grid { grid-template-columns: 1fr !important; }
-        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 6px 8px; }
+        .btn-primary { transition: all 0.2s; border-radius: 10px; cursor: pointer; font-family: inherit; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
       `}</style>
     </div>
   );
