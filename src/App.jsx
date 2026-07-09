@@ -15,6 +15,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const StaffOnboarding = lazy(() => import('./pages/StaffOnboarding'));
+const DoctorOnboarding = lazy(() => import('./pages/DoctorOnboarding'));
 const Contact = lazy(() => import('./pages/Contact'));
 const About = lazy(() => import('./pages/About'));
 const UploadPrescription = lazy(() => import('./pages/UploadPrescription'));
@@ -36,6 +37,7 @@ const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const AdminPatients = lazy(() => import('./pages/admin/AdminPatients'));
 const AdminDoctors = lazy(() => import('./pages/admin/AdminDoctors'));
 const AdminStaffOnboarding = lazy(() => import('./pages/admin/AdminStaffOnboarding'));
+const AdminDoctorOnboarding = lazy(() => import('./pages/admin/AdminDoctorOnboarding'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
@@ -144,6 +146,7 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding-staff" element={<StaffOnboarding />} />
+          <Route path="/onboarding-doctor" element={<DoctorOnboarding />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
@@ -156,6 +159,7 @@ export default function App() {
             <Route path="cms" element={<AdminCMS />} />
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
+            <Route path="doctor-onboarding" element={<AdminDoctorOnboarding />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="patients" element={<AdminPatients />} />
             <Route path="coupons" element={<AdminCoupons />} />

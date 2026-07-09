@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { path: '/admin/patients', label: 'Patients', icon: '👤' },
   { path: '/admin/doctors', label: 'Doctors', icon: '🩺' },
   { path: '/admin/staff-onboarding', label: 'Staff Onboarding', icon: '📋' },
+  { path: '/admin/doctor-onboarding', label: 'Doctor Onboarding', icon: '🩺' },
   { path: '/admin/permissions', label: 'Permissions', icon: '🔐' },
   { path: '/admin/catalog', label: 'Catalog', icon: '🧪' },
   { path: '/admin/cms', label: 'Website CMS', icon: '🌐' },
