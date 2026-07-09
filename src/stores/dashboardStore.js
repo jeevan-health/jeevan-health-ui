@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import useDailyActivityStore from './dailyActivityStore.js';
+
 const now = new Date();
 const fmt = (d) => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 const futureDate = (days) => { const d = new Date(now); d.setDate(d.getDate() + days); return fmt(d); };
@@ -132,7 +134,7 @@ function getRecommendation(score) {
   return { zone: 'High Risk', color: '#EF4444', icon: '🚨', message: 'Your health risk needs immediate attention.', action: 'Doctor consultation + Complete health assessment' };
 }
 
-function computeHealthScore(healthData, reports) {
+function computeHealthScore(healthData, reports, activityBonus = 0) {
   if (!healthData) return null;
 
   const personal = scorePersonalProfile(healthData.personalProfile || {});
@@ -142,7 +144,7 @@ function computeHealthScore(healthData, reports) {
   const medical = scoreMedicalHistory(healthData.medicalHistory || {});
   const labs = scoreLabResults(healthData.labResults || {}, reports);
 
-  const total = personal + lifestyle + body + family + medical + labs;
+  const total = personal + lifestyle + body + family + medical + labs + activityBonus;
 
   const categories = [
     { key: 'personal', label: 'Personal Profile', score: personal, max: 5, icon: '👤', color: '#1866C9' },
@@ -241,7 +243,8 @@ const useDashboardStore = create((set, get) => ({
 
   updateHealthData: (data) => set(state => {
     const oldScore = state.profile.healthScore;
-    const computed = computeHealthScore(data, state.reports);
+    const activityBonus = useDailyActivityStore.getState().getHealthScoreImpact();
+    const computed = computeHealthScore(data, state.reports, activityBonus);
     const newScore = computed ? computed.score : null;
     const history = [];
     if (oldScore != null && newScore != null && oldScore !== newScore) {

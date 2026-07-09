@@ -2,6 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useDashboardStore, { computeHealthScore, EMPTY_HEALTH } from '../stores/dashboardStore';
 import useAuthStore from '../stores/authStore';
+import DailyTracker from '../components/DailyTracker';
+
+import useDailyActivityStore from '../stores/dailyActivityStore';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -173,6 +176,7 @@ export default function Dashboard() {
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(null);
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [healthStep, setHealthStep] = useState(1);
+  const [healthSubTab, setHealthSubTab] = useState('overview');
   const [healthForm, setHealthForm] = useState({
     personalProfile: { ageGroup: '', gender: '', location: '' },
     lifestyle: { smoking: 'never', alcohol: 'never', exercise: 'frequent', sleep: 'good', stress: 'low' },
@@ -203,7 +207,10 @@ export default function Dashboard() {
   const notifs = store.notifications;
   const prescriptions = store.savedPrescriptions;
   const activeOrders = store.activeOrders;
-  const healthScoreComputed = useMemo(() => computeHealthScore(store.healthData, store.reports), [store.healthData, store.reports, store.profile.healthScore]);
+  const healthScoreComputed = useMemo(() => {
+    const bonus = useDailyActivityStore.getState().getHealthScoreImpact();
+    return computeHealthScore(store.healthData, store.reports, bonus);
+  }, [store.healthData, store.reports, store.profile.healthScore]);
 
   const addFamily = () => {
     if (!familyForm.name || !familyForm.relation || !familyForm.age) return;
@@ -891,6 +898,22 @@ export default function Dashboard() {
         {/* ===== HEALTH CENTER ===== */}
         {activeSection === 'health' && (
           <>
+            {/* Health Sub-Tab Nav */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 14, background: '#f3f4f6', borderRadius: 10, padding: 3 }}>
+              {[
+                { key: 'overview', label: 'Health Overview', icon: '🩺' },
+                { key: 'tracker', label: 'Daily Tracker', icon: '📊' },
+              ].map(t => (
+                <button key={t.key} onClick={() => setHealthSubTab(t.key)}
+                  style={{ flex: 1, padding: '8px 12px', border: 'none', borderRadius: 8, background: healthSubTab === t.key ? '#fff' : 'transparent', fontSize: 12, fontWeight: healthSubTab === t.key ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit', color: healthSubTab === t.key ? '#1866C9' : '#6B7280', boxShadow: healthSubTab === t.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
+                  <span>{t.icon}</span> {t.label}
+                </button>
+              ))}
+            </div>
+
+            {healthSubTab === 'tracker' ? (
+              <DailyTracker />
+            ) : (
             <div style={{ marginBottom: 24 }}>
               {/* Health Score Full */}
               <div className="card" style={{ padding: 18, marginBottom: 12 }}>
@@ -985,6 +1008,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+            )}
           </>
         )}
 

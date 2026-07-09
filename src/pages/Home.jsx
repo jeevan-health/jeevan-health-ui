@@ -159,7 +159,36 @@ function QuickActions() {
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
       {/* Mobile Quick Actions Grid — 2x2 */}
-      <div className="home-qa-mobile" style={{ display: 'none', marginBottom: 16 }}>
+      <div className="home-qa-mobile" style={{ display: 'none', marginBottom: 10 }}>
+        {/* Today's Health Mini Card */}
+        <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', borderRadius: 14, padding: '14px 16px', marginBottom: 10, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>🌿 Jeevan Health Journey</div>
+              <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>
+                {(() => {
+                  try {
+                    const ds = JSON.parse(localStorage.getItem('jh_daily_activity') || '{}');
+                    return ds.lastScore != null ? `${ds.lastScore}/100` : '--/100';
+                  } catch { return '--/100'; }
+                })()}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
+                {(() => {
+                  try {
+                    const ds = JSON.parse(localStorage.getItem('jh_daily_activity') || '{}');
+                    return ds.streak ? `🔥 ${ds.streak} day streak` : 'Start tracking today →';
+                  } catch { return 'Start tracking today →'; }
+                })()}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: 6 }}>🚶</span>
+              <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: 6 }}>💧</span>
+              <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: 6 }}>😴</span>
+            </div>
+          </div>
+        </Link>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <Link to="/diagnostics" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
