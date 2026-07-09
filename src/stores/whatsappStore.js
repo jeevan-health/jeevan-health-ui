@@ -7,11 +7,11 @@ const save = (data) => localStorage.setItem(KEY, JSON.stringify(data));
 
 const DEFAULT = {
   templates: [
-    { id: 1, name: 'booking_confirmation', label: 'Booking Confirmation', category: 'utility', content: 'Hi {{name}}, your booking #{{id}} is confirmed for {{date}} at {{time}}. Jeevan Health', status: 'approved' },
-    { id: 2, name: 'report_ready', label: 'Report Ready', category: 'utility', content: 'Hi {{name}}, your test report is ready. Download: {{link}}. Jeevan Health', status: 'approved' },
-    { id: 3, name: 'appointment_reminder', label: 'Appointment Reminder', category: 'utility', content: 'Reminder: {{name}}, your appointment is tomorrow at {{time}}. Jeevan Health', status: 'approved' },
-    { id: 4, name: 'payment_receipt', label: 'Payment Receipt', category: 'utility', content: 'Hi {{name}}, payment of ₹{{amount}} received for order #{{id}}. Jeevan Health', status: 'approved' },
-    { id: 5, name: 'health_tip', label: 'Health Tip', category: 'marketing', content: 'Health Tip: {{tip}}. Stay healthy! Jeevan Health', status: 'pending' },
+    { id: 1, name: 'booking_confirmation', label: 'Booking Confirmation', category: 'utility', content: 'Hi {{name}}, your booking #{{id}} is confirmed for {{date}} at {{time}}. Jeevan HealthCare at Home', status: 'approved' },
+    { id: 2, name: 'report_ready', label: 'Report Ready', category: 'utility', content: 'Hi {{name}}, your test report is ready. Download: {{link}}. Jeevan HealthCare at Home', status: 'approved' },
+    { id: 3, name: 'appointment_reminder', label: 'Appointment Reminder', category: 'utility', content: 'Reminder: {{name}}, your appointment is tomorrow at {{time}}. Jeevan HealthCare at Home', status: 'approved' },
+    { id: 4, name: 'payment_receipt', label: 'Payment Receipt', category: 'utility', content: 'Hi {{name}}, payment of ₹{{amount}} received for order #{{id}}. Jeevan HealthCare at Home', status: 'approved' },
+    { id: 5, name: 'health_tip', label: 'Health Tip', category: 'marketing', content: 'Health Tip: {{tip}}. Stay healthy! Jeevan HealthCare at Home', status: 'pending' },
   ],
   messages: [
     { id: 1, to: '9876543210', template: 'booking_confirmation', status: 'sent', sentAt: '2025-07-08 10:30', delivered: true, read: true },

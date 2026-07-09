@@ -20,7 +20,7 @@ export default function Header() {
         </button>
 
         <Link to="/" className="header-logo" style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-          <img src="/logo.png" alt="Jeevan HealthCare" style={{ height: 32, display: 'block' }} />
+          <img src="/logo.png" alt="Jeevan HealthCare at Home" style={{ height: 32, display: 'block' }} />
         </Link>
 
         <div className="hdr-search-wrap" style={{ flex: 1, minWidth: 0, maxWidth: 420 }}>

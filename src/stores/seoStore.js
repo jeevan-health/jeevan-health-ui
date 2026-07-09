@@ -15,11 +15,11 @@ const DEFAULT = {
     { id: 6, keyword: 'full body checkup', volume: 4500, difficulty: 58, rank: 7, trend: 'down', lastChecked: '2025-07-06' },
   ],
   pages: [
-    { route: '/', title: 'Home — Jeevan Healthcare', metaDesc: 'Book diagnostic tests & health checkups...', ogImage: '/og-home.jpg', status: 'good', lastScanned: '2025-07-08', score: 92 },
-    { route: '/diagnostics', title: 'Diagnostic Tests — Jeevan Healthcare', metaDesc: 'Browse all diagnostic tests...', ogImage: '/og-diag.jpg', status: 'good', lastScanned: '2025-07-08', score: 88 },
-    { route: '/services', title: 'Health Checkup Packages — Jeevan Healthcare', metaDesc: 'Comprehensive health checkup packages...', ogImage: '/og-services.jpg', status: 'needs_work', lastScanned: '2025-07-07', score: 72 },
-    { route: '/blog', title: 'Health Blog — Jeevan Healthcare', metaDesc: 'Health tips and medical insights...', ogImage: '/og-blog.jpg', status: 'needs_work', lastScanned: '2025-07-07', score: 65 },
-    { route: '/contact', title: 'Contact Us — Jeevan Healthcare', metaDesc: 'Get in touch...', ogImage: '/og-contact.jpg', status: 'good', lastScanned: '2025-07-06', score: 85 },
+    { route: '/', title: 'Home — Jeevan HealthCare at Home', metaDesc: 'Book diagnostic tests & health checkups...', ogImage: '/og-home.jpg', status: 'good', lastScanned: '2025-07-08', score: 92 },
+    { route: '/diagnostics', title: 'Diagnostic Tests — Jeevan HealthCare at Home', metaDesc: 'Browse all diagnostic tests...', ogImage: '/og-diag.jpg', status: 'good', lastScanned: '2025-07-08', score: 88 },
+    { route: '/services', title: 'Health Checkup Packages — Jeevan HealthCare at Home', metaDesc: 'Comprehensive health checkup packages...', ogImage: '/og-services.jpg', status: 'needs_work', lastScanned: '2025-07-07', score: 72 },
+    { route: '/blog', title: 'Health Blog — Jeevan HealthCare at Home', metaDesc: 'Health tips and medical insights...', ogImage: '/og-blog.jpg', status: 'needs_work', lastScanned: '2025-07-07', score: 65 },
+    { route: '/contact', title: 'Contact Us — Jeevan HealthCare at Home', metaDesc: 'Get in touch...', ogImage: '/og-contact.jpg', status: 'good', lastScanned: '2025-07-06', score: 85 },
   ],
   analytics: {
     totalPages: 24, indexedPages: 18, sitemapUrl: '/sitemap.xml', robotsTxt: 'Valid', lastCrawl: '2025-07-08',

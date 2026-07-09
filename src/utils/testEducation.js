@@ -494,7 +494,7 @@ export function getTestEducation(test) {
       color: '#1565c0',
       items: [
         { q: `How long does it take to get ${name} report?`, a: `Reports are usually available within ${reportTime}. Turnaround time may vary based on lab workload.` },
-        { q: 'How will I receive my report?', a: 'You will receive your report via WhatsApp, Email, and the Jeevan HealthCare app. You can also download it from our patient portal.' },
+        { q: 'How will I receive my report?', a: 'You will receive your report via WhatsApp, Email, and the Jeevan HealthCare at Home app. You can also download it from our patient portal.' },
         { q: 'Can I download the report online?', a: 'Yes, reports are available for download from your account on our website or app.' },
         { q: 'What if my report is delayed?', a: 'If your report is delayed beyond the expected time, please contact our support team at +91-XXXXXXXXXX.' },
       ]
@@ -552,7 +552,7 @@ export function getTestEducation(test) {
       items: [
         { q: 'When should I repeat this test?', a: getFrequency() },
         { q: 'Do I need doctor consultation after this test?', a: 'We recommend consulting a doctor to review your results, especially if any values are outside the normal range.' },
-        { q: 'Can I monitor results over time?', a: 'Yes, keeping a record of your test results over time helps track changes and trends. Your Jeevan HealthCare account stores all your past reports.' },
+        { q: 'Can I monitor results over time?', a: 'Yes, keeping a record of your test results over time helps track changes and trends. Your Jeevan HealthCare at Home account stores all your past reports.' },
         { q: 'What lifestyle changes help improve results?', a: 'A balanced diet, regular exercise (30 mins/day), stress management, adequate sleep (7-8 hours), and staying hydrated can positively impact most health markers.' },
       ]
     },
@@ -660,7 +660,7 @@ export function getPackageEducation(pkg) {
       icon: 'FileText', color: '#1565c0',
       items: [
         { q: `How long does it take to get ${n} reports?`, a: `Reports are usually available within ${reportTime}. Complex packages may take up to 72 hours for complete integration of all reports.` },
-        { q: 'Will I receive reports on WhatsApp / Email / App?', a: 'Yes, reports are delivered via WhatsApp, Email, and the Jeevan HealthCare mobile app. You can access them from anywhere.' },
+        { q: 'Will I receive reports on WhatsApp / Email / App?', a: 'Yes, reports are delivered via WhatsApp, Email, and the Jeevan HealthCare at Home mobile app. You can access them from anywhere.' },
         { q: 'Can I download my full health report?', a: 'Yes, you can download a complete PDF report from your patient portal. The report includes all test values with reference ranges and flags for abnormal values.' },
         { q: 'Is a doctor-reviewed report included?', a: 'Premium packages (Executive and Wellness) include a doctor-reviewed report summary. Basic package includes lab-verified results.' },
         { q: 'What if my report is delayed?', a: 'If your report is delayed beyond the expected time, contact our support team at +91-XXXXXXXXXX. We prioritize health package reports.' },
@@ -737,7 +737,7 @@ export function getPackageEducation(pkg) {
         { q: 'Will I get doctor consultation after the package?', a: 'Yes, Executive and Wellness packages include a free tele-consultation with a doctor to review and explain your results. Basic package includes a doctor-reviewed summary.' },
         { q: 'Do I need follow-up tests?', a: 'If any results are borderline or abnormal, your doctor may recommend specific follow-up tests for confirmation. These can be booked separately from our catalog.' },
         { q: 'Can lifestyle changes improve my results?', a: 'Absolutely. Many abnormal results (high cholesterol, blood sugar, liver enzymes) can be improved with diet, exercise, stress management, and better sleep. Your doctor can guide you.' },
-        { q: 'How do I track my health progress over time?', a: 'Your Jeevan HealthCare account stores all past reports. You can compare results year-over-year to track improvements and detect concerning trends early.' },
+        { q: 'How do I track my health progress over time?', a: 'Your Jeevan HealthCare at Home account stores all past reports. You can compare results year-over-year to track improvements and detect concerning trends early.' },
       ]
     },
   ];

@@ -327,7 +327,7 @@ export default function TestDetail() {
           </p>
           <ListItems items={education.postTestGuidance} />
           <InfoBox bg="#e8f0fe" color="#1866C9" icon={CheckCircle}>
-            Jeevan HealthCare provides free doctor consultation with every test. We are here to support you through your health journey.
+            Jeevan HealthCare at Home provides free doctor consultation with every test. We are here to support you through your health journey.
           </InfoBox>
         </Section>
 
@@ -353,7 +353,7 @@ export default function TestDetail() {
           <div style={{ background: 'linear-gradient(135deg, #F5FAFF, #fff)', borderRadius: 16, border: '1px solid #e0e8f0', padding: 16, marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
               <Sparkle size={16} color="#1866C9" weight="fill" />
-              <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>🩺 Recommended by Jeevan Health Assistant</h3>
+              <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>🩺 Recommended by Jeevan HealthCare at Home Assistant</h3>
             </div>
             <p style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
               Based on the test you're viewing, these related tests are commonly ordered together. Consult a doctor for personalized recommendations.

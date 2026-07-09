@@ -93,7 +93,7 @@ function getCostAndBooking(test, abbr) {
   return {
     price: `\u20B9${test.offerPrice || test.price}`,
     homeCollection: 'Yes, home sample collection is completely free. No additional charges for collection.',
-    whyAffordable: 'Jeevan HealthCare partners directly with NABL-certified labs to offer competitive pricing. No middlemen ensure affordable rates.',
+    whyAffordable: 'Jeevan HealthCare at Home partners directly with NABL-certified labs to offer competitive pricing. No middlemen ensure affordable rates.',
     howToBook: 'You can book this test online by adding it to your cart and completing the booking form. Select your preferred date, time, and address for home collection.',
     paymentMethods: ['Pay at Collection (Cash / Card)', 'Online Payment (UPI / Net Banking / Card)'],
   };
@@ -106,7 +106,7 @@ function getPostTestGuidance(test, abbr) {
     'If values are abnormal, your doctor may recommend follow-up tests or lifestyle modifications.',
     'For chronic conditions, regular monitoring as advised by your healthcare provider is important.',
     'Maintain a healthy lifestyle — balanced diet, regular exercise, and adequate sleep can improve your results over time.',
-    'Jeevan HealthCare offers free doctor consultation with every test to help you understand your results.',
+    'Jeevan HealthCare at Home offers free doctor consultation with every test to help you understand your results.',
   ];
 }
 
@@ -149,7 +149,7 @@ export function getTestEducation(test) {
       'Results are reviewed by qualified lab professionals before digital release',
     ],
     reportTime: test.report_time || '24-48 hours',
-    reportDelivery: 'Reports are delivered via WhatsApp, Email, and the Jeevan HealthCare mobile app. You can also download PDF reports from your account dashboard.',
+    reportDelivery: 'Reports are delivered via WhatsApp, Email, and the Jeevan HealthCare at Home mobile app. You can also download PDF reports from your account dashboard.',
     interpretation: [
       'Normal results indicate your parameters are within the healthy reference range',
       'Abnormal results may indicate the need for further evaluation by a doctor',
@@ -238,10 +238,10 @@ function generateFaqsFull(test, abbr, whatIs, cost, customization) {
     { q: `How long does the ${a} test take?`, a: `The blood collection process takes about ${getDuration(test)}. The entire home visit is typically completed within 15-20 minutes from arrival to departure.` },
     { q: `Can ${n} be done at home?`, a: 'Yes, absolutely. Home sample collection is completely free. A trained phlebotomist will visit your home at your preferred time slot. You can choose morning, afternoon, or evening collection.' },
     { q: `How long for ${a} results?`, a: `Reports are typically delivered within ${test.report_time || '24-48 hours'} via WhatsApp, Email, and our mobile app. Some specialized tests may take longer depending on complexity.` },
-    { q: `How will I receive ${a} reports?`, a: 'Reports are delivered through multiple channels — WhatsApp message, Email, and the Jeevan HealthCare mobile app. You can also download PDF copies from your account dashboard anytime.' },
+    { q: `How will I receive ${a} reports?`, a: 'Reports are delivered through multiple channels — WhatsApp message, Email, and the Jeevan HealthCare at Home mobile app. You can also download PDF copies from your account dashboard anytime.' },
     { q: `What do ${a} results mean?`, a: 'Normal results indicate your parameters are within the healthy reference range. Abnormal results may indicate the need for further evaluation by a doctor. Always consult a healthcare provider for proper interpretation.' },
     { q: `What if ${a} values are high or low?`, a: 'Abnormal values do not always mean disease. Results can be affected by diet, medications, stress, and other factors. Your doctor will consider your clinical history along with lab results for an accurate assessment.' },
-    { q: `Should I consult a doctor after ${a} results?`, a: 'Yes, it is recommended to share your report with a doctor for professional interpretation. Jeevan HealthCare offers free doctor consultation with every test to help you understand your results.' },
+    { q: `Should I consult a doctor after ${a} results?`, a: 'Yes, it is recommended to share your report with a doctor for professional interpretation. Jeevan HealthCare at Home offers free doctor consultation with every test to help you understand your results.' },
     { q: `How accurate is ${n}?`, a: 'All tests are processed at NABL-certified laboratories using automated analyzers with strict quality control. Results are reviewed by qualified lab professionals, ensuring high accuracy and reliability.' },
     { q: `Is ${n} safe for elderly or pregnant women?`, a: 'Yes, this test is safe for all age groups including elderly, pregnant women, and children. Our phlebotomists are trained to handle all patient types with care and sensitivity.' },
     { q: `How often should I take ${n}?`, a: generateFrequency(test) },
@@ -250,7 +250,7 @@ function generateFaqsFull(test, abbr, whatIs, cost, customization) {
     { q: `Is home collection free for ${n}?`, a: 'Yes, home sample collection is completely free across Hyderabad and surrounding areas. A trained phlebotomist will visit your home at your scheduled time.' },
     { q: `What payment methods are available?`, a: 'You can pay at collection (cash or card) at the time of sample collection, or pay online via UPI, Net Banking, or Credit/Debit Card during booking.' },
     { q: `What should I do after receiving ${a} report?`, a: 'Review your report, share it with your doctor for interpretation, and follow their recommendations. Maintain a healthy lifestyle. If values are abnormal, schedule a follow-up as advised.' },
-    { q: `Will I get doctor consultation after ${n}?`, a: 'Yes, Jeevan HealthCare provides free doctor consultation with every test to help you understand your results and guide you on next steps.' },
+    { q: `Will I get doctor consultation after ${n}?`, a: 'Yes, Jeevan HealthCare at Home provides free doctor consultation with every test to help you understand your results and guide you on next steps.' },
     { q: `Can lifestyle changes improve ${a} results?`, a: 'Yes, many health parameters can be improved through balanced diet, regular exercise, adequate sleep, stress management, and medication adherence as prescribed by your doctor.' },
   ];
 }

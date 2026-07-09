@@ -3,7 +3,7 @@ const policies = {
     title: 'Privacy Policy',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Introduction', content: 'Jeevan Health Private Limited ("Jeevan Health", "we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.' },
+      { heading: 'Introduction', content: 'Jeevan HealthCare at Home Private Limited ("Jeevan HealthCare at Home", "we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.' },
       { heading: 'Information We Collect', content: 'We collect personal information you provide when registering, placing orders, subscribing to newsletters, or contacting us. This includes your name, phone number, email address, date of birth, gender, blood group, address, and health information relevant to diagnostic services.' },
       { heading: 'How We Use Your Information', content: 'We use your information to process diagnostic test orders, deliver reports, communicate appointment details, send health reminders and promotional offers (with consent), improve our services, and comply with legal obligations.' },
       { heading: 'Data Storage & Security', content: 'Your data is stored on secure servers with encryption. We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.' },
@@ -17,13 +17,13 @@ const policies = {
     title: 'Terms & Conditions',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Acceptance of Terms', content: 'By accessing and using the Jeevan Health website and services, you agree to be bound by these Terms & Conditions. If you do not agree, please do not use our services.' },
-      { heading: 'Services Description', content: 'Jeevan Health provides diagnostic laboratory test services, health checkup packages, doctor consultations, and related healthcare services. Tests are processed at NABL-accredited laboratories.' },
+      { heading: 'Acceptance of Terms', content: 'By accessing and using the Jeevan HealthCare at Home website and services, you agree to be bound by these Terms & Conditions. If you do not agree, please do not use our services.' },
+      { heading: 'Services Description', content: 'Jeevan HealthCare at Home provides diagnostic laboratory test services, health checkup packages, doctor consultations, and related healthcare services. Tests are processed at NABL-accredited laboratories.' },
       { heading: 'User Responsibilities', content: 'You agree to provide accurate and complete information when registering and placing orders. You are responsible for maintaining the confidentiality of your account credentials.' },
       { heading: 'Booking & Cancellation', content: 'Bookings can be made online or via phone. Cancellation policies apply as specified on our website. Same-day cancellations may incur charges.' },
       { heading: 'Test Results', content: 'Test results are for informational purposes and should be interpreted by a qualified healthcare professional. Results are typically available within 24-72 hours depending on the test.' },
       { heading: 'Payment Terms', content: 'Payments are processed securely through our payment gateway. We accept various payment methods including cards, UPI, and net banking.' },
-      { heading: 'Limitation of Liability', content: 'Jeevan Health shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services, including but not limited to delayed test results or misinterpretation of reports.' },
+      { heading: 'Limitation of Liability', content: 'Jeevan HealthCare at Home shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services, including but not limited to delayed test results or misinterpretation of reports.' },
       { heading: 'Modifications', content: 'We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on our website. Continued use of services constitutes acceptance of modified terms.' },
     ],
   },
@@ -31,7 +31,7 @@ const policies = {
     title: 'Refund Policy',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Overview', content: 'Jeevan Health strives to ensure customer satisfaction. Our refund policy covers various scenarios as outlined below.' },
+      { heading: 'Overview', content: 'Jeevan HealthCare at Home strives to ensure customer satisfaction. Our refund policy covers various scenarios as outlined below.' },
       { heading: 'Cancellation Before Sample Collection', content: 'Full refund is provided if you cancel your order before sample collection has been scheduled. The refund will be processed within 5-7 business days.' },
       { heading: 'Cancellation After Sample Collection', content: 'If sample has been collected but testing has not commenced, a 75% refund will be provided. If testing has commenced, no refund is applicable.' },
       { heading: 'Duplicate Orders', content: 'If you accidentally place a duplicate order, a full refund will be issued upon identification and confirmation.' },
@@ -77,18 +77,18 @@ const policies = {
     title: 'Disclaimer',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Medical Disclaimer', content: 'The content on Jeevan Health\'s website is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.' },
-      { heading: 'Test Results', content: 'Diagnostic test results are provided for informational purposes. They should be reviewed and interpreted by a qualified healthcare professional. Jeevan Health is not responsible for any actions taken based on test results without proper medical consultation.' },
+      { heading: 'Medical Disclaimer', content: 'The content on Jeevan HealthCare at Home\'s website is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.' },
+      { heading: 'Test Results', content: 'Diagnostic test results are provided for informational purposes. They should be reviewed and interpreted by a qualified healthcare professional. Jeevan HealthCare at Home is not responsible for any actions taken based on test results without proper medical consultation.' },
       { heading: 'Accuracy of Information', content: 'We strive to keep all information accurate and up-to-date. However, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability, or availability of the information on our website.' },
       { heading: 'External Links', content: 'Our website may contain links to external sites. We have no control over the content and availability of those sites and assume no responsibility for their content or practices.' },
-      { heading: 'Limitation of Liability', content: 'Jeevan Health shall not be liable for any loss or damage arising from the use of this website or the services provided, except as expressly provided by law.' },
+      { heading: 'Limitation of Liability', content: 'Jeevan HealthCare at Home shall not be liable for any loss or damage arising from the use of this website or the services provided, except as expressly provided by law.' },
     ],
   },
   'patient-rights': {
     title: 'Patient Rights & Responsibilities',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Your Rights', content: 'As a patient of Jeevan Health, you have the right to: (a) Receive respectful and dignified care, (b) Be informed about tests and procedures, (c) Access your medical records and test reports, (d) Privacy and confidentiality of your health information, (e) Give or withhold consent for any procedure, (f) Seek a second opinion, (g) File a complaint or grievance.' },
+      { heading: 'Your Rights', content: 'As a patient of Jeevan HealthCare at Home, you have the right to: (a) Receive respectful and dignified care, (b) Be informed about tests and procedures, (c) Access your medical records and test reports, (d) Privacy and confidentiality of your health information, (e) Give or withhold consent for any procedure, (f) Seek a second opinion, (g) File a complaint or grievance.' },
       { heading: 'Your Responsibilities', content: 'As a patient, you are responsible for: (a) Providing accurate and complete health information, (b) Following preparation instructions for tests (e.g., fasting), (c) Keeping appointment schedules, (d) Informing us of any changes in your contact information, (e) Providing feedback to help us improve our services.' },
       { heading: 'Privacy & Confidentiality', content: 'Your health information is protected under applicable privacy laws. We maintain strict confidentiality protocols and share information only with your consent or as required by law.' },
       { heading: 'Grievance Redressal', content: 'If you have any concerns about our services, please contact our Grievance Redressal Officer at grievances@jeevanhealth.com. We commit to resolving complaints within 7 working days.' },
@@ -98,7 +98,7 @@ const policies = {
     title: 'Data Protection Policy',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Commitment to Data Protection', content: 'Jeevan Health is committed to protecting the personal data of our users in compliance with applicable data protection laws, including the Digital Personal Data Protection Act (DPDPA) 2023.' },
+      { heading: 'Commitment to Data Protection', content: 'Jeevan HealthCare at Home is committed to protecting the personal data of our users in compliance with applicable data protection laws, including the Digital Personal Data Protection Act (DPDPA) 2023.' },
       { heading: 'Data We Process', content: 'We process personal data including name, contact details, health information, payment data, and usage data. This data is collected with your explicit consent or as necessary for service delivery.' },
       { heading: 'Lawful Basis for Processing', content: 'We process your data based on: (a) Your consent, (b) Necessity for contract performance, (c) Legal obligations, (d) Legitimate business interests that do not override your rights.' },
       { heading: 'Data Retention', content: 'We retain your personal data only as long as necessary for the purposes for which it was collected, or as required by applicable laws. Health records are retained as per regulatory guidelines.' },
@@ -111,7 +111,7 @@ const policies = {
     title: 'Consent Policy',
     lastUpdated: '1st January 2025',
     sections: [
-      { heading: 'Your Consent', content: 'By using Jeevan Health\'s services, you consent to the collection, use, and processing of your personal information as described in this policy.' },
+      { heading: 'Your Consent', content: 'By using Jeevan HealthCare at Home\'s services, you consent to the collection, use, and processing of your personal information as described in this policy.' },
       { heading: 'Types of Consent', content: 'Express Consent: Obtained through explicit action such as checking a box or signing a form. Implied Consent: Assumed through your use of our services with knowledge of our policies.' },
       { heading: 'Withdrawal of Consent', content: 'You may withdraw your consent at any time by contacting us. Withdrawal of consent may affect our ability to provide certain services. Withdrawal does not affect the lawfulness of processing based on consent before its withdrawal.' },
       { heading: 'Consent for Minors', content: 'For users under 18 years of age, consent must be provided by a parent or legal guardian. We may verify the relationship before processing services.' },
@@ -123,16 +123,16 @@ const policies = {
 export default policies;
 
 export const policyMeta = {
-  'privacy-policy': { title: 'Privacy Policy', description: 'How Jeevan Health collects, uses, and protects your personal information.' },
-  'terms-and-conditions': { title: 'Terms & Conditions', description: 'Terms governing the use of Jeevan Health website and services.' },
-  'refund-policy': { title: 'Refund Policy', description: 'Refund and cancellation policies for Jeevan Health services.' },
+  'privacy-policy': { title: 'Privacy Policy', description: 'How Jeevan HealthCare at Home collects, uses, and protects your personal information.' },
+  'terms-and-conditions': { title: 'Terms & Conditions', description: 'Terms governing the use of Jeevan HealthCare at Home website and services.' },
+  'refund-policy': { title: 'Refund Policy', description: 'Refund and cancellation policies for Jeevan HealthCare at Home services.' },
   'cancellation-policy': { title: 'Cancellation Policy', description: 'Cancellation terms for diagnostic test orders and appointments.' },
   'shipping-policy': { title: 'Shipping Policy', description: 'Sample collection, handling, and report delivery policies.' },
-  'cookie-policy': { title: 'Cookie Policy', description: 'How Jeevan Health uses cookies and similar technologies.' },
-  disclaimer: { title: 'Disclaimer', description: 'Medical and legal disclaimer for Jeevan Health website content.' },
-  'patient-rights': { title: 'Patient Rights & Responsibilities', description: 'Your rights and responsibilities as a Jeevan Health patient.' },
-  'data-protection': { title: 'Data Protection Policy', description: 'How Jeevan Health protects your personal data in compliance with applicable laws.' },
-  'consent-policy': { title: 'Consent Policy', description: 'How Jeevan Health obtains and manages your consent for data processing.' },
+  'cookie-policy': { title: 'Cookie Policy', description: 'How Jeevan HealthCare at Home uses cookies and similar technologies.' },
+  disclaimer: { title: 'Disclaimer', description: 'Medical and legal disclaimer for Jeevan HealthCare at Home website content.' },
+  'patient-rights': { title: 'Patient Rights & Responsibilities', description: 'Your rights and responsibilities as a Jeevan HealthCare at Home patient.' },
+  'data-protection': { title: 'Data Protection Policy', description: 'How Jeevan HealthCare at Home protects your personal data in compliance with applicable laws.' },
+  'consent-policy': { title: 'Consent Policy', description: 'How Jeevan HealthCare at Home obtains and manages your consent for data processing.' },
 };
 
 export const policySlugs = Object.entries(policyMeta).map(([slug, meta]) => ({ slug, ...meta }));

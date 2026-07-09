@@ -172,7 +172,7 @@ const PackageDetail = () => {
   };
 
   const shareWhatsApp = () => {
-    const msg = `*${pkg.name}* - Jeevan HealthCare\n\n${pkg.desc}\n\n${pkg.testCount} Tests | ₹${pkg.bundlePrice} (Save ₹${pkg.savings})\n\nBook now: ${window.location.href}`;
+    const msg = `*${pkg.name}* - Jeevan HealthCare at Home\n\n${pkg.desc}\n\n${pkg.testCount} Tests | ₹${pkg.bundlePrice} (Save ₹${pkg.savings})\n\nBook now: ${window.location.href}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

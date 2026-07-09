@@ -42,7 +42,7 @@ export default function HealthLibrary() {
   return (
     <div>
       <div style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', padding: '36px 16px', textAlign: 'center', color: '#fff' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🩺 Jeevan Health Library</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🩺 Jeevan HealthCare at Home Library</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto 16px' }}>Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
         <div style={{ maxWidth: 500, margin: '0 auto' }}>
           <SmartSearch placeholder="🔍 Search health topics, tests, symptoms..." />

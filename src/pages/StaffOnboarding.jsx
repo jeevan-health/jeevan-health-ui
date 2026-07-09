@@ -66,7 +66,7 @@ export default function StaffOnboarding() {
         <div style={{ ...card, textAlign: 'center', padding: 48 }}>
           <div style={{ fontSize: 56, marginBottom: 12 }}>✅</div>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }}>Application Submitted!</h2>
-          <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 4px', lineHeight: 1.6 }}>Thank you for your interest in partnering with Jeevan Healthcare at Home.</p>
+          <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 4px', lineHeight: 1.6 }}>Thank you for your interest in partnering with Jeevan HealthCare at Home.</p>
           <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 24px', lineHeight: 1.6 }}>Our team will review your application and get back to you shortly.</p>
           <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 20 }}>📞 Support: +919700104108 &nbsp;|&nbsp; 📧 care@jeevanhealthcare.com</div>
           <Link to="/" style={{ ...btnPrimary, display: 'inline-block', textDecoration: 'none' }}>Go to Home</Link>
@@ -82,7 +82,7 @@ export default function StaffOnboarding() {
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ fontSize: 36, marginBottom: 4 }}>🏥</div>
           <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>Healthcare Professional Onboarding</h1>
-          <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Jeevan Healthcare at Home</p>
+          <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Jeevan HealthCare at Home</p>
         </div>
 
         {/* Progress */}
@@ -102,7 +102,7 @@ export default function StaffOnboarding() {
             <div>
               <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>Section 1 of 6</div>
               <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>🩺 Join India's Largest Home Healthcare Network!</h2>
-              <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, margin: '0 0 8px' }}>Thank you for your interest in partnering with Jeevan Healthcare at Home.</p>
+              <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, margin: '0 0 8px' }}>Thank you for your interest in partnering with Jeevan HealthCare at Home.</p>
               <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, margin: '0 0 8px' }}>This form collects your professional details, work preferences, and availability to onboard you as a Healthcare Professional for:</p>
               <div style={{ display: 'grid', gap: 4, fontSize: 13, color: '#374151', marginBottom: 12 }}>
                 {['Nursing Care', 'Caregiving Services', 'Physiotherapy at Home', 'Lab/Diagnostic Support', 'Elder & Post-operative Care', 'Sample Collection / Technician Support'].map(t => <div key={t}>✅ {t}</div>)}
@@ -386,7 +386,7 @@ export default function StaffOnboarding() {
               <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>Section 6 of 6</div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Declaration & Consent</h2>
               <div style={{ background: '#f9fafb', borderRadius: 10, padding: 20, marginBottom: 16, fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
-                I hereby declare that the information provided above is accurate and true to the best of my knowledge. I agree to follow the professional ethics and service guidelines of Jeevan Healthcare at Home.
+                I hereby declare that the information provided above is accurate and true to the best of my knowledge. I agree to follow the professional ethics and service guidelines of Jeevan HealthCare at Home.
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14, color: '#374151' }}>

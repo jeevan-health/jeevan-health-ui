@@ -50,9 +50,9 @@ export default function Signup() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-body)', padding: 16 }}>
       <div className="card" style={{ maxWidth: 400, width: '100%', padding: 32 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <img src="https://www.jeevanhealthcare.com/logo.png" alt="Jeevan HealthCare" style={{ height: 48, marginBottom: 8 }} onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
+          <img src="https://www.jeevanhealthcare.com/logo.png" alt="Jeevan HealthCare at Home" style={{ height: 48, marginBottom: 8 }} onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
           <div style={{ display: 'none', fontSize: 36, marginBottom: 8 }}>⚕️</div>
-          <h1 style={{ fontSize: 20, fontWeight: 700 }}>Welcome to Jeevan HealthCare</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>Welcome to Jeevan HealthCare at Home</h1>
           <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>Login to book tests and manage your health</p>
         </div>
 
@@ -63,7 +63,7 @@ export default function Signup() {
           <div style={{ padding: 16, background: '#f8f9fa', borderRadius: 12, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Continue with Google</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
-              Jeevan HealthCare would like to access your <strong>name, email address, and profile picture</strong> from your Google account for account creation and personalization.
+              Jeevan HealthCare at Home would like to access your <strong>name, email address, and profile picture</strong> from your Google account for account creation and personalization.
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => setShowGoogleConsent(false)} className="btn btn-outline" style={{ flex: 1, fontSize: 12, justifyContent: 'center' }}>Cancel</button>

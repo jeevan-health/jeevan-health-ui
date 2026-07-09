@@ -5,7 +5,7 @@ export default function About() {
     <div>
       <div style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', color: '#fff', padding: '48px 16px', textAlign: 'center' }}>
         <div className="container" style={{ maxWidth: 700 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>About Jeevan HealthCare</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>About Jeevan HealthCare at Home</h1>
           <p style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.7 }}>
             Making quality diagnostics accessible to every Indian.
           </p>
@@ -17,7 +17,7 @@ export default function About() {
           <div>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Our Mission</h2>
             <p style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-secondary)' }}>
-              At Jeevan HealthCare, we believe that access to accurate diagnostic testing is a fundamental right.
+              At Jeevan HealthCare at Home, we believe that access to accurate diagnostic testing is a fundamental right.
               We bridge the gap between patients and quality healthcare by providing convenient, affordable, and reliable
               diagnostic services right at your doorstep.
             </p>
@@ -50,7 +50,7 @@ export default function About() {
 
         <div style={{ textAlign: 'center', marginTop: 32, padding: 24, background: 'var(--bg-light)', borderRadius: 12 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Ready to get started?</h2>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>Book your first test today and experience the Jeevan HealthCare difference.</p>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>Book your first test today and experience the Jeevan HealthCare at Home difference.</p>
           <a href="/diagnostics" className="btn btn-primary btn-lg">Book a Test</a>
         </div>
       </div>

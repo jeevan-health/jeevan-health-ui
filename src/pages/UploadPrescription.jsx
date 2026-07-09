@@ -121,7 +121,7 @@ export default function UploadPrescription() {
               <li>Help you schedule a home sample collection or laboratory visit at your preferred date and time</li>
             </ul>
             <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
-              Thank you for choosing <span style={{ color: 'var(--primary)' }}>Jeevan HealthCare</span>. We look forward to assisting you.
+              Thank you for choosing <span style={{ color: 'var(--primary)' }}>Jeevan HealthCare at Home</span>. We look forward to assisting you.
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/" className="btn btn-outline">Return to Home</Link>

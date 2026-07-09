@@ -144,7 +144,7 @@ export default function AdminLogin() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
             <div style={{ width: 46, height: 46, borderRadius: 12, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff', backdropFilter: 'blur(8px)' }}>⚕️</div>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#fff', letterSpacing: -0.3 }}>Jeevan HealthCare</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#fff', letterSpacing: -0.3 }}>Jeevan HealthCare at Home</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Operations Command Center</div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default function AdminLogin() {
           {/* Welcome */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 26, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Welcome Back <span style={{ fontSize: 26 }}>👋</span></div>
-            <div style={{ fontSize: 14, color: '#64748B' }}>Sign in to Jeevan Healthcare Admin Portal</div>
+            <div style={{ fontSize: 14, color: '#64748B' }}>Sign in to Jeevan HealthCare at Home Admin Portal</div>
           </div>
 
           {/* Tab Switcher */}

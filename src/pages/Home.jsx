@@ -169,7 +169,7 @@ function QuickActions() {
         <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
           <div style={{ background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', borderRadius: 14, padding: '14px 16px', marginBottom: 10, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>🌿 Jeevan Health Journey</div>
+              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>🌿 Jeevan HealthCare at Home Journey</div>
               <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>
                 {(() => {
                   try {
@@ -481,7 +481,7 @@ function Testimonials() {
   const testimonials = useCmsStore(s => s.content?.testimonials);
   const reviews = (testimonials || []).length > 0 ? testimonials : [
     { name: 'Priya Sharma', text: 'Excellent home collection service. The phlebotomist was on time and very professional. Reports came within 24 hours.', rating: 5, tag: '🩸 Blood Test at Home', img: '👩' },
-    { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare for all my family health checkups. Great prices and reliable reports every time.', rating: 5, tag: '👨‍👩‍👧 Full Body Checkup', img: '👨' },
+    { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare at Home for all my family health checkups. Great prices and reliable reports every time.', rating: 5, tag: '👨‍👩‍👧 Full Body Checkup', img: '👨' },
     { name: 'Anita Desai', text: 'The home collection service is a lifesaver for my elderly parents. So convenient and safe. Highly recommend!', rating: 5, tag: '👵 Senior Care Package', img: '👵' },
     { name: 'Vikram Singh', text: 'Corporate health camp was well organised. All employees got their reports on time with detailed analysis.', rating: 5, tag: '🏢 Corporate Health Camp', img: '👨‍💼' },
     { name: 'Sneha Patel', text: 'The doctor consultation after my reports helped me understand my health better. Truly comprehensive care.', rating: 5, tag: '👨‍⚕️ Doctor Consultation', img: '👩‍⚕️' },
@@ -602,7 +602,7 @@ function Testimonials() {
         </div>
 
         <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Join Thousands of Families Who Trust Jeevan Healthcare</h3>
+          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Join Thousands of Families Who Trust Jeevan HealthCare at Home</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
             <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
@@ -706,7 +706,7 @@ function HealthLibrarySection() {
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 22 }}>🩺</span>
-          <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>Jeevan Health Library</h2>
+          <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>Jeevan HealthCare at Home Library</h2>
         </div>
         <p className="section-subtitle text-center">Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
         <div style={{ maxWidth: 540, margin: '0 auto 20px' }}>
@@ -791,7 +791,7 @@ function WhyChooseJeevan() {
             </div>
           ))}
         </div>
-        <h2 className="section-title text-center">Why Thousands of Families Trust Jeevan Healthcare</h2>
+        <h2 className="section-title text-center">Why Thousands of Families Trust Jeevan HealthCare at Home</h2>
         <p className="section-subtitle text-center">Reliable diagnostics, expert healthcare professionals, and convenient home healthcare services designed around your family's needs.</p>
         <div className="grid-4" style={{ gap: 14, marginTop: 20 }}>
           {features.map(f => (

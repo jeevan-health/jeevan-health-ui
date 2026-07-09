@@ -149,7 +149,7 @@ export default function Footer() {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 16px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
             <div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>Jeevan Healthcare</h3>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>Jeevan HealthCare at Home</h3>
               <p style={{ fontSize: 12, margin: '4px 0 0', color: 'rgba(255,255,255,0.65)' }}>Your trusted healthcare partner since 2010</p>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -194,7 +194,7 @@ export default function Footer() {
                 <div><strong style={{ color: '#fff' }}>24×7 Customer Care</strong><br /><a href="tel:+919700104108" style={{ color: '#FFD54F', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>+91 97001 04108</a></div>
                 <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>Email</strong><br /><a href="mailto:care@jeevanhealthcare.com" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>care@jeevanhealthcare.com</a></div>
                 <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>WhatsApp</strong><br /><a href="https://wa.me/919700104108" target="_blank" rel="noopener" style={{ color: '#25d366', textDecoration: 'none' }}>Chat with Executive</a></div>
-                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>Corporate Office</strong><br /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Jeevan Healthcare Solutions Pvt. Ltd., Hyderabad</span></div>
+                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>Corporate Office</strong><br /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Jeevan HealthCare at Home Solutions Pvt. Ltd., Hyderabad</span></div>
               </div>
             </div>
 
@@ -267,7 +267,7 @@ export default function Footer() {
             <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
             <Link to="/policy/privacy-policy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sitemap</Link>
           </div>
-          <div>© {new Date().getFullYear()} Jeevan Healthcare Solutions Pvt. Ltd. All Rights Reserved.</div>
+          <div>© {new Date().getFullYear()} Jeevan HealthCare at Home Solutions Pvt. Ltd. All Rights Reserved.</div>
           <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.3)' }}>Made with ❤️ for Better Healthcare</div>
         </div>
       </div>

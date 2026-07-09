@@ -522,7 +522,7 @@ export default function DailyTracker() {
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>🔥 Streak: {store.streak} days</div>
               <AchievementSection achievements={store.achievements} />
               <div style={{ marginTop: 12, padding: '10px 14px', background: '#F0F7FF', borderRadius: 10, border: '1px solid #BAE6FD', fontSize: 11, color: '#0F4A96' }}>
-                🌿 Jeevan Health Journey — Every day counts towards a healthier you. Your daily activities build your long-term health score.
+                🌿 Jeevan HealthCare at Home Journey — Every day counts towards a healthier you. Your daily activities build your long-term health score.
               </div>
             </div>
           )}

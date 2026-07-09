@@ -42,28 +42,28 @@ export default function Diagnostics() {
 
   return (
     <div>
-      <div style={{ background: 'var(--bg-light)', borderBottom: '1px solid var(--border)', padding: '20px 0', position: 'sticky', top: 'var(--header-height)', zIndex: 50 }}>
+      <div style={{ background: 'var(--bg-light)', borderBottom: '1px solid var(--border)', padding: '12px 0', position: 'sticky', top: 'var(--header-height)', zIndex: 50 }}>
         <div className="container">
-          <div className="diag-filters" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ flex: 1, minWidth: 200 }}>
+          <div className="diag-filters" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ flex: 1, minWidth: 180 }}>
               <SmartSearch placeholder="🔍 Search tests..." value={search}
                 onChange={v => { setSearch(v); setParams(v ? { q: v } : {}); }}
                 onSubmit={v => { setSearch(v); setParams(v ? { q: v } : {}); }} />
             </div>
-            <select value={category} onChange={e => setCategory(e.target.value)} className="select" style={{ width: 'auto', minWidth: 140 }}>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="select" style={{ width: 'auto', minWidth: 130, fontSize: 12 }}>
               <option value="">All Categories</option>
               {(cmsCats.length ? cmsCats : CATS.map(c => ({ name: c }))).map(c => <option key={c.name || c} value={c.name || c}>{c.name || c}</option>)}
             </select>
-            <select value={priceRange} onChange={e => setPriceRange(e.target.value)} className="select" style={{ width: 'auto', minWidth: 120 }}>
+            <select value={priceRange} onChange={e => setPriceRange(e.target.value)} className="select" style={{ width: 'auto', minWidth: 110, fontSize: 12 }}>
               <option value="">All Prices</option>
               {priceRanges.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
             </select>
-            <Link to="/dashboard" style={{ padding: '6px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, color: 'var(--primary)', border: '1px solid var(--primary)', background: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>📊 Dashboard</Link>
+            <Link to="/dashboard" style={{ padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, color: 'var(--primary)', border: '1px solid var(--primary)', background: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>📊 Dashboard</Link>
           </div>
         </div>
       </div>
 
-      <div className="page-section container">
+      <div className="page-section container" style={{ paddingTop: 28 }}>
         {(diag.pageTitle || diag.pageSubtitle) && (
           <div style={{ marginBottom: 16 }}>
             {diag.pageTitle && <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', margin: '0 0 4px' }}>{diag.pageTitle}</h1>}
@@ -106,12 +106,15 @@ export default function Diagnostics() {
 
       <style>{`
         @media (max-width: 768px) {
-          .diag-filters { flex-direction: column !important; }
+          .diag-filters { flex-direction: row !important; flex-wrap: wrap !important; gap: 4px !important; }
           .diag-filters > div { min-width: 0 !important; width: 100% !important; }
-          .diag-filters select { width: 100% !important; min-width: 0 !important; }
+          .diag-filters select { width: calc(50% - 3px) !important; min-width: 0 !important; font-size: 11px !important; padding: 6px 8px !important; flex: 1 !important; }
           .diag-presc-banner { flex-direction: column !important; align-items: stretch !important; text-align: center !important; }
           .diag-presc-banner button { width: 100% !important; }
           .grid-3 { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .diag-filters select { width: 100% !important; }
         }
       `}</style>
     </div>
