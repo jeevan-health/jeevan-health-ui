@@ -68,11 +68,18 @@ function HeroSection() {
     { icon: '⏱️', label: 'Reports in 24 Hours', sublabel: '' },
   ];
   const featureIcons = h.featureIcons || [
-    { icon: '👨‍👩‍👧‍👦', label: 'Family' },
-    { icon: '👨‍⚕️', label: 'Doctor' },
-    { icon: '🩺', label: 'Phlebotomist' },
-    { icon: '👴', label: 'Senior Citizen' },
+    { icon: 'family', label: 'Family' },
+    { icon: 'doctor', label: 'Doctor' },
+    { icon: 'phlebotomist', label: 'Phlebotomist' },
+    { icon: 'senior', label: 'Senior Citizen' },
   ];
+
+  const iconSVGs = {
+    family: <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M16 20a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm16 0a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM8 38v-2a8 8 0 0 1 8-8h2.5a7.96 7.96 0 0 0-2.5 5.84V38H8Zm16 0v-2.16A7.96 7.96 0 0 1 21.5 30h2.5a8 8 0 0 1 8 8v2H24Zm12-8h-2.5a7.96 7.96 0 0 1 2.5 5.84V38H40v-2a8 8 0 0 0-8-8Zm-12-8h-2.5a8 8 0 0 0-8 8v2H24v-2a8 8 0 0 0-8-8h-2.5m0 0a8 8 0 0 0-8 8v2h8v-2a8 8 0 0 1 2.5-5.84m12 0a8 8 0 0 1 8 8v2h8v-2a8 8 0 0 0-8-8h-2.5M16 20a6 6 0 0 0 0 12 6 6 0 0 0 0-12zm16 0a6 6 0 0 0 0 12 6 6 0 0 0 0-12z" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+    doctor: <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="14" r="8" stroke="rgba(255,255,255,0.9)" strokeWidth="2"/><path d="M34 40v-4a10 10 0 0 0-20 0v4" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 20v-4h-4" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="32" r="3" fill="rgba(255,255,255,0.9)"/></svg>,
+    phlebotomist: <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M20 10h8l4 8v20a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V18l4-8Z" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 18h12" stroke="rgba(255,255,255,0.9)" strokeWidth="2"/><path d="M22 26h4" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"/><path d="M22 32h4" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"/><path d="M20 6h8" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"/></svg>,
+    senior: <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><circle cx="20" cy="14" r="6" stroke="rgba(255,255,255,0.9)" strokeWidth="2"/><path d="M10 40v-6a10 10 0 0 1 10-10h8a10 10 0 0 1 10 10v6" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M34 32a6 6 0 0 0-12 0" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"/><path d="M38 28l2 2 4-4" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  };
   return (
     <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
@@ -111,7 +118,7 @@ function HeroSection() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {featureIcons.map(f => (
             <div key={f.label} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
-              <div style={{ fontSize: 48, marginBottom: 6 }}>{f.icon}</div>
+              <div style={{ marginBottom: 6 }}>{iconSVGs[f.icon] || <span style={{ fontSize: 48 }}>{f.icon}</span>}</div>
               <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>{f.label}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>{f.sublabel || ''}</div>
             </div>
