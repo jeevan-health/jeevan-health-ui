@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 
 const ROLE_BADGES = {
-  super_admin: { label: 'Super Admin', color: '#EF4444' },
-  admin: { label: 'Administrator', color: '#F59E0B' },
-  staff: { label: 'Staff', color: '#3B82F6' },
-  manager: { label: 'Operations Manager', color: '#10B981' },
+  super_admin: { label: 'Super Admin', color: '#DC2626' },
+  admin: { label: 'Administrator', color: '#D97706' },
+  staff: { label: 'Staff', color: '#2563EB' },
+  manager: { label: 'Operations Manager', color: '#059669' },
 };
 
 export default function AdminLogin() {
@@ -127,44 +127,47 @@ export default function AdminLogin() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: '#0c1222', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', display: 'flex', background: 'linear-gradient(135deg, #FFFFFF 0%, #F3FAFF 40%, #E8F6FF 100%)', fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* Left Panel — Branding */}
       <div style={{
         flex: '0 0 420px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        padding: '48px 40px', background: 'linear-gradient(135deg, #0b1a33 0%, #0f2744 50%, #0c1222 100%)',
-        position: 'relative', overflow: 'hidden', borderRight: '1px solid #1e2d45',
+        padding: '48px 40px', background: 'linear-gradient(135deg, #0F5DA8 0%, #1A7AD4 40%, #20B7F5 100%)',
+        position: 'relative', overflow: 'hidden',
       }}>
-        {/* Grid pattern overlay */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        {/* Medical cross grid pattern */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.06, backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        <div style={{ position: 'absolute', right: -60, top: -60, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+        <div style={{ position: 'absolute', left: -40, bottom: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
 
         {/* Top */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #00D9FF, #3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#fff' }}>⚕️</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+            <div style={{ width: 46, height: 46, borderRadius: 12, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff', backdropFilter: 'blur(8px)' }}>⚕️</div>
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: -0.3 }}>Jeevan HealthCare</div>
-              <div style={{ fontSize: 11, color: '#00D9FF', fontWeight: 500 }}>Operations Command Center</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#fff', letterSpacing: -0.3 }}>Jeevan HealthCare</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Operations Command Center</div>
             </div>
           </div>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4, lineHeight: 1.5, maxWidth: 300 }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 8, lineHeight: 1.6, maxWidth: 300 }}>
             Digital Healthcare Operations Platform
           </div>
         </div>
 
         {/* Middle — Services */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 16 }}>Manage</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Manage</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
               { icon: '🧪', label: 'Diagnostics Management' },
               { icon: '🏠', label: 'Home Sample Collection' },
               { icon: '👨‍⚕️', label: 'Doctor Consultation' },
               { icon: '📄', label: 'Reports Management' },
               { icon: '👥', label: 'Patient Care' },
+              { icon: '📊', label: 'Healthcare Analytics' },
             ].map(s => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ fontSize: 16 }}>{s.icon}</span>
-                <span style={{ fontSize: 12, color: '#cbd5e1', fontWeight: 500 }}>{s.label}</span>
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 12px', background: 'rgba(255,255,255,0.08)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
+                <span style={{ fontSize: 15 }}>{s.icon}</span>
+                <span style={{ fontSize: 12, color: '#fff', fontWeight: 500 }}>{s.label}</span>
               </div>
             ))}
           </div>
@@ -172,14 +175,14 @@ export default function AdminLogin() {
 
         {/* Bottom — Trust */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '14px 16px', background: 'rgba(0,217,255,0.04)', borderRadius: 10, border: '1px solid rgba(0,217,255,0.1)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, padding: '12px 16px', background: 'rgba(255,255,255,0.1)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)' }}>
             {[
               '✓ Secure Healthcare Platform',
               '✓ Role-Based Access Control',
               '✓ Patient Data Protection',
               '✓ Real-Time Operations Dashboard',
             ].map(t => (
-              <div key={t} style={{ fontSize: 11, color: '#00D9FF' }}>{t}</div>
+              <div key={t} style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>{t}</div>
             ))}
           </div>
         </div>
@@ -190,13 +193,13 @@ export default function AdminLogin() {
         <div style={{ width: '100%', maxWidth: 420, margin: '0 auto' }}>
 
           {/* Welcome */}
-          <div style={{ marginBottom: 28 }}>
-            <div style={{ fontSize: 24, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Welcome Back <span style={{ fontSize: 24 }}>👋</span></div>
-            <div style={{ fontSize: 13, color: '#64748b' }}>Sign in to your Admin Portal</div>
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 26, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Welcome Back <span style={{ fontSize: 26 }}>👋</span></div>
+            <div style={{ fontSize: 14, color: '#64748B' }}>Sign in to Jeevan Healthcare Admin Portal</div>
           </div>
 
           {/* Tab Switcher */}
-          <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#1e293b', borderRadius: 10, padding: 3 }}>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#F1F5F9', borderRadius: 10, padding: 3 }}>
             {[
               { key: 'email', label: '📧 Email Login' },
               { key: 'otp', label: '📱 Mobile OTP' },
@@ -205,14 +208,15 @@ export default function AdminLogin() {
                 style={{
                   flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
                   fontSize: 12, fontWeight: 600, fontFamily: 'inherit', transition: 'all 0.15s',
-                  background: loginMode === t.key ? '#334155' : 'transparent',
-                  color: loginMode === t.key ? '#fff' : '#64748b',
+                  background: loginMode === t.key ? '#fff' : 'transparent',
+                  color: loginMode === t.key ? '#0F5DA8' : '#64748B',
+                  boxShadow: loginMode === t.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                 }}>{t.label}</button>
             ))}
           </div>
 
-          {error && <div style={{ padding: '10px 14px', background: '#451a1a', color: '#f87171', borderRadius: 8, fontSize: 12, marginBottom: 16, border: '1px solid #7f1d1d', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-            <span style={{ fontSize: 14 }}>⚠️</span>
+          {error && <div style={{ padding: '10px 14px', background: '#FEF2F2', color: '#DC2626', borderRadius: 8, fontSize: 12, marginBottom: 16, border: '1px solid #FECACA', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
             <span>{error}</span>
           </div>}
 
@@ -220,41 +224,41 @@ export default function AdminLogin() {
           {loginMode === 'email' && (
             <form onSubmit={handleEmailLogin}>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#cbd5e1' }}>Admin Email</label>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#334155' }}>Email Address</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="admin@jeevanhealthcare.com"
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border 0.15s' }}
-                  onFocus={e => e.target.style.borderColor = '#00D9FF'}
-                  onBlur={e => e.target.style.borderColor = '#334155'} />
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'all 0.15s' }}
+                  onFocus={e => { e.target.style.borderColor = '#0F5DA8'; e.target.style.background = '#fff'; e.target.style.boxShadow = '0 0 0 3px rgba(15,93,168,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.background = '#F8FAFC'; e.target.style.boxShadow = 'none'; }} />
               </div>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#cbd5e1' }}>Password</label>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#334155' }}>Password</label>
                 <div style={{ position: 'relative' }}>
                   <input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)}
                     placeholder="Enter password"
-                    style={{ width: '100%', padding: '11px 38px 11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border 0.15s' }}
-                    onFocus={e => e.target.style.borderColor = '#00D9FF'}
-                    onBlur={e => e.target.style.borderColor = '#334155'} />
+                    style={{ width: '100%', padding: '11px 38px 11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'all 0.15s' }}
+                    onFocus={e => { e.target.style.borderColor = '#0F5DA8'; e.target.style.background = '#fff'; e.target.style.boxShadow = '0 0 0 3px rgba(15,93,168,0.1)'; }}
+                    onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.background = '#F8FAFC'; e.target.style.boxShadow = 'none'; }} />
                   <button type="button" onClick={() => setShowPwd(!showPwd)} style={{
                     position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: 14, padding: 4,
+                    background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', fontSize: 14, padding: 4,
                   }}>{showPwd ? '🙈' : '👁️'}</button>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, color: '#94a3b8' }}>
-                  <input type="checkbox" checked={remember} onChange={() => setRemember(!remember)} style={{ width: 14, height: 14, accentColor: '#00D9FF' }} />
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, color: '#64748B' }}>
+                  <input type="checkbox" checked={remember} onChange={() => setRemember(!remember)} style={{ width: 14, height: 14, accentColor: '#0F5DA8' }} />
                   Remember me
                 </label>
-                <button type="button" onClick={() => setShowForgot(true)} style={{ background: 'none', border: 'none', color: '#00D9FF', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>
+                <button type="button" onClick={() => setShowForgot(true)} style={{ background: 'none', border: 'none', color: '#0F5DA8', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>
                   Forgot password?
                 </button>
               </div>
               <button type="submit" disabled={loading} style={{
                 width: '100%', padding: '12px 0', borderRadius: 8, border: 'none',
-                background: 'linear-gradient(135deg, #00D9FF, #3B82F6)', color: '#0f172a',
+                background: 'linear-gradient(135deg, #0F5DA8, #1A7AD4)', color: '#fff',
                 cursor: 'pointer', fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
-                opacity: loading ? 0.6 : 1, transition: 'all 0.15s',
+                opacity: loading ? 0.6 : 1, transition: 'all 0.15s', letterSpacing: 0.3,
               }}>
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
@@ -265,56 +269,63 @@ export default function AdminLogin() {
           {loginMode === 'otp' && (
             step === 1 ? (
               <form onSubmit={handleSendOtp}>
-                <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block', color: '#cbd5e1' }}>Registered Mobile Number</label>
+                <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block', color: '#334155' }}>Registered Mobile Number</label>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-                  <span style={{ padding: '11px 0', fontSize: 14, color: '#64748b', fontWeight: 500 }}>+91</span>
+                  <span style={{ padding: '11px 0', fontSize: 14, color: '#64748B', fontWeight: 500 }}>+91</span>
                   <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="Enter registered mobile"
-                    style={{ flex: 1, padding: '11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'border 0.15s' }}
-                    onFocus={e => e.target.style.borderColor = '#00D9FF'}
-                    onBlur={e => e.target.style.borderColor = '#334155'} />
+                    style={{ flex: 1, padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', transition: 'all 0.15s' }}
+                    onFocus={e => { e.target.style.borderColor = '#0F5DA8'; e.target.style.background = '#fff'; e.target.style.boxShadow = '0 0 0 3px rgba(15,93,168,0.1)'; }}
+                    onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.background = '#F8FAFC'; e.target.style.boxShadow = 'none'; }} />
                 </div>
                 <button type="submit" disabled={loading} style={{
                   width: '100%', padding: '12px 0', borderRadius: 8, border: 'none',
-                  background: 'linear-gradient(135deg, #00D9FF, #3B82F6)', color: '#0f172a',
+                  background: 'linear-gradient(135deg, #0F5DA8, #1A7AD4)', color: '#fff',
                   cursor: 'pointer', fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
-                  opacity: loading ? 0.6 : 1, transition: 'all 0.15s',
+                  opacity: loading ? 0.6 : 1, transition: 'all 0.15s', letterSpacing: 0.3,
                 }}>
                   {loading ? 'Sending OTP...' : 'Send OTP'}
                 </button>
               </form>
             ) : (
               <form onSubmit={handleVerify}>
-                <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block', color: '#cbd5e1' }}>Enter OTP</label>
-                <p style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>OTP sent to +91 {phone}</p>
+                <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block', color: '#334155' }}>Enter OTP</label>
+                <p style={{ fontSize: 12, color: '#64748B', marginBottom: 8 }}>OTP sent to +91 {phone}</p>
                 <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="Enter 6-digit OTP"
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 20, textAlign: 'center', letterSpacing: 8, transition: 'border 0.15s' }}
-                  onFocus={e => e.target.style.borderColor = '#00D9FF'}
-                  onBlur={e => e.target.style.borderColor = '#334155'} />
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 20, textAlign: 'center', letterSpacing: 8, transition: 'all 0.15s' }}
+                  onFocus={e => { e.target.style.borderColor = '#0F5DA8'; e.target.style.background = '#fff'; e.target.style.boxShadow = '0 0 0 3px rgba(15,93,168,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.background = '#F8FAFC'; e.target.style.boxShadow = 'none'; }} />
                 <button type="submit" disabled={loading} style={{
                   width: '100%', padding: '12px 0', borderRadius: 8, border: 'none',
-                  background: 'linear-gradient(135deg, #00D9FF, #3B82F6)', color: '#0f172a',
+                  background: 'linear-gradient(135deg, #0F5DA8, #1A7AD4)', color: '#fff',
                   cursor: 'pointer', fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
-                  opacity: loading ? 0.6 : 1, transition: 'all 0.15s',
+                  opacity: loading ? 0.6 : 1, transition: 'all 0.15s', letterSpacing: 0.3,
                 }}>
                   {loading ? 'Verifying...' : 'Verify & Login'}
                 </button>
-                <button type="button" onClick={() => { setStep(1); setError(''); }} style={{ marginTop: 10, background: 'none', border: 'none', color: '#00D9FF', cursor: 'pointer', fontSize: 12, width: '100%', textAlign: 'center', fontFamily: 'inherit' }}>
+                <button type="button" onClick={() => { setStep(1); setError(''); }} style={{ marginTop: 10, background: 'none', border: 'none', color: '#0F5DA8', cursor: 'pointer', fontSize: 12, width: '100%', textAlign: 'center', fontFamily: 'inherit', fontWeight: 600 }}>
                   Change phone number
                 </button>
               </form>
             )
           )}
 
-          {/* Security Message */}
-          <div style={{ marginTop: 24, textAlign: 'center', fontSize: 11, color: '#475569', lineHeight: 1.5 }}>
-            🔒 Your healthcare data is protected with secure authentication and role-based access control.
+          {/* Security Trust Section */}
+          <div style={{ marginTop: 20, padding: '14px 16px', background: '#F0F7FF', borderRadius: 10, border: '1px solid #DBEAFE' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#0F5DA8', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              🔒 Secure Healthcare Platform
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+              <div>✓ Protected Patient Data with encryption</div>
+              <div>✓ Role-Based Access Control</div>
+              <div>✓ Authorized Personnel Only</div>
+            </div>
           </div>
 
           {/* Back to site */}
           <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>
+            <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>
               ← Back to Main Site
             </button>
           </div>
@@ -323,36 +334,36 @@ export default function AdminLogin() {
 
       {/* Forgot Password Modal */}
       {showForgot && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: '#1e293b', borderRadius: 16, width: '100%', maxWidth: 400, padding: 28, border: '1px solid #334155' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 400, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>🔐 Reset Password</div>
-              <button onClick={() => { setShowForgot(false); setForgotStep(1); setForgotEmail(''); setForgotOtp(''); setForgotNewPwd(''); }} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #334155', background: '#0f172a', color: '#64748b', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A' }}>🔐 Reset Password</div>
+              <button onClick={() => { setShowForgot(false); setForgotStep(1); setForgotEmail(''); setForgotOtp(''); setForgotNewPwd(''); }} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#64748B', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
 
             {forgotStep === 1 && (
               <form onSubmit={handleForgotSubmit}>
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#cbd5e1' }}>Registered Email</label>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#334155' }}>Registered Email</label>
                 <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="admin@jeevanhealthcare.com"
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
-                <button type="submit" style={{ width: '100%', padding: '11px 0', borderRadius: 8, border: 'none', background: '#00D9FF', color: '#0f172a', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Send Reset Code</button>
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
+                <button type="submit" style={{ width: '100%', padding: '11px 0', borderRadius: 8, border: 'none', background: '#0F5DA8', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Send Reset Code</button>
               </form>
             )}
             {forgotStep === 2 && (
               <form onSubmit={handleForgotOtp}>
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#cbd5e1' }}>Enter OTP</label>
-                <p style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>OTP sent to {forgotEmail}</p>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#334155' }}>Enter OTP</label>
+                <p style={{ fontSize: 11, color: '#64748B', marginBottom: 8 }}>OTP sent to {forgotEmail}</p>
                 <input type="text" value={forgotOtp} onChange={e => setForgotOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter OTP"
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16, textAlign: 'center', letterSpacing: 6 }} />
-                <button type="submit" style={{ width: '100%', padding: '11px 0', borderRadius: 8, border: 'none', background: '#00D9FF', color: '#0f172a', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Verify</button>
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16, textAlign: 'center', letterSpacing: 6 }} />
+                <button type="submit" style={{ width: '100%', padding: '11px 0', borderRadius: 8, border: 'none', background: '#0F5DA8', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Verify</button>
               </form>
             )}
             {forgotStep === 3 && (
               <form onSubmit={handleResetPwd}>
-                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#cbd5e1' }}>New Password</label>
+                <label style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 4, color: '#334155' }}>New Password</label>
                 <input type="password" value={forgotNewPwd} onChange={e => setForgotNewPwd(e.target.value)} placeholder="Min 6 characters"
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
-                <button type="submit" style={{ width: '100%', padding: '11px 0', borderRadius: 8, border: 'none', background: '#00D9FF', color: '#0f172a', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Reset Password</button>
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
+                <button type="submit" style={{ width: '100%', padding: '11px 0', borderRadius: 8, border: 'none', background: '#0F5DA8', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Reset Password</button>
               </form>
             )}
           </div>
@@ -361,27 +372,29 @@ export default function AdminLogin() {
 
       {/* Post-Login Welcome Overlay */}
       {showWelcome && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(6px)', animation: 'fadeIn 0.3s ease' }}>
-          <div style={{ textAlign: 'center', maxWidth: 360 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(6px)', animation: 'fadeIn 0.3s ease' }}>
+          <div style={{ textAlign: 'center', maxWidth: 360, background: '#fff', borderRadius: 16, padding: '32px 28px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>⚕️</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Welcome {useAuthStore.getState().user?.name || 'Admin'} 👋</div>
-            <div style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 20, background: 'rgba(0,217,255,0.1)', color: '#00D9FF', fontSize: 11, fontWeight: 600, marginBottom: 16 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Welcome {useAuthStore.getState().user?.name || 'Admin'} 👋</div>
+            <div style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 20, background: '#F0F7FF', color: '#0F5DA8', fontSize: 11, fontWeight: 600, marginBottom: 16 }}>
               {ROLE_BADGES[useAuthStore.getState().user?.role]?.label || 'Administrator'}
             </div>
             {lastLogin && (
-              <div style={{ background: '#1e293b', borderRadius: 12, padding: 14, border: '1px solid #334155', marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>Last Login</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 11, color: '#cbd5e1', textAlign: 'left' }}>
-                  <div style={{ color: '#64748b' }}>Time</div><div>{lastLogin.time}</div>
-                  <div style={{ color: '#64748b' }}>Location</div><div>{lastLogin.location}</div>
-                  <div style={{ color: '#64748b' }}>Device</div><div>{lastLogin.device}</div>
+              <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 14, border: '1px solid #E2E8F0', marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: '#64748B', fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Last Login</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 11, color: '#334155', textAlign: 'left' }}>
+                  <div style={{ color: '#64748B' }}>Time</div><div style={{ fontWeight: 600 }}>{lastLogin.time}</div>
+                  <div style={{ color: '#64748B' }}>Location</div><div style={{ fontWeight: 600 }}>{lastLogin.location}</div>
+                  <div style={{ color: '#64748B' }}>Device</div><div style={{ fontWeight: 600 }}>{lastLogin.device}</div>
                 </div>
               </div>
             )}
-            <div style={{ fontSize: 12, color: '#00D9FF' }}>Redirecting to dashboard...</div>
+            <div style={{ fontSize: 12, color: '#0F5DA8', fontWeight: 500 }}>Redirecting to dashboard...</div>
           </div>
         </div>
       )}
+
+      <style>{`@media (max-width: 768px) { div[class*="left-panel"] { display: none !important; } }`}</style>
     </div>
   );
 }
