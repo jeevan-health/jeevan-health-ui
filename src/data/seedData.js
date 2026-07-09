@@ -576,11 +576,54 @@ function applyPricing(tests) {
     else if (finalPrice <= 1999) mrp = Math.round(finalPrice * 1.8);
     else if (finalPrice <= 4999) mrp = Math.round(finalPrice * 1.6);
     else mrp = Math.round(finalPrice * 1.4);
-    const offer = (t.offerPrice && t.offerPrice < finalPrice) ? t.offerPrice : finalPrice;
+    const offer = (t.offerPrice && t.offerPrice < finalPrice) ? t.offerPrice : Math.round(finalPrice * 0.85);
     return { ...t, price: finalPrice, mrp, offerPrice: offer };
   });
 }
 
 const seedTests = applyPricing(rawTests);
 
-export { seedTests, applyPricing };
+const categoryMeta = {
+  'Hematology': { id: 'blood-tests', icon: '🩸', color: '#e11d48', description: 'Complete blood count, coagulation, and blood disorder tests', subcategories: ['Complete Blood Count', 'Coagulation', 'Hemoglobinopathies', 'Red Cell Enzymes', 'Red Cell', 'Morphology', 'Inflammation', 'Blood Bank', 'Red Cell Disorders', 'Platelet Function', 'Platelet Indices', 'Autoimmune Hemolysis', 'Hemolytic Anemia', 'Myeloproliferative', 'Leukemia'] },
+  'Diabetes': { id: 'diabetes', icon: '🩸', color: '#0891b2', description: 'Blood sugar monitoring, insulin assessment, and diabetes management tests', subcategories: ['Diabetes', 'Insulin', 'Insulin Resistance', 'Glucose Tolerance', 'Glucose Monitoring', 'Kidney', 'Adipokines', 'Pancreatic Hormones', 'Autoimmune Diabetes', 'Ketone Monitoring', 'Urine Analysis', 'Urine Glucose', 'Diabetic Ketoacidosis', 'Metabolic Markers'] },
+  'Thyroid': { id: 'thyroid', icon: '🦋', color: '#7c3aed', description: 'Thyroid function, autoimmune thyroid, and hormone regulation tests', subcategories: ['Thyroid Profile', 'Thyroid Function', 'Autoimmune', 'Iodine Status', 'Thyroid'] },
+  'Cardiac': { id: 'heart-health', icon: '❤️', color: '#dc2626', description: 'Heart health, cholesterol, cardiac risk markers, and lipid assessment', subcategories: ['Lipid Profile', 'Cardiac', 'Cardiac Risk', 'Cardiac Markers', 'Heart Failure', 'Lipid Subfractions', 'Apolipoproteins', 'Lipoprotein', 'Lipid Remnants', 'Lipid Metabolism'] },
+  'Full Body': { id: 'full-body', icon: '🧬', color: '#2563eb', description: 'Comprehensive health screening, organ function, and wellness checkup tests', subcategories: ['Liver Function', 'Kidney Function', 'Minerals', 'Pancreatic Enzymes', 'Enzymes', 'Proteins', 'Urinalysis', 'Stool Analysis', 'Electrolytes', 'Trace Elements', 'Toxicology', 'Metabolism', 'Genetic', 'Body Fluids', 'Celiac', 'Immunoglobulins', 'GI Inflammation', 'Pancreatic Function', 'Cystic Fibrosis', 'GI Breath Tests', 'Malabsorption', 'Dialysis Monitoring', 'Fluid Balance', 'Acid-Base', 'Complement', 'GI Hormones', 'Health Packages', 'Longevity'] },
+  'Liver': { id: 'liver-health', icon: '🫁', color: '#16a34a', description: 'Liver enzyme tests, bilirubin, and hepatitis screening panels', subcategories: ['Liver Enzymes', 'Bilirubin', 'Autoimmune Hepatitis', 'Primary Biliary Cholangitis', 'Copper Metabolism', 'Cholestasis', 'Hepatic Encephalopathy'] },
+  'Fever': { id: 'fever-infection', icon: '🦠', color: '#ea580c', description: 'Infection diagnosis including dengue, malaria, typhoid, TB, and viral fevers', subcategories: ['Infections', 'GI Infections', 'Microbiology', 'TB Diagnosis', 'Inflammatory Markers', 'Respiratory Infections', 'COVID-19', 'Bacterial Infections', 'Fungal Infections', 'Viral Infections', 'Rickettsial Infections', 'Hepatitis', 'EBV', 'Immunity', 'Cytokines'] },
+  'Hormones': { id: 'hormones', icon: '🧪', color: '#d946ef', description: 'Hormone level testing for endocrine, reproductive, and adrenal health', subcategories: ['Hormones', 'Reproductive Hormones', 'Adrenal Hormones', 'Adrenal', 'Pituitary', 'Growth Factors', 'Sex Hormones', 'Calcium Metabolism', 'Adrenal Tumors', 'Metabolic Hormones', 'Neurosteroids', 'Adrenal Function', 'Neurotransmitters'] },
+  'Vitamins': { id: 'vitamins-nutrition', icon: '💊', color: '#0d9488', description: 'Vitamin deficiency testing including D, B12, folate, and essential nutrients', subcategories: ['Vitamin D', 'Vitamin B12', 'Fat Soluble Vitamins', 'B Complex', 'Antioxidants', 'Vitamin B12 Status'] },
+  'Anemia': { id: 'anemia', icon: '🩸', color: '#b91c1c', description: 'Iron studies, B12, folate, and comprehensive anemia evaluation panels', subcategories: ['Iron Studies', 'Anemia', 'Hemolysis', 'Iron Metabolism', 'Iron Status'] },
+  'Cancer': { id: 'cancer-screening', icon: '🎗️', color: '#86198f', description: 'Tumor markers, cancer screening, and genetic cancer risk assessment', subcategories: ['Cancer Screening', 'Tumor Markers', 'Multiple Myeloma', 'Prostate', 'Pancreatic', 'Breast', 'GI Cancers', 'Liver', 'Liver Cancer', 'Thyroid Cancer', 'Cervical Screening', 'Colorectal Screening', 'Neuroendocrine Tumors', 'Genetic'] },
+  'Arthritis': { id: 'arthritis-autoimmune', icon: '🦴', color: '#78716c', description: 'Rheumatoid arthritis, autoimmune markers, and inflammatory disease tests', subcategories: ['Arthritis', 'Uric Acid', 'Autoimmune', 'Vasculitis', 'Complement', 'Antiphospholipid', 'Genetic Markers', 'Cytokines', 'Sjogrens', 'Scleroderma', 'Myositis', 'MCTD', 'Lupus', 'Limited Scleroderma', 'Joint Fluids'] },
+  'Pregnancy': { id: 'pregnancy-fertility', icon: '🤰', color: '#db2777', description: 'Pregnancy confirmation, fertility assessment, and prenatal screening', subcategories: ['Pregnancy', 'Pregnancy Monitoring', 'Fertility', 'Antenatal Screening', 'TORCH Panel', 'Glucose Tolerance', 'Prenatal Screening', 'Genetic Screening'] },
+  'Allergy': { id: 'allergy', icon: '🤧', color: '#65a30d', description: 'Allergy testing for foods, inhalants, pets, and comprehensive sensitivity panels', subcategories: ['Allergy', 'Immunoglobulins', 'Allergen Specific', 'Food Allergy', 'Inhalant Allergy', 'Pet Allergy', 'Contact Allergy', 'Comprehensive', 'Food Intolerance', 'Immunodeficiencies', 'Allergy Screening', 'Mast Cell', 'Eosinophil Activity'] },
+  'STD': { id: 'std-tests', icon: '🔬', color: '#4f46e5', description: 'Sexually transmitted disease screening including HIV, hepatitis, and HSV', subcategories: ['Infections', 'Hepatitis', 'HSV', 'STD Panel'] },
+};
+
+const categoryList = Object.entries(categoryMeta).map(([name, meta]) => ({
+  name, ...meta,
+  tests: seedTests.filter(t => t.category === name),
+})).filter(c => c.tests.length > 0);
+
+function makeSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function getCategoryBySlug(slug) {
+  return categoryList.find(c => c.id === slug || makeSlug(c.name) === slug) || null;
+}
+
+function getTestBySlug(slug) {
+  return seedTests.find(t => makeSlug(t.name) === slug) || null;
+}
+
+function getSubcategories(categoryName) {
+  const meta = categoryMeta[categoryName];
+  if (!meta) return [];
+  const tests = seedTests.filter(t => t.category === categoryName);
+  const subs = [...new Set(tests.map(t => t.subcategory))].filter(Boolean);
+  return subs;
+}
+
+export { seedTests, applyPricing, categoryMeta, categoryList, makeSlug, getCategoryBySlug, getTestBySlug, getSubcategories };

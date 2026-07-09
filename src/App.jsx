@@ -9,6 +9,7 @@ import RoleLayout from './components/role/RoleLayout';
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
 const TestDetail = lazy(() => import('./pages/TestDetail'));
+const TestCategory = lazy(() => import('./pages/TestCategory'));
 const Services = lazy(() => import('./pages/Services'));
 const PackageDetail = lazy(() => import('./pages/PackageDetail'));
 const MyTestOrders = lazy(() => import('./pages/MyTestOrders'));
@@ -187,6 +188,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/diagnostics" element={<Diagnostics />} />
+            <Route path="/tests/:category" element={<TestCategory />} />
             <Route path="/test/:slug" element={<TestDetail />} />
             <Route path="/services" element={<Services />} />
             <Route path="/package/:slug" element={<PackageDetail />} />
