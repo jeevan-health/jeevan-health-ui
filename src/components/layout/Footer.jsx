@@ -102,21 +102,21 @@ const offers = [
 ];
 
 const resources = [
-  { label: 'Health Blog', path: '/health-library' },
+  { label: 'Health Blog', path: '/blog' },
   { label: 'Health Library', path: '/health-library' },
-  { label: 'Health Articles', path: '/health-library' },
+  { label: 'Health Articles', path: '/blog' },
   { label: 'FAQs', path: '/contact' },
   { label: 'Diseases A–Z', path: '/health-library' },
   { label: 'Symptoms A–Z', path: '/health-library' },
   { label: 'Lab Tests A–Z', path: '/health-library' },
   { label: 'Normal Values', path: '/health-library' },
-  { label: 'Health Tips', path: '/health-library' },
+  { label: 'Health Tips', path: '/blog' },
   { label: 'Preparation Guides', path: '/health-library' },
   { label: 'Medical Glossary', path: '/health-library' },
-  { label: 'BMI Calculator', path: '/health-library' },
-  { label: 'BMR Calculator', path: '/health-library' },
-  { label: 'Diabetes Risk Calculator', path: '/health-library' },
-  { label: 'Heart Risk Calculator', path: '/health-library' },
+  { label: 'BMI Calculator', path: '/health-tool/bmi-calculator' },
+  { label: 'BMR Calculator', path: '/health-tool/bmr-calculator' },
+  { label: 'Diabetes Risk Calculator', path: '/health-tool/diabetes-risk-calculator' },
+  { label: 'Heart Risk Calculator', path: '/health-tool/heart-risk-calculator' },
 ];
 
 const company = [

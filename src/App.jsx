@@ -26,6 +26,7 @@ const BlogPost = lazy(() => import('./pages/BlogPost'));
 const ConsultDoctor = lazy(() => import('./pages/ConsultDoctor'));
 const BookAppointment = lazy(() => import('./pages/BookAppointment'));
 const PolicyPage = lazy(() => import('./pages/PolicyPage'));
+const HealthToolPage = lazy(() => import('./pages/HealthToolPage'));
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
@@ -194,6 +195,7 @@ export default function App() {
             <Route path="/consult-doctor" element={<ConsultDoctor />} />
             <Route path="/book-appointment/:doctorId" element={<BookAppointment />} />
             <Route path="/policy/:slug" element={<PolicyPage />} />
+            <Route path="/health-tool/:slug" element={<HealthToolPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
           <Route path="/signup" element={<Signup />} />
