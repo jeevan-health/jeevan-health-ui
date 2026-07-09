@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import useDailyActivityStore, { computeDailyScore } from '../stores/dailyActivityStore';
 
+const fmtDate = (iso) => { const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); };
+
 function ScoreCircle({ score, size = 100 }) {
   const r = 42;
   const circumference = 2 * Math.PI * r;
