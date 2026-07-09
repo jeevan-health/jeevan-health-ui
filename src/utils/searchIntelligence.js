@@ -128,6 +128,50 @@ export function searchTests(query) {
   return results.slice(0, 10);
 }
 
+export const symptomList = Object.keys(symptomToTests);
+
+export const diseaseList = [...new Set(Object.values(aliasMap).flatMap(e => e.diseases || []))];
+
+export function searchSymptoms(query) {
+  const q = normalize(query);
+  if (!q) return [];
+  const results = [];
+  const seen = new Set();
+  for (const [symptom, testNames] of Object.entries(symptomToTests)) {
+    const sym = normalize(symptom);
+    if ((sym.includes(q) || q.includes(sym)) && !seen.has(symptom)) {
+      seen.add(symptom);
+      const matchedTests = testNames.map(name => {
+        const lower = normalize(name);
+        return tests.find(t => normalize(t.name).includes(lower) || lower.includes(normalize(t.name)));
+      }).filter(Boolean);
+      results.push({ symptom, tests: matchedTests.slice(0, 4) });
+    }
+  }
+  return results;
+}
+
+export function searchDiseases(query) {
+  const q = normalize(query);
+  if (!q) return [];
+  const results = [];
+  const seen = new Set();
+  for (const entry of Object.values(aliasMap)) {
+    for (const disease of entry.diseases || []) {
+      const d = normalize(disease);
+      if ((d.includes(q) || q.includes(d)) && !seen.has(disease)) {
+        seen.add(disease);
+        const relatedTests = Object.values(aliasMap)
+          .filter(e => (e.diseases || []).some(dd => normalize(dd) === d))
+          .map(e => tests.find(t => t.id === e.id))
+          .filter(Boolean);
+        results.push({ disease, testCount: entry.related?.length || relatedTests.length, tests: relatedTests.slice(0, 3) });
+      }
+    }
+  }
+  return results;
+}
+
 export function getPopularSearches(query) {
   const q = normalize(query);
   if (!q) return [];
