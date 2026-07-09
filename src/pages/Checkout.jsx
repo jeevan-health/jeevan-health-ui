@@ -161,6 +161,9 @@ export default function Checkout() {
       status: 'Confirmed',
     };
     useDashboardStore.setState({ upcomingBookings: [...store.upcomingBookings, newBooking] });
+
+    // Auto-redirect to dashboard after brief confirmation
+    setTimeout(() => navigate('/dashboard'), 3000);
   };
 
   // If cart is empty and no order just placed
@@ -247,8 +250,9 @@ export default function Checkout() {
 
         <div style={{ display: 'flex', gap: 10 }}>
           <Link to="/my-orders" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>View Orders</Link>
-          <Link to="/dashboard" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Go to Dashboard</Link>
+          <Link to="/dashboard" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>📊 Dashboard</Link>
         </div>
+        <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-secondary)', marginTop: 12 }}>Redirecting to dashboard automatically...</p>
       </div>
     );
   }
