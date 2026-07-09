@@ -24,7 +24,7 @@ export default function Header() {
         </Link>
 
         <div className="hdr-search-wrap" style={{ flex: 1, minWidth: 0, maxWidth: 420 }}>
-          <SmartSearch placeholder="🔍 Search tests..." />
+          <SmartSearch placeholder="Search tests..." />
         </div>
 
         <div className="hdr-right" style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
@@ -53,8 +53,8 @@ export default function Header() {
         </div>
       </div>
       {/* Mobile row 2: Search bar (hidden on desktop) */}
-      <div className="hdr-mobile-search" style={{ display: 'none', padding: '4px 12px 8px', width: '100%', maxWidth: '100%' }}>
-        <SmartSearch placeholder="🔍 Search tests, symptoms, diseases..." />
+      <div className="hdr-mobile-search" style={{ display: 'none', padding: '4px 12px 8px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+        <SmartSearch placeholder="Search tests, symptoms, diseases..." />
       </div>
     </header>
   );

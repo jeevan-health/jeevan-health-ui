@@ -300,6 +300,7 @@ img { max-width: 100%; height: auto; }
   .hdr-mobile-search { display: block !important; }
   .hdr-search-wrap { display: none !important; }
   .site-header { min-height: 0; }
+  .hdr-right .hdr-emergency, .hdr-right .hdr-upload, .hdr-right .hdr-wa { display: none !important; }
 
   /* Hero */
   .hero { padding: 36px 16px; }
