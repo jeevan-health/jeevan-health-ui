@@ -84,9 +84,9 @@ export default function AdminDashboard() {
       </div>
 
       <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <Link to="/admin/orders" className="btn btn-primary" style={{ fontSize: 12, padding: '8px 16px' }}>View All Orders</Link>
-        <Link to="/admin/users" className="btn btn-outline" style={{ fontSize: 12, padding: '8px 16px' }}>Manage Users</Link>
-        <Link to="/admin/catalog" className="btn btn-outline" style={{ fontSize: 12, padding: '8px 16px' }}>Manage Catalog</Link>
+        <Link to="/admin/orders" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, background: '#0f172a', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>View All Orders</Link>
+        <Link to="/admin/users" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', textDecoration: 'none', fontWeight: 600 }}>Manage Users</Link>
+        <Link to="/admin/catalog" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', textDecoration: 'none', fontWeight: 600 }}>Manage Catalog</Link>
       </div>
     </div>
   );
