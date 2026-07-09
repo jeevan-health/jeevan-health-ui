@@ -1,7 +1,50 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import useDashboardStore, { computeHealthScore } from '../stores/dashboardStore';
+import useDashboardStore, { computeHealthScore, EMPTY_HEALTH } from '../stores/dashboardStore';
 import useAuthStore from '../stores/authStore';
+
+const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
+
+const MEDICAL_CONDITIONS = [
+  { key: 'diabetes', label: 'Diabetes' },
+  { key: 'highBp', label: 'High BP' },
+  { key: 'thyroid', label: 'Thyroid' },
+  { key: 'cholesterol', label: 'Cholesterol' },
+  { key: 'kidneyDisease', label: 'Kidney Disease' },
+  { key: 'liverDisease', label: 'Liver Disease' },
+  { key: 'heartDisease', label: 'Heart Disease' },
+];
+
+function getSmartRecommendations(computed, healthData) {
+  const recs = [];
+  const l = healthData.lifestyle || {};
+  const fh = healthData.familyHistory || {};
+  const med = healthData.medicalHistory || {};
+  const lab = healthData.labResults || {};
+
+  if (l.smoking === 'daily' || fh.heartDisease || fh.bp) recs.push({ name: 'Lipid Profile', price: 599, why: 'Heart health assessment recommended' });
+  if (fh.diabetes || med.diabetes || lab.hba1c > 5.7) recs.push({ name: 'HbA1c', price: 399, why: 'Diabetes screening' });
+  if (l.exercise === 'none' || l.stress === 'very-high') recs.push({ name: 'Thyroid Profile', price: 499, why: 'Stress & metabolism check' });
+  if (!lab.vitaminD || lab.vitaminD < 30) recs.push({ name: 'Vitamin D & B12', price: 899, why: 'Common deficiency check' });
+  recs.push({ name: 'Complete Blood Count (CBC)', price: 499, why: 'Essential baseline test' });
+  recs.push({ name: 'Annual Health Checkup', price: 2499, why: 'Complete wellness review' });
+  return recs.slice(0, 3);
+}
+
+function StepIndicator({ current }) {
+  return (
+    <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+      {STEP_LABELS.map((label, i) => (
+        <div key={label} style={{ flex: 1, textAlign: 'center' }}>
+          <div style={{ width: 24, height: 24, borderRadius: '50%', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, background: i + 1 <= current ? '#1866C9' : '#e8edf2', color: i + 1 <= current ? '#fff' : '#94a3b8' }}>
+            {i + 1}
+          </div>
+          <div style={{ fontSize: 9, color: i + 1 <= current ? '#1866C9' : '#94a3b8', fontWeight: i + 1 === current ? 700 : 500 }}>{label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const navItems = [
   { key: 'overview', label: 'Dashboard', icon: '🏠' },
@@ -113,10 +156,14 @@ export default function Dashboard() {
   const [reportFilter, setReportFilter] = useState('All Reports');
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(null);
   const [showHealthModal, setShowHealthModal] = useState(false);
+  const [healthStep, setHealthStep] = useState(1);
   const [healthForm, setHealthForm] = useState({
-    smoking: '', alcohol: '', exercise: '', diet: '',
-    familyHistory: { diabetes: false, bp: false, heartDisease: false, thyroid: false },
-    heightCm: '', weightKg: '', systolicBp: '', diastolicBp: '',
+    personalProfile: { ageGroup: '', gender: '', location: '' },
+    lifestyle: { smoking: 'never', alcohol: 'never', exercise: 'frequent', sleep: 'good', stress: 'low' },
+    bodyMeasurements: { heightCm: '', weightKg: '', waistCm: '' },
+    familyHistory: { diabetes: false, bp: false, heartDisease: false, thyroid: false, cancer: false },
+    medicalHistory: {},
+    labResults: { hba1c: '', ldl: '', tsh: '', vitaminD: '', creatinine: '', egfr: '', alt: '', ast: '' },
   });
 
   const rescheduleDates = useMemo(() => {
@@ -140,7 +187,7 @@ export default function Dashboard() {
   const notifs = store.notifications;
   const prescriptions = store.savedPrescriptions;
   const activeOrders = store.activeOrders;
-  const healthScoreComputed = useMemo(() => computeHealthScore(store.healthData, store.reports), [store.healthData, store.reports]);
+  const healthScoreComputed = useMemo(() => computeHealthScore(store.healthData, store.reports), [store.healthData, store.reports, store.profile.healthScore]);
 
   const addFamily = () => {
     if (!familyForm.name || !familyForm.relation || !familyForm.age) return;
@@ -216,7 +263,7 @@ export default function Dashboard() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2 }}>Health Score</div>
-              <div className="dash-score-text" style={{ fontSize: 24, fontWeight: 800, color: p.healthScore >= 80 ? '#16a34a' : '#eab308' }}>{p.healthScore}/100</div>
+              <div className="dash-score-text" style={{ fontSize: 24, fontWeight: 800, color: p.healthScore != null && p.healthScore >= 80 ? '#16a34a' : '#94a3b8' }}>{p.healthScore != null ? `${p.healthScore}/100` : '--/100'}</div>
             </div>
           </div>
           <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -809,65 +856,49 @@ export default function Dashboard() {
               </div>
 
               {/* Health Score Breakdown */}
-              <div className="card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  <span style={{ fontSize: 28 }}>❤️</span>
-                  <div>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Health Score</h3>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: p.healthScore >= 80 ? '#16a34a' : '#eab308' }}>{p.healthScore}/100</div>
-                  </div>
-                </div>
-                {(() => {
-                  const s = healthScoreComputed;
-                  const items = [
-                    { label: 'Blood Health', score: s.subscores.blood, color: '#22C55E' },
-                    { label: 'Heart Health', score: s.subscores.heart, color: '#1866C9' },
-                    { label: 'Diabetes Risk', score: s.subscores.diabetes, color: '#EAB308', invert: true },
-                  ];
-                  return items.map(item => (
-                    <div key={item.label} style={{ marginBottom: 6 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
-                        <span>{item.label}</span>
-                        <span style={{ fontWeight: 600, color: item.invert ? (item.score > 50 ? '#dc2626' : '#16a34a') : item.color }}>
-                          {item.invert ? `${100 - item.score}%` : `${item.score}%`}
-                        </span>
+              <div className="card" style={{ padding: 18 }}>
+                {store.healthData && healthScoreComputed ? (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: healthScoreComputed.recommendation.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
+                        {healthScoreComputed.recommendation.icon}
                       </div>
-                      <div style={{ height: 6, background: '#e8edf2', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ width: `${item.invert ? 100 - item.score : item.score}%`, height: '100%', background: item.color, borderRadius: 3 }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 600 }}>YOUR HEALTH SCORE</div>
+                        <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 18, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: healthScoreComputed.recommendation.color, marginTop: 4 }}>{healthScoreComputed.recommendation.message}</div>
                       </div>
                     </div>
-                  ));
-                })()}
-                {store.healthData && healthScoreComputed.deductions.length > 0 && (
-                  <div style={{ marginTop: 10, padding: '8px 10px', background: '#FFF8E1', borderRadius: 8 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: '#E65100', marginBottom: 4 }}>⚠️ Deductions</div>
-                    {healthScoreComputed.deductions.map((d, i) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#5D4037' }}>
-                        <span>{d.factor}</span>
-                        <span style={{ color: '#dc2626' }}>-{d.points}</span>
-                      </div>
-                    ))}
-                  </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                      {healthScoreComputed.categories.map(cat => (
+                        <div key={cat.key}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, marginBottom: 2 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <span>{cat.icon}</span> {cat.label}
+                            </span>
+                            <span style={{ fontWeight: 700, color: cat.color }}>{cat.score}/{cat.max}</span>
+                          </div>
+                          <div style={{ height: 5, background: '#e8edf2', borderRadius: 3, overflow: 'hidden' }}>
+                            <div style={{ width: `${(cat.score / cat.max) * 100}%`, height: '100%', background: cat.color, borderRadius: 3, transition: 'width 0.5s' }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Update Assessment</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ flex: 1 }}>Book Recommended Tests</button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                      <div style={{ fontSize: 40, marginBottom: 8 }}>🩺</div>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Your Health Score</h3>
+                      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Complete the health assessment to get your personalized score</p>
+                      <button className="btn btn-primary btn-sm" onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Start Health Assessment</button>
+                    </div>
+                  </>
                 )}
-                <button className="btn btn-primary btn-sm" style={{ marginTop: 8 }} onClick={() => {
-                  const hd = store.healthData;
-                  if (hd) {
-                    setHealthForm({
-                      smoking: hd.smoking || '',
-                      alcohol: hd.alcohol || '',
-                      exercise: hd.exercise || '',
-                      diet: hd.diet || '',
-                      familyHistory: { ...hd.familyHistory },
-                      heightCm: String(hd.heightCm || ''),
-                      weightKg: String(hd.weightKg || ''),
-                      systolicBp: String(hd.systolicBp || ''),
-                      diastolicBp: String(hd.diastolicBp || ''),
-                    });
-                  }
-                  setShowHealthModal(true);
-                }}>
-                  {store.healthData ? 'Update Assessment' : 'Complete Health Assessment'}
-                </button>
               </div>
             </div>
 
@@ -936,23 +967,30 @@ export default function Dashboard() {
                 <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                   ⭐ Recommended for You
                 </h3>
-                <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Based on your health history</p>
+                <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
+                  {store.healthData ? 'Based on your health profile' : 'Take the health assessment for personalized recommendations'}
+                </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    { name: 'Vitamin B12', price: 499, why: 'Your last Vitamin D was low' },
-                    { name: 'Lipid Profile', price: 599, why: 'Annual heart health check' },
-                    { name: 'Annual Health Checkup', price: 2499, why: 'Complete wellness review' },
-                  ].map(rec => (
-                    <div key={rec.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
-                      <span style={{ fontSize: 20 }}>🧪</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600 }}>{rec.name}</div>
-                        <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{rec.why}</div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#1866C9', marginTop: 1 }}>₹{rec.price}</div>
+                  {(() => {
+                    const recs = healthScoreComputed && store.healthData
+                      ? getSmartRecommendations(healthScoreComputed, store.healthData)
+                      : [
+                          { name: 'Complete Blood Count (CBC)', price: 499, why: 'Essential baseline test' },
+                          { name: 'Vitamin D & B12', price: 899, why: 'Common deficiency check' },
+                          { name: 'Annual Health Checkup', price: 2499, why: 'Complete wellness review' },
+                        ];
+                    return recs.map(rec => (
+                      <div key={rec.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
+                        <span style={{ fontSize: 20 }}>🧪</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600 }}>{rec.name}</div>
+                          <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{rec.why}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#1866C9', marginTop: 1 }}>₹{rec.price}</div>
+                        </div>
+                        <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}>Book Now</button>
                       </div>
-                      <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}>Book Now</button>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
             </div>
@@ -1079,94 +1117,248 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Health Assessment Modal */}
+      {/* Health Assessment Modal — Multi-step */}
       {showHealthModal && (
         <div className="panel-overlay" onClick={() => setShowHealthModal(false)}>
-          <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 500, maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="panel-header">
-              <h3 style={{ fontSize: 15, fontWeight: 700 }}>Health Assessment</h3>
-              <button onClick={() => setShowHealthModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>🩺 Health Assessment</h3>
+              <button onClick={() => setShowHealthModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
             </div>
             <div className="panel-body">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {/* Lifestyle */}
-                <div>
-                  <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', margin: '0 0 8px' }}>🏃 Lifestyle</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    <select className="select" value={healthForm.smoking} onChange={e => setHealthForm(f => ({ ...f, smoking: e.target.value }))}>
-                      <option value="">Smoking</option>
-                      <option value="never">Never</option>
-                      <option value="former">Former</option>
-                      <option value="current">Current</option>
-                    </select>
-                    <select className="select" value={healthForm.alcohol} onChange={e => setHealthForm(f => ({ ...f, alcohol: e.target.value }))}>
-                      <option value="">Alcohol</option>
-                      <option value="none">None</option>
-                      <option value="occasional">Occasional</option>
-                      <option value="regular">Regular</option>
-                    </select>
-                    <select className="select" value={healthForm.exercise} onChange={e => setHealthForm(f => ({ ...f, exercise: e.target.value }))}>
-                      <option value="">Exercise</option>
-                      <option value="regular">Regular (3+ / week)</option>
-                      <option value="occasional">Occasional</option>
-                      <option value="none">Sedentary</option>
-                    </select>
-                    <select className="select" value={healthForm.diet} onChange={e => setHealthForm(f => ({ ...f, diet: e.target.value }))}>
-                      <option value="">Diet</option>
-                      <option value="healthy">Healthy / Balanced</option>
-                      <option value="mixed">Mixed / Average</option>
-                      <option value="unhealthy">Unhealthy / Junk</option>
-                    </select>
-                  </div>
-                </div>
+              <StepIndicator current={healthStep} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minHeight: 260 }}>
 
-                {/* Family History */}
-                <div>
-                  <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', margin: '0 0 8px' }}>🧬 Family History</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    {[
-                      { key: 'diabetes', label: '☯ Diabetes' },
-                      { key: 'bp', label: '🫀 BP / Heart' },
-                      { key: 'heartDisease', label: '❤️ Heart Disease' },
-                      { key: 'thyroid', label: '🦋 Thyroid' },
-                    ].map(opt => (
-                      <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer', padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 8, background: healthForm.familyHistory[opt.key] ? '#e8f0fe' : '#fff', userSelect: 'none' }}>
-                        <input type="checkbox" checked={healthForm.familyHistory[opt.key]} onChange={e => setHealthForm(f => ({ ...f, familyHistory: { ...f.familyHistory, [opt.key]: e.target.checked } }))} style={{ accentColor: '#1866C9' }} />
-                        {opt.label}
-                      </label>
-                    ))}
+                {/* STEP 1: Personal Profile */}
+                {healthStep === 1 && (
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>👤 Personal Profile</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Basic details for risk assessment</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Age Group</label>
+                        <select className="select" value={healthForm.personalProfile.ageGroup} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, ageGroup: e.target.value } }))}>
+                          <option value="">Select age group</option>
+                          <option value="below-25">Below 25</option>
+                          <option value="25-35">25 – 35</option>
+                          <option value="36-45">36 – 45</option>
+                          <option value="46-55">46 – 55</option>
+                          <option value="above-55">Above 55</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Gender</label>
+                        <select className="select" value={healthForm.personalProfile.gender} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, gender: e.target.value } }))}>
+                          <option value="">Select</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>City / Area</label>
+                        <input className="input" placeholder="e.g. Hyderabad" value={healthForm.personalProfile.location} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, location: e.target.value } }))} />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Vitals */}
-                <div>
-                  <h4 style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dark)', margin: '0 0 8px' }}>📏 Vitals</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    <input className="input" type="number" placeholder="Height (cm)" value={healthForm.heightCm} onChange={e => setHealthForm(f => ({ ...f, heightCm: e.target.value }))} />
-                    <input className="input" type="number" placeholder="Weight (kg)" value={healthForm.weightKg} onChange={e => setHealthForm(f => ({ ...f, weightKg: e.target.value }))} />
-                    <input className="input" type="number" placeholder="Systolic BP (mmHg)" value={healthForm.systolicBp} onChange={e => setHealthForm(f => ({ ...f, systolicBp: e.target.value }))} />
-                    <input className="input" type="number" placeholder="Diastolic BP (mmHg)" value={healthForm.diastolicBp} onChange={e => setHealthForm(f => ({ ...f, diastolicBp: e.target.value }))} />
+                {/* STEP 2: Lifestyle */}
+                {healthStep === 2 && (
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>🏃 Lifestyle & Habits</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>How you live affects your health score</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Smoking / Tobacco</label>
+                        <select className="select" value={healthForm.lifestyle.smoking} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, smoking: e.target.value } }))}>
+                          <option value="never">Never used</option>
+                          <option value="quit">Quit more than 1 year ago</option>
+                          <option value="occasional">Occasionally</option>
+                          <option value="daily">Daily smoker</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Alcohol Consumption</label>
+                        <select className="select" value={healthForm.lifestyle.alcohol} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, alcohol: e.target.value } }))}>
+                          <option value="never">Never</option>
+                          <option value="occasional">Occasionally</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="frequent">Daily / Frequent</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Physical Activity</label>
+                        <select className="select" value={healthForm.lifestyle.exercise} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, exercise: e.target.value } }))}>
+                          <option value="frequent">Exercise 5+ days/week</option>
+                          <option value="moderate">Exercise 2–4 days/week</option>
+                          <option value="sedentary">Mostly sitting</option>
+                          <option value="none">No activity</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Sleep</label>
+                        <select className="select" value={healthForm.lifestyle.sleep} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, sleep: e.target.value } }))}>
+                          <option value="good">7–9 hours</option>
+                          <option value="fair">5–7 hours</option>
+                          <option value="poor">Less than 5 hours</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Stress Level</label>
+                        <select className="select" value={healthForm.lifestyle.stress} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, stress: e.target.value } }))}>
+                          <option value="low">Low</option>
+                          <option value="moderate">Moderate</option>
+                          <option value="high">High</option>
+                          <option value="very-high">Very High</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <button onClick={() => {
-                  const h = parseFloat(healthForm.heightCm) / 100;
-                  const w = parseFloat(healthForm.weightKg);
-                  const data = {
-                    smoking: healthForm.smoking,
-                    alcohol: healthForm.alcohol,
-                    exercise: healthForm.exercise,
-                    diet: healthForm.diet,
-                    familyHistory: healthForm.familyHistory,
-                    heightCm: healthForm.heightCm ? parseFloat(healthForm.heightCm) : 0,
-                    weightKg: healthForm.weightKg ? parseFloat(healthForm.weightKg) : 0,
-                    bmi: h > 0 && w > 0 ? Math.round((w / (h * h)) * 10) / 10 : 0,
-                    systolicBp: healthForm.systolicBp ? parseInt(healthForm.systolicBp) : 0,
-                    diastolicBp: healthForm.diastolicBp ? parseInt(healthForm.diastolicBp) : 0,
-                  };
-                  store.updateHealthData(data);
-                  setShowHealthModal(false);
-                }} className="btn btn-primary btn-block">Save Assessment</button>
+                {/* STEP 3: Body Measurements */}
+                {healthStep === 3 && (
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>⚖️ Body Measurements</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Height, weight & BMI calculation</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Height (cm)</label>
+                        <input className="input" type="number" placeholder="e.g. 170" value={healthForm.bodyMeasurements.heightCm} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, heightCm: e.target.value } }))} min={50} max={250} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Weight (kg)</label>
+                        <input className="input" type="number" placeholder="e.g. 72" value={healthForm.bodyMeasurements.weightKg} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, weightKg: e.target.value } }))} min={10} max={300} />
+                      </div>
+                    </div>
+                    {healthForm.bodyMeasurements.heightCm && healthForm.bodyMeasurements.weightKg && (
+                      <div style={{ marginTop: 10, padding: '8px 12px', background: '#F0F9FF', borderRadius: 8, fontSize: 12 }}>
+                        <span style={{ fontWeight: 700 }}>BMI: </span>
+                        {(() => {
+                          const h = parseFloat(healthForm.bodyMeasurements.heightCm) / 100;
+                          const w = parseFloat(healthForm.bodyMeasurements.weightKg);
+                          if (h > 0 && w > 0) {
+                            const bmi = Math.round((w / (h * h)) * 10) / 10;
+                            const cat = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Healthy' : bmi < 30 ? 'Overweight' : bmi < 35 ? 'Obese' : 'Severely Obese';
+                            const catColor = bmi < 18.5 ? '#EAB308' : bmi < 25 ? '#16a34a' : bmi < 30 ? '#F97316' : '#dc2626';
+                            return <span>{bmi} — <span style={{ color: catColor, fontWeight: 600 }}>{cat}</span></span>;
+                          }
+                          return '—';
+                        })()}
+                      </div>
+                    )}
+                    <div style={{ marginTop: 8 }}>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Waist Circumference (cm) — <span style={{ fontWeight: 400, color: '#94a3b8' }}>optional</span></label>
+                      <input className="input" type="number" placeholder="e.g. 90" value={healthForm.bodyMeasurements.waistCm} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, waistCm: e.target.value } }))} />
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 4: Family History */}
+                {healthStep === 4 && (
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>🧬 Family History</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Does anyone in your family have these conditions?</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {[
+                        { key: 'diabetes', label: 'Diabetes', icon: '🩸' },
+                        { key: 'bp', label: 'High Blood Pressure', icon: '🫀' },
+                        { key: 'heartDisease', label: 'Heart Disease', icon: '❤️' },
+                        { key: 'thyroid', label: 'Thyroid Disease', icon: '🦋' },
+                        { key: 'cancer', label: 'Cancer', icon: '🎗️' },
+                      ].map(opt => (
+                        <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, cursor: 'pointer', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 10, background: healthForm.familyHistory[opt.key] ? '#e8f0fe' : '#fff', userSelect: 'none', transition: 'all 0.15s' }}>
+                          <input type="checkbox" checked={healthForm.familyHistory[opt.key]} onChange={e => setHealthForm(f => ({ ...f, familyHistory: { ...f.familyHistory, [opt.key]: e.target.checked } }))} style={{ accentColor: '#1866C9' }} />
+                          <span>{opt.icon}</span>
+                          <span style={{ fontWeight: healthForm.familyHistory[opt.key] ? 600 : 400 }}>{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 5: Medical History */}
+                {healthStep === 5 && (
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>💊 Medical History</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Do you currently have any health conditions?</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {MEDICAL_CONDITIONS.map(cond => (
+                        <label key={cond.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, cursor: 'pointer', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 10, background: healthForm.medicalHistory[cond.key] ? '#FFF0F0' : '#fff', userSelect: 'none', transition: 'all 0.15s' }}>
+                          <input type="checkbox" checked={!!healthForm.medicalHistory[cond.key]} onChange={e => setHealthForm(f => ({ ...f, medicalHistory: { ...f.medicalHistory, [cond.key]: e.target.checked } }))} style={{ accentColor: '#dc2626' }} />
+                          <span style={{ fontWeight: healthForm.medicalHistory[cond.key] ? 600 : 400 }}>{cond.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 6: Lab Results */}
+                {healthStep === 6 && (
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>🔬 Lab Results</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Enter your latest report values (leave blank if unknown)</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>HbA1c (%)</label>
+                        <input className="input" type="number" step="0.1" placeholder="e.g. 5.4" value={healthForm.labResults.hba1c} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, hba1c: e.target.value } }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>LDL (mg/dL)</label>
+                        <input className="input" type="number" placeholder="e.g. 95" value={healthForm.labResults.ldl} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, ldl: e.target.value } }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>TSH (mIU/L)</label>
+                        <input className="input" type="number" step="0.1" placeholder="e.g. 2.5" value={healthForm.labResults.tsh} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, tsh: e.target.value } }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>Vitamin D (ng/mL)</label>
+                        <input className="input" type="number" placeholder="e.g. 35" value={healthForm.labResults.vitaminD} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, vitaminD: e.target.value } }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>Creatinine (mg/dL)</label>
+                        <input className="input" type="number" step="0.1" placeholder="e.g. 1.0" value={healthForm.labResults.creatinine} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, creatinine: e.target.value } }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>ALT (U/L)</label>
+                        <input className="input" type="number" placeholder="e.g. 30" value={healthForm.labResults.alt} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, alt: e.target.value } }))} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Navigation */}
+                <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                  {healthStep > 1 && (
+                    <button onClick={() => setHealthStep(s => s - 1)} className="btn btn-outline btn-sm" style={{ flex: 1 }}>← Back</button>
+                  )}
+                  {healthStep < 6 ? (
+                    <button onClick={() => setHealthStep(s => s + 1)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>Next →</button>
+                  ) : (
+                    <button onClick={() => {
+                      const bm = healthForm.bodyMeasurements;
+                      const h = parseFloat(bm.heightCm) / 100;
+                      const w = parseFloat(bm.weightKg);
+                      const data = {
+                        personalProfile: { ...healthForm.personalProfile },
+                        lifestyle: { ...healthForm.lifestyle },
+                        bodyMeasurements: {
+                          heightCm: bm.heightCm ? parseFloat(bm.heightCm) : 0,
+                          weightKg: bm.weightKg ? parseFloat(bm.weightKg) : 0,
+                          bmi: h > 0 && w > 0 ? Math.round((w / (h * h)) * 10) / 10 : 0,
+                          waistCm: bm.waistCm ? parseFloat(bm.waistCm) : 0,
+                        },
+                        familyHistory: { ...healthForm.familyHistory },
+                        medicalHistory: { ...healthForm.medicalHistory },
+                        labResults: Object.fromEntries(Object.entries(healthForm.labResults).map(([k, v]) => [k, parseFloat(v) || ''])),
+                      };
+                      store.updateHealthData(data);
+                      setShowHealthModal(false);
+                      setHealthStep(1);
+                    }} className="btn btn-primary btn-sm" style={{ flex: 1 }}>💾 Save Assessment</button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
