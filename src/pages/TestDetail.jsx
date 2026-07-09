@@ -2,7 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
   CaretLeft, Flask, CheckCircle, Clock, Phone, WhatsappLogo,
-  FileText, Heartbeat, Star, ArrowRight, CaretDown,
+  FileText, Heartbeat, CaretDown,
   Plus, Minus, Sparkle, User, Warning, MapPin, Shield, Coin,
 } from '@phosphor-icons/react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
