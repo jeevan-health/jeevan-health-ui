@@ -4,14 +4,7 @@ import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
 import { getPackagesByAxis } from '../utils/packageGenerator';
 import SmartSearch from '../components/layout/SmartSearch';
-
-const faqs = [
-  { q: 'How do I book a test?', a: 'Simply search for the test you need, select a convenient time slot, and our phlebotomist will visit your home for sample collection.' },
-  { q: 'Is home sample collection free?', a: 'Yes, home sample collection is completely free for all tests and packages booked through our platform.' },
-  { q: 'How will I receive my reports?', a: 'Reports are delivered via WhatsApp, Email, and can be downloaded from your account on our website.' },
-  { q: 'Are your labs certified?', a: 'All our partner labs are NABL-accredited and use state-of-the-art equipment for accurate results.' },
-  { q: 'Can I cancel or reschedule?', a: 'Yes, you can cancel or reschedule your booking up to 2 hours before the scheduled collection time.' },
-];
+import useCmsStore from '../stores/cmsStore';
 
 export default function Home() {
   const popular = seedTests.slice(0, 8);
@@ -60,36 +53,44 @@ export default function Home() {
 }
 
 function HeroSection() {
-  const stats = [
-    { label: '5000+ Tests', icon: '🔬' },
-    { label: 'Free Home Collection', icon: '🚚' },
-    { label: 'NABL Certified Labs', icon: '🏥' },
-    { label: 'Reports in 24 Hours', icon: '⏱️' },
+  const hero = useCmsStore(s => s.content?.hero);
+  const h = hero || {};
+  if (h.active === false) return null;
+  const statBadges = h.statBadges || [
+    { icon: '🔬', label: '5000+ Tests', sublabel: '' },
+    { icon: '🚚', label: 'Free Home Collection', sublabel: '' },
+    { icon: '🏥', label: 'NABL Certified Labs', sublabel: '' },
+    { icon: '⏱️', label: 'Reports in 24 Hours', sublabel: '' },
+  ];
+  const featureIcons = h.featureIcons || [
+    { icon: '👨‍👩‍👧‍👦', label: 'Family' },
+    { icon: '👨‍⚕️', label: 'Doctor' },
+    { icon: '🩺', label: 'Phlebotomist' },
+    { icon: '👴', label: 'Senior Citizen' },
   ];
   return (
-    <div className="hero" style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', padding: '40px 16px 48px', overflow: 'hidden' }}>
+    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #1866C9 0%, #0F4A96 50%, #00D9FF 100%)', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-            {stats.map(s => (
+            {statBadges.map(s => (
               <span key={s.label} style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {s.icon} {s.label}
               </span>
             ))}
           </div>
           <h1 style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.15, margin: '0 0 6px', letterSpacing: -0.5 }}>
-            Book Lab Tests <br /><span style={{ color: '#FFD54F' }}>At Home</span>
+            {h.heading || 'Book Lab Tests <br />At Home'}
           </h1>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.6, maxWidth: 480 }}>
-            India's most trusted diagnostics platform. Free sample collection by trained phlebotomists.
-            NABL certified labs. Accurate digital reports delivered to your doorstep.
+            {h.subheading || "India's most trusted diagnostics platform. Free sample collection by trained phlebotomists. NABL certified labs. Accurate digital reports delivered to your doorstep."}
           </p>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-            <Link to="/diagnostics" className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>Book Lab Tests</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>{h.ctaText || 'Book Lab Tests'}</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>{h.ctaSecondaryText || '📄 Upload Prescription'}</button>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-            <Link to="/services" className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>📦 Book Health Package</Link>
+            <Link to={h.ctaTertiaryLink || '/services'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>{h.ctaTertiaryText || '📦 Book Health Package'}</Link>
           </div>
           <div style={{ marginBottom: 20, maxWidth: 480 }}>
             <SmartSearch placeholder="🔍 Search tests, symptoms, diseases..." />
@@ -98,31 +99,18 @@ function HeroSection() {
             <div style={{ display: 'flex', gap: 2 }}>
               {[1,2,3,4,5].map(i => <span key={i} style={{ fontSize: 16, color: '#FFD54F' }}>★</span>)}
             </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>4.9</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>50,000+ Happy Patients</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{h.rating || '4.9'}</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{h.ratingLabel || '50,000+ Happy Patients'}</span>
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ fontSize: 48, marginBottom: 6 }}>👨‍👩‍👧‍👦</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Family</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Full Family Care</div>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ fontSize: 48, marginBottom: 6 }}>👨‍⚕️</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Doctor</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Expert Guidance</div>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ fontSize: 48, marginBottom: 6 }}>🩺</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Phlebotomist</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Home Collection</div>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
-            <div style={{ fontSize: 48, marginBottom: 6 }}>👴</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>Senior Citizen</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>Elderly Care</div>
-          </div>
+          {featureIcons.map(f => (
+            <div key={f.label} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
+              <div style={{ fontSize: 48, marginBottom: 6 }}>{f.icon}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>{f.label}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>{f.sublabel || ''}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -130,16 +118,23 @@ function HeroSection() {
 }
 
 function TrustStrip() {
-  const items = [
-    'NABL Certified', 'Free Home Collection', 'Same Day Collection',
-    'Secure Payment', 'Doctor Support', 'Digital Reports', '24x7 Support',
+  const trustStrip = useCmsStore(s => s.content?.trustStrip);
+  const items = trustStrip?.items || [
+    { icon: '✔', label: 'NABL Certified' },
+    { icon: '✔', label: 'Free Home Collection' },
+    { icon: '✔', label: 'Same Day Collection' },
+    { icon: '✔', label: 'Secure Payment' },
+    { icon: '✔', label: 'Doctor Support' },
+    { icon: '✔', label: 'Digital Reports' },
+    { icon: '✔', label: '24x7 Support' },
   ];
+  if (trustStrip?.active === false) return null;
   return (
     <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '12px 0' }}>
       <div className="container" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
         {items.map(item => (
-          <span key={item} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', padding: '4px 10px', background: '#f0fdf4', borderRadius: 6 }}>
-            <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 11 }}>✔</span> {item}
+          <span key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', padding: '4px 10px', background: '#f0fdf4', borderRadius: 6 }}>
+            <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 11 }}>{item.icon || '✔'}</span> {item.label}
           </span>
         ))}
       </div>
@@ -148,7 +143,12 @@ function TrustStrip() {
 }
 
 function QuickActions() {
-  const actions = [
+  const services = useCmsStore(s => s.content?.services);
+  const svcs = (services || []).filter(s => s.active !== false);
+  const actions = svcs.length > 0 ? svcs.map(s => ({
+    icon: s.icon || '🔬', label: s.label || 'Service', desc: s.description || '',
+    path: s.link || '/diagnostics', color: s.color || '#1866C9',
+  })) : [
     { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#1866C9' },
     { icon: '📦', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#16a34a' },
     { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', color: '#dc2626' },
@@ -479,13 +479,15 @@ function HowItWorks() {
 }
 
 function Testimonials() {
-  const reviews = [
+  const testimonials = useCmsStore(s => s.content?.testimonials);
+  const reviews = (testimonials || []).length > 0 ? testimonials : [
     { name: 'Priya Sharma', text: 'Excellent home collection service. The phlebotomist was on time and very professional. Reports came within 24 hours.', rating: 5, tag: '🩸 Blood Test at Home', img: '👩' },
     { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare for all my family health checkups. Great prices and reliable reports every time.', rating: 5, tag: '👨‍👩‍👧 Full Body Checkup', img: '👨' },
     { name: 'Anita Desai', text: 'The home collection service is a lifesaver for my elderly parents. So convenient and safe. Highly recommend!', rating: 5, tag: '👵 Senior Care Package', img: '👵' },
     { name: 'Vikram Singh', text: 'Corporate health camp was well organised. All employees got their reports on time with detailed analysis.', rating: 5, tag: '🏢 Corporate Health Camp', img: '👨‍💼' },
     { name: 'Sneha Patel', text: 'The doctor consultation after my reports helped me understand my health better. Truly comprehensive care.', rating: 5, tag: '👨‍⚕️ Doctor Consultation', img: '👩‍⚕️' },
   ];
+  const getImg = (t) => t.image || (t.name ? t.name[0] === 'P' ? '👩' : t.name[0] === 'R' ? '👨' : t.name[0] === 'A' ? '👵' : t.name[0] === 'V' ? '👨‍💼' : '👩‍⚕️' : '👤');
 
   const videos = [
     { title: 'My Jeevan Experience', name: 'Meera Joshi', location: 'Mumbai', topic: 'Home Sample Collection' },
@@ -544,10 +546,10 @@ function Testimonials() {
           <div style={{ background: '#fff', borderRadius: 20, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', position: 'relative', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 20 }}>{reviews[activeReview].img}</span>
+                <span style={{ fontSize: 20 }}>{getImg(reviews[activeReview])}</span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700 }}>{reviews[activeReview].name}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{reviews[activeReview].tag}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{reviews[activeReview].tag || 'Verified Patient'}</div>
                 </div>
               </div>
               <div style={{ fontSize: 14, letterSpacing: 2 }}>{'⭐'.repeat(reviews[activeReview].rating)}</div>
@@ -737,16 +739,24 @@ function HealthLibrarySection() {
 }
 
 function FaqSection() {
+  const faqs = useCmsStore(s => s.content?.faqs);
+  const items = (faqs || []).length > 0 ? faqs : [
+    { question: 'How do I book a test?', answer: 'Simply search for the test you need, select a convenient time slot, and our phlebotomist will visit your home for sample collection.' },
+    { question: 'Is home sample collection free?', answer: 'Yes, home sample collection is completely free for all tests and packages booked through our platform.' },
+    { question: 'How will I receive my reports?', answer: 'Reports are delivered via WhatsApp, Email, and can be downloaded from your account on our website.' },
+    { question: 'Are your labs certified?', answer: 'All our partner labs are NABL-accredited and use state-of-the-art equipment for accurate results.' },
+    { question: 'Can I cancel or reschedule?', answer: 'Yes, you can cancel or reschedule your booking up to 2 hours before the scheduled collection time.' },
+  ];
   return (
     <div className="page-section" style={{ background: 'var(--bg-light)' }}>
       <div className="container" style={{ maxWidth: 700, margin: '0 auto' }}>
         <h2 className="section-title text-center">Frequently Asked Questions</h2>
         <p className="section-subtitle text-center">Everything you need to know</p>
         <div style={{ marginTop: 16 }}>
-          {faqs.map((faq, i) => (
+          {items.map((faq, i) => (
             <details key={i} style={{ marginBottom: 8, border: '1px solid var(--border)', borderRadius: 8, background: '#fff', overflow: 'hidden' }}>
-              <summary style={{ padding: '12px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>{faq.q}</summary>
-              <p style={{ padding: '0 16px 12px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{faq.a}</p>
+              <summary style={{ padding: '12px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>{faq.question || faq.q}</summary>
+              <p style={{ padding: '0 16px 12px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{faq.answer || faq.a}</p>
             </details>
           ))}
         </div>

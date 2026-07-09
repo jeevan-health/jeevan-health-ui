@@ -27,6 +27,7 @@ const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminCatalog = lazy(() => import('./pages/admin/AdminCatalog'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
+const AdminCMS = lazy(() => import('./pages/admin/AdminCMS'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
@@ -98,6 +99,7 @@ export default function App() {
             <Route path="users" element={<AdminUsers />} />
             <Route path="permissions" element={<AdminPermissions />} />
             <Route path="catalog" element={<AdminCatalog />} />
+            <Route path="cms" element={<AdminCMS />} />
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
