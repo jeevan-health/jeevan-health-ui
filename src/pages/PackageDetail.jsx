@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import {
   Heartbeat, Warning, Shield, User, Heart, Lightbulb, Baby, Suitcase, Pill, Cloud, ForkKnife,
   Airplane, Briefcase, Coin, Moon, Leaf, Syringe, FirstAid, Globe, Lightning, Clock,
-  CheckCircle, Drop, FileText, Plus, CaretLeft, WhatsappLogo, FacebookLogo, Copy,
+  CheckCircle, Drop, FileText, Plus, Minus, CaretLeft, WhatsappLogo, FacebookLogo, Copy,
 } from '@phosphor-icons/react';
+import useCartStore from '../stores/cartStore';
 
 const axisMeta = {
   organ: { icon: Heartbeat, color: '#1866C9', label: 'Organ Wise' },
@@ -115,7 +116,6 @@ const PackageDetail = () => {
   const [tests, setTests] = useState([]);
   const [ready, setReady] = useState(false);
   const content = packageContent[slug] || {};
-  const [inCart, setInCart] = useState({});
 
   useEffect(() => {
     const check = () => {
@@ -154,18 +154,18 @@ const PackageDetail = () => {
     );
   }
 
+  const addItem = useCartStore(s => s.addItem);
+  const cartItems = useCartStore(s => s.items);
   const pkgTests = tests.filter(t => pkg.testIds.includes(t.id));
+  const inCart = cartItems.some(i => i.id === `pkg_${pkg.id}`);
 
-  const addAllToCart = () => {
-    pkgTests.forEach(t => {
-      const key = `cart_${t.id}`;
-      if (!inCart[key]) {
-        const event = new CustomEvent('add-to-cart', { detail: t });
-        window.dispatchEvent(event);
-      }
-    });
-    setInCart(Object.fromEntries(pkgTests.map(t => [`cart_${t.id}`, true])));
-    navigate('/diagnostics?showCart=true');
+  const addToCart = () => {
+    addItem({ id: `pkg_${pkg.id}`, name: pkg.name, price: pkg.bundlePrice, type: 'package', testCount: pkg.testCount });
+  };
+
+  const buyNow = () => {
+    if (!inCart) addToCart();
+    navigate('/checkout');
   };
 
   const shareWhatsApp = () => {
@@ -207,9 +207,20 @@ const PackageDetail = () => {
             <div style={{ color: 'var(--text-light)' }}>{pkg.testCount} Tests</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={addAllToCart}
-              style={{ flex: 1, padding: '12px 20px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <Plus size={18} weight="bold" /> Add All to Cart — ₹{pkg.bundlePrice}
+            {inCart ? (
+              <button onClick={() => navigate('/checkout')}
+                style={{ flex: 1, padding: '12px 20px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: 'var(--primary)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Proceed to Book →
+              </button>
+            ) : (
+              <button onClick={addToCart}
+                style={{ flex: 1, padding: '12px 20px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <Plus size={18} weight="bold" /> Add to Cart — ₹{pkg.bundlePrice}
+              </button>
+            )}
+            <button onClick={buyNow}
+              style={{ padding: '12px 20px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: 'var(--primary)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Buy Now
             </button>
           </div>
         </div>
@@ -309,10 +320,23 @@ const PackageDetail = () => {
         )}
 
         <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8, position: 'sticky', bottom: 12, background: '#fff', padding: '12px 0' }}>
-          <button onClick={addAllToCart}
-            style={{ width: '100%', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700, background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-            Book Now — ₹{pkg.bundlePrice}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {inCart ? (
+              <button onClick={() => navigate('/checkout')}
+                style={{ flex: 1, padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700, background: 'var(--primary)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Proceed to Book →
+              </button>
+            ) : (
+              <button onClick={addToCart}
+                style={{ flex: 1, padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700, background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Add to Cart — ₹{pkg.bundlePrice}
+              </button>
+            )}
+            <button onClick={buyNow}
+              style={{ padding: '14px 24px', borderRadius: 10, fontSize: 15, fontWeight: 700, background: 'var(--primary)', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Buy Now
+            </button>
+          </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={shareWhatsApp} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: '#25D366', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <WhatsappLogo size={16} weight="fill" /> Share

@@ -446,8 +446,17 @@ export default function TestDetail() {
         <button onClick={() => navigate('/diagnostics')} style={{ padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 600, background: '#f0f0f0', color: 'var(--text-dark)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
           All Tests
         </button>
-        <button onClick={toggleCart} style={{ padding: '9px 20px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: inCart ? '#fee2e2' : '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4, boxShadow: inCart ? 'none' : '0 4px 14px rgba(255,59,48,0.3)' }}>
-          {inCart ? <><Minus size={14} /> Remove</> : <><Plus size={14} /> Add to Cart</>}
+        {inCart ? (
+          <button onClick={() => navigate('/checkout')} className="btn btn-primary" style={{ padding: '9px 16px', fontSize: 11, whiteSpace: 'nowrap' }}>
+            Proceed to Book →
+          </button>
+        ) : (
+          <button onClick={toggleCart} style={{ padding: '9px 16px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: '#FF3B30', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 4px 14px rgba(255,59,48,0.3)' }}>
+            <Plus size={14} /> Add to Cart
+          </button>
+        )}
+        <button onClick={() => { if (!inCart) addItem({ id: test.id, name: test.name, price: test.price || test.mrp, offerPrice: test.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary" style={{ padding: '9px 16px', fontSize: 11, whiteSpace: 'nowrap' }}>
+          Buy Now
         </button>
       </div>
       <style>{`
