@@ -30,6 +30,8 @@ const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminCatalog = lazy(() => import('./pages/admin/AdminCatalog'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminCMS = lazy(() => import('./pages/admin/AdminCMS'));
+const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
+const AdminPatients = lazy(() => import('./pages/admin/AdminPatients'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
@@ -104,6 +106,8 @@ export default function App() {
             <Route path="permissions" element={<AdminPermissions />} />
             <Route path="catalog" element={<AdminCatalog />} />
             <Route path="cms" element={<AdminCMS />} />
+            <Route path="bookings" element={<AdminBookings />} />
+            <Route path="patients" element={<AdminPatients />} />
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>

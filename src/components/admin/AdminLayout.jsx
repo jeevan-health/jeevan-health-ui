@@ -5,9 +5,11 @@ import useAuthStore from '../../stores/authStore';
 const NAV_ITEMS = [
   { path: '/admin', label: 'Dashboard', icon: '📊', exact: true },
   { path: '/admin/orders', label: 'Orders', icon: '📋' },
+  { path: '/admin/bookings', label: 'Bookings', icon: '📅' },
   { path: '/admin/collection', label: 'Phlebotomists', icon: '🚑' },
   { path: '/admin/reports', label: 'Reports', icon: '📄' },
   { path: '/admin/users', label: 'Users', icon: '👥' },
+  { path: '/admin/patients', label: 'Patients', icon: '👤' },
   { path: '/admin/permissions', label: 'Permissions', icon: '🔐' },
   { path: '/admin/catalog', label: 'Catalog', icon: '🧪' },
   { path: '/admin/cms', label: 'Website CMS', icon: '🌐' },
