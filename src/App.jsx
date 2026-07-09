@@ -25,6 +25,7 @@ const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminCatalog = lazy(() => import('./pages/admin/AdminCatalog'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
@@ -35,7 +36,7 @@ function Protected({ children }) {
 function AdminGuard({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   const user = useAuthStore(s => s.user);
-  if (!isAuth) return <Navigate to="/signup" />;
+  if (!isAuth) return <Navigate to="/admin/login" />;
   const role = user?.role || 'user';
   if (role === 'user') return <Navigate to="/dashboard" />;
   return children;
@@ -85,6 +86,7 @@ export default function App() {
           </Route>
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="orders" element={<AdminOrders />} />

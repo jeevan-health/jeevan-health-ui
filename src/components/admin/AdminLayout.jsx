@@ -55,7 +55,7 @@ export default function AdminLayout() {
           {!collapsed && (
             <div style={{ display: 'flex', gap: 4 }}>
               <button onClick={() => navigate('/dashboard')} style={{ flex: 1, padding: '6px 0', background: '#1e293b', border: 'none', color: '#94a3b8', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>Site</button>
-              <button onClick={() => { logout(); navigate('/'); }} style={{ flex: 1, padding: '6px 0', background: '#1e293b', border: 'none', color: '#ef4444', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>Logout</button>
+              <button onClick={() => { logout(); navigate('/admin/login'); }} style={{ flex: 1, padding: '6px 0', background: '#1e293b', border: 'none', color: '#ef4444', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>Logout</button>
             </div>
           )}
         </div>

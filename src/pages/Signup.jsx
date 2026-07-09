@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 
+function roleRedirect(role) {
+  return role !== 'user' ? '/admin' : '/dashboard';
+}
+
 export default function Signup() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -29,7 +33,7 @@ export default function Signup() {
     setLoading(true);
     const ok = await verifyOtp(phone, otp);
     setLoading(false);
-    if (ok) navigate('/dashboard');
+    if (ok) navigate(roleRedirect(useAuthStore.getState().user?.role), { replace: true });
     else setError('Invalid OTP. Try again.');
   }
 
@@ -38,7 +42,7 @@ export default function Signup() {
     setLoading(true);
     const ok = await googleLogin();
     setLoading(false);
-    if (ok) navigate('/dashboard');
+    if (ok) navigate(roleRedirect(useAuthStore.getState().user?.role), { replace: true });
     else setError('Google login failed. Try again.');
   }
 
