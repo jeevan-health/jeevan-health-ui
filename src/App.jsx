@@ -67,6 +67,51 @@ const LegalDashboard = lazy(() => import('./pages/role/LegalDashboard'));
 const ContentDashboard = lazy(() => import('./pages/role/ContentDashboard'));
 const EmergCoordDashboard = lazy(() => import('./pages/role/EmergCoordDashboard'));
 
+// Role portal sub-pages
+const PhlebotomistCollections = lazy(() => import('./pages/role/PhlebotomistCollections'));
+const PhlebotomistRoutes = lazy(() => import('./pages/role/PhlebotomistRoutes'));
+const PhlebotomistSchedule = lazy(() => import('./pages/role/PhlebotomistSchedule'));
+const DoctorAppointments = lazy(() => import('./pages/role/DoctorAppointments'));
+const DoctorPatients = lazy(() => import('./pages/role/DoctorPatients'));
+const DoctorAvailability = lazy(() => import('./pages/role/DoctorAvailability'));
+const NursePatients = lazy(() => import('./pages/role/NursePatients'));
+const NurseSchedule = lazy(() => import('./pages/role/NurseSchedule'));
+const CaregiverPatients = lazy(() => import('./pages/role/CaregiverPatients'));
+const PhysioPatients = lazy(() => import('./pages/role/PhysioPatients'));
+const PhysioTherapy = lazy(() => import('./pages/role/PhysioTherapy'));
+const RadiologyAssignments = lazy(() => import('./pages/role/RadiologyAssignments'));
+const RadiologyReports = lazy(() => import('./pages/role/RadiologyReports'));
+const PharmacyOrders = lazy(() => import('./pages/role/PharmacyOrders'));
+const PharmacyInventory = lazy(() => import('./pages/role/PharmacyInventory'));
+const EmergencyCases = lazy(() => import('./pages/role/EmergencyCases'));
+const DispatchSchedule = lazy(() => import('./pages/role/DispatchSchedule'));
+const DispatchStaff = lazy(() => import('./pages/role/DispatchStaff'));
+const CorporateOrders = lazy(() => import('./pages/role/CorporateOrders'));
+const CorporateSubscriptions = lazy(() => import('./pages/role/CorporateSubscriptions'));
+const TrainingStaff = lazy(() => import('./pages/role/TrainingStaff'));
+const TrainingCertifications = lazy(() => import('./pages/role/TrainingCertifications'));
+const ITSupSystem = lazy(() => import('./pages/role/ITSupSystem'));
+const CallCenterBookings = lazy(() => import('./pages/role/CallCenterBookings'));
+const CallCenterQueries = lazy(() => import('./pages/role/CallCenterQueries'));
+const SalesCampaigns = lazy(() => import('./pages/role/SalesCampaigns'));
+const SalesLeads = lazy(() => import('./pages/role/SalesLeads'));
+const FinanceTransactions = lazy(() => import('./pages/role/FinanceTransactions'));
+const FinanceReports = lazy(() => import('./pages/role/FinanceReports'));
+const AnalyticsReports = lazy(() => import('./pages/role/AnalyticsReports'));
+const AnalyticsKPI = lazy(() => import('./pages/role/AnalyticsKPI'));
+const QaReviews = lazy(() => import('./pages/role/QaReviews'));
+const QaCompliance = lazy(() => import('./pages/role/QaCompliance'));
+const InventoryStock = lazy(() => import('./pages/role/InventoryStock'));
+const InventoryOrders = lazy(() => import('./pages/role/InventoryOrders'));
+const TelemedicineConsultations = lazy(() => import('./pages/role/TelemedicineConsultations'));
+const TelemedicinePatients = lazy(() => import('./pages/role/TelemedicinePatients'));
+const LegalCompliance = lazy(() => import('./pages/role/LegalCompliance'));
+const LegalAudit = lazy(() => import('./pages/role/LegalAudit'));
+const ContentBlog = lazy(() => import('./pages/role/ContentBlog'));
+const ContentSEO = lazy(() => import('./pages/role/ContentSEO'));
+const EmergCoordCases = lazy(() => import('./pages/role/EmergCoordCases'));
+const EmergCoordStaff = lazy(() => import('./pages/role/EmergCoordStaff'));
+
 // Role → URL path mapping for redirects
 const ROLE_PATH = {
   phlebotomist: '/phlebotomist', doctor: '/doctor', nurse: '/nurse',
@@ -174,90 +219,133 @@ export default function App() {
           {/* Phlebotomist Portal */}
           <Route path="/phlebotomist" element={<Protected><RoleLayout role="phlebotomist" /></Protected>}>
             <Route index element={<PhlebotomistDashboard />} />
+            <Route path="collections" element={<PhlebotomistCollections />} />
+            <Route path="routes" element={<PhlebotomistRoutes />} />
+            <Route path="schedule" element={<PhlebotomistSchedule />} />
           </Route>
           {/* Doctor Portal */}
           <Route path="/doctor" element={<Protected><RoleLayout role="doctor" /></Protected>}>
             <Route index element={<DoctorDashboard />} />
+            <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="patients" element={<DoctorPatients />} />
+            <Route path="availability" element={<DoctorAvailability />} />
           </Route>
           {/* Nurse Portal */}
           <Route path="/nurse" element={<Protected><RoleLayout role="nurse" /></Protected>}>
             <Route index element={<NurseDashboard />} />
+            <Route path="patients" element={<NursePatients />} />
+            <Route path="schedule" element={<NurseSchedule />} />
           </Route>
           {/* Caregiver Portal */}
           <Route path="/caregiver" element={<Protected><RoleLayout role="caregiver" /></Protected>}>
             <Route index element={<CaregiverDashboard />} />
+            <Route path="patients" element={<CaregiverPatients />} />
           </Route>
           {/* Physiotherapist Portal */}
           <Route path="/physio" element={<Protected><RoleLayout role="physiotherapist" /></Protected>}>
             <Route index element={<PhysioDashboard />} />
+            <Route path="patients" element={<PhysioPatients />} />
+            <Route path="therapy" element={<PhysioTherapy />} />
           </Route>
           {/* Radiology Portal */}
           <Route path="/radiology" element={<Protected><RoleLayout role="radiologist" /></Protected>}>
             <Route index element={<RadiologyDashboard />} />
+            <Route path="assignments" element={<RadiologyAssignments />} />
+            <Route path="reports" element={<RadiologyReports />} />
           </Route>
           {/* Pharmacy Portal */}
           <Route path="/pharmacy" element={<Protected><RoleLayout role="pharmacy" /></Protected>}>
             <Route index element={<PharmacyDashboard />} />
+            <Route path="orders" element={<PharmacyOrders />} />
+            <Route path="inventory" element={<PharmacyInventory />} />
           </Route>
           {/* Emergency Portal */}
           <Route path="/emergency" element={<Protected><RoleLayout role="emergency" /></Protected>}>
             <Route index element={<EmergencyDashboard />} />
+            <Route path="cases" element={<EmergencyCases />} />
           </Route>
           {/* Dispatch Portal */}
           <Route path="/dispatch" element={<Protected><RoleLayout role="dispatch" /></Protected>}>
             <Route index element={<DispatchDashboard />} />
+            <Route path="schedule" element={<DispatchSchedule />} />
+            <Route path="staff" element={<DispatchStaff />} />
           </Route>
           {/* Corporate Portal */}
           <Route path="/corporate" element={<Protected><RoleLayout role="corporate" /></Protected>}>
             <Route index element={<CorporateDashboard />} />
+            <Route path="orders" element={<CorporateOrders />} />
+            <Route path="subscriptions" element={<CorporateSubscriptions />} />
           </Route>
           {/* Training Portal */}
           <Route path="/training" element={<Protected><RoleLayout role="training_officer" /></Protected>}>
             <Route index element={<TrainingDashboard />} />
+            <Route path="staff" element={<TrainingStaff />} />
+            <Route path="certifications" element={<TrainingCertifications />} />
           </Route>
           {/* IT Support Portal */}
           <Route path="/it-support" element={<Protected><RoleLayout role="it_support" /></Protected>}>
             <Route index element={<ITSupDashboard />} />
+            <Route path="system" element={<ITSupSystem />} />
           </Route>
           {/* Customer Care Portal */}
           <Route path="/call-center" element={<Protected><RoleLayout role="call_center" /></Protected>}>
             <Route index element={<CallCenterDashboard />} />
+            <Route path="bookings" element={<CallCenterBookings />} />
+            <Route path="queries" element={<CallCenterQueries />} />
           </Route>
           {/* Sales & Marketing Portal */}
           <Route path="/sales" element={<Protected><RoleLayout role="sales_marketing" /></Protected>}>
             <Route index element={<SalesDashboard />} />
+            <Route path="campaigns" element={<SalesCampaigns />} />
+            <Route path="leads" element={<SalesLeads />} />
           </Route>
           {/* Finance Portal */}
           <Route path="/finance" element={<Protected><RoleLayout role="finance" /></Protected>}>
             <Route index element={<FinanceDashboard />} />
+            <Route path="transactions" element={<FinanceTransactions />} />
+            <Route path="reports" element={<FinanceReports />} />
           </Route>
           {/* Analytics Portal */}
           <Route path="/analytics" element={<Protected><RoleLayout role="bi_analyst" /></Protected>}>
             <Route index element={<AnalyticsDashboard />} />
+            <Route path="reports" element={<AnalyticsReports />} />
+            <Route path="kpi" element={<AnalyticsKPI />} />
           </Route>
           {/* QA & Compliance Portal */}
           <Route path="/qa" element={<Protected><RoleLayout role="qa_compliance" /></Protected>}>
             <Route index element={<QADashboard />} />
+            <Route path="reviews" element={<QaReviews />} />
+            <Route path="compliance" element={<QaCompliance />} />
           </Route>
           {/* Inventory Portal */}
           <Route path="/inventory" element={<Protected><RoleLayout role="inventory" /></Protected>}>
             <Route index element={<InventoryDashboard />} />
+            <Route path="stock" element={<InventoryStock />} />
+            <Route path="orders" element={<InventoryOrders />} />
           </Route>
           {/* Telemedicine Portal */}
           <Route path="/telemedicine" element={<Protected><RoleLayout role="telemedicine" /></Protected>}>
             <Route index element={<TelemedicineDashboard />} />
+            <Route path="consultations" element={<TelemedicineConsultations />} />
+            <Route path="patients" element={<TelemedicinePatients />} />
           </Route>
           {/* Legal Portal */}
           <Route path="/legal" element={<Protected><RoleLayout role="legal" /></Protected>}>
             <Route index element={<LegalDashboard />} />
+            <Route path="compliance" element={<LegalCompliance />} />
+            <Route path="audit" element={<LegalAudit />} />
           </Route>
           {/* Content Portal */}
           <Route path="/content" element={<Protected><RoleLayout role="marketing_content" /></Protected>}>
             <Route index element={<ContentDashboard />} />
+            <Route path="blog" element={<ContentBlog />} />
+            <Route path="seo" element={<ContentSEO />} />
           </Route>
           {/* Emergency Coordinator Portal */}
           <Route path="/emergency-coordinator" element={<Protected><RoleLayout role="emergency_coordinator" /></Protected>}>
             <Route index element={<EmergCoordDashboard />} />
+            <Route path="cases" element={<EmergCoordCases />} />
+            <Route path="staff" element={<EmergCoordStaff />} />
           </Route>
         </Routes>
       </Suspense>
