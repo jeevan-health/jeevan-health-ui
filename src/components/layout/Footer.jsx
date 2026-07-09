@@ -136,16 +136,16 @@ const company = [
 ];
 
 const legal = [
-  { label: 'Privacy Policy', path: '/contact' },
-  { label: 'Terms & Conditions', path: '/contact' },
-  { label: 'Refund Policy', path: '/contact' },
-  { label: 'Cancellation Policy', path: '/contact' },
-  { label: 'Shipping Policy', path: '/contact' },
-  { label: 'Cookie Policy', path: '/contact' },
-  { label: 'Disclaimer', path: '/contact' },
-  { label: 'Patient Rights', path: '/contact' },
-  { label: 'Data Protection', path: '/contact' },
-  { label: 'Consent Policy', path: '/contact' },
+  { label: 'Privacy Policy', path: '/policy/privacy-policy' },
+  { label: 'Terms & Conditions', path: '/policy/terms-and-conditions' },
+  { label: 'Refund Policy', path: '/policy/refund-policy' },
+  { label: 'Cancellation Policy', path: '/policy/cancellation-policy' },
+  { label: 'Shipping Policy', path: '/policy/shipping-policy' },
+  { label: 'Cookie Policy', path: '/policy/cookie-policy' },
+  { label: 'Disclaimer', path: '/policy/disclaimer' },
+  { label: 'Patient Rights', path: '/policy/patient-rights' },
+  { label: 'Data Protection', path: '/policy/data-protection' },
+  { label: 'Consent Policy', path: '/policy/consent-policy' },
 ];
 
 const cities = [
@@ -451,13 +451,13 @@ export default function Footer() {
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '16px', textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 6 }}>
-            <Link to="/contact" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link to="/policy/privacy-policy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Privacy Policy</Link>
             <span>|</span>
-            <Link to="/contact" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Terms & Conditions</Link>
+            <Link to="/policy/terms-and-conditions" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Terms & Conditions</Link>
             <span>|</span>
-            <Link to="/contact" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Refund Policy</Link>
+            <Link to="/policy/refund-policy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Refund Policy</Link>
             <span>|</span>
-            <Link to="/contact" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sitemap</Link>
+            <Link to="/policy/privacy-policy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sitemap</Link>
           </div>
           <div>© {new Date().getFullYear()} Jeevan Healthcare Solutions Private Limited. All Rights Reserved.</div>
           <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.3)' }}>Made with ❤️ for Better Healthcare</div>
