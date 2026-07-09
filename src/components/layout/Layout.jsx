@@ -11,18 +11,22 @@ import useCartStore from '../../stores/cartStore';
 export default function Layout() {
   const loc = useLocation();
   const isAuth = useAuthStore(s => s.isAuthenticated);
+  const params = new URLSearchParams(loc.search);
 
   const navItems = [
     { to: '/', icon: '🏠', label: 'Home', match: '/' },
     { to: '/diagnostics', icon: '🔬', label: 'Tests', match: '/diagnostics' },
-    { to: isAuth ? '/dashboard' : '/signup', icon: '📅', label: 'Bookings', match: '/dashboard' },
-    { to: isAuth ? '/dashboard' : '/signup', icon: '📄', label: 'Reports', match: '/dashboard' },
-    { to: isAuth ? '/dashboard' : '/signup', icon: '👤', label: 'Profile', match: '/dashboard' },
+    { to: isAuth ? '/dashboard?tab=bookings' : '/signup', icon: '📅', label: 'Bookings', match: '/dashboard', tab: 'bookings' },
+    { to: isAuth ? '/dashboard?tab=health' : '/signup', icon: '🩺', label: 'Health', match: '/dashboard', tab: 'health' },
+    { to: isAuth ? '/dashboard?tab=profile' : '/signup', icon: '👤', label: 'Profile', match: '/dashboard', tab: 'profile' },
   ];
 
   const isActiveTab = (item) => {
     if (item.to === '/') return loc.pathname === '/';
-    if (item.match === '/dashboard') return loc.pathname.startsWith('/dashboard');
+    if (item.match === '/dashboard') {
+      if (item.tab) return loc.pathname.startsWith('/dashboard') && params.get('tab') === item.tab;
+      return loc.pathname.startsWith('/dashboard');
+    }
     return loc.pathname.startsWith(item.match);
   };
 

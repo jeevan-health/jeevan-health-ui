@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useDashboardStore, { computeHealthScore, EMPTY_HEALTH } from '../stores/dashboardStore';
 import useAuthStore from '../stores/authStore';
 
@@ -138,7 +138,22 @@ function TrendMiniBar({ values, color = '#1866C9' }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('overview');
+  const [searchParams] = useSearchParams();
+  const [activeSection, setActiveSection] = useState(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'bookings') return 'bookings';
+    if (tab === 'health') return 'health';
+    if (tab === 'profile') return 'profile';
+    return 'overview';
+  });
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'bookings' && activeSection !== 'bookings') setActiveSection('bookings');
+    else if (tab === 'health' && activeSection !== 'health') setActiveSection('health');
+    else if (tab === 'profile' && activeSection !== 'profile') setActiveSection('profile');
+    else if (!tab && activeSection !== 'overview') setActiveSection('overview');
+  }, [searchParams]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   const [editingFamily, setEditingFamily] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -872,6 +887,177 @@ export default function Dashboard() {
             </div>
           </div>
         </Section>
+
+        {/* ===== HEALTH CENTER ===== */}
+        {activeSection === 'health' && (
+          <>
+            <div style={{ marginBottom: 24 }}>
+              {/* Health Score Full */}
+              <div className="card" style={{ padding: 18, marginBottom: 12 }}>
+                {store.healthData && healthScoreComputed ? (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 14 }}>
+                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: healthScoreComputed.recommendation.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
+                        {healthScoreComputed.recommendation.icon}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Health Score</h2>
+                        <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 18, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: healthScoreComputed.recommendation.color, marginTop: 2 }}>{healthScoreComputed.recommendation.message}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                      {healthScoreComputed.categories.map(cat => (
+                        <div key={cat.key}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, marginBottom: 2 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{cat.icon} {cat.label}</span>
+                            <span style={{ fontWeight: 700, color: cat.color }}>{cat.score}/{cat.max}</span>
+                          </div>
+                          <div style={{ height: 5, background: '#e8edf2', borderRadius: 3, overflow: 'hidden' }}>
+                            <div style={{ width: `${(cat.score / cat.max) * 100}%`, height: '100%', background: cat.color, borderRadius: 3 }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="btn btn-primary btn-sm btn-block" style={{ width: '100%' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Update Assessment</button>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                    <div style={{ fontSize: 40, marginBottom: 8 }}>🩺</div>
+                    <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Your Health Score</h2>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Complete the assessment to see your score</p>
+                    <button className="btn btn-primary btn-sm" onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Start Health Assessment</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Vitals */}
+              <div className="card" style={{ marginBottom: 12 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>📏 Vitals</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                  <div style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                    <div style={{ fontSize: 22, marginBottom: 4 }}>⚖️</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>BMI</div>
+                    <div style={{ fontSize: 18, fontWeight: 700 }}>{store.healthData?.bodyMeasurements?.bmi || '--'}</div>
+                  </div>
+                  <div style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                    <div style={{ fontSize: 22, marginBottom: 4 }}>🫀</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>BP</div>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{store.healthData?.bodyMeasurements?.systolicBp ? `${store.healthData.bodyMeasurements.systolicBp}/${store.healthData.bodyMeasurements.diastolicBp || '--'}` : '--'}</div>
+                  </div>
+                  <div style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                    <div style={{ fontSize: 22, marginBottom: 4 }}>🩸</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Heart</div>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{healthScoreComputed ? `${healthScoreComputed.categories.find(c => c.key === 'lifestyle')?.score || '--'}/25` : '--'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lab Trends */}
+              {store.healthTrends.hba1c.length > 0 && (
+                <div className="card" style={{ marginBottom: 12 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>📈 Lab Trends</h3>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+                      <span>HbA1c</span>
+                      <span><TrendArrow value={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value} prev={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 2]?.value} /> {store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value}%</span>
+                    </div>
+                    <div className="dash-trend-svg"><TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" /></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Recommendations */}
+              <div className="card" style={{ background: 'linear-gradient(135deg, #FFF8E1, #fff)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>⭐ Recommendations</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {(healthScoreComputed && store.healthData ? getSmartRecommendations(healthScoreComputed, store.healthData) : []).slice(0, 3).map(rec => (
+                    <div key={rec.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
+                      <span style={{ fontSize: 20 }}>🧪</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600 }}>{rec.name}</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{rec.why}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#1866C9' }}>₹{rec.price}</div>
+                      </div>
+                      <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">Book</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ===== PROFILE MENU ===== */}
+        {activeSection === 'profile' && (
+          <div style={{ marginBottom: 24 }}>
+            {/* Profile Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: '16px', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', borderRadius: 16, color: '#fff' }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 700 }}>
+                {p.name.charAt(0)}
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>{p.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.85 }}>{p.phone}</div>
+                {p.healthScore != null && <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>Health Score: {p.healthScore}/100 🟢</div>}
+              </div>
+            </div>
+
+            {/* ACCOUNT Section */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>Account</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
+                {[
+                  { icon: '👨‍👩‍👧‍👦', label: 'Family Members', section: 'family' },
+                  { icon: '🧪', label: 'Reports', section: 'reports' },
+                  { icon: '💳', label: 'Wallet', section: 'wallet' },
+                  { icon: '🧾', label: 'Invoices', section: 'invoices' },
+                  { icon: '🆔', label: 'ABHA ID', section: 'abha' },
+                ].map(item => (
+                  <button key={item.section} onClick={() => setActiveSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
+                    <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    <span style={{ color: '#cbd5e1' }}>›</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* HEALTH Section */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>Health</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
+                {[
+                  { icon: '🩺', label: 'Health Score', section: 'health' },
+                  { icon: '👨‍⚕️', label: 'Appointments', section: 'appointments' },
+                ].map(item => (
+                  <button key={item.section} onClick={() => setActiveSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
+                    <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    <span style={{ color: '#cbd5e1' }}>›</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* SETTINGS Section */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>Settings</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
+                <button onClick={() => { openProfileEdit(); setActiveSection('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
+                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>⚙️</span>
+                  <span style={{ flex: 1 }}>Settings</span>
+                  <span style={{ color: '#cbd5e1' }}>›</span>
+                </button>
+                <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: '#dc2626', WebkitTapHighlightColor: 'transparent' }}>
+                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>🚪</span>
+                  <span style={{ flex: 1 }}>Logout</span>
+                  <span style={{ color: '#fecaca' }}>›</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ===== HEALTH TRENDS & SCORE (shown in overview) ===== */}
         {activeSection === 'overview' && (

@@ -34,6 +34,7 @@ export default function Home() {
       <style>{`
         @media (max-width: 768px) {
           .hero-search { border-radius: 12px !important; }
+          .home-qa-mobile { display: block !important; padding: 0 12px; margin-top: -8px; }
         }
         @media (max-width: 600px) {
           .trust-strip-inner { gap: 4px !important; }
@@ -42,6 +43,7 @@ export default function Home() {
           .quick-action-card > div:first-child { width: 36px !important; height: 36px !important; font-size: 16px !important; }
           .quick-action-card > div:last-child > div:first-child { font-size: 12px !important; }
           .quick-action-card > div:last-child > div:last-child { font-size: 10px !important; }
+          .home-qa-mobile { padding: 0 8px; }
         }
         @media (max-width: 480px) {
           .popular-test-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
@@ -156,6 +158,40 @@ function QuickActions() {
   ];
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
+      {/* Mobile Quick Actions Grid — 2x2 */}
+      <div className="home-qa-mobile" style={{ display: 'none', marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <Link to="/diagnostics" style={{ textDecoration: 'none' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: 28 }}>🧪</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>Book Test</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Home Collection</span>
+            </div>
+          </Link>
+          <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ fontFamily: 'inherit', cursor: 'pointer', border: 'none', background: 'none', padding: 0, width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: 28 }}>📄</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>Upload</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Prescription</span>
+            </div>
+          </button>
+          <Link to="/dashboard?tab=bookings" style={{ textDecoration: 'none' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: 28 }}>📅</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>My Bookings</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Track Status</span>
+            </div>
+          </Link>
+          <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: 28 }}>🩺</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>Health Score</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Check Now</span>
+            </div>
+          </Link>
+        </div>
+      </div>
+
       <div className="container">
         <div className="grid-3" style={{ gap: 14 }}>
           {actions.map(a => {
@@ -175,10 +211,10 @@ function QuickActions() {
                   {a.icon}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 2 }}>{a.label}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>{a.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{a.desc}</div>
                 </div>
-                <span style={{ color: '#ccc', fontSize: 18 }}>→</span>
+                <span style={{ color: a.color, fontSize: 18 }}>→</span>
               </Tag>
             );
           })}
