@@ -34,6 +34,18 @@ function Tag({ label, color, bg }) {
   return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: bg || '#e8f0fe', color: color || '#1866C9', display: 'inline-block' }}>{label}</span>;
 }
 
+function InfoItem({ icon, label, value, valueColor, bold, strikethrough }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ fontSize: 14, width: 20, textAlign: 'center', flexShrink: 0 }}>{icon}</span>
+      <div>
+        <div style={{ fontSize: 9, color: '#999', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{label}</div>
+        <div style={{ fontSize: 13, fontWeight: bold ? 700 : 600, color: valueColor || '#1a1a1a', textDecoration: strikethrough ? 'line-through' : 'none' }}>{value}</div>
+      </div>
+    </div>
+  );
+}
+
 function InfoBox({ children, bg, color, icon }) {
   return (
     <div style={{ marginTop: 8, padding: '8px 12px', background: bg || '#e8f0fe', borderRadius: 8, fontSize: 11, color: color || '#555', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
@@ -522,17 +534,42 @@ export default function TestDetail() {
           </div>
         </div>
 
-        {/* ===== 27. SEO FORMATTED CONTENT ===== */}
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 14, marginBottom: 10 }}>
-          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 6px', color: '#888' }}>📋 Test Information</h3>
-          <div style={{ fontSize: 10, color: '#aaa', lineHeight: 1.6 }}>
-            <p style={{ margin: '0 0 2px' }}>Test: {education.fullName}</p>
-            {education.scientificName && <p style={{ margin: '0 0 2px' }}>Scientific Name: {education.scientificName}</p>}
-            {education.abbreviation && <p style={{ margin: '0 0 2px' }}>Abbreviation: {education.abbreviation}</p>}
-            <p style={{ margin: '0 0 2px' }}>Category: {test.category}</p>
-            <p style={{ margin: '0 0 2px' }}>Price: ₹{test.offerPrice || test.price}</p>
-            <p style={{ margin: '0 0 2px' }}>Report Time: {test.report_time || '24 hours'}</p>
-            <p style={{ margin: 0 }}>Sample: Blood | Home Collection: Free | NABL Certified</p>
+        {/* ===== 27. TEST SPEC CARD ===== */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e8edf2', overflow: 'hidden', marginBottom: 10, boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4a7a 100%)', padding: '16px 18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <span style={{ fontSize: 20 }}>🔬</span>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>{education.fullName}</div>
+                {education.scientificName && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{education.scientificName}</div>}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
+              {education.abbreviation && <span style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 10, fontWeight: 600, color: '#fff' }}>{education.abbreviation}</span>}
+              <span style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 10, fontWeight: 600, color: '#fff' }}>{test.category}</span>
+              {test.subcategory && <span style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 4, padding: '2px 8px', fontSize: 10, fontWeight: 600, color: '#fff' }}>{test.subcategory}</span>}
+            </div>
+          </div>
+          <div style={{ padding: '14px 16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <InfoItem icon="💰" label="Offer Price" value={`₹${test.offerPrice || test.price}`} valueColor="#e53935" bold />
+              <InfoItem icon="🏷️" label="MRP" value={test.mrp && test.mrp > (test.offerPrice || test.price) ? `₹${test.mrp}` : '—'} valueColor={test.mrp && test.mrp > (test.offerPrice || test.price) ? '#999' : '#ccc'} strikethrough={test.mrp && test.mrp > (test.offerPrice || test.price)} />
+              <InfoItem icon="⏱️" label="Report Time" value={test.report_time || '24 hours'} />
+              <InfoItem icon="🩸" label="Sample Type" value={test.sample_type || 'Blood'} />
+              {education.fastingRequired !== undefined && (
+                <InfoItem icon="🍽️" label="Fasting" value={education.fastingRequired ? 'Required' : 'Not Required'} valueColor={education.fastingRequired ? '#e65100' : '#2e7d32'} />
+              )}
+              <InfoItem icon="🏠" label="Home Collection" value="Free" valueColor="#2e7d32" />
+              <InfoItem icon="🏅" label="Accreditation" value="NABL Certified" valueColor="#1565c0" />
+              <InfoItem icon="📊" label="Test Type" value={test.category === 'Cardiac' || test.category === 'Diabetes' || test.category === 'Thyroid' ? 'Monitoring' : 'Diagnostic'} />
+              <InfoItem icon="🔄" label="Report Delivery" value="WhatsApp, Email & App" />
+            </div>
+            <div style={{ borderTop: '1px solid #f0f0f0', marginTop: 10, paddingTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 11, color: '#888' }}>
+                <strong style={{ color: '#555' }}>Savings:</strong> {test.mrp && test.mrp > (test.offerPrice || test.price) ? `₹${test.mrp - (test.offerPrice || test.price)} (${Math.round((1 - (test.offerPrice || test.price) / test.mrp) * 100)}% off)` : 'Best Price'}
+              </div>
+              <div style={{ fontSize: 10, color: '#aaa' }}>🛡️ Safe & Hygienic</div>
+            </div>
           </div>
         </div>
 

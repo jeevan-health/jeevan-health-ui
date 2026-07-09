@@ -136,7 +136,7 @@ img { max-width: 100%; height: auto; }
 .nav-link.active { color: var(--brand-secondary); font-weight: 600; background: var(--brand-secondary-light); }
 .nav-cta { background: var(--primary); color: #fff !important; padding: 8px 16px; border-radius: 8px; font-weight: 600; }
 .nav-cta:hover { background: var(--primary-dark) !important; }
-.mobile-toggle { display: none; padding: 8px; color: var(--text-dark); background: none; border: none; cursor: pointer; }
+
 
 /* Cart Badge */
 .cart-btn { position: relative; display: flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 8px; border: none; background: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text-dark); transition: all 0.2s; }
@@ -278,29 +278,19 @@ img { max-width: 100%; height: auto; }
 
 /* ===== RESPONSIVE: TABLETS (≤900px) ===== */
 @media (max-width: 900px) {
-  .hdr-emergency, .hdr-upload { display: none; }
-  .hdr-btn { padding: 6px 8px; font-size: 11px; }
-  .header-logo img { height: 28px !important; }
   .timeline-grid { grid-template-columns: repeat(3, 1fr) !important; }
   .timeline-line { display: none; }
   .hero .container > div:last-child { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
   .section-title { font-size: 22px; }
-  .site-header { height: 60px; }
-  .header-inner { gap: 6px; }
 }
 
 /* ===== RESPONSIVE: MOBILE (≤768px) ===== */
 @media (max-width: 768px) {
   /* Layout */
   .nav-list { display: none; }
-  .mobile-toggle { display: block; }
   .mobile-bottom-bar { display: flex; }
   .page-content { padding-bottom: 80px; }
   :root { --header-height: 56px; --card-padding: 16px; --section-gap: 16px; }
-  .hdr-mobile-search { display: block !important; }
-  .hdr-search-wrap { display: none !important; }
-  .site-header { min-height: 0; }
-  .hdr-right .hdr-emergency, .hdr-right .hdr-upload, .hdr-right .hdr-wa { display: none !important; }
 
   /* Hero */
   .hero { padding: 36px 16px; }
@@ -373,12 +363,7 @@ img { max-width: 100%; height: auto; }
 /* ===== RESPONSIVE: VERY SMALL (≤480px) ===== */
 @media (max-width: 480px) {
   /* Header */
-  .hdr-wa { display: none; }
-  .hdr-right .hdr-login { padding: 6px 8px; font-size: 11px; }
-  .hdr-cart .hdr-cart-label { display: none; }
-  .header-inner { gap: 4px; padding: 6px 8px !important; }
   .utility-left a span { display: none; }
-  .header-logo img { height: 24px !important; }
 
   /* Grids */
   .grid-2 { grid-template-columns: 1fr; }
@@ -518,76 +503,7 @@ img { max-width: 100%; height: auto; }
   background: var(--primary);
 }
 
-/* App-like header on mobile */
-@media (max-width: 768px) {
-  .site-header {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.92) !important;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.06) !important;
-  }
-  .header-logo img { height: 26px; }
-  .hdr-search-wrap .smart-search-input {
-    background: #f0f2f5 !important;
-    border-radius: 24px !important;
-    padding: 8px 14px !important;
-    font-size: 13px !important;
-    border: none !important;
-    transition: all 0.2s;
-  }
-  .hdr-search-wrap .smart-search-input:focus {
-    background: #fff !important;
-    box-shadow: 0 0 0 2px var(--primary);
-  }
-  .hdr-btn {
-    border-radius: 50% !important;
-    width: 34px;
-    height: 34px;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px !important;
-    background: #f0f2f5 !important;
-    border: none !important;
-  }
-  .hdr-btn.hdr-login {
-    border-radius: 50% !important;
-    width: 34px;
-    height: 34px;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .hdr-btn.hdr-login[style*="background: var(--primary)"] {
-    border-radius: 50% !important;
-    width: 34px;
-    height: 34px;
-    font-size: 0 !important;
-  }
-  .hdr-btn.hdr-login[style*="background: var(--primary)"]::before {
-    content: '👤';
-    font-size: 14px;
-  }
-  .hdr-cart { position: relative; }
-  .hdr-cart .cart-count-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--danger);
-    color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-  }
-}
+
 
 /* App-like card variant */
 .app-card {
