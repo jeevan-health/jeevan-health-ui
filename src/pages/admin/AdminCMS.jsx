@@ -34,6 +34,7 @@ export default function AdminCMS() {
   const TABS = [
     { id: 'hero', label: 'Hero' },
     { id: 'services', label: 'Services' },
+    { id: 'diagnostics', label: 'Diagnostics' },
     { id: 'trust', label: 'Trust Strip' },
     { id: 'testimonials', label: 'Testimonials' },
     { id: 'faqs', label: 'FAQs' },
@@ -74,6 +75,9 @@ export default function AdminCMS() {
 
       {/* TESTIMONIALS */}
       {tab === 'testimonials' && <TestimonialsSection testimonials={content.testimonials || []} addTestimonial={addTestimonial} updateTestimonial={updateTestimonial} deleteTestimonial={deleteTestimonial} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
+
+      {/* DIAGNOSTICS */}
+      {tab === 'diagnostics' && <DiagnosticsSection content={content} cms={useCmsStore.getState()} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
 
       {/* FAQS */}
       {tab === 'faqs' && <FaqsSection faqs={content.faqs || []} addFaq={addFaq} updateFaq={updateFaq} deleteFaq={deleteFaq} inputStyle={inputStyle} FormField={FormField} sectionCard={sectionCard} />}
@@ -306,6 +310,105 @@ function FaqsSection({ faqs, addFaq, updateFaq, deleteFaq, inputStyle, FormField
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
               <button onClick={handleAdd} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* DIAGNOSTICS */
+function DiagnosticsSection({ content, cms, inputStyle, FormField, sectionCard }) {
+  const diag = content.diagnostics || {};
+  const [pageSettings, setPageSettings] = useState({
+    pageTitle: diag.pageTitle, pageSubtitle: diag.pageSubtitle, bannerHeading: diag.bannerHeading,
+    bannerText: diag.bannerText, bannerCta: diag.bannerCta, freeHomeCollectionTag: diag.freeHomeCollectionTag,
+  });
+  const [showCatAdd, setShowCatAdd] = useState(false);
+  const [catForm, setCatForm] = useState({ name: '', icon: '', description: '' });
+
+  useEffect(() => {
+    setPageSettings({
+      pageTitle: diag.pageTitle, pageSubtitle: diag.pageSubtitle, bannerHeading: diag.bannerHeading,
+      bannerText: diag.bannerText, bannerCta: diag.bannerCta, freeHomeCollectionTag: diag.freeHomeCollectionTag,
+    });
+  }, [diag.pageTitle, diag.pageSubtitle, diag.bannerHeading, diag.bannerText, diag.bannerCta, diag.freeHomeCollectionTag]);
+
+  const savePageSettings = () => cms.updateDiagnostics(pageSettings);
+
+  const handleAddCat = () => {
+    if (!catForm.name) return;
+    cms.addDiagnosticsCategory(catForm);
+    setShowCatAdd(false);
+    setCatForm({ name: '', icon: '', description: '' });
+  };
+
+  return (
+    <div>
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Page Settings</h4>
+        <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
+          <FormField label="Page Title"><input value={pageSettings.pageTitle} onChange={e => setPageSettings({ ...pageSettings, pageTitle: e.target.value })} style={inputStyle} /></FormField>
+          <FormField label="Free Home Collection Tag"><input value={pageSettings.freeHomeCollectionTag} onChange={e => setPageSettings({ ...pageSettings, freeHomeCollectionTag: e.target.value })} style={inputStyle} /></FormField>
+          <div style={{ gridColumn: '1 / -1' }}><FormField label="Page Subtitle"><textarea rows={2} value={pageSettings.pageSubtitle} onChange={e => setPageSettings({ ...pageSettings, pageSubtitle: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField></div>
+          <FormField label="Banner Heading"><input value={pageSettings.bannerHeading} onChange={e => setPageSettings({ ...pageSettings, bannerHeading: e.target.value })} style={inputStyle} /></FormField>
+          <FormField label="Banner CTA Text"><input value={pageSettings.bannerCta} onChange={e => setPageSettings({ ...pageSettings, bannerCta: e.target.value })} style={inputStyle} /></FormField>
+          <div style={{ gridColumn: '1 / -1' }}><FormField label="Banner Text"><textarea rows={2} value={pageSettings.bannerText} onChange={e => setPageSettings({ ...pageSettings, bannerText: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField></div>
+        </div>
+        <button onClick={savePageSettings} style={{ marginTop: 12, padding: '8px 20px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>Save Page Settings</button>
+      </div>
+
+      <div style={sectionCard}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Price Range Filters</h4>
+        {(diag.priceRanges || []).map((r, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+            <input value={r.label} onChange={e => cms.updatePriceRange(i, { label: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
+            <input type="number" value={r.min} onChange={e => cms.updatePriceRange(i, { min: Number(e.target.value) })} style={{ ...inputStyle, width: 100 }} />
+            <input type="number" value={r.max} onChange={e => cms.updatePriceRange(i, { max: Number(e.target.value) })} style={{ ...inputStyle, width: 100 }} />
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, color: '#64748b' }}>{(diag.categories || []).filter(c => c.active !== false).length} active of {(diag.categories || []).length} categories</span>
+          <button onClick={() => setShowCatAdd(true)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ Add Category</button>
+        </div>
+        {(diag.categories || []).map(cat => (
+          <div key={cat.id} style={sectionCard}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <span style={{ fontSize: 24 }}>{cat.icon || '🧪'}</span>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{cat.name}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{cat.description}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                <label style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}><input type="checkbox" checked={cat.active !== false} onChange={e => cms.updateDiagnosticsCategory(cat.id, { active: e.target.checked })} style={{ accentColor: '#3b82f6' }} /> Active</label>
+                <button onClick={() => { const n = prompt('Name:', cat.name); if (n) cms.updateDiagnosticsCategory(cat.id, { name: n }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                <button onClick={() => { if (confirm(`Delete "${cat.name}"?`)) cms.deleteDiagnosticsCategory(cat.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+              <input placeholder="Icon emoji" value={cat.icon || ''} onChange={e => cms.updateDiagnosticsCategory(cat.id, { icon: e.target.value })} style={{ ...inputStyle, width: 80 }} />
+              <input placeholder="Hero image URL" value={cat.heroImage || ''} onChange={e => cms.updateDiagnosticsCategory(cat.id, { heroImage: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showCatAdd && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCatAdd(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Add Category</h4>
+            <input placeholder="Category Name *" value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} style={{ ...inputStyle, marginBottom: 10 }} />
+            <input placeholder="Icon emoji (e.g. 🩸)" value={catForm.icon} onChange={e => setCatForm({ ...catForm, icon: e.target.value })} style={{ ...inputStyle, marginBottom: 10 }} />
+            <textarea rows={2} placeholder="Short description" value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginBottom: 10 }} />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowCatAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
+              <button onClick={handleAddCat} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add</button>
             </div>
           </div>
         </div>

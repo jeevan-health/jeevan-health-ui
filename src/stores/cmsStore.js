@@ -92,6 +92,37 @@ const defaults = {
     ],
     active: true,
   },
+  diagnostics: {
+    pageTitle: 'Book Lab Tests Online at Home',
+    pageSubtitle: '5000+ diagnostic tests. Free home collection. NABL certified labs. Accurate digital reports.',
+    bannerHeading: '📋 Have a prescription?',
+    bannerText: 'Upload your doctor\'s prescription and we\'ll recommend the right tests.',
+    bannerCta: '📤 Upload Prescription',
+    priceRanges: [
+      { label: 'Under ₹500', min: 0, max: 500 },
+      { label: '₹500 - ₹1500', min: 500, max: 1500 },
+      { label: 'Above ₹1500', min: 1500, max: 999999 },
+    ],
+    categories: [
+      { id: 'hematology', name: 'Hematology', icon: '🩸', description: 'Blood-related tests including CBC, iron studies, and coagulation profiles.', heroImage: '', active: true },
+      { id: 'diabetes', name: 'Diabetes', icon: '🩸', description: 'Blood sugar monitoring, HbA1c, and diabetes management tests.', heroImage: '', active: true },
+      { id: 'thyroid', name: 'Thyroid', icon: '🦋', description: 'Thyroid function tests for metabolism and hormonal health.', heroImage: '', active: true },
+      { id: 'cardiac', name: 'Cardiac', icon: '❤️', description: 'Heart health assessment with lipid profiles and cardiac markers.', heroImage: '', active: true },
+      { id: 'vitamins', name: 'Vitamins', icon: '💊', description: 'Vitamin deficiency testing including B12, D, and folate.', heroImage: '', active: true },
+      { id: 'full-body', name: 'Full Body', icon: '🧬', description: 'Comprehensive health checkup packages for complete wellness.', heroImage: '', active: true },
+      { id: 'liver', name: 'Liver', icon: '🫁', description: 'Liver function tests for detecting liver health and damage.', heroImage: '', active: true },
+      { id: 'kidney', name: 'Kidney', icon: '🫘', description: 'Kidney function tests including creatinine, BUN, and electrolytes.', heroImage: '', active: true },
+      { id: 'hormones', name: 'Hormones', icon: '🧪', description: 'Hormonal panel testing for reproductive and endocrine health.', heroImage: '', active: true },
+      { id: 'anemia', name: 'Anemia', icon: '🩸', description: 'Anemia screening including iron studies and hemoglobin analysis.', heroImage: '', active: true },
+      { id: 'infection', name: 'Infection', icon: '🦠', description: 'Infection markers including CRP, WBC, and specific pathogen tests.', heroImage: '', active: true },
+      { id: 'cancer', name: 'Cancer Screening', icon: '🎗️', description: 'Cancer screening and tumor marker tests for early detection.', heroImage: '', active: true },
+      { id: 'arthritis', name: 'Arthritis', icon: '🦴', description: 'Arthritis and inflammation markers including RA factor and uric acid.', heroImage: '', active: true },
+      { id: 'pregnancy', name: 'Pregnancy', icon: '🤰', description: 'Pregnancy-related tests including hCG and prenatal screening.', heroImage: '', active: true },
+      { id: 'allergy', name: 'Allergy', icon: '🤧', description: 'Allergy testing for common allergens and immune response.', heroImage: '', active: true },
+    ],
+    freeHomeCollectionTag: 'Free Home Collection',
+    active: true,
+  },
 };
 
 const useCmsStore = create((set, get) => ({
@@ -194,6 +225,43 @@ const useCmsStore = create((set, get) => ({
     const content = { ...load(CMS_KEY, JSON.stringify(defaults)), whyChooseJeevan: { ...get().content.whyChooseJeevan, ...data } };
     save(CMS_KEY, content);
     set({ content });
+  },
+
+  // Diagnostics
+  updateDiagnostics: (data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)), diagnostics: { ...get().content.diagnostics, ...data } };
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updateDiagnosticsCategory: (id, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.diagnostics.categories = content.diagnostics.categories.map(c => c.id === id ? { ...c, ...data } : c);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  addDiagnosticsCategory: (cat) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.diagnostics.categories = [...content.diagnostics.categories, { ...cat, id: 'cat-' + Date.now().toString(36), active: true }];
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  deleteDiagnosticsCategory: (id) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    content.diagnostics.categories = content.diagnostics.categories.filter(c => c.id !== id);
+    save(CMS_KEY, content);
+    set({ content });
+  },
+
+  updatePriceRange: (index, data) => {
+    const content = { ...load(CMS_KEY, JSON.stringify(defaults)) };
+    if (content.diagnostics.priceRanges[index]) {
+      content.diagnostics.priceRanges[index] = { ...content.diagnostics.priceRanges[index], ...data };
+      save(CMS_KEY, content);
+      set({ content });
+    }
   },
 
   // Section visibility (future use)
