@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import useAdminStore from '../../stores/adminStore';
 import useAuthStore from '../../stores/authStore';
+import usePermissionsStore from '../../stores/permissionsStore';
 
 const ROLE_OPTIONS = ['user', 'staff', 'admin', 'super_admin'];
 const MODAL_OVERLAY = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
@@ -11,6 +12,7 @@ export default function AdminUsers() {
   const updateUserRole = useAuthStore(s => s.updateUserRole);
   const deleteUser = useAuthStore(s => s.deleteUser);
   const addUser = useAuthStore(s => s.addUser);
+  const roles = usePermissionsStore(s => s.roles);
   const [search, setSearch] = useState('');
   const [editingRole, setEditingRole] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -83,11 +85,11 @@ export default function AdminUsers() {
                       <select value={u.role || 'user'} onChange={e => handleRoleChange(u.id, e.target.value)}
                         style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, fontFamily: 'inherit' }}
                         onBlur={() => setEditingRole(null)} autoFocus>
-                        {ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                        {Object.keys(roles).map(r => <option key={r} value={r}>{roles[r].label || r}</option>)}
                       </select>
                     ) : (
-                      <span onClick={() => setEditingRole(u.id)} style={{ cursor: 'pointer', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: u.role === 'super_admin' ? '#fef3c7' : u.role === 'admin' ? '#dbeafe' : u.role === 'staff' ? '#dcfce7' : '#f1f5f9', color: u.role === 'super_admin' ? '#92400e' : u.role === 'admin' ? '#1e40af' : u.role === 'staff' ? '#166534' : '#475569' }}>
-                        {u.role || 'user'} ✏️
+                      <span onClick={() => setEditingRole(u.id)} style={{ cursor: 'pointer', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: roles[u.role]?.bg || '#f1f5f9', color: roles[u.role]?.color || '#475569' }}>
+                        {(roles[u.role]?.label || u.role)} ✏️
                       </span>
                     )}
                   </td>
@@ -117,11 +119,21 @@ export default function AdminUsers() {
               <div>
                 <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>Role</label>
                 <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={inputStyle}>
-                  <option value="staff">Staff</option>
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
+                  {Object.entries(roles).map(([id, r]) => <option key={id} value={id}>{r.label || id}</option>)}
                 </select>
               </div>
+              {roles[form.role] && (
+                <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12, fontSize: 11 }}>
+                  <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: 6 }}>Role Permissions</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
+                    {Object.entries(roles[form.role].permissions || {}).map(([mod, perms]) => {
+                      const granted = Object.entries(perms).filter(([, v]) => v);
+                      if (granted.length === 0) return null;
+                      return <div key={mod} style={{ color: '#475569' }}><span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{mod}</span>: {granted.map(([a]) => a).join(', ')}</div>;
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>

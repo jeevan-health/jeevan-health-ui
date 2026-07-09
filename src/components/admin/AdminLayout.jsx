@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { path: '/admin/collection', label: 'Phlebotomists', icon: '🚑' },
   { path: '/admin/reports', label: 'Reports', icon: '📄' },
   { path: '/admin/users', label: 'Users', icon: '👥' },
+  { path: '/admin/permissions', label: 'Permissions', icon: '🔐' },
   { path: '/admin/catalog', label: 'Catalog', icon: '🧪' },
   { path: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { path: '/admin/contacts', label: 'Contacts', icon: '✉️' },
