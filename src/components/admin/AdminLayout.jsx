@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { path: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { path: '/admin/contacts', label: 'Contacts', icon: '✉️' },
   { path: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
+  { path: '/admin/export', label: 'Data Export', icon: '📤' },
 ];
 
 export default function AdminLayout() {
