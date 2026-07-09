@@ -1,12 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
+import useCartStore from '../stores/cartStore';
 import { seedTests } from '../data/seedData';
 import SmartSearch from '../components/layout/SmartSearch';
 
 const CATS = [...new Set(seedTests.map(t => t.category))].filter(Boolean);
 
 export default function Diagnostics() {
+  const navigate = useNavigate();
+  const addItem = useCartStore(s => s.addItem);
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get('q') || '');
   const [category, setCategory] = useState(params.get('cat') || '');
@@ -80,7 +83,7 @@ export default function Diagnostics() {
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <Link to={`/test/${t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="btn btn-outline btn-sm">Details</Link>
-                  <button className="btn btn-primary btn-sm">Book</button>
+                  <button onClick={() => { addItem({ id: t.id, name: t.name, price: t.price || t.mrp, offerPrice: t.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary btn-sm">Book</button>
                 </div>
               </div>
             </div>
