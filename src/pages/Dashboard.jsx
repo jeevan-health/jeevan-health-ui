@@ -13,6 +13,7 @@ const navItems = [
   { key: 'invoices', label: 'Invoices', icon: '📄' },
   { key: 'abha', label: 'ABHA ID', icon: '🆔' },
   { key: 'settings', label: 'Settings', icon: '⚙️' },
+  { key: 'logout', label: 'Logout', icon: '🚪' },
 ];
 
 function Section({ id, title, icon, children, active }) {
@@ -100,9 +101,22 @@ export default function Dashboard() {
   const [profileForm, setProfileForm] = useState({ name: '', email: '', phone: '', bloodGroup: '', dob: '', gender: '' });
   const [showReportModal, setShowReportModal] = useState(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showRecordsMember, setShowRecordsMember] = useState(null);
+  const [showBookingDetail, setShowBookingDetail] = useState(null);
+  const [showReschedule, setShowReschedule] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState(null);
+  const [rescheduleSlot, setRescheduleSlot] = useState(null);
   const [showNotifs, setShowNotifs] = useState(false);
   const [familyForm, setFamilyForm] = useState({ name: '', relation: '', age: '', gender: '' });
   const [fullReportIndex, setFullReportIndex] = useState(null);
+
+  const rescheduleDates = useMemo(() => {
+    const ds = [];
+    for (let i = 1; i <= 7; i++) { const d = new Date(); d.setDate(d.getDate() + i); ds.push(d); }
+    return ds;
+  }, []);
+
+  const timeSlots = ['7:00 AM – 9:00 AM', '9:00 AM – 11:00 AM', '11:00 AM – 1:00 PM', '4:00 PM – 6:00 PM', '6:00 PM – 8:00 PM'];
 
   const store = useDashboardStore();
   const logout = useAuthStore(s => s.logout);
@@ -150,12 +164,12 @@ export default function Dashboard() {
   const renderNav = (vertical) => (
     <nav style={vertical ? { display: 'flex', flexDirection: 'column', gap: 2 } : { display: 'flex', gap: 0, overflowX: 'auto' }}>
       {navItems.map(item => (
-        <button key={item.key} onClick={() => setActiveSection(item.key)}
+        <button key={item.key} onClick={() => { if (item.key === 'logout') { logout(); } else { setActiveSection(item.key); } }}
           style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: vertical ? '10px 20px' : '10px 14px',
-            fontSize: 13, fontWeight: activeSection === item.key ? 600 : 500,
-            color: activeSection === item.key ? '#1866C9' : 'var(--text-body)',
-            background: activeSection === item.key ? '#e8f0fe' : 'transparent',
+            fontSize: 13, fontWeight: item.key === 'logout' ? 600 : (activeSection === item.key ? 600 : 500),
+            color: item.key === 'logout' ? '#dc2626' : (activeSection === item.key ? '#1866C9' : 'var(--text-body)'),
+            background: item.key === 'logout' ? 'transparent' : (activeSection === item.key ? '#e8f0fe' : 'transparent'),
             border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             whiteSpace: 'nowrap', borderRadius: vertical ? 0 : 0, textAlign: 'left', width: vertical ? '100%' : 'auto',
             borderRight: vertical && activeSection === item.key ? '3px solid #1866C9' : '3px solid transparent',
@@ -170,18 +184,11 @@ export default function Dashboard() {
   return (
     <div className="dash-layout">
       {/* Sidebar */}
-      <aside className="dash-sidebar" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>My Health</div>
-          </div>
-          {renderNav(true)}
+      <aside className="dash-sidebar">
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>My Health</div>
         </div>
-        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text-secondary)' }}>
-          <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, color: '#dc2626', padding: '4px 0' }}>
-            Logout
-          </button>
-        </div>
+        {renderNav(true)}
       </aside>
 
       {/* Main */}
@@ -261,9 +268,9 @@ export default function Dashboard() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <Badge variant={b.status === 'Confirmed' ? 'green' : 'yellow'}>{b.status} ✅</Badge>
-                    <button className="btn btn-outline btn-sm">View Details</button>
-                    <button className="btn btn-outline btn-sm">Reschedule</button>
-                    <button className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#fecaca' }}>Cancel</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>View Details</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(b); setRescheduleDate(null); setRescheduleSlot(null); }}>Reschedule</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Cancel booking for ${b.test} on ${b.date}?`)) { store.cancelBooking(b.id); } }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>Cancel</button>
                   </div>
                 </div>
               ))}
@@ -271,6 +278,86 @@ export default function Dashboard() {
           )}
           <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>+ Book New Test</button>
         </Section>
+
+        {/* Booking Detail Modal */}
+        {showBookingDetail && (
+          <div className="panel-overlay" onClick={() => setShowBookingDetail(null)}>
+            <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
+              <div className="panel-header">
+                <h3 style={{ fontSize: 15, fontWeight: 700 }}>📋 Booking Details</h3>
+                <button onClick={() => setShowBookingDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
+              </div>
+              <div className="panel-body">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13 }}>
+                  <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🧪 {showBookingDetail.test}</div>
+                    <Badge variant={showBookingDetail.status === 'Confirmed' ? 'green' : 'yellow'}>{showBookingDetail.status}</Badge>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Booking ID</span>
+                    <span style={{ fontWeight: 600 }}>{showBookingDetail.id}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Date</span>
+                    <span style={{ fontWeight: 600 }}>{showBookingDetail.date}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Time</span>
+                    <span style={{ fontWeight: 600 }}>{showBookingDetail.time}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Location</span>
+                    <span style={{ fontWeight: 600 }}>{showBookingDetail.location}</span>
+                  </div>
+                  <div style={{ marginTop: 8, background: '#e8f5e9', padding: '10px', borderRadius: 8, fontSize: 11, color: '#2e7d32' }}>
+                    ✅ A confirmation message has been sent to your registered mobile number.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reschedule Modal */}
+        {showReschedule && (
+          <div className="panel-overlay" onClick={() => setShowReschedule(null)}>
+            <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
+              <div className="panel-header">
+                <h3 style={{ fontSize: 15, fontWeight: 700 }}>📅 Reschedule Booking</h3>
+                <button onClick={() => setShowReschedule(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
+              </div>
+              <div className="panel-body">
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Select a new date and time for <strong>{showReschedule.test}</strong></p>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>New Date</div>
+                <div style={{ display: 'flex', gap: 4, overflow: 'auto', paddingBottom: 8, marginBottom: 12 }}>
+                  {rescheduleDates.map(d => {
+                    const fmt = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+                    const isToday = d.toDateString() === new Date().toDateString();
+                    return (
+                      <button key={d.toISOString()} onClick={() => setRescheduleDate(d)}
+                        style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, border: `2px solid ${rescheduleDate?.toDateString() === d.toDateString() ? 'var(--primary)' : 'var(--border)'}`, background: rescheduleDate?.toDateString() === d.toDateString() ? 'var(--primary)' : '#fff', color: rescheduleDate?.toDateString() === d.toDateString() ? '#fff' : 'var(--text-body)', cursor: 'pointer', fontSize: 11, fontWeight: rescheduleDate?.toDateString() === d.toDateString() ? 700 : 500, fontFamily: 'inherit', textAlign: 'center', minWidth: 70 }}>
+                        <div style={{ fontSize: 9, opacity: 0.8 }}>{isToday ? 'Today' : fmt.split(' ')[0]}</div>
+                        <div>{fmt.split(' ').slice(1).join(' ')}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>New Time</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+                  {timeSlots.map(s => (
+                    <button key={s} onClick={() => setRescheduleSlot(s)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, border: `2px solid ${rescheduleSlot === s ? 'var(--primary)' : 'var(--border)'}`, background: rescheduleSlot === s ? 'var(--primary-light)' : '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, textAlign: 'left' }}>
+                      <span style={{ fontSize: 14 }}>{s.startsWith('7') || s.startsWith('9') ? '🌅' : s.startsWith('11') ? '☀️' : '🌆'}</span>
+                      <span style={{ fontWeight: rescheduleSlot === s ? 700 : 500 }}>{s}</span>
+                      {rescheduleSlot === s && <span style={{ marginLeft: 'auto', color: 'var(--primary)', fontWeight: 700 }}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => { if (rescheduleDate && rescheduleSlot) { store.cancelBooking(showReschedule.id); setShowReschedule(null); alert(`Booking rescheduled to ${rescheduleDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })} at ${rescheduleSlot}`); } else { alert('Please select both date and time'); } }} className="btn btn-primary btn-block">Confirm Reschedule</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ===== MY REPORTS ===== */}
         <Section id="reports" title="My Reports" icon="🧪" active={activeSection}>
@@ -375,11 +462,11 @@ export default function Dashboard() {
                     ABHA: {m.abhaId}
                   </div>
                 )}
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button className="btn btn-outline btn-sm">View Records</button>
-                    <button className="btn btn-outline btn-sm">Book Test</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ color: '#1866C9' }}>Edit</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Remove ${m.name}?`)) store.removeFamilyMember(m.id); }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>Remove</button>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <button className="btn btn-outline btn-sm" onClick={() => setShowRecordsMember(m)} style={{ fontSize: 10, padding: '4px 8px' }}>📋 Records</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ fontSize: 10, padding: '4px 8px' }}>🧪 Book Test</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ fontSize: 10, padding: '4px 8px', color: '#1866C9' }}>✏️ Edit</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Remove ${m.name}?`)) store.removeFamilyMember(m.id); }} style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}>🗑 Remove</button>
                   </div>
               </div>
             ))}
@@ -390,6 +477,64 @@ export default function Dashboard() {
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1866C9' }}>Add Member</div>
             </div>
           </div>
+
+          {/* Records Modal */}
+          {showRecordsMember && (
+            <div className="panel-overlay" onClick={() => setShowRecordsMember(null)}>
+              <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
+                <div className="panel-header">
+                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>📋 {showRecordsMember.name}'s Records</h3>
+                  <button onClick={() => setShowRecordsMember(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
+                </div>
+                <div className="panel-body">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: '50%', background: showRecordsMember.relation === 'Self' ? 'linear-gradient(135deg, #1866C9, #0F4A96)' : '#e8edf2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: showRecordsMember.relation === 'Self' ? '#fff' : '#64748b' }}>
+                        {showRecordsMember.relation === 'Self' ? '👤' : showRecordsMember.gender === 'Female' ? '👩' : '👦'}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600 }}>{showRecordsMember.name}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{showRecordsMember.relation} · {showRecordsMember.age} yrs · {showRecordsMember.bloodGroup}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>Blood Group</span>
+                        <span style={{ fontWeight: 600 }}>{showRecordsMember.bloodGroup}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>Last Checkup</span>
+                        <span style={{ fontWeight: 600 }}>{showRecordsMember.lastCheckup}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>ABHA ID</span>
+                        <span style={{ fontWeight: 600 }}>{showRecordsMember.abhaId || 'Not linked'}</span>
+                      </div>
+                    </div>
+
+                    {reports.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Recent Reports</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {reports.filter(r => r.status !== 'Normal' || true).slice(0, 3).map(r => (
+                            <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: '#f8f9fa', borderRadius: 6, fontSize: 11 }}>
+                              <span>{r.test}</span>
+                              <Badge variant={r.status === 'Normal' ? 'green' : r.status === 'Low' ? 'orange' : 'yellow'}>{r.status}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <button onClick={() => { setShowRecordsMember(null); navigate('/diagnostics'); }} className="btn btn-primary btn-block" style={{ fontSize: 12 }}>
+                      Book Test for {showRecordsMember.name}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Family Modal */}
           {showFamilyModal && (
