@@ -51,6 +51,7 @@ const navItems = [
   { key: 'bookings', label: 'Bookings', icon: '📅' },
   { key: 'reports', label: 'Reports', icon: '🧪' },
   { key: 'appointments', label: 'Appointments', icon: '👨‍⚕️' },
+  { key: 'health', label: 'Health Score', icon: '🩺', action: 'health' },
   { key: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦' },
   { key: 'wallet', label: 'Wallet', icon: '💳' },
   { key: 'invoices', label: 'Invoices', icon: '📄' },
@@ -221,7 +222,11 @@ export default function Dashboard() {
   const renderNav = (vertical) => (
     <nav style={vertical ? { display: 'flex', flexDirection: 'column', gap: 2 } : { display: 'flex', gap: 0, overflowX: 'auto' }}>
       {navItems.map(item => (
-        <button key={item.key} onClick={() => { if (item.key === 'logout') { logout(); } else { setActiveSection(item.key); } }}
+        <button key={item.key} onClick={() => {
+          if (item.key === 'logout') { logout(); }
+          else if (item.action === 'health') { setHealthStep(1); setShowHealthModal(true); }
+          else { setActiveSection(item.key); }
+        }}
           style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: vertical ? '10px 20px' : '10px 14px',
             fontSize: 13, fontWeight: item.key === 'logout' ? 600 : (activeSection === item.key ? 600 : 500),
@@ -266,6 +271,11 @@ export default function Dashboard() {
               <div className="dash-score-text" style={{ fontSize: 24, fontWeight: 800, color: p.healthScore != null && p.healthScore >= 80 ? '#16a34a' : '#94a3b8' }}>{p.healthScore != null ? `${p.healthScore}/100` : '--/100'}</div>
             </div>
           </div>
+          {!store.healthData && (
+            <button onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 14, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 48, marginBottom: 10 }}>
+              🩺 Start Health Assessment
+            </button>
+          )}
           <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 56 }}>
               <span style={{ fontSize: 24, flexShrink: 0 }}>🧪</span>
@@ -288,7 +298,7 @@ export default function Dashboard() {
         <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 16 }}>
           <nav style={{ display: 'flex', gap: 4, overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
             {navItems.filter(item => item.key !== 'logout').map(item => (
-              <button key={item.key} onClick={() => setActiveSection(item.key)}
+              <button key={item.key} onClick={() => { if (item.action === 'health') { setHealthStep(1); setShowHealthModal(true); } else { setActiveSection(item.key); } }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
                   fontSize: 13, fontWeight: activeSection === item.key ? 600 : 500,
