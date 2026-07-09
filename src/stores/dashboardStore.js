@@ -5,6 +5,103 @@ const fmt = (d) => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short
 const futureDate = (days) => { const d = new Date(now); d.setDate(d.getDate() + days); return fmt(d); };
 const pastDate = (days) => { const d = new Date(now); d.setDate(d.getDate() - days); return fmt(d); };
 
+function computeHealthScore(healthData, reports) {
+  let score = 100;
+  const deductions = [];
+
+  if (!healthData) return { score: 100, deductions: [], subscores: { blood: 90, heart: 85, diabetes: 70 } };
+
+  // Lifestyle
+  if (healthData.smoking === 'current') { score -= 10; deductions.push({ factor: 'Smoking', points: 10 }); }
+  else if (healthData.smoking === 'former') { score -= 3; deductions.push({ factor: 'Former Smoker', points: 3 }); }
+
+  if (healthData.alcohol === 'regular') { score -= 6; deductions.push({ factor: 'Regular Alcohol', points: 6 }); }
+  else if (healthData.alcohol === 'occasional') { score -= 2; deductions.push({ factor: 'Occasional Alcohol', points: 2 }); }
+
+  if (healthData.exercise === 'none') { score -= 8; deductions.push({ factor: 'No Exercise', points: 8 }); }
+  else if (healthData.exercise === 'occasional') { score -= 4; deductions.push({ factor: 'Low Exercise', points: 4 }); }
+
+  if (healthData.diet === 'unhealthy') { score -= 6; deductions.push({ factor: 'Unhealthy Diet', points: 6 }); }
+  else if (healthData.diet === 'mixed') { score -= 3; deductions.push({ factor: 'Average Diet', points: 3 }); }
+
+  // Family history
+  if (healthData.familyHistory?.diabetes) { score -= 6; deductions.push({ factor: 'Family History: Diabetes', points: 6 }); }
+  if (healthData.familyHistory?.heartDisease) { score -= 6; deductions.push({ factor: 'Family History: Heart Disease', points: 6 }); }
+  if (healthData.familyHistory?.bp) { score -= 5; deductions.push({ factor: 'Family History: BP', points: 5 }); }
+  if (healthData.familyHistory?.thyroid) { score -= 4; deductions.push({ factor: 'Family History: Thyroid', points: 4 }); }
+
+  // Vitals
+  if (healthData.bmi >= 30) { score -= 12; deductions.push({ factor: `Obese (BMI ${healthData.bmi})`, points: 12 }); }
+  else if (healthData.bmi >= 25) { score -= 6; deductions.push({ factor: `Overweight (BMI ${healthData.bmi})`, points: 6 }); }
+  else if (healthData.bmi > 0 && healthData.bmi < 18.5) { score -= 4; deductions.push({ factor: `Underweight (BMI ${healthData.bmi})`, points: 4 }); }
+
+  if (healthData.systolicBp >= 140) { score -= 8; deductions.push({ factor: `High BP (${healthData.systolicBp}/${healthData.diastolicBp})`, points: 8 }); }
+  else if (healthData.systolicBp >= 130) { score -= 4; deductions.push({ factor: `Elevated BP (${healthData.systolicBp}/${healthData.diastolicBp})`, points: 4 }); }
+
+  // Abnormal report flags
+  let abnormalCount = 0;
+  if (reports) {
+    reports.forEach(r => {
+      if (r.values) {
+        Object.entries(r.values).forEach(([key, v]) => {
+          if (v.flag === 'high' || v.flag === 'low' || v.flag === 'abnormal') abnormalCount++;
+        });
+      }
+    });
+  }
+  const reportDeduction = Math.min(abnormalCount * 3, 15);
+  if (reportDeduction > 0) deductions.push({ factor: `Abnormal Lab Results (${abnormalCount} flags)`, points: reportDeduction });
+
+  // Compute sub-scores
+  let bloodScore = 90;
+  let heartScore = 85;
+  let diabetesScore = 70;
+
+  // Blood health: affected by diet, smoking, abnormal CBC markers
+  if (healthData.diet === 'unhealthy') bloodScore -= 10;
+  if (healthData.smoking === 'current') bloodScore -= 8;
+  if (deductions.some(d => d.factor.includes('Abnormal'))) bloodScore -= 5;
+
+  // Heart health: affected by BP, BMI, smoking, exercise, family history
+  if (healthData.systolicBp >= 140) heartScore -= 12;
+  else if (healthData.systolicBp >= 130) heartScore -= 6;
+  if (healthData.bmi >= 30) heartScore -= 10;
+  else if (healthData.bmi >= 25) heartScore -= 5;
+  if (healthData.smoking === 'current') heartScore -= 8;
+  if (healthData.exercise === 'none') heartScore -= 8;
+  if (healthData.familyHistory?.heartDisease) heartScore -= 10;
+  if (healthData.familyHistory?.bp) heartScore -= 6;
+
+  // Diabetes risk: affected by BMI, family history, diet, exercise
+  if (healthData.bmi >= 30) diabetesScore -= 10;
+  else if (healthData.bmi >= 25) diabetesScore -= 5;
+  if (healthData.familyHistory?.diabetes) diabetesScore -= 12;
+  if (healthData.diet === 'unhealthy') diabetesScore -= 8;
+  if (healthData.exercise === 'none') diabetesScore -= 8;
+
+  if (reports) {
+    reports.forEach(r => {
+      if (r.values) {
+        Object.entries(r.values).forEach(([key, v]) => {
+          if (/hba1c|glucose|diabetes/i.test(key) && (v.flag === 'high' || v.flag === 'abnormal')) diabetesScore -= 10;
+          if (/chol|ldl|triglyceride|hdl/i.test(key) && v.flag === 'high') heartScore -= 5;
+          if (/hemoglobin|rbc|wbc|platelet/i.test(key) && (v.flag === 'high' || v.flag === 'low')) bloodScore -= 5;
+        });
+      }
+    });
+  }
+
+  return {
+    score: Math.max(Math.round(score), 10),
+    deductions,
+    subscores: {
+      blood: Math.max(Math.round(bloodScore), 0),
+      heart: Math.max(Math.round(heartScore), 0),
+      diabetes: Math.max(Math.round(diabetesScore), 0),
+    },
+  };
+}
+
 const useDashboardStore = create((set, get) => ({
   // Profile
   profile: {
@@ -18,6 +115,9 @@ const useDashboardStore = create((set, get) => ({
     dob: '15 Mar 1990',
     gender: 'Male',
   },
+
+  // Health Assessment Data
+  healthData: null,
 
   // Upcoming Bookings
   upcomingBookings: [
@@ -114,6 +214,14 @@ const useDashboardStore = create((set, get) => ({
     profile: { ...state.profile, ...updates },
   })),
 
+  updateHealthData: (data) => set(state => {
+    const computed = computeHealthScore(data, state.reports);
+    return {
+      healthData: data,
+      profile: { ...state.profile, healthScore: computed.score },
+    };
+  }),
+
   addFamilyMember: (member) => set(state => ({
     family: [...state.family, { ...member, id: `FM${Date.now()}` }],
   })),
@@ -137,4 +245,5 @@ if (saved) {
   try { useDashboardStore.getState().family = JSON.parse(saved); } catch { /* noop */ }
 }
 
+export { computeHealthScore };
 export default useDashboardStore;
