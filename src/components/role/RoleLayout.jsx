@@ -48,6 +48,70 @@ const ROLE_META = {
     { path: '/dispatch/schedule', label: 'Schedule', icon: '📅' },
     { path: '/dispatch/staff', label: 'Staff', icon: '👥' },
   ]},
+  corporate: { icon: '🧑‍💼', title: 'Corporate Portal', color: '#1e40af', nav: [
+    { path: '/corporate', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/corporate/orders', label: 'Orders', icon: '📋' },
+    { path: '/corporate/subscriptions', label: 'Subscriptions', icon: '📑' },
+  ]},
+  training_officer: { icon: '🎓', title: 'Training Portal', color: '#0d9488', nav: [
+    { path: '/training', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/training/staff', label: 'Staff', icon: '👥' },
+    { path: '/training/certifications', label: 'Certifications', icon: '📜' },
+  ]},
+  it_support: { icon: '🖥️', title: 'IT Support Portal', color: '#4f46e5', nav: [
+    { path: '/it-support', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/it-support/system', label: 'System', icon: '⚙️' },
+  ]},
+  call_center: { icon: '☎️', title: 'Customer Care Portal', color: '#0ea5e9', nav: [
+    { path: '/call-center', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/call-center/bookings', label: 'Bookings', icon: '📅' },
+    { path: '/call-center/queries', label: 'Queries', icon: '❓' },
+  ]},
+  sales_marketing: { icon: '📢', title: 'Sales & Marketing Portal', color: '#e11d48', nav: [
+    { path: '/sales', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/sales/campaigns', label: 'Campaigns', icon: '📢' },
+    { path: '/sales/leads', label: 'Leads', icon: '👥' },
+  ]},
+  finance: { icon: '💳', title: 'Finance Portal', color: '#15803d', nav: [
+    { path: '/finance', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/finance/transactions', label: 'Transactions', icon: '💳' },
+    { path: '/finance/reports', label: 'Reports', icon: '📊' },
+  ]},
+  bi_analyst: { icon: '📊', title: 'Analytics Portal', color: '#6d28d9', nav: [
+    { path: '/analytics', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/analytics/reports', label: 'Reports', icon: '📄' },
+    { path: '/analytics/kpi', label: 'KPIs', icon: '📈' },
+  ]},
+  qa_compliance: { icon: '✅', title: 'QA & Compliance Portal', color: '#65a30d', nav: [
+    { path: '/qa', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/qa/reviews', label: 'Reviews', icon: '🔍' },
+    { path: '/qa/compliance', label: 'Compliance', icon: '✅' },
+  ]},
+  inventory: { icon: '📦', title: 'Inventory Portal', color: '#a16207', nav: [
+    { path: '/inventory', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/inventory/stock', label: 'Stock', icon: '📦' },
+    { path: '/inventory/orders', label: 'Orders', icon: '📋' },
+  ]},
+  telemedicine: { icon: '🌐', title: 'Telemedicine Portal', color: '#0284c7', nav: [
+    { path: '/telemedicine', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/telemedicine/consultations', label: 'Consultations', icon: '🌐' },
+    { path: '/telemedicine/patients', label: 'Patients', icon: '👤' },
+  ]},
+  legal: { icon: '⚖️', title: 'Legal Portal', color: '#4f46e5', nav: [
+    { path: '/legal', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/legal/compliance', label: 'Compliance', icon: '✅' },
+    { path: '/legal/audit', label: 'Audit Logs', icon: '📋' },
+  ]},
+  marketing_content: { icon: '🖋️', title: 'Content Portal', color: '#c026d3', nav: [
+    { path: '/content', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/content/blog', label: 'Blog', icon: '📝' },
+    { path: '/content/seo', label: 'SEO', icon: '🔍' },
+  ]},
+  emergency_coordinator: { icon: '🚨', title: 'Emergency Coordination', color: '#b91c1c', nav: [
+    { path: '/emergency-coordinator', label: 'Dashboard', icon: '📊', exact: true },
+    { path: '/emergency-coordinator/cases', label: 'Cases', icon: '🚨' },
+    { path: '/emergency-coordinator/staff', label: 'Staff', icon: '👥' },
+  ]},
 };
 
 export default function RoleLayout({ role }) {

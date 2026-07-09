@@ -46,24 +46,41 @@ const RadiologyDashboard = lazy(() => import('./pages/role/RadiologyDashboard'))
 const PharmacyDashboard = lazy(() => import('./pages/role/PharmacyDashboard'));
 const EmergencyDashboard = lazy(() => import('./pages/role/EmergencyDashboard'));
 const DispatchDashboard = lazy(() => import('./pages/role/DispatchDashboard'));
+const CorporateDashboard = lazy(() => import('./pages/role/CorporateDashboard'));
+const TrainingDashboard = lazy(() => import('./pages/role/TrainingDashboard'));
+const ITSupDashboard = lazy(() => import('./pages/role/ITSupDashboard'));
+const CallCenterDashboard = lazy(() => import('./pages/role/CallCenterDashboard'));
+const SalesDashboard = lazy(() => import('./pages/role/SalesDashboard'));
+const FinanceDashboard = lazy(() => import('./pages/role/FinanceDashboard'));
+const AnalyticsDashboard = lazy(() => import('./pages/role/AnalyticsDashboard'));
+const QADashboard = lazy(() => import('./pages/role/QADashboard'));
+const InventoryDashboard = lazy(() => import('./pages/role/InventoryDashboard'));
+const TelemedicineDashboard = lazy(() => import('./pages/role/TelemedicineDashboard'));
+const LegalDashboard = lazy(() => import('./pages/role/LegalDashboard'));
+const ContentDashboard = lazy(() => import('./pages/role/ContentDashboard'));
+const EmergCoordDashboard = lazy(() => import('./pages/role/EmergCoordDashboard'));
 
-// Field roles that redirect to their own portal (not admin panel)
-const FIELD_ROLES = ['nurse', 'caregiver', 'physiotherapist', 'radiologist', 'pharmacy', 'emergency', 'dispatch', 'phlebotomist', 'doctor'];
+// Role → URL path mapping for redirects
+const ROLE_PATH = {
+  phlebotomist: '/phlebotomist', doctor: '/doctor', nurse: '/nurse',
+  caregiver: '/caregiver', physiotherapist: '/physio', radiologist: '/radiology',
+  pharmacy: '/pharmacy', emergency: '/emergency', dispatch: '/dispatch',
+  corporate: '/corporate', training_officer: '/training', it_support: '/it-support',
+  call_center: '/call-center', sales_marketing: '/sales', finance: '/finance',
+  bi_analyst: '/analytics', qa_compliance: '/qa', inventory: '/inventory',
+  telemedicine: '/telemedicine', legal: '/legal', marketing_content: '/content',
+  emergency_coordinator: '/emergency-coordinator',
+};
+
+// All non-admin field roles
+const FIELD_ROLES = Object.keys(ROLE_PATH);
 
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   const user = useAuthStore(s => s.user);
   if (!isAuth) return <Navigate to="/signup" />;
   const role = user?.role || 'user';
-  if (role === 'phlebotomist') return <Navigate to="/phlebotomist" />;
-  if (role === 'doctor') return <Navigate to="/doctor" />;
-  if (role === 'nurse') return <Navigate to="/nurse" />;
-  if (role === 'caregiver') return <Navigate to="/caregiver" />;
-  if (role === 'physiotherapist') return <Navigate to="/physio" />;
-  if (role === 'radiologist') return <Navigate to="/radiology" />;
-  if (role === 'pharmacy') return <Navigate to="/pharmacy" />;
-  if (role === 'emergency') return <Navigate to="/emergency" />;
-  if (role === 'dispatch') return <Navigate to="/dispatch" />;
+  if (ROLE_PATH[role]) return <Navigate to={ROLE_PATH[role]} />;
   if (role === 'super_admin' || role === 'admin' || role === 'staff') return <Navigate to="/admin" />;
   return children;
 }
@@ -74,7 +91,7 @@ function AdminGuard({ children }) {
   if (!isAuth) return <Navigate to="/admin/login" />;
   const role = user?.role || 'user';
   if (role === 'user') return <Navigate to="/dashboard" />;
-  if (FIELD_ROLES.includes(role)) return <Navigate to={`/${role === 'physiotherapist' ? 'physio' : role === 'radiologist' ? 'radiology' : role}`} />;
+  if (ROLE_PATH[role]) return <Navigate to={ROLE_PATH[role]} />;
   return children;
 }
 
@@ -175,6 +192,58 @@ export default function App() {
           {/* Dispatch Portal */}
           <Route path="/dispatch" element={<Protected><RoleLayout role="dispatch" /></Protected>}>
             <Route index element={<DispatchDashboard />} />
+          </Route>
+          {/* Corporate Portal */}
+          <Route path="/corporate" element={<Protected><RoleLayout role="corporate" /></Protected>}>
+            <Route index element={<CorporateDashboard />} />
+          </Route>
+          {/* Training Portal */}
+          <Route path="/training" element={<Protected><RoleLayout role="training_officer" /></Protected>}>
+            <Route index element={<TrainingDashboard />} />
+          </Route>
+          {/* IT Support Portal */}
+          <Route path="/it-support" element={<Protected><RoleLayout role="it_support" /></Protected>}>
+            <Route index element={<ITSupDashboard />} />
+          </Route>
+          {/* Customer Care Portal */}
+          <Route path="/call-center" element={<Protected><RoleLayout role="call_center" /></Protected>}>
+            <Route index element={<CallCenterDashboard />} />
+          </Route>
+          {/* Sales & Marketing Portal */}
+          <Route path="/sales" element={<Protected><RoleLayout role="sales_marketing" /></Protected>}>
+            <Route index element={<SalesDashboard />} />
+          </Route>
+          {/* Finance Portal */}
+          <Route path="/finance" element={<Protected><RoleLayout role="finance" /></Protected>}>
+            <Route index element={<FinanceDashboard />} />
+          </Route>
+          {/* Analytics Portal */}
+          <Route path="/analytics" element={<Protected><RoleLayout role="bi_analyst" /></Protected>}>
+            <Route index element={<AnalyticsDashboard />} />
+          </Route>
+          {/* QA & Compliance Portal */}
+          <Route path="/qa" element={<Protected><RoleLayout role="qa_compliance" /></Protected>}>
+            <Route index element={<QADashboard />} />
+          </Route>
+          {/* Inventory Portal */}
+          <Route path="/inventory" element={<Protected><RoleLayout role="inventory" /></Protected>}>
+            <Route index element={<InventoryDashboard />} />
+          </Route>
+          {/* Telemedicine Portal */}
+          <Route path="/telemedicine" element={<Protected><RoleLayout role="telemedicine" /></Protected>}>
+            <Route index element={<TelemedicineDashboard />} />
+          </Route>
+          {/* Legal Portal */}
+          <Route path="/legal" element={<Protected><RoleLayout role="legal" /></Protected>}>
+            <Route index element={<LegalDashboard />} />
+          </Route>
+          {/* Content Portal */}
+          <Route path="/content" element={<Protected><RoleLayout role="marketing_content" /></Protected>}>
+            <Route index element={<ContentDashboard />} />
+          </Route>
+          {/* Emergency Coordinator Portal */}
+          <Route path="/emergency-coordinator" element={<Protected><RoleLayout role="emergency_coordinator" /></Protected>}>
+            <Route index element={<EmergCoordDashboard />} />
           </Route>
         </Routes>
       </Suspense>
