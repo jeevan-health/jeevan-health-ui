@@ -39,11 +39,50 @@ export default function Checkout() {
 
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
+  const [locating, setLocating] = useState(false);
 
   // Address
   const [address, setAddress] = useState({
     fullName: '', phone: '', pincode: '', addressLine: '', city: 'Hyderabad', state: 'Telangana', landmark: '',
   });
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) { setError('Geolocation not supported'); return; }
+    setLocating(true);
+    setError('');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&addressdetails=1`);
+          const data = await res.json();
+          const a = data.address || {};
+          setAddress(prev => ({
+            ...prev,
+            addressLine: [a.house_number || a.building || '', a.road || a.street || '', a.suburb || a.neighbourhood || ''].filter(Boolean).join(', '),
+            city: a.city || a.town || a.county || a.state_district || prev.city,
+            state: a.state || prev.state,
+            pincode: a.postcode || prev.pincode,
+          }));
+        } catch {
+          setAddress(prev => ({ ...prev, addressLine: `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}` }));
+        }
+        setLocating(false);
+      },
+      () => { setError('Location access denied. Please enter manually.'); setLocating(false); },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  const quickLocations = [
+    { label: 'Gachibowli', pincode: '500032', area: 'Gachibowli, Hyderabad' },
+    { label: 'HITEC City', pincode: '500081', area: 'HITEC City, Hyderabad' },
+    { label: 'Madhapur', pincode: '500081', area: 'Madhapur, Hyderabad' },
+    { label: 'Kukatpally', pincode: '500072', area: 'Kukatpally, Hyderabad' },
+    { label: 'Jubilee Hills', pincode: '500033', area: 'Jubilee Hills, Hyderabad' },
+    { label: 'Banjara Hills', pincode: '500034', area: 'Banjara Hills, Hyderabad' },
+    { label: 'Kondapur', pincode: '500084', area: 'Kondapur, Hyderabad' },
+    { label: 'Secunderabad', pincode: '500003', area: 'Secunderabad' },
+  ];
 
   // Patient
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -225,7 +264,28 @@ export default function Checkout() {
 
   const renderAddress = () => (
     <div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text-dark)' }}>📍 Home Collection Address</h3>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--text-dark)' }}>📍 Home Collection Address</h3>
+      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>We'll collect samples from your doorstep at the selected time.</p>
+
+      {/* Detect Location */}
+      <button onClick={detectLocation} disabled={locating}
+        style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1px dashed var(--primary)', background: 'var(--primary-light)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14, opacity: locating ? 0.7 : 1 }}>
+        {locating ? '⏳ Detecting...' : '📍 Detect My Location'}
+      </button>
+
+      {/* Quick Location Suggestions */}
+      <div style={{ marginBottom: 14 }}>
+        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>Popular Areas in Hyderabad</label>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {quickLocations.map(l => (
+            <button key={l.label} type="button" onClick={() => setAddress(prev => ({ ...prev, addressLine: l.area, pincode: l.pincode }))}
+              style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border)', background: address.addressLine === l.area ? 'var(--primary)' : '#fff', color: address.addressLine === l.area ? '#fff' : 'var(--text-body)', cursor: 'pointer', fontSize: 10, fontFamily: 'inherit', fontWeight: 500 }}>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid-2">
         <div>
           <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>Full Name *</label>
