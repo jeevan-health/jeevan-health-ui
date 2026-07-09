@@ -10,6 +10,7 @@ const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
 const TestDetail = lazy(() => import('./pages/TestDetail'));
 const TestCategory = lazy(() => import('./pages/TestCategory'));
+const HealthPackages = lazy(() => import('./pages/HealthPackages'));
 const Services = lazy(() => import('./pages/Services'));
 const PackageDetail = lazy(() => import('./pages/PackageDetail'));
 const MyTestOrders = lazy(() => import('./pages/MyTestOrders'));
@@ -190,6 +191,7 @@ export default function App() {
             <Route path="/diagnostics" element={<Diagnostics />} />
             <Route path="/tests/:category" element={<TestCategory />} />
             <Route path="/test/:slug" element={<TestDetail />} />
+            <Route path="/health-packages" element={<HealthPackages />} />
             <Route path="/services" element={<Services />} />
             <Route path="/package/:slug" element={<PackageDetail />} />
             <Route path="/my-orders" element={<Protected><MyTestOrders /></Protected>} />
