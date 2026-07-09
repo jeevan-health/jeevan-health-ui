@@ -28,6 +28,23 @@ const useAuthStore = create((set, get) => ({
     return true;
   },
 
+  googleLogin: async () => {
+    set({ isLoading: true });
+    await new Promise(r => setTimeout(r, 1200));
+    const user = {
+      id: 'google_1',
+      name: 'Ashwin Kumar',
+      email: 'ashwin.kumar@gmail.com',
+      phone: '+91 98765 43210',
+      avatar: null,
+      provider: 'google',
+    };
+    localStorage.setItem('jh_token', 'mock-token-google');
+    localStorage.setItem('jh_user', JSON.stringify(user));
+    set({ user, isAuthenticated: true, isLoading: false });
+    return true;
+  },
+
   fetchProfile: async () => {
     try {
       const stored = localStorage.getItem('jh_user');
