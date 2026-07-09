@@ -5,6 +5,7 @@ import useAuthStore from '../stores/authStore';
 import DailyTracker from '../components/DailyTracker';
 
 import useDailyActivityStore from '../stores/dailyActivityStore';
+import HealthToolsGrid from '../components/healthTools/HealthToolsGrid';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -961,27 +962,7 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Vitals */}
-              <div className="card" style={{ marginBottom: 12 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>📏 Vitals</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                  <button onClick={() => setComingSoon('BMI Calculator & History')} style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
-                    <div style={{ fontSize: 22, marginBottom: 4 }}>⚖️</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>BMI</div>
-                    <div style={{ fontSize: 18, fontWeight: 700 }}>{store.healthData?.bodyMeasurements?.bmi || '--'}</div>
-                  </button>
-                  <button onClick={() => setComingSoon('BP History & Trend Chart')} style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
-                    <div style={{ fontSize: 22, marginBottom: 4 }}>🫀</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>BP</div>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{store.healthData?.bodyMeasurements?.systolicBp ? `${store.healthData.bodyMeasurements.systolicBp}/${store.healthData.bodyMeasurements.diastolicBp || '--'}` : '--'}</div>
-                  </button>
-                  <button onClick={() => setComingSoon('Heart Health Summary')} style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
-                    <div style={{ fontSize: 22, marginBottom: 4 }}>🩸</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Heart</div>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{healthScoreComputed ? `${healthScoreComputed.categories.find(c => c.key === 'lifestyle')?.score || '--'}/25` : '--'}</div>
-                  </button>
-                </div>
-              </div>
+              <HealthToolsGrid />
 
               {/* Lab Trends */}
               {store.healthTrends.hba1c.length > 0 && (
