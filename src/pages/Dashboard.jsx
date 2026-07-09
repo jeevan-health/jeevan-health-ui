@@ -161,6 +161,7 @@ export default function Dashboard() {
     else if (tab === 'profile' && activeSection !== 'profile') setActiveSection('profile');
     else if (!tab && activeSection !== 'overview') setActiveSection('overview');
   }, [searchParams]);
+  useEffect(() => { if (comingSoon) { const t = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(t); } }, [comingSoon]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   const [editingFamily, setEditingFamily] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -181,6 +182,7 @@ export default function Dashboard() {
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [healthStep, setHealthStep] = useState(1);
   const [healthSubTab, setHealthSubTab] = useState('overview');
+  const [comingSoon, setComingSoon] = useState(null);
   const [healthForm, setHealthForm] = useState({
     personalProfile: { ageGroup: '', gender: '', location: '' },
     lifestyle: { smoking: 'never', alcohol: 'never', exercise: 'frequent', sleep: 'good', stress: 'low' },
@@ -251,7 +253,7 @@ export default function Dashboard() {
       {navItems.map(item => (
         <button key={item.key} onClick={() => {
           if (item.key === 'logout') { logout(); }
-          else if (item.action === 'health') { setHealthStep(1); setShowHealthModal(true); }
+          else if (item.action === 'health') { setActiveSection('health'); }
           else { setActiveSection(item.key); }
         }}
           style={{
@@ -362,7 +364,7 @@ export default function Dashboard() {
         <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 16 }}>
           <nav style={{ display: 'flex', gap: 4, overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
             {navItems.filter(item => item.key !== 'logout').map(item => (
-              <button key={item.key} onClick={() => { if (item.action === 'health') { setHealthStep(1); setShowHealthModal(true); } else { setActiveSection(item.key); } }}
+              <button key={item.key} onClick={() => { if (item.key === 'health') { setActiveSection('health'); } else { setActiveSection(item.key); } }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
                   fontSize: 13, fontWeight: activeSection === item.key ? 600 : 500,
@@ -963,21 +965,21 @@ export default function Dashboard() {
               <div className="card" style={{ marginBottom: 12 }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>📏 Vitals</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                  <div style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                  <button onClick={() => setComingSoon('BMI Calculator & History')} style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>⚖️</div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>BMI</div>
                     <div style={{ fontSize: 18, fontWeight: 700 }}>{store.healthData?.bodyMeasurements?.bmi || '--'}</div>
-                  </div>
-                  <div style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                  </button>
+                  <button onClick={() => setComingSoon('BP History & Trend Chart')} style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>🫀</div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>BP</div>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{store.healthData?.bodyMeasurements?.systolicBp ? `${store.healthData.bodyMeasurements.systolicBp}/${store.healthData.bodyMeasurements.diastolicBp || '--'}` : '--'}</div>
-                  </div>
-                  <div style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10 }}>
+                  </button>
+                  <button onClick={() => setComingSoon('Heart Health Summary')} style={{ textAlign: 'center', padding: 12, background: '#f8f9fa', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>🩸</div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Heart</div>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{healthScoreComputed ? `${healthScoreComputed.categories.find(c => c.key === 'lifestyle')?.score || '--'}/25` : '--'}</div>
-                  </div>
+                  </button>
                 </div>
               </div>
 
@@ -1551,7 +1553,15 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Coming Soon Toast */}
+      {comingSoon && (
+        <div style={{ position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)', zIndex: 99999, background: '#1e293b', color: '#fff', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600, boxShadow: '0 8px 32px rgba(0,0,0,0.2)', animation: 'fadeInUp 0.3s ease', whiteSpace: 'nowrap' }}>
+          🚧 {comingSoon} — Coming Soon
+        </div>
+      )}
+
       <style>{`
+        @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         @media (max-width: 768px) {
           .dash-sidebar { display: none !important; }
           .dash-mobile-nav { display: block !important; }
