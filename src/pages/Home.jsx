@@ -9,6 +9,8 @@ import useCmsStore from '../stores/cmsStore';
 export default function Home() {
   const popular = seedTests.slice(0, 8);
   const pkgs = packageList.slice(0, 4);
+  const cms = useCmsStore();
+  const featured = cms.content?.healthPackages?.featured || [];
 
   return (
     <div>
