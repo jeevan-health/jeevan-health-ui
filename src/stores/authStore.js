@@ -107,6 +107,20 @@ const useAuthStore = create((set, get) => ({
   deleteUser: (userId) => {
     saveUsers(loadUsers().filter(u => u.id !== userId));
   },
+
+  addUser: (userData) => {
+    const user = {
+      id: 'USR-' + Date.now().toString(36).toUpperCase(),
+      name: userData.name || '',
+      phone: userData.phone || '',
+      email: userData.email || '',
+      role: userData.role || 'staff',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    registerUser(user);
+    return user;
+  },
 }));
 
 const stored = localStorage.getItem('jh_user');

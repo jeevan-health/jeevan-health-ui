@@ -3,14 +3,18 @@ import useAdminStore from '../../stores/adminStore';
 import useAuthStore from '../../stores/authStore';
 
 const ROLE_OPTIONS = ['user', 'staff', 'admin', 'super_admin'];
+const MODAL_OVERLAY = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
 
 export default function AdminUsers() {
   const usersList = useAdminStore(s => s.usersList);
   const refreshAnalytics = useAdminStore(s => s.refreshAnalytics);
   const updateUserRole = useAuthStore(s => s.updateUserRole);
   const deleteUser = useAuthStore(s => s.deleteUser);
+  const addUser = useAuthStore(s => s.addUser);
   const [search, setSearch] = useState('');
   const [editingRole, setEditingRole] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [form, setForm] = useState({ name: '', phone: '', email: '', role: 'staff' });
 
   useEffect(() => { refreshAnalytics(); }, []);
 
@@ -32,12 +36,25 @@ export default function AdminUsers() {
     refreshAnalytics();
   };
 
+  const handleAdd = () => {
+    if (!form.name || !form.phone) return;
+    addUser(form);
+    setShowAdd(false);
+    setForm({ name: '', phone: '', email: '', role: 'staff' });
+    refreshAnalytics();
+  };
+
+  const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
+
   return (
     <div>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
         <input className="input" placeholder="Search by name, phone or email..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, maxWidth: 400, fontSize: 13 }} />
         <span style={{ fontSize: 12, color: '#64748b' }}>{filtered.length} of {usersList.length} users</span>
+        <button onClick={() => setShowAdd(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 600, whiteSpace: 'nowrap' }}>
+          + Add User
+        </button>
       </div>
 
       {filtered.length === 0 ? (
@@ -82,6 +99,35 @@ export default function AdminUsers() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAdd && (
+        <div style={MODAL_OVERLAY} onClick={() => setShowAdd(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Add User</h4>
+              <button onClick={() => setShowAdd(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}>✕</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <input placeholder="Full Name *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+              <input placeholder="Phone Number *" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
+              <input placeholder="Email (optional)" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+              <div>
+                <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>Role</label>
+                <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={inputStyle}>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                </select>
+              </div>
+            </div>
+            <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
+              <button onClick={handleAdd} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add User</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
