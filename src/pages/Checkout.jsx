@@ -86,6 +86,8 @@ export default function Checkout() {
 
   // Patient
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [showNewPatient, setShowNewPatient] = useState(false);
+  const [newPatient, setNewPatient] = useState({ name: '', age: '', gender: 'Male', relation: 'Other' });
 
   // Date & Time
   const dates = useMemo(() => generateDates(), []);
@@ -324,22 +326,22 @@ export default function Checkout() {
   const renderPatient = () => (
     <div>
       <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text-dark)' }}>👤 Select Patient</h3>
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Who is this test for? Select a family member.</p>
+      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Who is this test for? Select an existing member or add a new one.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {family.map(m => (
           <div
             key={m.id}
-            onClick={() => setSelectedPatient(m)}
+            onClick={() => { setSelectedPatient(m); setShowNewPatient(false); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12, border: `2px solid ${selectedPatient?.id === m.id ? 'var(--primary)' : 'var(--border)'}`,
-              background: selectedPatient?.id === m.id ? 'var(--primary-light)' : '#fff',
+              display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12, border: `2px solid ${selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : 'var(--border)'}`,
+              background: selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary-light)' : '#fff',
               cursor: 'pointer', transition: 'all 0.2s',
             }}
           >
             <div style={{
-              width: 40, height: 40, borderRadius: '50%', background: selectedPatient?.id === m.id ? 'var(--primary)' : '#f0f4f8',
+              width: 40, height: 40, borderRadius: '50%', background: selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : '#f0f4f8',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700,
-              color: selectedPatient?.id === m.id ? '#fff' : 'var(--text-body)',
+              color: selectedPatient?.id === m.id && !showNewPatient ? '#fff' : 'var(--text-body)',
             }}>
               {m.name[0]}
             </div>
@@ -348,14 +350,78 @@ export default function Checkout() {
               <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{m.relation} · {m.age} yrs · {m.bloodGroup}</div>
             </div>
             <div style={{
-              width: 20, height: 20, borderRadius: '50%', border: `2px solid ${selectedPatient?.id === m.id ? 'var(--primary)' : '#d0d5dd'}`,
+              width: 20, height: 20, borderRadius: '50%', border: `2px solid ${selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : '#d0d5dd'}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: selectedPatient?.id === m.id ? 'var(--primary)' : 'transparent',
+              background: selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : 'transparent',
             }}>
-              {selectedPatient?.id === m.id && <span style={{ color: '#fff', fontSize: 11 }}>✓</span>}
+              {selectedPatient?.id === m.id && !showNewPatient && <span style={{ color: '#fff', fontSize: 11 }}>✓</span>}
             </div>
           </div>
         ))}
+
+        {/* Add New Patient Button */}
+        <div onClick={() => { setShowNewPatient(!showNewPatient); setSelectedPatient(null); }}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12,
+            border: `2px dashed ${showNewPatient ? 'var(--primary)' : 'var(--border)'}`,
+            background: showNewPatient ? 'var(--primary-light)' : '#fff',
+            cursor: 'pointer', transition: 'all 0.2s',
+          }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: '50%', background: showNewPatient ? 'var(--primary)' : '#f0f4f8',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700,
+            color: showNewPatient ? '#fff' : 'var(--primary)',
+          }}>+</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>Add New Patient</div>
+        </div>
+
+        {/* New Patient Form */}
+        {showNewPatient && (
+          <div style={{ padding: 14, background: '#f8f9fa', borderRadius: 12, marginTop: 4 }}>
+            <div className="grid-2" style={{ marginBottom: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Full Name *</label>
+                <input className="input" value={newPatient.name} onChange={e => setNewPatient(p => ({ ...p, name: e.target.value }))} placeholder="Patient name" style={{ fontSize: 12 }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Age *</label>
+                <input className="input" type="number" value={newPatient.age} onChange={e => setNewPatient(p => ({ ...p, age: e.target.value }))} placeholder="Age" style={{ fontSize: 12 }} />
+              </div>
+            </div>
+            <div className="grid-2" style={{ marginBottom: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Gender</label>
+                <select className="select" value={newPatient.gender} onChange={e => setNewPatient(p => ({ ...p, gender: e.target.value }))} style={{ fontSize: 12 }}>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Relation</label>
+                <select className="select" value={newPatient.relation} onChange={e => setNewPatient(p => ({ ...p, relation: e.target.value }))} style={{ fontSize: 12 }}>
+                  <option value="Self">Self</option>
+                  <option value="Spouse">Spouse</option>
+                  <option value="Son">Son</option>
+                  <option value="Daughter">Daughter</option>
+                  <option value="Father">Father</option>
+                  <option value="Mother">Mother</option>
+                  <option value="Sibling">Sibling</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <button onClick={() => {
+              if (!newPatient.name || !newPatient.age) { setError('Please enter name and age'); return; }
+              const member = { ...newPatient, age: parseInt(newPatient.age), bloodGroup: '--', lastCheckup: 'N/A', abhaId: '' };
+              useDashboardStore.getState().addFamilyMember(member);
+              setSelectedPatient({ ...member, id: `FM${Date.now()}` });
+              setShowNewPatient(false);
+              setNewPatient({ name: '', age: '', gender: 'Male', relation: 'Other' });
+              setError('');
+            }} className="btn btn-primary btn-block" style={{ fontSize: 12 }}>Save & Select</button>
+          </div>
+        )}
       </div>
     </div>
   );
