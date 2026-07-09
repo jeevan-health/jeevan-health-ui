@@ -434,3 +434,169 @@ img { max-width: 100%; height: auto; }
   .video-card:hover, .stats-glass-card:hover, .hl-cat-card:hover,
   .btn:hover, .btn-primary:hover, .btn-outline:hover, .btn-green:hover { transform: none !important; }
 }
+
+/* ===== MOBILE APP-LIKE EXPERIENCE ===== */
+
+/* Safe area handling for modern phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-bottom-bar { padding-bottom: env(safe-area-inset-bottom) !important; height: calc(64px + env(safe-area-inset-bottom)) !important; }
+  .page-content { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  .fab-container { bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  .panel { padding-top: env(safe-area-inset-top); }
+}
+
+/* App-like page transitions */
+.app-page {
+  animation: appPageIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes appPageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* App-like touch feedback: subtle scale on tap */
+.app-tap {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-tap:active {
+  transform: scale(0.97);
+}
+
+/* Enhanced mobile bottom bar */
+.mobile-bottom-bar {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.95) !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.5) !important;
+}
+.mobile-bottom-bar a {
+  position: relative;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-bottom-bar a.active {
+  color: var(--primary) !important;
+}
+.mobile-bottom-bar a.active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.mobile-bottom-bar .mbb-cta {
+  background: linear-gradient(135deg, var(--primary), var(--brand-primary)) !important;
+  color: #fff !important;
+  border-radius: 24px !important;
+  padding: 8px 24px !important;
+  box-shadow: 0 4px 12px rgba(24, 102, 201, 0.3);
+}
+
+/* App-like header on mobile */
+@media (max-width: 768px) {
+  .site-header {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06) !important;
+  }
+  .header-logo img { height: 26px; }
+  .hdr-search-wrap .smart-search-input {
+    background: #f0f2f5 !important;
+    border-radius: 24px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    border: none !important;
+    transition: all 0.2s;
+  }
+  .hdr-search-wrap .smart-search-input:focus {
+    background: #fff !important;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+  .hdr-btn {
+    border-radius: 50% !important;
+    width: 34px;
+    height: 34px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px !important;
+    background: #f0f2f5 !important;
+    border: none !important;
+  }
+  .hdr-btn.hdr-login {
+    border-radius: 50% !important;
+    width: 34px;
+    height: 34px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hdr-btn.hdr-login[style*="background: var(--primary)"] {
+    border-radius: 50% !important;
+    width: 34px;
+    height: 34px;
+    font-size: 0 !important;
+  }
+  .hdr-btn.hdr-login[style*="background: var(--primary)"]::before {
+    content: '👤';
+    font-size: 14px;
+  }
+  .hdr-cart { position: relative; }
+  .hdr-cart .cart-count-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+}
+
+/* App-like card variant */
+.app-card {
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: none;
+  overflow: hidden;
+}
+
+/* Smooth scrolling for iOS */
+.app-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Prevent text selection on interactive elements */
+.app-no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ===== RESPONSIVE: SMALL (≤360px) EXTRA TINY ===== */
+@media (max-width: 360px) {
+  .mobile-bottom-bar a { font-size: 8px !important; padding: 4px 6px !important; }
+  .mobile-bottom-bar a span:first-child { font-size: 16px !important; }
+  .mobile-bottom-bar { height: 48px !important; }
+  .page-content { padding-bottom: 64px !important; }
+  .btn { padding: 6px 10px !important; font-size: 10px !important; }
+  .card { padding: 10px !important; }
+  .section-title { font-size: 16px !important; }
+}
