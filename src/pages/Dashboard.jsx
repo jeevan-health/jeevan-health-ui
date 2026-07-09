@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useDashboardStore from '../stores/dashboardStore';
 import useAuthStore from '../stores/authStore';
