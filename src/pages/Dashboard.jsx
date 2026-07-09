@@ -1059,83 +1059,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ===== HEALTH TRENDS & SCORE (shown in overview) ===== */}
+        {/* ===== NOTIFICATIONS + PRESCRIPTIONS + RECOMMENDATIONS ===== */}
         {activeSection === 'overview' && (
-          <>
-            <div className="dash-section-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12, marginBottom: 24 }}>
-              {/* Health Trends */}
-              <div className="card">
-                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  📈 Health Trends
-                </h3>
-                {store.healthTrends.hba1c.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
-                      <span>HbA1c</span>
-                      <span>
-                        <TrendArrow value={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value} prev={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 2]?.value} />
-                        {' '}{store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value}%
-                      </span>
-                    </div>
-                    <div className="dash-trend-svg"><TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" /></div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-light)', marginTop: 2 }}>
-                      {store.healthTrends.hba1c.map((h, i) => (
-                        <span key={i}>{h.date}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <button className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>View All Trends</button>
-              </div>
-
-              {/* Health Score Breakdown */}
-              <div className="card" style={{ padding: 18 }}>
-                {store.healthData && healthScoreComputed ? (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-                      <div style={{ width: 72, height: 72, borderRadius: '50%', background: healthScoreComputed.recommendation.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
-                        {healthScoreComputed.recommendation.icon}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 600 }}>YOUR HEALTH SCORE</div>
-                        <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 18, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: healthScoreComputed.recommendation.color, marginTop: 4 }}>{healthScoreComputed.recommendation.message}</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
-                      {healthScoreComputed.categories.map(cat => (
-                        <div key={cat.key}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, marginBottom: 2 }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <span>{cat.icon}</span> {cat.label}
-                            </span>
-                            <span style={{ fontWeight: 700, color: cat.color }}>{cat.score}/{cat.max}</span>
-                          </div>
-                          <div style={{ height: 5, background: '#e8edf2', borderRadius: 3, overflow: 'hidden' }}>
-                            <div style={{ width: `${(cat.score / cat.max) * 100}%`, height: '100%', background: cat.color, borderRadius: 3, transition: 'width 0.5s' }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Update Assessment</button>
-                      <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ flex: 1 }}>Book Recommended Tests</button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                      <div style={{ fontSize: 40, marginBottom: 8 }}>🩺</div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Your Health Score</h3>
-                      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Complete the health assessment to get your personalized score</p>
-                      <button className="btn btn-primary btn-sm" onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Start Health Assessment</button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Notifications + Prescriptions + Recommendations */}
             <div className="dash-section-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 24 }}>
               {/* Notifications */}
               <div className="card">
