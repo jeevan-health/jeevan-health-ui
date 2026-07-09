@@ -4,6 +4,7 @@ import useUploadModal from '../stores/uploadModalStore';
 import useCartStore from '../stores/cartStore';
 import { seedTests, categoryList, makeSlug } from '../data/seedData';
 import SmartSearch from '../components/layout/SmartSearch';
+import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
 
 export default function Diagnostics() {
@@ -77,26 +78,7 @@ export default function Diagnostics() {
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{searchResults.length} test{searchResults.length !== 1 ? 's' : ''} found for "{search}"</p>
           <div className="grid-3">
             {searchResults.map(t => (
-              <div key={t.id} className="test-card">
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                    <h3>{t.name}</h3>
-                    <span className="badge badge-primary" style={{ fontSize: 10, whiteSpace: 'nowrap' }}>{t.category}</span>
-                  </div>
-                  <div className="desc">{t.description}</div>
-                </div>
-                <div className="footer" style={{ marginTop: 12 }}>
-                  <div>
-                    <span className="price">₹{t.offerPrice || t.price}</span>
-                    {(t.mrp && t.mrp !== (t.offerPrice || t.price)) && <span className="mrp">₹{t.mrp}</span>}
-                    <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 2 }}>{diag.freeHomeCollectionTag || 'Free Home Collection'}</div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/test/${makeSlug(t.name)}`} className="btn btn-outline btn-sm">Details</Link>
-                    <button onClick={() => { addItem({ id: t.id, name: t.name, price: t.price, offerPrice: t.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary btn-sm">Book</button>
-                  </div>
-                </div>
-              </div>
+              <TestCard key={t.id} test={t} />
             ))}
           </div>
           {seedTests.filter(t =>
@@ -177,26 +159,7 @@ export default function Diagnostics() {
             <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Trusted by thousands of patients for accurate results</p>
             <div className="grid-3">
               {seedTests.filter(t => ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total', 'Vitamin B12'].includes(t.name)).map(t => (
-                <div key={t.id} className="test-card">
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                      <h3>{t.name}</h3>
-                      <span className="badge badge-primary" style={{ fontSize: 10, whiteSpace: 'nowrap' }}>{t.category}</span>
-                    </div>
-                    <div className="desc">{t.description}</div>
-                  </div>
-                  <div className="footer" style={{ marginTop: 12 }}>
-                    <div>
-                      <span className="price">₹{t.offerPrice || t.price}</span>
-                      {(t.mrp && t.mrp !== (t.offerPrice || t.price)) && <span className="mrp">₹{t.mrp}</span>}
-                      <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 2 }}>{diag.freeHomeCollectionTag || 'Free Home Collection'}</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <Link to={`/test/${makeSlug(t.name)}`} className="btn btn-outline btn-sm">Details</Link>
-                      <button onClick={() => { addItem({ id: t.id, name: t.name, price: t.price, offerPrice: t.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary btn-sm">Book</button>
-                    </div>
-                  </div>
-                </div>
+                <TestCard key={t.id} test={t} />
               ))}
             </div>
           </div>

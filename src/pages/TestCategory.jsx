@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../stores/cartStore';
 import { seedTests, categoryList, getCategoryBySlug, makeSlug } from '../data/seedData';
+import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
 
 export default function TestCategory() {
@@ -93,28 +94,7 @@ export default function TestCategory() {
             <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>Recommended for You</h2>
             <div className="grid-3">
               {fullList.filter(t => !t.name.toLowerCase().includes('panel') && !t.name.toLowerCase().includes('profile')).slice(0, 3).map(t => (
-                <div key={t.id} className="test-card" style={{ borderLeft: `4px solid ${catColor}` }}>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                      <h3>{t.name}</h3>
-                      <span className="badge" style={{ background: `${catColor}15`, color: catColor, fontSize: 10 }}>Popular</span>
-                    </div>
-                    <div className="desc">{t.description}</div>
-                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>
-                      <span>🩸 {t.category}</span>
-                      <span>⏱ {t.report_time || '24 hrs'}</span>
-                      <span>{t.fasting_required ? '🌙 Fasting' : '🍽 No Fasting'}</span>
-                    </div>
-                  </div>
-                  <div className="footer" style={{ marginTop: 10 }}>
-                    <div>
-                      <span className="price">₹{t.offerPrice || t.price}</span>
-                      {(t.mrp && t.mrp !== (t.offerPrice || t.price)) && <span className="mrp">₹{t.mrp}</span>}
-                      <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 1 }}>{diag.freeHomeCollectionTag || 'Free Home Collection'}</div>
-                    </div>
-                    <button onClick={() => { addItem({ id: t.id, name: t.name, price: t.price, offerPrice: t.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary btn-sm">Book Now</button>
-                  </div>
-                </div>
+                <TestCard key={t.id} test={t} />
               ))}
             </div>
           </div>
@@ -158,30 +138,7 @@ export default function TestCategory() {
         {results.length > 0 ? (
           <div className="grid-3">
             {results.map(t => (
-              <div key={t.id} className="test-card">
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                    <h3>{t.name}</h3>
-                    <span className="badge badge-primary" style={{ fontSize: 10, whiteSpace: 'nowrap' }}>{t.category}</span>
-                  </div>
-                  <div className="desc">{t.description}</div>
-                  <div style={{ display: 'flex', gap: 10, fontSize: 11, color: 'var(--text-secondary)', marginTop: 6 }}>
-                    <span>⏱ {t.report_time || '24 hrs'}</span>
-                    <span>{t.fasting_required ? '🌙 Fasting Required' : '🍽 No Fasting'}</span>
-                  </div>
-                </div>
-                <div className="footer" style={{ marginTop: 12 }}>
-                  <div>
-                    <span className="price">₹{t.offerPrice || t.price}</span>
-                    {(t.mrp && t.mrp !== (t.offerPrice || t.price)) && <span className="mrp">₹{t.mrp}</span>}
-                    <div style={{ fontSize: 10, color: 'var(--secondary)', fontWeight: 600, marginTop: 2 }}>{diag.freeHomeCollectionTag || 'Free Home Collection'}</div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/test/${makeSlug(t.name)}`} className="btn btn-outline btn-sm">Details</Link>
-                    <button onClick={() => { addItem({ id: t.id, name: t.name, price: t.price, offerPrice: t.offerPrice, type: 'test' }); navigate('/checkout'); }} className="btn btn-primary btn-sm">Book</button>
-                  </div>
-                </div>
-              </div>
+              <TestCard key={t.id} test={t} />
             ))}
           </div>
         ) : (
