@@ -107,7 +107,7 @@ export default function VaccinationBooking() {
             💬 Send WhatsApp Confirmation
           </a>
           <Link to="/vaccination/wallet" style={{ height: 44, padding: '0 24px', borderRadius: 8, border: '1px solid #d0d5dd', color: '#0f172a', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>💳 View Wallet</Link>
-          <Link to="/vaccination" style={{ height: 44, padding: '0 24px', borderRadius: 8, border: '1px solid #d0d5dd', color: '#0f172a', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>Back to Vaccination</Link>
+          <Link to="/vaccination" style={{ height: 44, padding: '0 24px', borderRadius: 8, border: '1px solid #d0d5dd', color: '#0f172a', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>← Back to Vaccination</Link>
         </div>
       </div>
     );

@@ -37,6 +37,7 @@ export default function CorporateVaccination() {
       {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, #1e3a5f, #2563eb)', padding: '48px 0', textAlign: 'center' }}>
         <div className="container">
+          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
           <span style={{ fontSize: 48, display: 'block', marginBottom: 8 }}>🏢</span>
           <h1 style={{ color: '#fff', fontSize: 32, fontWeight: 800, margin: '0 0 8px' }}>Corporate Vaccination Programs</h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, margin: '0 auto 16px', maxWidth: 500 }}>

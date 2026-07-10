@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import useUploadModal from '../../stores/uploadModalStore';
+import { vaccineCategories } from '../../data/vaccinationData';
 
 const socialLinks = [
   { label: 'Facebook', url: 'https://facebook.com/jeevanhealthcare', icon: 'f' },
@@ -38,6 +39,24 @@ const sections = [
     { label: '🦴 Arthritis & Autoimmune', path: '/tests/arthritis-autoimmune' },
     { label: '🤧 Allergy Tests', path: '/tests/allergy' },
     { label: '👩 Women\'s Health', path: '/tests/hormones' },
+  ]},
+  { key: 'vaccines', label: 'Vaccination', links: [
+    { label: '👶 Baby Vaccination', path: '/vaccination/category/baby-vaccination' },
+    { label: '🍼 Newborn & Neonatal', path: '/vaccination/category/newborn-vaccination' },
+    { label: '🧒 Child Vaccination', path: '/vaccination/category/child-vaccination' },
+    { label: '👨 Adult Vaccination', path: '/vaccination/category/adult-vaccination' },
+    { label: '👩 Women Vaccination', path: '/vaccination/category/women-vaccination' },
+    { label: '🤰 Pregnancy Vaccination', path: '/vaccination/category/pregnancy-vaccination' },
+    { label: '👴 Senior Citizen', path: '/vaccination/category/senior-vaccination' },
+    { label: '✈️ Travel Vaccination', path: '/vaccination/category/travel-vaccination' },
+    { label: '🩺 Healthcare Workers', path: '/vaccination/category/healthcare-vaccination' },
+    { label: '🛡️ Immunocompromised', path: '/vaccination/category/immunocompromised-vaccination' },
+    { label: '🏢 Corporate Vaccination', path: '/vaccination/category/corporate-vaccination' },
+    { label: '📋 Full Schedule', path: '/vaccination/schedule' },
+    { label: '📊 Compare Vaccines', path: '/vaccination/compare' },
+    { label: '📍 Vaccination Camps', path: '/vaccination/camps' },
+    { label: '🏥 Bulk Booking', path: '/vaccination/bulk-booking' },
+    { label: '💳 My Vaccine Wallet', path: '/vaccination/wallet' },
   ]},
   { key: 'packages', label: 'Health Packages', links: [
     { label: '🔬 All Health Packages', path: '/health-packages' },

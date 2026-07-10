@@ -91,6 +91,8 @@ export default function VaccinationAtHome() {
             <Link to="/vaccination/compare" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>📊 Compare</Link>
             <Link to="/vaccination/camps" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>📍 Camps</Link>
             <Link to="/vaccination/bulk-booking" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>🏥 Bulk Booking</Link>
+            <Link to="/vaccination/vaccine-finder" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>🔍 Vaccine Finder</Link>
+            <Link to="/vaccination/wallet" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>💳 Wallet</Link>
           </div>
         </div>
       </div>

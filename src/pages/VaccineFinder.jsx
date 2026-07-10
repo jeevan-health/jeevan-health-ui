@@ -98,6 +98,7 @@ export default function VaccineFinder() {
 
   return (
     <div className="page-section container" style={{ maxWidth: 560 }}>
+      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <span style={{ fontSize: 36, display: 'block', marginBottom: 8 }}>🔍</span>
         <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>Find My Vaccine</h2>

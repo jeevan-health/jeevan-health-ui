@@ -29,11 +29,12 @@ export default function VaccineDetail() {
 
   return (
     <div className="page-section container">
+      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
       {/* Breadcrumb */}
       <div style={{ display: 'flex', gap: 6, fontSize: 11, color: '#94a3b8', marginBottom: 16, flexWrap: 'wrap' }}>
         <Link to="/vaccination" style={{ color: '#2563eb', textDecoration: 'none' }}>Vaccination</Link>
         <span>/</span>
-        {category && <><Link to={`/vaccination?category=${category.id}`} style={{ color: '#2563eb', textDecoration: 'none' }}>{category.name}</Link><span>/</span></>}
+        {category && <><Link to={`/vaccination/category/${category.slug}`} style={{ color: '#2563eb', textDecoration: 'none' }}>{category.name}</Link><span>/</span></>}
         <span style={{ color: '#0f172a', fontWeight: 600 }}>{vaccine.name}</span>
       </div>
 

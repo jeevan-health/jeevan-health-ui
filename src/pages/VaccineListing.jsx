@@ -19,6 +19,7 @@ export default function VaccineListing() {
 
   return (
     <div className="page-section container">
+      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
       <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>All Vaccines</h1>
       <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Comprehensive vaccination list — find the right vaccine for you and your family</p>
 
