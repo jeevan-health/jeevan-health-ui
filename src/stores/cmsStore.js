@@ -50,7 +50,7 @@ const defaults = {
     { id: 'pharmacy', icon: '💊', label: 'Pharmacy', description: 'Medicines delivered to your home', color: '#F59E0B', link: '/services/pharmacy', active: true },
     { id: 'nursing', icon: '👩‍⚕️', label: 'Nursing', description: 'Skilled nursing care at home', color: '#8B5CF6', link: '/services/nursing', active: true },
     { id: 'physiotherapy', icon: '🏋️', label: 'Physiotherapy', description: 'Recover with expert physiotherapists', color: '#EC4899', link: '/services/physiotherapy', active: true },
-    { id: 'vaccination', icon: '💉', label: 'Vaccination at Home', description: 'Vaccination for all age groups & travel', color: '#2563eb', link: '/vaccination-at-home', active: true },
+    { id: 'vaccination', icon: '💉', label: 'Vaccination at Home', description: 'Vaccination for all age groups & travel', color: '#2563eb', link: '/vaccination', active: true },
   ],
   servicesPage: {
     heroTitle: 'Complete Healthcare at Your Doorstep',

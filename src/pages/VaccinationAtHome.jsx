@@ -1,204 +1,231 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { packageList } from '../data/healthPackages';
-
-const VACCINE_CATEGORIES = [
-  { icon: '👶', name: 'Childhood Vaccines', desc: 'BCG, Polio, DPT, MMR, Hepatitis B & more as per IAP schedule', age: '0–12 years', color: '#2563eb' },
-  { icon: '🧑', name: 'Adult Vaccines', desc: 'Typhoid, Hepatitis A/B, HPV, Shingles, Pneumococcal', age: '18–65 years', color: '#059669' },
-  { icon: '✈️', name: 'Travel Vaccines', desc: 'Yellow Fever, Typhoid, Hepatitis A, Meningococcal, Cholera', age: 'All ages', color: '#d97706' },
-  { icon: '🌿', name: 'Seasonal Vaccines', desc: 'Influenza (Flu), COVID-19 boosters, H1N1', age: '6 months+', color: '#7c3aed' },
-  { icon: '🤰', name: 'Pregnancy Vaccines', desc: 'Tdap, Influenza, COVID-19 (safe during pregnancy)', age: 'Pregnant women', color: '#db2777' },
-  { icon: '🧓', name: 'Senior Vaccines', desc: 'Pneumococcal, Shingles, Influenza, Tdap booster', age: '60+ years', color: '#dc2626' },
-];
-
-const POPULAR_VACCINES = [
-  { name: 'Influenza (Flu)', schedule: 'Annual', price: 899, doses: 1, age: '6 months+' },
-  { name: 'Typhoid', schedule: 'Every 3 years', price: 499, doses: 1, age: '2 years+' },
-  { name: 'Hepatitis A', schedule: '2 doses, 6 months apart', price: 1299, doses: 2, age: '1 year+' },
-  { name: 'Hepatitis B', schedule: '3 doses over 6 months', price: 599, doses: 3, age: 'Birth+' },
-  { name: 'MMR', schedule: '2 doses, 4 weeks apart', price: 799, doses: 2, age: '12 months+' },
-  { name: 'HPV (Cervical Cancer)', schedule: '2-3 doses over 6 months', price: 3499, doses: 3, age: '9–45 years' },
-  { name: 'Pneumococcal', schedule: 'Single dose / booster at 65', price: 2499, doses: 1, age: '65+ / high risk' },
-  { name: 'Shingles (Herpes Zoster)', schedule: '2 doses, 2-6 months apart', price: 4999, doses: 2, age: '50+' },
-  { name: 'Tdap (Tetanus + Pertussis)', schedule: 'Booster every 10 years', price: 599, doses: 1, age: '11 years+' },
-  { name: 'Yellow Fever', schedule: 'Single dose, lifetime', price: 1999, doses: 1, age: '9 months+' },
-  { name: 'Meningococcal', schedule: 'Single dose / booster', price: 1799, doses: 1, age: '11–18 years' },
-  { name: 'Chickenpox (Varicella)', schedule: '2 doses, 4-8 weeks apart', price: 1499, doses: 2, age: '12 months+' },
-];
+import { vaccineCategories, vaccines, getVaccinesByCategory } from '../data/vaccinationData';
 
 const STEPS = [
-  { icon: '📅', title: 'Book Your Slot', desc: 'Choose your preferred vaccine and pick a convenient date & time.' },
-  { icon: '👨‍⚕️', title: 'Trained Nurse Visits', desc: 'A qualified nurse arrives at your doorstep with the vaccine in a cold chain.' },
-  { icon: '💉', title: 'Vaccination Done', desc: 'Vaccine administered safely at home. Certificate provided immediately.' },
-  { icon: '📱', title: 'Follow-up Reminder', desc: 'Get SMS/app reminders for the next dose and booster schedules.' },
+  { icon: '📅', title: 'Select Vaccine', desc: 'Choose the vaccine you need from our comprehensive list.' },
+  { icon: '📋', title: 'Book Appointment', desc: 'Pick a convenient date & time. Home or clinic visit.' },
+  { icon: '👨‍⚕️', title: 'Nurse Visits / Clinic Visit', desc: 'Trained healthcare professional administers the vaccine.' },
+  { icon: '💉', title: 'Vaccination Done', desc: 'Safe vaccination with full aseptic protocol. Certificate provided.' },
+  { icon: '🔔', title: 'Reminder Set', desc: 'Get automated reminders for the next dose or booster schedule.' },
 ];
 
 const FAQS = [
-  { q: 'Is vaccination at home safe?', a: 'Yes. Our trained nurses follow strict clinical protocols. Vaccines are transported in cold-chain conditions and administered with full aseptic precautions.' },
-  { q: 'Which vaccines can I get at home?', a: 'All major vaccines — childhood (IAP schedule), adult, travel, seasonal (flu), and pregnancy vaccines. Some live vaccines may require a clinic visit.' },
-  { q: 'Do you provide vaccination certificates?', a: 'Yes, a digital vaccination certificate is provided after each dose. Travel vaccines include the International Certificate of Vaccination (Yellow Card) where applicable.' },
-  { q: 'How do I store the vaccine between doses?', a: 'Vaccines are brought fresh for each visit. Multi-dose vaccines are scheduled so you don\'t need to store anything at home.' },
+  { q: 'What vaccines are available?', a: 'We offer all major vaccines across categories — childhood (IAP schedule), adult, travel, seasonal flu, pregnancy (Tdap), and senior vaccines (pneumococcal, shingles). View our full list above.' },
+  { q: 'Can I get vaccination at home?', a: 'Yes, most vaccines can be administered at home by our trained nurses. Some live vaccines may require a clinic visit for safety reasons.' },
+  { q: 'Are vaccines genuine?', a: 'All our vaccines are sourced from WHO-approved manufacturers and stored in temperature-controlled cold chains. We only use government-certified vaccines.' },
+  { q: 'How long does vaccination take?', a: 'The vaccination itself takes only a few minutes. After vaccination, we recommend a 15-30 minute observation period to monitor for any immediate reactions.' },
+  { q: 'What documents are required?', a: 'No special documents are needed. For child vaccinations, please bring the child\'s immunization record if available. For travel vaccines, your passport and travel itinerary.' },
+  { q: 'Can I book vaccination for my child?', a: 'Yes, we offer complete childhood immunization as per the IAP schedule. We track doses and send reminders for upcoming vaccines.' },
+  { q: 'Do you provide vaccination certificates?', a: 'Yes, digital vaccination certificates are provided. Travel vaccines include the International Certificate of Vaccination (Yellow Card) where applicable.' },
   { q: 'What is the cancellation policy?', a: 'Free cancellation up to 4 hours before the appointment. Late cancellations may incur a ₹100 fee.' },
-  { q: 'Do you offer corporate vaccination camps?', a: 'Yes! We conduct on-site flu and health vaccination camps for corporates. Bulk discounts available. Contact us for a quote.' },
 ];
 
-const FOREIGN_KEYS = ['id', 'slug', 'faqId', 'vaccinationId'];
-
 export default function VaccinationAtHome() {
-  const [form, setForm] = useState({ name: '', phone: '', vaccine: '', date: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [quickForm, setQuickForm] = useState({ category: '', age: '', location: '', mobile: '' });
+  const [quickSubmitted, setQuickSubmitted] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
+  const quickRef = useRef();
 
-  const handleSubmit = (e) => {
+  const filteredVaccines = activeCategory === 'all'
+    ? vaccines.slice(0, 8)
+    : getVaccinesByCategory(activeCategory);
+
+  const handleQuickSubmit = (e) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.vaccine) return;
+    if (!quickForm.category || !quickForm.mobile) return;
     const bookings = JSON.parse(localStorage.getItem('jh_vaccination_bookings') || '[]');
-    bookings.push({ ...form, id: Date.now(), createdAt: new Date().toISOString(), status: 'Requested' });
+    bookings.push({
+      ...quickForm,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      status: 'Quick Request',
+      source: 'quick-booking-widget',
+    });
     localStorage.setItem('jh_vaccination_bookings', JSON.stringify(bookings));
-    setSubmitted(true);
-    setForm({ name: '', phone: '', vaccine: '', date: '', message: '' });
-    setTimeout(() => setSubmitted(false), 5000);
+    setQuickSubmitted(true);
+    setTimeout(() => {
+      setQuickSubmitted(false);
+      setQuickForm({ category: '', age: '', location: '', mobile: '' });
+    }, 4000);
   };
-
-  const travelPkg = packageList.filter(p => p.name.toLowerCase().includes('travel'));
 
   return (
     <div>
-      {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #0891b2 100%)', padding: '48px 0 52px', position: 'relative', overflow: 'hidden' }}>
+      {/* HERO SECTION */}
+      <div className="v-hero" style={{ background: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)', padding: '48px 0 56px', position: 'relative', overflow: 'hidden' }}>
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-            <span style={{ fontSize: 40 }}>💉</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <span style={{ fontSize: 36 }}>💉</span>
             <div>
-              <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, margin: 0 }}>Vaccination at Home</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, margin: '4px 0 0' }}>Safe, certified vaccination at your doorstep — all age groups</p>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, marginBottom: 2 }}>Jeevan Healthcare</div>
+              <h1 style={{ color: '#fff', fontSize: 30, fontWeight: 800, margin: 0, lineHeight: 1.2 }}>Protect Your Family With Safe & Trusted Vaccination</h1>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {['👶 Childhood', '🧑 Adult', '✈️ Travel', '🌿 Seasonal', '🤰 Pregnancy', '🧓 Senior'].map(tag => (
-              <span key={tag} style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 11, fontWeight: 600 }}>{tag}</span>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, margin: '0 0 12px', maxWidth: 480 }}>
+            Vaccines for <strong>Babies</strong> | <strong>Children</strong> | <strong>Adults</strong> | <strong>Seniors</strong> | <strong>Travellers</strong>
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+            {['Certified Healthcare Professionals', 'Genuine Vaccines', 'Home Vaccination Available', 'Digital Vaccine Records'].map(b => (
+              <span key={b} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.12)', padding: '4px 12px', borderRadius: 20 }}>
+                <span style={{ color: '#22C55E', fontSize: 12 }}>✓</span> {b}
+              </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderRadius: 8 }}>Book Vaccination</Link>
+            <Link to="/vaccination/vaccine-finder" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.4)', color: '#fff', padding: '10px 24px', fontSize: 13, fontWeight: 600, textDecoration: 'none', borderRadius: 8 }}>Find My Vaccine</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* QUICK BOOKING WIDGET */}
+      <div className="page-section" style={{ background: '#fff', borderBottom: '1px solid #e8edf2' }} ref={quickRef}>
+        <div className="container" style={{ maxWidth: 560 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4, textAlign: 'center' }}>Book Your Vaccination</h2>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px', textAlign: 'center' }}>Quick booking — we\'ll call you to confirm</p>
+          {quickSubmitted ? (
+            <div style={{ padding: 20, background: '#dcfce7', borderRadius: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 32, marginBottom: 6 }}>✅</div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#166534' }}>Request Submitted!</h3>
+              <p style={{ fontSize: 12, color: '#166534', margin: 0 }}>We\'ll contact you shortly to confirm your appointment.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleQuickSubmit} style={{ display: 'grid', gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Who is the vaccine for?</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  {vaccineCategories.map(c => (
+                    <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: quickForm.category === c.id ? '2px solid #2563eb' : '1px solid #d0d5dd', background: quickForm.category === c.id ? '#EFF6FF' : '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                      <input type="radio" name="q-cat" value={c.id} checked={quickForm.category === c.id} onChange={e => setQuickForm(f => ({ ...f, category: e.target.value }))} style={{ accentColor: '#2563eb' }} />
+                      {c.icon} {c.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Age</label>
+                  <select value={quickForm.age} onChange={e => setQuickForm(f => ({ ...f, age: e.target.value }))} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', background: '#fff', outline: 'none', boxSizing: 'border-box' }}>
+                    <option value="">Select</option>
+                    <option value="0-1">0-1 Year</option>
+                    <option value="1-5">1-5 Years</option>
+                    <option value="5-18">5-18 Years</option>
+                    <option value="18-45">18-45 Years</option>
+                    <option value="45+">45+ Years</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Location</label>
+                  <input value={quickForm.location} onChange={e => setQuickForm(f => ({ ...f, location: e.target.value }))} placeholder="Your area / city" style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Mobile Number *</label>
+                <input required value={quickForm.mobile} onChange={e => setQuickForm(f => ({ ...f, mobile: e.target.value }))} placeholder="10-digit mobile number" type="tel" pattern="[0-9]{10}" style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <button type="submit" style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>BOOK NOW →</button>
+            </form>
+          )}
+        </div>
+      </div>
+
+      {/* VACCINATION CATEGORIES */}
+      <div className="page-section container">
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Vaccination Categories</h2>
+        <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Comprehensive vaccination for every age group and need</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
+          {vaccineCategories.map(c => {
+            const count = getVaccinesByCategory(c.id).length;
+            return (
+              <Link key={c.id} to={`/vaccination?category=${c.id}`} style={{ textDecoration: 'none' }}>
+                <div style={{ padding: 18, borderRadius: 14, border: `1px solid ${c.color}20`, background: `${c.color}06`, borderTop: `3px solid ${c.color}`, height: '100%' }}>
+                  <div style={{ fontSize: 28, marginBottom: 6 }}>{c.icon}</div>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{c.name}</h3>
+                  <p style={{ fontSize: 11, color: c.color, fontWeight: 600, margin: '0 0 4px' }}>{c.age}</p>
+                  <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 6px', lineHeight: 1.4 }}>{c.description}</p>
+                  <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: `${c.color}15`, color: c.color, fontWeight: 600 }}>{count} Vaccines</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* POPULAR VACCINES */}
+      <div className="page-section" style={{ background: '#f8fafc' }}>
+        <div className="container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 2 }}>Popular Vaccines</h2>
+              <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Most booked vaccines on Jeevan Healthcare</p>
+            </div>
+            <Link to="/vaccination/all-vaccines" style={{ fontSize: 12, color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>View All →</Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
+            {vaccines.slice(0, 8).map(v => (
+              <Link key={v.id} to={`/vaccination/${v.slug}`} style={{ textDecoration: 'none' }}>
+                <div style={{ padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: 20 }}>💉</span>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{v.name}</div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{v.disease}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#EFF6FF', color: '#2563eb', fontWeight: 600 }}>Age: {v.ageGroup}</span>
+                    <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#F0FDF4', color: '#16a34a', fontWeight: 600 }}>{v.doseCount} Dose{v.doseCount > 1 ? 's' : ''}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8, lineHeight: 1.4, flex: 1 }}>{v.description}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, color: '#059669', fontSize: 15 }}>₹{v.price}<span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}> /dose</span></span>
+                    <span style={{ fontSize: 10, color: '#2563eb', fontWeight: 600 }}>Book Now →</span>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Vaccine Categories */}
+      {/* WHY CHOOSE JEEVAN VACCINATION */}
       <div className="page-section container">
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Vaccine Categories</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
-          {VACCINE_CATEGORIES.map(c => (
-            <div key={c.name} style={{ padding: 18, borderRadius: 14, border: `1px solid ${c.color}20`, background: `${c.color}06`, borderTop: `3px solid ${c.color}` }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>{c.icon}</div>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{c.name}</h3>
-              <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 6px', lineHeight: 1.4 }}>{c.desc}</p>
-              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: `${c.color}15`, color: c.color, fontWeight: 600 }}>{c.age}</span>
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, textAlign: 'center' }}>Why Choose Jeevan Vaccination</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14 }}>
+          {[
+            { icon: '👨‍⚕️', title: 'Certified Healthcare Team', desc: 'Trained nurses and doctors with clinical experience' },
+            { icon: '🌡️', title: 'Temperature Controlled Storage', desc: 'Cold chain maintained from storage to administration' },
+            { icon: '✅', title: 'Genuine Vaccines', desc: 'WHO-approved, government-certified vaccine sources' },
+            { icon: '🏠', title: 'Home Service Available', desc: 'Get vaccinated at your doorstep, free home visit' },
+            { icon: '📱', title: 'Digital Records', desc: 'Secure digital vaccination certificate and history' },
+            { icon: '🔔', title: 'Reminder Support', desc: 'Automated reminders for next doses and boosters' },
+          ].map(item => (
+            <div key={item.title} style={{ textAlign: 'center', padding: 18, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff' }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>{item.icon}</div>
+              <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{item.title}</h3>
+              <p style={{ fontSize: 11, color: '#64748b', margin: 0, lineHeight: 1.4 }}>{item.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* How It Works */}
+      {/* HOW IT WORKS */}
       <div className="page-section" style={{ background: '#f8fafc' }}>
         <div className="container">
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>How It Works</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
             {STEPS.map((s, i) => (
-              <div key={s.title} style={{ textAlign: 'center', padding: 20, background: '#fff', borderRadius: 14, position: 'relative' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, margin: '0 auto 10px' }}>{i + 1}</div>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>{s.icon}</div>
-                <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{s.title}</h3>
-                <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.4 }}>{s.desc}</p>
+              <div key={s.title} style={{ textAlign: 'center', padding: 20, background: '#fff', borderRadius: 14, flex: '1 1 160px', maxWidth: 200, position: 'relative' }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, margin: '0 auto 10px' }}>{i + 1}</div>
+                <div style={{ fontSize: 26, marginBottom: 8 }}>{s.icon}</div>
+                <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{s.title}</h3>
+                <p style={{ fontSize: 11, color: '#64748b', margin: 0, lineHeight: 1.4 }}>{s.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Popular Vaccines + Pricing */}
-      <div className="page-section container">
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Popular Vaccines & Pricing</h2>
-        <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Prices include vaccine cost + nurse visit + certificate. Free home delivery.</p>
-        <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 650 }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Vaccine</th>
-                <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Schedule</th>
-                <th style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Doses</th>
-                <th style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Age</th>
-                <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 600, color: '#475569' }}>Price/dose</th>
-              </tr>
-            </thead>
-            <tbody>
-              {POPULAR_VACCINES.map(v => (
-                <tr key={v.name} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '10px 14px', fontWeight: 600, color: '#0f172a' }}>{v.name}</td>
-                  <td style={{ padding: '10px 14px', color: '#64748b', fontSize: 11 }}>{v.schedule}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', color: '#475569' }}>{v.doses}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', color: '#475569', fontSize: 11 }}>{v.age}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>₹{v.price}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Booking Form */}
-      <div className="page-section" style={{ background: '#f8fafc' }}>
-        <div className="container" style={{ maxWidth: 560 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4, textAlign: 'center' }}>Request Vaccination at Home</h2>
-          <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 20px', textAlign: 'center' }}>Fill in your details and we\'ll call you to confirm the appointment.</p>
-          {submitted ? (
-            <div style={{ padding: 24, background: '#dcfce7', borderRadius: 12, textAlign: 'center' }}>
-              <div style={{ fontSize: 36, marginBottom: 8 }}>✅</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: '#166534' }}>Request Submitted!</h3>
-              <p style={{ fontSize: 12, color: '#166534', margin: 0 }}>We\'ll contact you shortly to confirm your vaccination appointment.</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Your Name *</label>
-                  <input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Phone Number *</label>
-                  <input required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="10-digit mobile" type="tel" pattern="[0-9]{10}" style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Vaccine Needed *</label>
-                <select required value={form.vaccine} onChange={e => setForm(f => ({ ...f, vaccine: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none', boxSizing: 'border-box' }}>
-                  <option value="">— Select Vaccine —</option>
-                  {POPULAR_VACCINES.map(v => <option key={v.name} value={v.name}>{v.name} (₹{v.price}/dose)</option>)}
-                  <option value="other">Other (specify in message)</option>
-                </select>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Preferred Date</label>
-                  <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} min={new Date().toISOString().slice(0, 10)} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>For Whom</label>
-                  <select value={form.forWhom || ''} onChange={e => setForm(f => ({ ...f, forWhom: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none', boxSizing: 'border-box' }}>
-                    <option value="">Select</option>
-                    <option value="self">Self</option>
-                    <option value="child">My Child</option>
-                    <option value="parent">My Parent</option>
-                    <option value="elderly">Elderly Family Member</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Additional Notes</label>
-                <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} rows={2} placeholder="Any specific requirements or medical conditions..." style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
-              <button type="submit" style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: '#2563eb', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>📩 Submit Request</button>
-            </form>
-          )}
         </div>
       </div>
 
@@ -220,31 +247,22 @@ export default function VaccinationAtHome() {
         </div>
       </div>
 
-      {/* Related Travel Packages */}
-      {travelPkg.length > 0 && (
-        <div className="page-section container">
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Related Health Packages</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-            {travelPkg.slice(0, 3).map(p => (
-              <Link key={p.id} to={`/package/${p.slug}`} style={{ textDecoration: 'none' }}>
-                <div style={{ padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', borderTop: `3px solid ${p.color || '#2563eb'}` }}>
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>{p.icon || '✈️'}</div>
-                  <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{p.name}</h3>
-                  <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 8px', lineHeight: 1.4 }}>{p.description?.slice(0, 100)}...</p>
-                  <div style={{ fontWeight: 700, color: '#059669', fontSize: 14 }}>₹{p.offerPrice}
-                    <span style={{ fontSize: 11, color: '#94a3b8', textDecoration: 'line-through', marginLeft: 6 }}>₹{p.mrp}</span>
-                    <span style={{ fontSize: 10, color: '#059669', marginLeft: 6 }}>{p.discount}% off</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+      {/* FINAL CTA */}
+      <div className="page-section" style={{ background: 'linear-gradient(135deg, #0D47A1, #1565C0)', textAlign: 'center' }}>
+        <div className="container">
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Protect Your Family Today</h2>
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginBottom: 16 }}>Book your vaccination and stay protected with Jeevan Healthcare</p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 28px', fontSize: 14, fontWeight: 700, textDecoration: 'none', borderRadius: 8 }}>Book Vaccination</Link>
+            <a href="https://wa.me/919700104108?text=Hi%2C%20I%20want%20to%20know%20more%20about%20vaccination%20services" target="_blank" rel="noopener noreferrer" className="btn btn-lg" style={{ background: '#25d366', border: 'none', color: '#fff', padding: '10px 28px', fontSize: 14, fontWeight: 700, textDecoration: 'none', borderRadius: 8 }}>Talk to Expert</a>
           </div>
         </div>
-      )}
+      </div>
 
       <style>{`
         @media (max-width: 600px) {
-          .page-section { padding: 24px 16px !important; }
+          .v-hero { padding: 28px 0 36px !important; }
+          .v-hero h1 { font-size: 22px !important; }
         }
       `}</style>
     </div>
