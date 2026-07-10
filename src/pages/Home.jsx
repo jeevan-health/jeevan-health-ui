@@ -352,7 +352,7 @@ function CategoriesSection() {
     { icon: '🧬', label: t('home.categories.fullBody', 'Full Body'), cat: 'Full Body' },
   ];
   return (
-    <div className="page-section" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)' }}>
+    <div className="page-section" style={{ background: '#00D9FF' }}>
       <div className="container">
       <h2 className="section-title">{t('home.categories.title', 'Browse by Category')}</h2>
       <p className="section-subtitle">{t('home.categories.subtitle', 'Find the right test by health concern')}</p>
