@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { vaccineCategories as defaultCategories, vaccines as defaultVaccines } from '../../data/vaccinationData';
 
 const STORAGE_KEY = 'jeevan_vaccinationAdmin';
@@ -179,6 +179,7 @@ export default function AdminVaccination() {
         <div style={{ display: 'flex', gap: 6 }}>
           {[
             { id: 'dashboard', label: 'Dashboard' },
+            { id: 'analytics', label: 'Analytics' },
             { id: 'vaccines', label: 'Vaccine Master' },
             { id: 'categories', label: 'Categories' },
             { id: 'bookings', label: 'Bookings' },
@@ -221,6 +222,110 @@ export default function AdminVaccination() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ANALYTICS */}
+      {activeTab === 'analytics' && (
+        <div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
+            {[
+              { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, color: '#059669', icon: '💰' },
+              { label: 'Avg Revenue/Booking', value: `₹${bookings.length ? Math.round(totalRevenue / bookings.length) : 0}`, color: '#7c3aed', icon: '📊' },
+              { label: 'Conversion Rate', value: bookings.length ? `${Math.round(confirmedBookings / totalBookings * 100)}%` : '0%', color: '#2563eb', icon: '📈' },
+              { label: 'Most Booked Category', value: (() => {
+                const catCounts = {};
+                bookings.forEach(b => { const v = data.vaccines.find(x => x.name === (b.vaccineName || b.vaccine)); if (v) catCounts[v.category] = (catCounts[v.category] || 0) + 1; });
+                const top = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0];
+                const meta = data.categories.find(c => c.id === top?.[0]);
+                return meta ? meta.name : 'N/A';
+              })(), color: '#d97706', icon: '🏆' },
+            ].map(s => (
+              <div key={s.label} style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>📊 Booking Status</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[
+                  { label: 'Confirmed', count: confirmedBookings, color: '#16a34a' },
+                  { label: 'Quick Request', count: bookings.filter(b => b.status === 'Quick Request').length, color: '#d97706' },
+                  { label: 'Pending', count: bookings.filter(b => b.status === 'Pending').length, color: '#6b7280' },
+                ].map(s => {
+                  const pct = totalBookings ? Math.round(s.count / totalBookings * 100) : 0;
+                  return (
+                    <div key={s.label}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                        <span style={{ fontWeight: 600, color: '#0f172a' }}>{s.label}</span>
+                        <span style={{ color: '#64748b' }}>{s.count} ({pct}%)</span>
+                      </div>
+                      <div style={{ height: 8, borderRadius: 4, background: '#f0f0f0', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: s.color, borderRadius: 4, transition: 'width 0.5s' }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>🏆 Top Booked Vaccines</h4>
+              {(() => {
+                const counts = {};
+                bookings.forEach(b => {
+                  const name = b.vaccineName || b.vaccine;
+                  counts[name] = (counts[name] || 0) + 1;
+                });
+                const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                return top.length === 0 ? <p style={{ fontSize: 11, color: '#94a3b8' }}>No booking data yet</p> : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {top.map(([name, count], i) => {
+                      const maxCount = top[0][1];
+                      const pct = Math.round(count / maxCount * 100);
+                      const colors = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626'];
+                      return (
+                        <div key={name}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
+                            <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{i + 1}. {name}</span>
+                            <span style={{ color: '#64748b' }}>{count}</span>
+                          </div>
+                          <div style={{ height: 6, borderRadius: 3, background: '#f0f0f0', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${Math.max(pct, 8)}%`, background: colors[i], borderRadius: 3 }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', marginBottom: 12 }}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>📂 Vaccine Distribution by Category</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+              {data.categories.map(c => {
+                const count = data.vaccines.filter(v => v.category === c.id).length;
+                const pct = Math.round(count / data.vaccines.length * 100);
+                return (
+                  <div key={c.id} style={{ textAlign: 'center', padding: 10, borderRadius: 8, background: `${c.color}08` }}>
+                    <div style={{ fontSize: 24 }}>{c.icon}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: c.color }}>{count}</div>
+                    <div style={{ fontSize: 10, color: '#64748b' }}>{c.name}</div>
+                    <div style={{ height: 4, borderRadius: 2, background: '#f0f0f0', marginTop: 6, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: c.color, borderRadius: 2 }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 

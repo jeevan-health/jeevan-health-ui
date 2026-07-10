@@ -31,6 +31,10 @@ const VaccinationBooking = lazy(() => import('./pages/VaccinationBooking'));
 const VaccineWallet = lazy(() => import('./pages/VaccineWallet'));
 const CorporateVaccination = lazy(() => import('./pages/CorporateVaccination'));
 const VaccineCategoryPage = lazy(() => import('./pages/VaccineCategoryPage'));
+const VaccineSchedule = lazy(() => import('./pages/VaccineSchedule'));
+const VaccineCompare = lazy(() => import('./pages/VaccineCompare'));
+const VaccineCamps = lazy(() => import('./pages/VaccineCamps'));
+const BulkVaccinationBooking = lazy(() => import('./pages/BulkVaccinationBooking'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -215,6 +219,10 @@ export default function App() {
             <Route path="/vaccination/all-vaccines" element={<VaccineListing />} />
             <Route path="/vaccination/vaccine-finder" element={<VaccineFinder />} />
             <Route path="/vaccination-at-home" element={<VaccinationAtHome />} />
+            <Route path="/vaccination/schedule" element={<VaccineSchedule />} />
+            <Route path="/vaccination/compare" element={<VaccineCompare />} />
+            <Route path="/vaccination/camps" element={<VaccineCamps />} />
+            <Route path="/vaccination/bulk-booking" element={<BulkVaccinationBooking />} />
             <Route path="/vaccination/category/:slug" element={<VaccineCategoryPage />} />
             <Route path="/vaccination/:slug" element={<VaccineDetail />} />
             <Route path="/vaccination" element={<VaccinationAtHome />} />

@@ -83,6 +83,18 @@ export default function VaccinationAtHome() {
         </div>
       </div>
 
+      {/* QUICK LINKS */}
+      <div style={{ background: '#f8fafc', borderBottom: '1px solid #e8edf2', padding: '12px 0' }}>
+        <div className="container">
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link to="/vaccination/schedule" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>📋 Schedule</Link>
+            <Link to="/vaccination/compare" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>📊 Compare</Link>
+            <Link to="/vaccination/camps" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>📍 Camps</Link>
+            <Link to="/vaccination/bulk-booking" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 14px', borderRadius: 8, background: '#fff', border: '1px solid #e2e8f0', textDecoration: 'none', fontSize: 11, fontWeight: 600, color: '#0f172a' }}>🏥 Bulk Booking</Link>
+          </div>
+        </div>
+      </div>
+
       {/* QUICK BOOKING WIDGET */}
       <div className="page-section" style={{ background: '#fff', borderBottom: '1px solid #e8edf2' }} ref={quickRef}>
         <div className="container" style={{ maxWidth: 560 }}>

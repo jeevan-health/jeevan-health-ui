@@ -64,6 +64,38 @@ Verified at: www.jeevanhealthcare.com/verify
   a.click(); URL.revokeObjectURL(url);
 }
 
+const NOTIF_KEY = 'jh_vaccination_notif_settings';
+
+function getDefaultNotifSettings() {
+  try { return JSON.parse(localStorage.getItem(NOTIF_KEY) || '{}'); } catch { return {}; }
+}
+
+function printVaccinationCard(bookingsList) {
+  const printWin = window.open('', '_blank');
+  if (!printWin) return alert('Please allow pop-ups to print');
+  const rows = bookingsList.map(b => `
+    <tr>
+      <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.vaccineName || b.vaccine || '-'}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.patientName || b.name || '-'}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.appointmentDate || b.date || '-'}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.appointmentSlot || '-'}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.serviceType === 'home' ? 'Home' : 'Clinic'}</td>
+      <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.status}</td>
+    </tr>
+  `).join('');
+  printWin.document.write(`
+    <html><head><title>Vaccination Card</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;max-width:800px;margin:auto}h1{font-size:18px;color:#1a56db}table{width:100%;border-collapse:collapse}th{background:#1a56db;color:#fff;padding:8px 10px;font-size:12px;text-align:left}.header{text-align:center;margin-bottom:20px;border-bottom:2px solid #1a56db;padding-bottom:15px}.footer{text-align:center;margin-top:20px;font-size:10px;color:#999}.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:80px;color:rgba(26,86,219,0.06);pointer-events:none;z-index:-1}@media print{button{display:none}}</style></head>
+    <body><div class="watermark">JEEVAN HEALTH</div>
+    <div class="header"><h1>💉 JEEVAN HEALTHCARE</h1><h2 style="font-size:14px;margin:4px 0 0;color:#555">Vaccination Record Card</h2></div>
+    <table><thead><tr><th>Vaccine</th><th>Patient</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="footer"><p>Generated on ${new Date().toLocaleDateString('en-IN')} · Jeevan HealthCare at Home</p><p>www.jeevanhealthcare.com</p></div>
+    <button onclick="window.print()" style="display:block;margin:20px auto;padding:10px 30px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer">🖨️ Print</button>
+    </body></html>
+  `);
+  printWin.document.close();
+}
+
 export default function VaccineWallet() {
   const [activeTab, setActiveTab] = useState('records');
   const [family, setFamily] = useState([]);
@@ -71,6 +103,7 @@ export default function VaccineWallet() {
   const [notifications, setNotifications] = useState([]);
   const [showAddMember, setShowAddMember] = useState(false);
   const [newMember, setNewMember] = useState({ name: '', dob: '', gender: '', relation: '' });
+  const [notifSettings, setNotifSettings] = useState(getDefaultNotifSettings);
 
   useEffect(() => {
     try { setFamily(JSON.parse(localStorage.getItem(FAMILY_KEY) || '[]')); } catch { setFamily([]); }
@@ -98,6 +131,12 @@ export default function VaccineWallet() {
     saveFamily(family.filter(m => m.id !== id));
   };
 
+  const saveNotifSettings = (settings) => {
+    const next = { ...notifSettings, ...settings };
+    setNotifSettings(next);
+    localStorage.setItem(NOTIF_KEY, JSON.stringify(next));
+  };
+
   const confirmedBookings = useMemo(() => {
     return bookings.filter(b => b.status === 'Confirmed' || b.status === 'Quick Request');
   }, [bookings]);
@@ -119,12 +158,13 @@ export default function VaccineWallet() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #e2e8f0', marginBottom: 16, overflowX: 'auto' }}>
-        {[
-          { id: 'records', label: 'Vaccination Records', icon: '📋' },
-          { id: 'family', label: 'Family Members', icon: '👨‍👩‍👧' },
-          { id: 'due', label: 'Due Vaccines', icon: '🔔' },
-          { id: 'notifications', label: `Notifications (${notifications.filter(n => !n.sent).length})`, icon: '💬' },
-        ].map(tab => (
+          {[
+            { id: 'records', label: 'Vaccination Records', icon: '📋' },
+            { id: 'family', label: 'Family Members', icon: '👨‍👩‍👧' },
+            { id: 'due', label: 'Due Vaccines', icon: '🔔' },
+            { id: 'notifications', label: `Notifications (${notifications.filter(n => !n.sent).length})`, icon: '💬' },
+            { id: 'settings', label: 'Reminder Settings', icon: '⚙️' },
+          ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             style={{ padding: '8px 16px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', color: activeTab === tab.id ? '#2563eb' : '#64748b', borderBottom: activeTab === tab.id ? '2px solid #2563eb' : '2px solid transparent', whiteSpace: 'nowrap' }}>
             {tab.icon} {tab.label}
@@ -135,6 +175,14 @@ export default function VaccineWallet() {
       {/* RECORDS TAB */}
       {activeTab === 'records' && (
         <div>
+          {confirmedBookings.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+              <button onClick={() => printVaccinationCard(confirmedBookings)}
+                style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                🖨️ Print Vaccination Card
+              </button>
+            </div>
+          )}
           {confirmedBookings.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff' }}>
               <div style={{ fontSize: 48, marginBottom: 8 }}>💉</div>
@@ -267,6 +315,51 @@ export default function VaccineWallet() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* SETTINGS TAB */}
+      {activeTab === 'settings' && (
+        <div>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', color: '#0f172a' }}>⚙️ Notification Settings</h3>
+          <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 16px' }}>Choose how you want to receive vaccination reminders and updates.</p>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {[
+              { key: 'whatsapp', label: 'WhatsApp', icon: '💬', desc: 'Receive reminders via WhatsApp on +91-9700104108' },
+              { key: 'sms', label: 'SMS', icon: '📱', desc: 'Receive SMS reminders on your registered mobile number' },
+              { key: 'email', label: 'Email', icon: '📧', desc: 'Receive email reminders and digital certificates' },
+              { key: 'dueReminders', label: 'Due Vaccine Reminders', icon: '🔔', desc: 'Get notified when vaccines are due based on records' },
+              { key: 'campAlerts', label: 'Camp Alerts', icon: '📍', desc: 'Get notified about vaccination camps near you' },
+            ].map(s => {
+              const enabled = notifSettings[s.key] !== false;
+              return (
+                <div key={s.key} style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 20 }}>{s.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: '#64748b' }}>{s.desc}</div>
+                  </div>
+                  <label style={{ position: 'relative', display: 'inline-block', width: 44, height: 24, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={enabled} onChange={e => saveNotifSettings({ [s.key]: e.target.checked })}
+                      style={{ opacity: 0, width: 0, height: 0 }} />
+                    <span style={{
+                      position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0,
+                      background: enabled ? '#2563eb' : '#cbd5e1', borderRadius: 24, transition: '0.3s',
+                    }}>
+                      <span style={{
+                        position: 'absolute', height: 20, width: 20, left: enabled ? 22 : 2, bottom: 2,
+                        background: '#fff', borderRadius: '50%', transition: '0.3s',
+                      }} />
+                    </span>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 14, padding: 12, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fffbeb', fontSize: 11, color: '#92400e' }}>
+            <strong>📱 Mobile:</strong> +91-9700104108 (WhatsApp) · SMS will use your registered number<br />
+            <strong>✉️ Email reminders</strong> will be sent to your account email. Update in your profile settings.
+          </div>
         </div>
       )}
 
