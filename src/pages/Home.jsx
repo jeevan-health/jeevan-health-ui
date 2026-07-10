@@ -70,10 +70,12 @@ function HeroSection() {
     { icon: '⏱️', label: t('home.hero.statBadges.reports', 'Reports in 24 Hours'), sublabel: '' },
   ];
   const featureIcons = h.featureIcons || [
-    { icon: '👪', label: t('home.hero.features.family', 'Family') },
-    { icon: '🩺', label: t('home.hero.features.doctor', 'Doctor') },
-    { icon: '💉', label: t('home.hero.features.phlebotomist', 'Phlebotomist') },
-    { icon: '👴', label: t('home.hero.features.senior', 'Senior Citizen') },
+    { icon: '👪', label: t('home.hero.features.consultation', 'Doctor Consultation'), desc: t('home.hero.features.consultationDesc', 'Consult top doctors from home'), path: '/consult-doctor', color: '#7c3aed' },
+    { icon: '🔬', label: t('home.hero.features.diagnostics', 'Diagnostics'), desc: t('home.hero.features.diagnosticsDesc', '5000+ lab tests at your doorstep'), path: '/diagnostics', color: '#0F5DA8' },
+    { icon: '💊', label: t('home.hero.features.pharmacy', 'Pharmacy'), desc: t('home.hero.features.pharmacyDesc', 'Medicines delivered to your home'), path: '/contact', color: '#e65100' },
+    { icon: '👩‍⚕️', label: t('home.hero.features.nursing', 'Nursing'), desc: t('home.hero.features.nursingDesc', 'Skilled nursing care at home'), path: '/nurse-at-home', color: '#0891b2' },
+    { icon: '🏋️', label: t('home.hero.features.physiotherapy', 'Physiotherapy'), desc: t('home.hero.features.physiotherapyDesc', 'Recover with expert physiotherapists'), path: '/physiotherapy', color: '#16a34a' },
+    { icon: '💉', label: t('home.hero.features.vaccination', 'Vaccination at Home'), desc: t('home.hero.features.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
   return (
     <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #0F5DA8 0%, #20B7F5 50%, #00D9FF 100%)', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -110,13 +112,20 @@ function HeroSection() {
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{h.ratingLabel || t('home.hero.ratingLabel', '50,000+ Happy Patients')}</span>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {featureIcons.map(f => (
-            <div key={f.label} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 20, textAlign: 'center', backdropFilter: 'blur(4px)' }}>
-              <div style={{ marginBottom: 6, fontSize: 40 }}>{f.icon}</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>{f.label}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>{f.sublabel || ''}</div>
-            </div>
+            <Link key={f.label} to={f.path} style={{ textDecoration: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.08)', borderRadius: 12, backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}>
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{f.label}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', lineHeight: 1.3 }}>{f.desc}</div>
+                </div>
+                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>→</span>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
