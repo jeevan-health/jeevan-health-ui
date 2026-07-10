@@ -111,6 +111,41 @@ export default function MedicalEquipment() {
         </div>
       </div>
 
+      <div className="page-section" style={{ background: '#f8f9fa' }}>
+        <div className="container">
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{t('equipment.otherServices', 'Other Services We Offer')}</h2>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>{t('equipment.otherServicesSub', 'Explore complete healthcare at home')}</p>
+          <div className="grid-3" style={{ gap: 14 }}>
+            {[
+              { icon: '👪', label: 'Consultation', desc: 'Consult top doctors from home', path: '/consult-doctor', color: '#7c3aed' },
+              { icon: '🔬', label: 'Diagnostics', desc: '5000+ lab tests at your doorstep', path: '/diagnostics', color: '#1866C9' },
+              { icon: '💊', label: 'Pharmacy', desc: 'Medicines delivered to your home', path: '/contact', color: '#e65100' },
+              { icon: '👩‍⚕️', label: 'Nursing', desc: 'Skilled nursing care at home', path: '/nurse-at-home', color: '#0891b2' },
+              { icon: '🏋️', label: 'Physiotherapy', desc: 'Recover with expert physiotherapists', path: '/physiotherapy', color: '#16a34a' },
+              { icon: '💉', label: 'Vaccination at Home', desc: 'Vaccination for all age groups & travel', path: '/vaccination', color: '#dc2626' },
+            ].map(a => (
+              <Link key={a.label} to={a.path} style={{
+                display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',
+                background: '#fff', borderRadius: 14, textDecoration: 'none',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #e8edf2',
+                transition: 'all 0.15s', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', textAlign: 'left', width: '100%',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.boxShadow = `0 4px 16px ${a.color}20`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'none'; }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: `${a.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
+                  {a.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>{a.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{a.desc}</div>
+                </div>
+                <span style={{ color: a.color, fontSize: 18 }}>→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {showCart && cart.length > 0 && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', boxShadow: '0 -4px 20px rgba(0,0,0,0.1)', zIndex: 100, padding: '16px 24px' }}>
           <div className="container" style={{ maxWidth: 600, margin: '0 auto' }}>
