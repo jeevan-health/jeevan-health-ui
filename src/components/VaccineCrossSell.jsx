@@ -154,7 +154,7 @@ export default function VaccineCrossSell({
   source = 'dashboard',
   compact = false,
 }) {
-  const { t } = useT();
+  const t = useT();
   const rec = determineRecommendation(patientAge, patientCondition, hasChildren);
 
   const [dismissed, setDismissed] = useState(() => {

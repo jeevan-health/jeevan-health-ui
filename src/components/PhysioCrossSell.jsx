@@ -157,7 +157,7 @@ export default function PhysioCrossSell({
   source = 'dashboard',
   compact = false,
 }) {
-  const { t } = useT();
+  const t = useT();
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
