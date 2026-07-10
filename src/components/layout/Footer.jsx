@@ -88,7 +88,7 @@ const sections = [
     { label: '🕊️ Palliative Care', path: '/nurse-at-home/services' },
     { label: '📋 All Nursing Services', path: '/nurse-at-home/services' },
     { label: '📖 Book a Nurse', path: '/nurse-at-home/book' },
-    { label: '📅 My Visits', path: '/nurse-at-home/my-visits' },
+    { label: '📅 My Bookings', path: '/my-bookings' },
     { label: '👩‍⚕️ Our Nurses', path: '/nurse-at-home' },
     { label: '📱 Nurse App', path: '/nurse-app' },
     { label: '💬 WhatsApp Automation', path: '/nurse-at-home/whatsapp' },

@@ -100,6 +100,7 @@ const NursingServiceListing = lazy(() => import('./pages/NursingServiceListing')
 const NursingServiceDetail = lazy(() => import('./pages/NursingServiceDetail'));
 const NurseServiceDetail = lazy(() => import('./pages/NurseServiceDetail'));
 const NursingDashboard = lazy(() => import('./pages/NursingDashboard'));
+const PatientBookings = lazy(() => import('./pages/PatientBookings'));
 const AdminNursing = lazy(() => import('./pages/admin/AdminNursing'));
 const VaccineSeoLanding = lazy(() => import('./pages/VaccineSeoLanding'));
 const VaccineWhatsAppMarketing = lazy(() => import('./pages/VaccineWhatsAppMarketing'));
@@ -246,6 +247,7 @@ export default function App() {
             <Route path="/package/:slug" element={<PackageDetail />} />
             <Route path="/my-orders" element={<Protected><MyTestOrders /></Protected>} />
             <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+            <Route path="/my-bookings" element={<PatientBookings />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/upload-prescription" element={<UploadPrescription />} />
