@@ -27,6 +27,7 @@ const VaccinationAtHome = lazy(() => import('./pages/VaccinationAtHome'));
 const VaccineListing = lazy(() => import('./pages/VaccineListing'));
 const VaccineDetail = lazy(() => import('./pages/VaccineDetail'));
 const VaccineFinder = lazy(() => import('./pages/VaccineFinder'));
+const VaccinationBooking = lazy(() => import('./pages/VaccinationBooking'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -204,6 +205,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/upload-prescription" element={<UploadPrescription />} />
+            <Route path="/vaccination/book" element={<VaccinationBooking />} />
             <Route path="/vaccination/all-vaccines" element={<VaccineListing />} />
             <Route path="/vaccination/vaccine-finder" element={<VaccineFinder />} />
             <Route path="/vaccination-at-home" element={<VaccinationAtHome />} />

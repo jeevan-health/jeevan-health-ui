@@ -61,7 +61,7 @@ export default function VaccinationAtHome() {
             <span style={{ fontSize: 36 }}>💉</span>
             <div>
               <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, marginBottom: 2 }}>Jeevan Healthcare</div>
-              <h1 style={{ color: '#fff', fontSize: 30, fontWeight: 800, margin: 0, lineHeight: 1.2 }}>Protect Your Family With Safe & Trusted Vaccination</h1>
+              <h1 className="v-hero-title" style={{ color: '#fff', fontSize: 48, fontWeight: 800, margin: 0, lineHeight: 1.15 }}>Protect Your Family With Safe & Trusted Vaccination</h1>
             </div>
           </div>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, margin: '0 0 12px', maxWidth: 480 }}>
@@ -75,8 +75,8 @@ export default function VaccinationAtHome() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderRadius: 8 }}>Book Vaccination</Link>
-            <Link to="/vaccination/vaccine-finder" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.4)', color: '#fff', padding: '10px 24px', fontSize: 13, fontWeight: 600, textDecoration: 'none', borderRadius: 8 }}>Find My Vaccine</Link>
+            <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', height: 48, padding: '0 28px', fontSize: 16, fontWeight: 700, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Book Vaccination</Link>
+            <Link to="/vaccination/vaccine-finder" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.4)', color: '#fff', height: 48, padding: '0 28px', fontSize: 16, fontWeight: 600, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Find My Vaccine</Link>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function VaccinationAtHome() {
                 <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Mobile Number *</label>
                 <input required value={quickForm.mobile} onChange={e => setQuickForm(f => ({ ...f, mobile: e.target.value }))} placeholder="10-digit mobile number" type="tel" pattern="[0-9]{10}" style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
               </div>
-              <button type="submit" style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>BOOK NOW →</button>
+              <button type="submit" style={{ height: 48, padding: '0 24px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>BOOK NOW →</button>
             </form>
           )}
         </div>
@@ -136,7 +136,7 @@ export default function VaccinationAtHome() {
       <div className="page-section container">
         <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Vaccination Categories</h2>
         <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Comprehensive vaccination for every age group and need</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
+        <div className="v-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
           {vaccineCategories.map(c => {
             const count = getVaccinesByCategory(c.id).length;
             return (
@@ -146,6 +146,21 @@ export default function VaccinationAtHome() {
                   <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{c.name}</h3>
                   <p style={{ fontSize: 11, color: c.color, fontWeight: 600, margin: '0 0 4px' }}>{c.age}</p>
                   <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 6px', lineHeight: 1.4 }}>{c.description}</p>
+                  <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: `${c.color}15`, color: c.color, fontWeight: 600 }}>{count} Vaccines</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+        <div className="v-cat-scroll">
+          {vaccineCategories.map(c => {
+            const count = getVaccinesByCategory(c.id).length;
+            return (
+              <Link key={c.id} to={`/vaccination?category=${c.id}`} style={{ textDecoration: 'none', flex: '0 0 160px' }}>
+                <div style={{ padding: 14, borderRadius: 12, border: `1px solid ${c.color}20`, background: `${c.color}06`, borderTop: `3px solid ${c.color}`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 24, marginBottom: 4 }}>{c.icon}</div>
+                  <h3 style={{ fontSize: 12, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{c.name}</h3>
+                  <p style={{ fontSize: 10, color: c.color, fontWeight: 600, margin: '0 0 4px' }}>{c.age}</p>
                   <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: `${c.color}15`, color: c.color, fontWeight: 600 }}>{count} Vaccines</span>
                 </div>
               </Link>
@@ -164,25 +179,29 @@ export default function VaccinationAtHome() {
             </div>
             <Link to="/vaccination/all-vaccines" style={{ fontSize: 12, color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>View All →</Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
             {vaccines.slice(0, 8).map(v => (
               <Link key={v.id} to={`/vaccination/${v.slug}`} style={{ textDecoration: 'none' }}>
-                <div style={{ padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 20 }}>💉</span>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{v.name}</div>
-                      <div style={{ fontSize: 10, color: '#64748b' }}>{v.disease}</div>
+                <div style={{ padding: 0, borderRadius: 14, border: '1px solid #e2e8f0', background: '#fff', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '14px 16px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>💉</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{v.name}</div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>{v.disease}</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#EFF6FF', color: '#2563eb', fontWeight: 600 }}>Age: {v.ageGroup}</span>
-                    <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#F0FDF4', color: '#16a34a', fontWeight: 600 }}>{v.doseCount} Dose{v.doseCount > 1 ? 's' : ''}</span>
+                  <div style={{ padding: '8px 16px 0', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, background: '#EFF6FF', color: '#2563eb', fontWeight: 600 }}>Age: {v.ageGroup}</span>
+                    <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, background: '#F0FDF4', color: '#16a34a', fontWeight: 600 }}>{v.doseCount} Dose{v.doseCount > 1 ? 's' : ''}</span>
+                    <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, background: '#FFF7ED', color: '#ea580c', fontWeight: 600 }}>{v.availability}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8, lineHeight: 1.4, flex: 1 }}>{v.description}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700, color: '#059669', fontSize: 15 }}>₹{v.price}<span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}> /dose</span></span>
-                    <span style={{ fontSize: 10, color: '#2563eb', fontWeight: 600 }}>Book Now →</span>
+                  <div style={{ padding: '8px 16px 0', fontSize: 12, color: '#64748b', lineHeight: 1.5, flex: 1 }}>{v.description}</div>
+                  <div style={{ padding: '10px 16px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f0f0f0', marginTop: 10 }}>
+                    <div>
+                      <span style={{ fontWeight: 800, color: '#059669', fontSize: 18 }}>₹{v.price}</span>
+                      <span style={{ fontSize: 11, color: '#94a3b8' }}>/dose</span>
+                    </div>
+                    <span style={{ height: 36, padding: '0 16px', borderRadius: 8, background: '#2563eb', color: '#fff', fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>View Details →</span>
                   </div>
                 </div>
               </Link>
@@ -253,16 +272,22 @@ export default function VaccinationAtHome() {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Protect Your Family Today</h2>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginBottom: 16 }}>Book your vaccination and stay protected with Jeevan Healthcare</p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 28px', fontSize: 14, fontWeight: 700, textDecoration: 'none', borderRadius: 8 }}>Book Vaccination</Link>
-            <a href="https://wa.me/919700104108?text=Hi%2C%20I%20want%20to%20know%20more%20about%20vaccination%20services" target="_blank" rel="noopener noreferrer" className="btn btn-lg" style={{ background: '#25d366', border: 'none', color: '#fff', padding: '10px 28px', fontSize: 14, fontWeight: 700, textDecoration: 'none', borderRadius: 8 }}>Talk to Expert</a>
+            <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', height: 48, padding: '0 32px', fontSize: 16, fontWeight: 700, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Book Vaccination</Link>
+            <a href="https://wa.me/919700104108?text=Hi%2C%20I%20want%20to%20know%20more%20about%20vaccination%20services" target="_blank" rel="noopener noreferrer" className="btn btn-lg" style={{ background: '#25d366', border: 'none', color: '#fff', height: 48, padding: '0 32px', fontSize: 16, fontWeight: 700, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Talk to Expert</a>
           </div>
         </div>
       </div>
 
       <style>{`
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
           .v-hero { padding: 28px 0 36px !important; }
-          .v-hero h1 { font-size: 22px !important; }
+          .v-hero-title { font-size: 30px !important; }
+          .v-cat-scroll { display: flex !important; gap: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+          .v-cat-scroll > * { flex: 0 0 160px; scroll-snap-align: start; }
+          .v-cat-grid { display: none !important; }
+        }
+        @media (min-width: 769px) {
+          .v-cat-scroll { display: none !important; }
         }
       `}</style>
     </div>
