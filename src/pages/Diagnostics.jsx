@@ -170,7 +170,7 @@ export default function Diagnostics() {
         </>
       )}
 
-      {!query && (
+      {!search && (
         <div className="container" style={{ paddingTop: 0, paddingBottom: 20 }}>
           <PhysioCrossSell source="diagnostics-page" compact={true} />
           <div style={{ marginTop: 8 }}>
