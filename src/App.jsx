@@ -80,6 +80,8 @@ const PhysioConditionPage = lazy(() => import('./pages/PhysioConditionPage'));
 const PhysioCrmLeads = lazy(() => import('./pages/PhysioCrmLeads'));
 const PhysioExercises = lazy(() => import('./pages/PhysioExercises'));
 const PhysioNotifications = lazy(() => import('./pages/PhysioNotifications'));
+const PhysioSeoLanding = lazy(() => import('./pages/PhysioSeoLanding'));
+const PhysioWhatsAppMarketing = lazy(() => import('./pages/PhysioWhatsAppMarketing'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
@@ -255,6 +257,8 @@ export default function App() {
             <Route path="/physiotherapy/crm-leads" element={<PhysioCrmLeads />} />
             <Route path="/physiotherapy/exercises" element={<PhysioExercises />} />
             <Route path="/physiotherapy/notifications" element={<PhysioNotifications />} />
+            <Route path="/physiotherapy/seo/:slug" element={<PhysioSeoLanding />} />
+            <Route path="/physiotherapy/whatsapp-marketing" element={<PhysioWhatsAppMarketing />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />

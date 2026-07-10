@@ -4,6 +4,7 @@ import { useT } from '../i18n/LanguageProvider';
 import useCartStore from '../stores/cartStore';
 import useDashboardStore from '../stores/dashboardStore';
 import { seedTests } from '../data/seedData';
+import PhysioCrossSell from '../components/PhysioCrossSell';
 
 const STEPS = ['Address', 'Patient', 'Date & Time', 'Review', 'Payment'];
 
@@ -261,6 +262,14 @@ export default function Checkout() {
         <div style={{ display: 'flex', gap: 10 }}>
           <Link to="/my-orders" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>{t('checkout.confirmed.viewOrders', 'View Orders')}</Link>
           <Link to="/dashboard" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>{t('checkout.confirmed.dashboard', '📊 Dashboard')}</Link>
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <PhysioCrossSell
+            testResults={itemDetails.map(i => ({ testName: i.name, value: '', status: '' }))}
+            patientCondition=""
+            source="checkout-confirmation"
+            compact={true}
+          />
         </div>
         <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-secondary)', marginTop: 12 }}>{t('checkout.confirmed.redirecting', 'Redirecting to dashboard automatically...')}</p>
       </div>

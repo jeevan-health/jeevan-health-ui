@@ -7,6 +7,7 @@ import DailyTracker from '../components/DailyTracker';
 import { useT } from '../i18n/LanguageProvider';
 import useDailyActivityStore from '../stores/dailyActivityStore';
 import HealthToolsGrid from '../components/healthTools/HealthToolsGrid';
+import PhysioCrossSell from '../components/PhysioCrossSell';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -997,6 +998,21 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
+
+              {/* Physio Cross-Sell (Health Tab) */}
+              <PhysioCrossSell
+                testResults={store.reports?.flatMap(r =>
+                  r.values ? Object.entries(r.values).map(([k, v]) => ({
+                    testName: k,
+                    value: v.value,
+                    status: v.flag || r.status,
+                  })) : []
+                ) || []}
+                patientCondition={store.healthData?.medicalHistory ?
+                  Object.keys(store.healthData.medicalHistory).filter(k => store.healthData.medicalHistory[k]).join(', ') : ''}
+                source="dashboard-health"
+                compact={true}
+              />
             </div>
             )}
           </>
@@ -1165,6 +1181,21 @@ export default function Dashboard() {
                   })()}
                 </div>
               </div>
+
+              {/* Physio Cross-Sell */}
+              <PhysioCrossSell
+                testResults={store.reports?.flatMap(r =>
+                  r.values ? Object.entries(r.values).map(([k, v]) => ({
+                    testName: k,
+                    value: v.value,
+                    status: v.flag || r.status,
+                  })) : []
+                ) || []}
+                patientCondition={store.healthData?.medicalHistory ?
+                  Object.keys(store.healthData.medicalHistory).filter(k => store.healthData.medicalHistory[k]).join(', ') : ''}
+                source="dashboard-overview"
+                compact={false}
+              />
             </div>
         )}
 
