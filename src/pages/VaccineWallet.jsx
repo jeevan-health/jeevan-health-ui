@@ -162,7 +162,7 @@ export default function VaccineWallet() {
       <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #e2e8f0', marginBottom: 16, overflowX: 'auto' }}>
           {[
             { id: 'records', label: t('records'), icon: '📋' },
-            { id: 'family', label: t('family.members'), icon: '👨‍👩‍👧' },
+            { id: 'family', label: t('family.members'), icon: '👪' },
             { id: 'due', label: t('due.vaccines'), icon: '🔔' },
             { id: 'notifications', label: `${t('notifications')} (${notifications.filter(n => !n.sent).length})`, icon: '💬' },
             { id: 'settings', label: t('reminder.settings'), icon: '⚙️' },

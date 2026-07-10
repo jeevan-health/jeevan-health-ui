@@ -150,7 +150,7 @@ function computeHealthScore(healthData, reports, activityBonus = 0) {
     { key: 'personal', label: 'Personal Profile', score: personal, max: 5, icon: '👤', color: '#1866C9' },
     { key: 'lifestyle', label: 'Lifestyle & Habits', score: lifestyle, max: 25, icon: '🏃', color: '#22C55E' },
     { key: 'body', label: 'Body Health', score: body, max: 20, icon: '⚖️', color: '#EAB308' },
-    { key: 'family', label: 'Family Risk', score: family, max: 15, icon: '👨‍👩‍👧‍👦', color: '#F97316' },
+    { key: 'family', label: 'Family Risk', score: family, max: 15, icon: '👪', color: '#F97316' },
     { key: 'medical', label: 'Medical Status', score: medical, max: 15, icon: '💊', color: '#A855F7' },
     { key: 'labs', label: 'Lab Health', score: labs, max: 20, icon: '🔬', color: '#06B6D4' },
   ];

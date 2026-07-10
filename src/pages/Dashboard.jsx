@@ -61,7 +61,7 @@ const navItems = [
   { key: 'reports', label: 'Reports', icon: '🧪' },
   { key: 'appointments', label: 'Appointments', icon: '👨‍⚕️' },
   { key: 'health', label: 'Health Score', icon: '🩺', action: 'health' },
-  { key: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦' },
+  { key: 'family', label: 'Family', icon: '👪' },
   { key: 'wallet', label: 'Wallet', icon: '💳' },
   { key: 'invoices', label: 'Invoices', icon: '📄' },
   { key: 'abha', label: 'ABHA ID', icon: '🆔' },
@@ -389,10 +389,10 @@ export default function Dashboard() {
             {[
               { icon: '📅', label: t('dashboard.overview.upcoming', 'Upcoming Bookings'), value: upcoming.length, color: '#2563eb', bg: '#dbeafe' },
               { icon: '🧪', label: t('dashboard.overview.reports', 'Reports Available'), value: reports.length, color: '#16a34a', bg: '#dcfce7' },
-              { icon: '👨‍👩‍👧‍👦', label: t('dashboard.overview.family', 'Family Members'), value: family.length, color: '#c2410c', bg: '#fed7aa' },
+              { icon: '👪', label: t('dashboard.overview.family', 'Family Members'), value: family.length, color: '#c2410c', bg: '#fed7aa' },
               { icon: '📦', label: t('dashboard.overview.orders', 'Active Orders'), value: activeOrders, color: '#7c3aed', bg: '#ede9fe' },
             ].map(card => (
-              <div key={card.label} className="card" style={{ textAlign: 'center', cursor: 'pointer', padding: '18px 12px', borderRadius: 16 }} onClick={() => setActiveSection(card.icon === '📅' ? 'bookings' : card.icon === '🧪' ? 'reports' : card.icon === '👨‍👩‍👧‍👦' ? 'family' : 'wallet')}>
+              <div key={card.label} className="card" style={{ textAlign: 'center', cursor: 'pointer', padding: '18px 12px', borderRadius: 16 }} onClick={() => setActiveSection(card.icon === '📅' ? 'bookings' : card.icon === '🧪' ? 'reports' : card.icon === '👪' ? 'family' : 'wallet')}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>{card.icon}</div>
                 <div style={{ fontSize: 32, fontWeight: 800, color: card.color, lineHeight: 1.1, marginBottom: 4 }}>{card.value}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>{card.label}</div>
@@ -1022,7 +1022,7 @@ export default function Dashboard() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>{t('dashboard.profile.sectionAccount', 'Account')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
                 {[
-                  { icon: '👨‍👩‍👧‍👦', label: t('dashboard.profile.familyMembers', 'Family Members'), section: 'family' },
+                  { icon: '👪', label: t('dashboard.profile.familyMembers', 'Family Members'), section: 'family' },
                   { icon: '🧪', label: t('dashboard.profile.reports', 'Reports'), section: 'reports' },
                   { icon: '💳', label: t('dashboard.profile.wallet', 'Wallet'), section: 'wallet' },
                   { icon: '🧾', label: t('dashboard.profile.invoices', 'Invoices'), section: 'invoices' },

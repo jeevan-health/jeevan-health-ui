@@ -25,7 +25,7 @@ const defaults = {
       { icon: '⏱️', label: 'Reports in', sublabel: '24 Hours' },
     ],
     featureIcons: [
-      { icon: '👨‍👩‍👧‍👦', label: 'Family' },
+      { icon: '👪', label: 'Family' },
       { icon: '🩺', label: 'Doctor' },
       { icon: '💉', label: 'Phlebotomist' },
       { icon: '👴', label: 'Senior Citizen' },
@@ -194,7 +194,7 @@ const defaults = {
       { icon: '💰', title: 'Affordable Pricing', description: 'Best prices on all tests and health packages with no hidden charges.', badge: 'Best Price' },
       { icon: '📱', title: 'Digital Reports', description: 'Get your reports on WhatsApp, email, and patient dashboard instantly.', badge: 'Instant' },
       { icon: '🩺', title: 'Doctor Consultation', description: 'Free doctor consultation to help you understand your reports.', badge: 'Free' },
-      { icon: '👨‍👩‍👧‍👦', title: 'Complete Family Care', description: 'Comprehensive healthcare solutions for every member of your family.', badge: 'Family' },
+      { icon: '👪', title: 'Complete Family Care', description: 'Comprehensive healthcare solutions for every member of your family.', badge: 'Family' },
       { icon: '🧤', title: 'Safe & Hygienic Collection', description: 'Strict safety protocols including PPE kits and sanitized equipment.', badge: 'Safe' },
     ],
     active: true,
