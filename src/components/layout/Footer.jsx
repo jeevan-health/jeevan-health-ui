@@ -227,8 +227,12 @@ export default function Footer() {
           </div>
 
           {/* Resources Section — Company, Legal, Health Tools */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 20, paddingTop: 14 }}>
-            <h4 style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{t('footer.resources', 'Resources')}</h4>
+        </div>
+      </div>
+      <div style={{ background: '#08306B', color: 'rgba(255,255,255,0.85)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 16px 24px' }}>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 14 }}>
+            <h4 style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{t('footer.resources', 'Resources')}</h4>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px 24px' }}>
               {resourceSections.map(s => (
                 <div key={s.key} className="ft-collapse">
