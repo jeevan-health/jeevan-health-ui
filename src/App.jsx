@@ -96,6 +96,7 @@ const MedicalEquipment = lazy(() => import('./pages/MedicalEquipment'));
 const NurseMobileApp = lazy(() => import('./pages/NurseMobileApp'));
 const NursingServiceListing = lazy(() => import('./pages/NursingServiceListing'));
 const NursingServiceDetail = lazy(() => import('./pages/NursingServiceDetail'));
+const NurseServiceDetail = lazy(() => import('./pages/NurseServiceDetail'));
 const NursingDashboard = lazy(() => import('./pages/NursingDashboard'));
 const AdminNursing = lazy(() => import('./pages/admin/AdminNursing'));
 const VaccineSeoLanding = lazy(() => import('./pages/VaccineSeoLanding'));
@@ -291,7 +292,7 @@ export default function App() {
             <Route path="/nurse-at-home/book" element={<NurseBookingEnhanced />} />
             <Route path="/nurse-at-home/select-nurse" element={<NurseSelection />} />
             <Route path="/nurse-at-home/services" element={<NursingServiceListing />} />
-            <Route path="/nurse-at-home/service/:slug" element={<NursingServiceDetail />} />
+            <Route path="/nurse-at-home/service/:slug" element={<NurseServiceDetail />} />
             <Route path="/nurse-at-home/my-visits" element={<NursingDashboard />} />
             <Route path="/nurse-at-home/seo/:slug" element={<NurseSeoLanding />} />
             <Route path="/nurse-at-home/whatsapp" element={<NurseWhatsAppService />} />
