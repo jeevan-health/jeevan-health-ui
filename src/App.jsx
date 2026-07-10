@@ -69,6 +69,12 @@ const AdminCrm = lazy(() => import('./pages/admin/AdminCrm'));
 const AdminWhatsApp = lazy(() => import('./pages/admin/AdminWhatsApp'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminPhysiotherapy = lazy(() => import('./pages/admin/AdminPhysiotherapy'));
+
+const PhysiotherapyAtHome = lazy(() => import('./pages/PhysiotherapyAtHome'));
+const PhysiotherapyBooking = lazy(() => import('./pages/PhysiotherapyBooking'));
+const PhysioTherapistDetail = lazy(() => import('./pages/PhysioTherapist'));
+const PhysioPatientDashboard = lazy(() => import('./pages/PhysioDashboard'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
@@ -228,6 +234,10 @@ export default function App() {
             <Route path="/vaccination/category/:slug" element={<VaccineCategoryPage />} />
             <Route path="/vaccination/:slug" element={<VaccineDetail />} />
             <Route path="/vaccination" element={<VaccinationAtHome />} />
+            <Route path="/physiotherapy" element={<PhysiotherapyAtHome />} />
+            <Route path="/physiotherapy/book" element={<PhysiotherapyBooking />} />
+            <Route path="/physiotherapy/therapist/:id" element={<PhysioTherapistDetail />} />
+            <Route path="/physiotherapy/my-sessions" element={<PhysioPatientDashboard />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
@@ -252,7 +262,8 @@ export default function App() {
             <Route path="permissions" element={<AdminPermissions />} />
             <Route path="test-master" element={<AdminTestMaster />} />
             <Route path="health-packages" element={<AdminHealthPackages />} />
-          <Route path="vaccination" element={<AdminVaccination />} />
+            <Route path="vaccination" element={<AdminVaccination />} />
+            <Route path="physiotherapy" element={<AdminPhysiotherapy />} />
             <Route path="cms" element={<AdminCMS />} />
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />

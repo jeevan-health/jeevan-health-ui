@@ -59,6 +59,16 @@ const sections = [
     { label: '🏥 Bulk Booking', path: '/vaccination/bulk-booking' },
     { label: '💳 My Vaccine Wallet', path: '/vaccination/wallet' },
   ]},
+  { key: 'physio', label: 'Physiotherapy', links: [
+    { label: '🦴 Book Physiotherapy', path: '/physiotherapy' },
+    { label: '🔙 Back Pain Treatment', path: '/physiotherapy' },
+    { label: '🦵 Knee Pain Physiotherapy', path: '/physiotherapy' },
+    { label: '🧠 Stroke Rehabilitation', path: '/physiotherapy' },
+    { label: '🏥 Post Surgery Rehab', path: '/physiotherapy' },
+    { label: '🏠 Home Physiotherapy', path: '/physiotherapy' },
+    { label: '💻 Online Consultation', path: '/physiotherapy/book' },
+    { label: '📋 My Sessions', path: '/physiotherapy/my-sessions' },
+  ]},
   { key: 'packages', label: 'Health Packages', links: [
     { label: '🔬 All Health Packages', path: '/health-packages' },
     { label: 'Essential Full Body Checkup', path: '/package/essential-full-body' },

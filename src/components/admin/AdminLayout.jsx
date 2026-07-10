@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { path: '/admin/test-master', label: 'admin.layout.test_master', fallback: 'Test Master', icon: '🧪' },
   { path: '/admin/health-packages', label: 'admin.layout.health_packages', fallback: 'Health Packages', icon: '📦' },
   { path: '/admin/vaccination', label: 'admin.layout.vaccination', fallback: 'Vaccination ⭐', icon: '💉' },
+  { path: '/admin/physiotherapy', label: 'admin.layout.physiotherapy', fallback: 'Physiotherapy ⭐', icon: '🦴' },
   { path: '/admin/inventory', label: 'admin.layout.inventory', fallback: 'Inventory', icon: '📋' },
   { path: '/admin/cms', label: 'admin.layout.cms', fallback: 'Website CMS', icon: '🌐' },
   { path: '/admin/coupons', label: 'admin.layout.coupons', fallback: 'Coupons', icon: '🏷️' },
