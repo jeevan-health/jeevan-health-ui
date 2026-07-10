@@ -1,10 +1,22 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import {
   nursingCategories, nursingServices, nurseLevels, nurses, nursingPackages,
   equipmentItems, STORAGE_KEYS,
 } from '../data/nursingData';
+
+const CATEGORY_EQUIPMENT_MAP = {
+  'wound-care': [],
+  'injections': [],
+  'elderly-care': ['Wheelchair', 'Patient Lift', 'Commode Chair', 'Hospital Bed'],
+  'mother-baby': [],
+  'post-surgery': ['Wheelchair', 'Commode Chair', 'Nebulizer'],
+  'bedside': ['Hospital Bed', 'Patient Lift', 'Commode Chair', 'Oxygen Concentrator'],
+  'rehab': ['Wheelchair', 'Patient Lift'],
+  'icu-home': ['Oxygen Concentrator', 'Multipara Monitor', 'Suction Machine', 'Hospital Bed'],
+  'palliative': ['Hospital Bed', 'Commode Chair', 'Patient Lift'],
+};
 
 const C = { primary: '#7C3AED', accent: '#EC4899', bg: '#F5F3FF' };
 
@@ -69,6 +81,9 @@ export default function NurseBookingEnhanced() {
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState({});
   const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [crossSellItems, setCrossSellItems] = useState([]);
+  const [crossSellDismissed, setCrossSellDismissed] = useState(false);
+  const [crossSellAdded, setCrossSellAdded] = useState(false);
 
   const update = (key, val) => { setData(d => ({ ...d, [key]: val })); setErrors(e => ({ ...e, [key]: null })); };
 
@@ -199,6 +214,49 @@ export default function NurseBookingEnhanced() {
     return `https://wa.me/919700104108?text=${encodeURIComponent(msg)}`;
   };
 
+  const suggestedEquipment = useMemo(() => {
+    if (!confirmed?.serviceName) return [];
+    const svc = nursingServices.find(s => s.name === confirmed.serviceName);
+    if (!svc) return [];
+    const eqNames = CATEGORY_EQUIPMENT_MAP[svc.category] || [];
+    const alreadyBooked = (confirmed.equipment || []).map(e => e.name);
+    return equipmentItems.filter(e => eqNames.includes(e.name) && !alreadyBooked.includes(e.name));
+  }, [confirmed]);
+
+  const addCrossSellItem = (item) => {
+    setCrossSellItems(prev => {
+      const exists = prev.find(e => e.id === item.id);
+      if (exists) return prev.filter(e => e.id !== item.id);
+      return [...prev, { ...item, quantity: 1, rentDays: 1 }];
+    });
+  };
+
+  const updateCrossSellQty = (id, key, val) => {
+    setCrossSellItems(prev => prev.map(e => e.id === id ? { ...e, [key]: val } : e));
+  };
+
+  const confirmCrossSell = () => {
+    if (crossSellItems.length === 0) { setCrossSellDismissed(true); return; }
+    const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
+    const updated = bookings.map(b => {
+      if (b.id === confirmed.id) {
+        const newEquipment = [...(b.equipment || []), ...crossSellItems];
+        const newEquipmentTotal = (b.equipmentTotal || 0) + crossSellItems.reduce((s, e) => s + e.price * e.quantity * e.rentDays, 0);
+        return { ...b, equipment: newEquipment, equipmentTotal: newEquipmentTotal, totalAmount: (b.totalAmount || 0) + newEquipmentTotal - (b.equipmentTotal || 0) };
+      }
+      return b;
+    });
+    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(updated));
+    setConfirmed(updated.find(b => b.id === confirmed.id));
+    setCrossSellAdded(true);
+    setCrossSellItems([]);
+  };
+
+  const dismissCrossSell = () => {
+    setCrossSellDismissed(true);
+    localStorage.setItem('jh_vaccine_cross_sell_dismissed', JSON.stringify({ ...JSON.parse(localStorage.getItem('jh_vaccine_cross_sell_dismissed') || '{}'), [confirmed?.id]: true }));
+  };
+
   const Stepper = () => (
     <div style={{ display: 'flex', justifyContent: 'center', gap: 0, marginBottom: 24, overflowX: 'auto', paddingBottom: 4 }}>
       {STEPS.map((s, i) => (
@@ -244,6 +302,80 @@ export default function NurseBookingEnhanced() {
         <p style={{ fontSize: 12, color: '#64748b', marginBottom: 16, padding: '10px 14px', borderRadius: 8, background: '#fefce8', border: '1px solid #fde68a' }}>
           📞 {t('nurse.booking.assessment', 'Our care manager will call you for a detailed assessment before assigning a nurse.')}
         </p>
+
+        {/* Cross-sell Widget */}
+        {suggestedEquipment.length > 0 && !crossSellDismissed && !crossSellAdded && (
+          <div style={{ marginBottom: 16, padding: 16, borderRadius: 12, border: '2px solid #fbbf24', background: '#fffbeb' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: '#92400e' }}>🛒 {t('nurse.crossSell.title', 'Need Equipment Too?')}</h4>
+              <button onClick={dismissCrossSell} style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#92400e', padding: '0 4px' }}>×</button>
+            </div>
+            <p style={{ fontSize: 11, color: '#b45309', margin: '0 0 10px' }}>{t('nurse.crossSell.desc', 'Based on your service, you may need:')}</p>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {suggestedEquipment.map(item => {
+                const selected = crossSellItems.find(e => e.id === item.id);
+                return (
+                  <div key={item.id} style={{ padding: 10, borderRadius: 8, border: selected ? '2px solid #f59e0b' : '1px solid #fde68a', background: selected ? '#fefce8' : '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 22 }}>{item.icon}</span>
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a' }}>{item.name}</div>
+                          <div style={{ fontSize: 10, color: '#64748b' }}>₹{item.price}{item.duration}</div>
+                        </div>
+                      </div>
+                      <button onClick={() => addCrossSellItem(item)}
+                        style={{ padding: '5px 12px', borderRadius: 6, border: selected ? '1px solid #f59e0b' : 'none', background: selected ? '#fff' : '#f59e0b', color: selected ? '#92400e' : '#fff', cursor: 'pointer', fontSize: 10, fontWeight: 700, fontFamily: 'inherit' }}>
+                        {selected ? t('nurse.remove', 'Remove') : t('nurse.add', 'Add')}
+                      </button>
+                    </div>
+                    {selected && (
+                      <div style={{ display: 'flex', gap: 10, marginTop: 8, borderTop: '1px solid #fde68a', paddingTop: 8 }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontSize: 9, fontWeight: 600, color: '#92400e', display: 'block', marginBottom: 2 }}>{t('nurse.quantity', 'Qty')}</label>
+                          <select value={selected.quantity} onChange={e => updateCrossSellQty(item.id, 'quantity', parseInt(e.target.value))}
+                            style={{ width: '100%', padding: '4px 6px', borderRadius: 4, border: '1px solid #fde68a', fontSize: 10, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
+                            {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+                          </select>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontSize: 9, fontWeight: 600, color: '#92400e', display: 'block', marginBottom: 2 }}>{t('nurse.rentDays', 'Days')}</label>
+                          <select value={selected.rentDays} onChange={e => updateCrossSellQty(item.id, 'rentDays', parseInt(e.target.value))}
+                            style={{ width: '100%', padding: '4px 6px', borderRadius: 4, border: '1px solid #fde68a', fontSize: 10, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
+                            {[1, 2, 3, 5, 7, 10, 14, 21, 30].map(n => <option key={n} value={n}>{n}</option>)}
+                          </select>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 2 }}>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: '#92400e' }}>₹{item.price * selected.quantity * selected.rentDays}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {crossSellItems.length > 0 && (
+              <button onClick={confirmCrossSell}
+                style={{ width: '100%', marginTop: 10, padding: '10px 0', borderRadius: 8, border: 'none', background: '#f59e0b', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                🛒 {t('nurse.crossSell.addToBooking', 'Add to Booking')} — ₹{crossSellItems.reduce((s, e) => s + e.price * e.quantity * e.rentDays, 0)}
+              </button>
+            )}
+            {crossSellItems.length === 0 && (
+              <button onClick={() => setCrossSellDismissed(true)}
+                style={{ width: '100%', marginTop: 6, padding: '8px 0', borderRadius: 8, border: '1px solid #fde68a', background: 'transparent', color: '#92400e', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>
+                {t('nurse.crossSell.noThanks', 'No thanks, I\'m all set')}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Cross-sell added confirmation */}
+        {crossSellAdded && (
+          <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', fontSize: 12, color: '#166534' }}>
+            ✅ {t('nurse.crossSell.added', 'Equipment added to your booking! Our care manager will confirm availability.')}
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href={getWALink(confirmed)} target="_blank" rel="noopener noreferrer" style={{ height: 44, padding: '0 24px', borderRadius: 8, background: '#25d366', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             💬 {t('nurse.sendWhatsApp', 'Send WhatsApp Confirmation')}
