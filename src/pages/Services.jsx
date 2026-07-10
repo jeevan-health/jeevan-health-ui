@@ -32,11 +32,10 @@ const fallback = {
     { icon: 'Flask', label: 'Lab Tests', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#22C55E', tag: 'Popular' },
     { icon: 'Heart', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#e53935', tag: 'Save 60%' },
     { icon: 'Pill', label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },
-    { icon: 'User', label: 'Nursing Care', desc: 'Trained nurses at home', path: '/book-appointment', color: '#0891b2', tag: 'New' },
+    { icon: 'Users', label: 'Nurse at Home', desc: 'Professional nurses, ICU care, injections & more', path: '/nurse-at-home', color: '#7C3AED', tag: '⭐ Featured' },
     { icon: 'Heart', label: 'Physiotherapy', desc: 'Rehab & recovery at home', path: '/physiotherapy', color: '#059669', tag: 'Book' },
-    { icon: 'Users', label: 'Nursing at Home', desc: 'Nurses & caregivers at your doorstep', path: '/nursing-care', color: '#7C3AED', tag: 'New' },
     { icon: 'Syringe', label: 'Vaccination at Home', desc: 'All age groups & travel vaccines', path: '/vaccination', color: '#2563eb', tag: 'Home' },
-    { icon: 'Monitor', label: 'Medical Equipment', desc: 'Rent or buy', path: '/book-appointment', color: '#e65100', tag: 'Rent' },
+    { icon: 'Monitor', label: 'Medical Equipment', desc: 'Rent oxygen, beds, wheelchairs & more', path: '/medical-equipment', color: '#e65100', tag: 'Rent' },
   ],
   categories: [
     { title: 'Home Healthcare Services', color: '#1866C9', items: ['Doctor Consultation at Home', 'Medicine Delivery at Home', 'Lab Tests & Diagnostics at Home', 'X-Ray, ECG, EEG at Home', 'Nursing Care at Home', 'Caregiver Services (Elderly/Patient Care) at Home', 'Physiotherapy at Home', 'Vaccination at Home (All Age Groups & Travel Vaccines)', 'Medical Equipment Rental & Sales', 'Home ICU Setup & Monitoring'] },

@@ -67,6 +67,10 @@ export default function AdminNursing() {
   const [services, setServices] = useState([]);
   const [nurses, setNurses] = useState([]);
   const [packages, setPackages] = useState(defaultPackages);
+  const [leads, setLeads] = useState([]);
+  const [assessments, setAssessments] = useState([]);
+  const [carePlans, setCarePlans] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
 
   const [bookingFilter, setBookingFilter] = useState('all');
   const [searchBooking, setSearchBooking] = useState('');
@@ -82,10 +86,19 @@ export default function AdminNursing() {
   const [editPackageId, setEditPackageId] = useState(null);
   const [editPackagePrice, setEditPackagePrice] = useState(0);
 
+  const [billingFilter, setBillingFilter] = useState('all');
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().slice(0, 10));
+  const [assignmentSearch, setAssignmentSearch] = useState('');
+  const [carePlanSearch, setCarePlanSearch] = useState('');
+
   useEffect(() => {
     setBookings(loadData(STORAGE_KEYS.BOOKINGS, []));
     setServices(loadData(STORAGE_KEYS.SERVICES, defaultServices));
     setNurses(loadData(STORAGE_KEYS.CAREGIVERS, defaultNurses));
+    setLeads(loadData(STORAGE_KEYS.LEADS, []));
+    setAssessments(loadData(STORAGE_KEYS.ASSESSMENTS, []));
+    setCarePlans(loadData(STORAGE_KEYS.CARE_PLANS, []));
+    setFeedbacks(loadData('jh_nurse_feedback', []));
   }, []);
 
   const activeNurses = nurses.filter(n => n.isActive !== false);
@@ -196,11 +209,18 @@ export default function AdminNursing() {
   };
 
   const tabs = [
-    { id: 'dashboard', label: t('admin.nursing.dashboard', 'Dashboard') },
-    { id: 'bookings', label: t('admin.nursing.bookings', 'Bookings') },
-    { id: 'services', label: t('admin.nursing.services', 'Services') },
-    { id: 'nurses', label: t('admin.nursing.nurses', 'Nurses') },
-    { id: 'packages', label: t('admin.nursing.packages', 'Packages') },
+    { id: 'dashboard', label: t('admin.nursing.dashboard', 'Dashboard'), icon: '📊' },
+    { id: 'requests', label: t('admin.nursing.requests', 'Patient Requests'), icon: '📋' },
+    { id: 'nurses', label: t('admin.nursing.nurses', 'Nurse Management'), icon: '👩‍⚕️' },
+    { id: 'verification', label: t('admin.nursing.verification', 'Nurse Verification'), icon: '✅' },
+    { id: 'availability', label: t('admin.nursing.availability', 'Availability Calendar'), icon: '📅' },
+    { id: 'assignment', label: t('admin.nursing.assignment', 'Assignment'), icon: '🔄' },
+    { id: 'careplans', label: t('admin.nursing.careplans', 'Care Plans'), icon: '📝' },
+    { id: 'attendance', label: t('admin.nursing.attendance', 'Attendance'), icon: '✓' },
+    { id: 'billing', label: t('admin.nursing.billing', 'Billing'), icon: '💰' },
+    { id: 'feedback', label: t('admin.nursing.feedback', 'Feedback'), icon: '⭐' },
+    { id: 'services', label: t('admin.nursing.services', 'Services'), icon: '🩹' },
+    { id: 'packages', label: t('admin.nursing.packages', 'Packages'), icon: '📦' },
   ];
 
   return (
@@ -307,6 +327,277 @@ export default function AdminNursing() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* PATIENT REQUESTS */}
+      {activeTab === 'requests' && (
+        <div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+            {['all', 'pending', 'confirmed', 'in-progress', 'completed', 'cancelled'].map(s => (
+              <button key={s} onClick={() => setBookingFilter(s)}
+                style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: bookingFilter === s ? C.primary : '#f1f5f9', color: bookingFilter === s ? '#fff' : '#475569', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
+                {s === 'all' ? t('all', 'All') : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 800 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>ID</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Patient</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Service</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Nurse</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Date</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#475569' }}>Amount</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Status</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(bookingFilter === 'all' ? bookings : bookings.filter(b => b.status === bookingFilter)).length === 0 && (
+                  <tr><td colSpan={8} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>No requests found.</td></tr>
+                )}
+                {(bookingFilter === 'all' ? bookings : bookings.filter(b => b.status === bookingFilter)).map(b => {
+                  const sc = statusColors[b.status] || { bg: '#f1f5f9', text: '#475569' };
+                  return (
+                    <tr key={b.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 600, fontSize: 10, color: C.primary }}>{b.id}</td>
+                      <td style={{ padding: '8px 10px', fontWeight: 600, color: '#0f172a' }}>{b.patientName || b.name || '-'}</td>
+                      <td style={{ padding: '8px 10px', color: '#475569' }}>{b.serviceName || '-'}</td>
+                      <td style={{ padding: '8px 10px', color: '#64748b' }}>{b.nurseName || '-'}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b' }}>{b.preferredDate || b.date || '-'}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>₹{b.totalAmount || b.amount || 0}</td>
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: sc.bg, color: sc.text, textTransform: 'capitalize' }}>{b.status}</span>
+                      </td>
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
+                          {b.status === 'Pending Assessment' && <ActionBtn label="Assign Nurse" onClick={() => { setAssignmentSearch(b.patientName || ''); setActiveTab('assignment'); }} color={C.primary} />}
+                          {b.status === 'pending' && <ActionBtn label="Confirm" onClick={() => updateBookingStatus(b.id, 'confirmed')} color="#2563eb" />}
+                          {b.status === 'confirmed' && <ActionBtn label="Complete" onClick={() => updateBookingStatus(b.id, 'completed')} color="#059669" />}
+                          {b.status !== 'completed' && b.status !== 'cancelled' && <ActionBtn label="Cancel" onClick={() => updateBookingStatus(b.id, 'cancelled')} color="#dc2626" />}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* NURSE VERIFICATION */}
+      {activeTab === 'verification' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', color: '#0f172a' }}>Nurse Verification Status</h4>
+          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 700 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Nurse</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Qualification</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Docs Uploaded</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Verification</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Police Clear</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Training</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {nurses.map(n => (
+                  <tr key={n.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '8px 10px', fontWeight: 600, color: '#0f172a' }}>{n.image} {n.name}</td>
+                    <td style={{ padding: '8px 10px', color: '#475569' }}>{n.qualifications}</td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}><span style={{ color: '#22c55e', fontWeight: 700 }}>✓</span></td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, background: n.verified ? '#dcfce7' : '#fef3c7', color: n.verified ? '#16a34a' : '#d97706', fontSize: 10, fontWeight: 600 }}>{n.verified ? 'Verified' : 'Pending'}</span>
+                    </td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, background: n.policeVerified ? '#dcfce7' : '#fee2e2', color: n.policeVerified ? '#16a34a' : '#dc2626', fontSize: 10, fontWeight: 600 }}>{n.policeVerified ? 'Cleared' : 'Pending'}</span>
+                    </td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, background: '#dbeafe', color: '#1d4ed8', fontSize: 10, fontWeight: 600 }}>Completed</span>
+                    </td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      {!n.verified && <ActionBtn label="Verify Now" onClick={() => {}} color="#059669" />}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* AVAILABILITY CALENDAR */}
+      {activeTab === 'availability' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', color: '#0f172a' }}>Nurse Availability Calendar</h4>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {nurses.slice(0, 6).map(n => (
+              <div key={n.id} style={{ padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 28 }}>{n.image}</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{n.name}</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>{n.qualifications} · {n.experience} yrs</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {n.availability.map((a, i) => (
+                    <span key={i} style={{ padding: '4px 10px', borderRadius: 6, background: '#fef3c7', color: '#92400e', fontSize: 10, fontWeight: 600 }}>📅 {a}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* NURSE ASSIGNMENT */}
+      {activeTab === 'assignment' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>Nurse Assignment</h4>
+          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>Search for an unassigned patient request and assign a nurse.</p>
+          <input value={assignmentSearch} onChange={e => setAssignmentSearch(e.target.value)} placeholder="Search by patient name, ID..."
+            style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
+          <div style={{ display: 'grid', gap: 10 }}>
+            {bookings.filter(b => !b.nurseName || b.nurseName === 'Auto-assigned').slice(0, 5).map(b => (
+              <div key={b.id} style={{ padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{b.patientName || 'Unknown'}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{b.serviceName} · {b.preferredDate || ''}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {nurses.slice(0, 3).map(n => (
+                    <button key={n.id} onClick={() => updateBookingStatus(b.id, 'confirmed')}
+                      style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 10, fontFamily: 'inherit' }}>
+                      {n.name.split(' ').slice(-1)[0]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CARE PLANS */}
+      {activeTab === 'careplans' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>Care Plans</h4>
+          <input value={carePlanSearch} onChange={e => setCarePlanSearch(e.target.value)} placeholder="Search by patient or plan..."
+            style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
+          {bookings.filter(b => b.status === 'confirmed' || b.status === 'in-progress' || b.status === 'completed').length === 0 ? (
+            <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>No active care plans yet.</div>
+          ) : (
+            <div style={{ display: 'grid', gap: 10 }}>
+              {bookings.filter(b => b.status === 'confirmed' || b.status === 'in-progress' || b.status === 'completed').slice(0, 6).map(b => (
+                <div key={b.id} style={{ padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{b.patientName} — {b.serviceName}</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>Nurse: {b.nurseName || 'TBD'} · {b.duration || b.serviceDuration || ''}</div>
+                  </div>
+                  <span style={{ padding: '2px 10px', borderRadius: 4, background: statusColors[b.status]?.bg || '#f1f5f9', color: statusColors[b.status]?.text || '#475569', fontSize: 10, fontWeight: 600 }}>{b.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ATTENDANCE */}
+      {activeTab === 'attendance' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>Nurse Attendance</h4>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+            <span style={{ fontSize: 12, color: '#475569' }}>Date:</span>
+            <input type="date" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)}
+              style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none' }} />
+          </div>
+          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 600 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Nurse</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Shift</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Check-in</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Check-out</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {nurses.slice(0, 8).map(n => (
+                  <tr key={n.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '8px 10px', fontWeight: 600, color: '#0f172a' }}>{n.name}</td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b' }}>Day</td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b' }}>—</td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b' }}>—</td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, background: '#fef3c7', color: '#d97706', fontSize: 10, fontWeight: 600 }}>Pending</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* BILLING */}
+      {activeTab === 'billing' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>Billing & Payments</h4>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            {['all', 'paid', 'pending', 'overdue'].map(s => (
+              <button key={s} onClick={() => setBillingFilter(s)}
+                style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: billingFilter === s ? C.primary : '#f1f5f9', color: billingFilter === s ? '#fff' : '#475569', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {bookings.filter(b => b.status === 'completed' || b.status === 'confirmed').slice(0, 6).map(b => (
+              <div key={b.id} style={{ padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{b.patientName} · {b.serviceName}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>ID: {b.id} · {b.preferredDate || '-'}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#059669' }}>₹{b.totalAmount || b.amount || 0}</div>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 600 }}>Paid</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* FEEDBACK */}
+      {activeTab === 'feedback' && (
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', color: '#0f172a' }}>Patient Feedback</h4>
+          {feedbacks.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>
+              No feedback received yet. Feedback will appear here as patients rate their experience.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 10 }}>
+              {feedbacks.map((fb, i) => (
+                <div key={i} style={{ padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{fb.patient}</span>
+                    <span style={{ color: '#d97706', fontSize: 12 }}>{'★'.repeat(5)}</span>
+                  </div>
+                  <p style={{ fontSize: 11, color: '#475569', margin: '0 0 4px', fontStyle: 'italic' }}>"{fb.comment || 'Great service, very professional!'}"</p>
+                  <div style={{ fontSize: 10, color: '#94a3b8' }}>{fb.date || new Date().toLocaleDateString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

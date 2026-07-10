@@ -86,6 +86,14 @@ const PhysioTreatmentListing = lazy(() => import('./pages/PhysioTreatmentListing
 const PhysioTreatmentDetail = lazy(() => import('./pages/PhysioTreatmentDetail'));
 const NursingCare = lazy(() => import('./pages/NursingCare'));
 const NursingBooking = lazy(() => import('./pages/NursingBooking'));
+const NurseAtHome = lazy(() => import('./pages/NurseAtHome'));
+const NurseBookingEnhanced = lazy(() => import('./pages/NurseBookingEnhanced'));
+const NurseSelection = lazy(() => import('./pages/NurseSelection'));
+const NurseSeoLanding = lazy(() => import('./pages/NurseSeoLanding'));
+const NurseWhatsAppService = lazy(() => import('./pages/NurseWhatsAppService'));
+const HomeIcuCare = lazy(() => import('./pages/HomeIcuCare'));
+const MedicalEquipment = lazy(() => import('./pages/MedicalEquipment'));
+const NurseMobileApp = lazy(() => import('./pages/NurseMobileApp'));
 const NursingServiceListing = lazy(() => import('./pages/NursingServiceListing'));
 const NursingServiceDetail = lazy(() => import('./pages/NursingServiceDetail'));
 const NursingDashboard = lazy(() => import('./pages/NursingDashboard'));
@@ -279,6 +287,18 @@ export default function App() {
             <Route path="/nursing-care/services" element={<NursingServiceListing />} />
             <Route path="/nursing-care/service/:slug" element={<NursingServiceDetail />} />
             <Route path="/nursing-care/my-visits" element={<NursingDashboard />} />
+            <Route path="/nurse-at-home" element={<NurseAtHome />} />
+            <Route path="/nurse-at-home/book" element={<NurseBookingEnhanced />} />
+            <Route path="/nurse-at-home/select-nurse" element={<NurseSelection />} />
+            <Route path="/nurse-at-home/services" element={<NursingServiceListing />} />
+            <Route path="/nurse-at-home/service/:slug" element={<NursingServiceDetail />} />
+            <Route path="/nurse-at-home/my-visits" element={<NursingDashboard />} />
+            <Route path="/nurse-at-home/seo/:slug" element={<NurseSeoLanding />} />
+            <Route path="/nurse-at-home/whatsapp" element={<NurseWhatsAppService />} />
+            <Route path="/services/nurse-at-home" element={<Navigate to="/nurse-at-home" replace />} />
+            <Route path="/icu-at-home" element={<HomeIcuCare />} />
+            <Route path="/medical-equipment" element={<MedicalEquipment />} />
+            <Route path="/nurse-app" element={<NurseMobileApp />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
