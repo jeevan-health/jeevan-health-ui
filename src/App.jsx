@@ -296,6 +296,7 @@ export default function App() {
             <Route path="/nurse-at-home/seo/:slug" element={<NurseSeoLanding />} />
             <Route path="/nurse-at-home/whatsapp" element={<NurseWhatsAppService />} />
             <Route path="/services/nurse-at-home" element={<Navigate to="/nurse-at-home" replace />} />
+            <Route path="/services/nursing" element={<Navigate to="/nurse-at-home" replace />} />
             <Route path="/icu-at-home" element={<HomeIcuCare />} />
             <Route path="/medical-equipment" element={<MedicalEquipment />} />
             <Route path="/nurse-app" element={<NurseMobileApp />} />
