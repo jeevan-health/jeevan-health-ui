@@ -77,6 +77,8 @@ export default function VaccinationAtHome() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link to="/vaccination/all-vaccines" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', height: 48, padding: '0 28px', fontSize: 16, fontWeight: 700, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Book Vaccination</Link>
             <Link to="/vaccination/vaccine-finder" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.4)', color: '#fff', height: 48, padding: '0 28px', fontSize: 16, fontWeight: 600, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>Find My Vaccine</Link>
+            <Link to="/vaccination/wallet" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', height: 48, padding: '0 28px', fontSize: 16, fontWeight: 600, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>💳 My Wallet</Link>
+            <Link to="/vaccination/corporate" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', height: 48, padding: '0 28px', fontSize: 16, fontWeight: 600, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>🏢 Corporate</Link>
           </div>
         </div>
       </div>

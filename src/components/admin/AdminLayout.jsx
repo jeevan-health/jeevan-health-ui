@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { path: '/admin/permissions', label: 'Permissions', icon: '🔐' },
   { path: '/admin/test-master', label: 'Test Master', icon: '🧪' },
   { path: '/admin/health-packages', label: 'Health Packages', icon: '📦' },
+  { path: '/admin/vaccination', label: 'Vaccination ⭐', icon: '💉' },
   { path: '/admin/inventory', label: 'Inventory', icon: '📋' },
   { path: '/admin/cms', label: 'Website CMS', icon: '🌐' },
   { path: '/admin/coupons', label: 'Coupons', icon: '🏷️' },

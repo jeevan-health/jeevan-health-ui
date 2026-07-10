@@ -5,6 +5,7 @@ export const vaccineCategories = [
   { id: 'women', name: 'Women Vaccination', age: 'All Ages', icon: '👩', description: 'Women-specific vaccine recommendations', color: '#EC4899', slug: 'women-vaccination' },
   { id: 'senior', name: 'Senior Citizen', age: '60+ Years', icon: '👴', description: 'Critical vaccines for golden years', color: '#8B5CF6', slug: 'senior-vaccination' },
   { id: 'travel', name: 'Travel Vaccination', age: 'All Ages', icon: '✈️', description: 'Stay safe during international travel', color: '#2563eb', slug: 'travel-vaccination' },
+  { id: 'corporate', name: 'Corporate Vaccination', age: 'Workplace', icon: '🏢', description: 'On-site vaccination camps for organizations', color: '#7c3aed', slug: 'corporate-vaccination' },
 ];
 
 export const vaccines = [

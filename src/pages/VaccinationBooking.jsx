@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { vaccines } from '../data/vaccinationData';
+import { sendBookingConfirmation, getWALink } from '../services/waService';
 
 const STEPS = [
   { id: 'vaccine', label: 'Vaccine' },
@@ -80,7 +81,8 @@ export default function VaccinationBooking() {
       const bookings = JSON.parse(localStorage.getItem('jh_vaccination_bookings') || '[]');
       bookings.push(booking);
       localStorage.setItem('jh_vaccination_bookings', JSON.stringify(bookings));
-      setConfirmed(booking);
+      const waMsg = sendBookingConfirmation(booking);
+      setConfirmed({ ...booking, waMsg });
       setProcessing(false);
     }, 1500);
   };
@@ -101,8 +103,11 @@ export default function VaccinationBooking() {
           <div style={{ fontSize: 13 }}><strong>Amount:</strong> ₹{confirmed.vaccinePrice}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/vaccination" style={{ height: 44, padding: '0 24px', borderRadius: 8, background: '#2563eb', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>Back to Vaccination</Link>
-          <Link to="/vaccination/all-vaccines" style={{ height: 44, padding: '0 24px', borderRadius: 8, border: '1px solid #d0d5dd', color: '#0f172a', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>Book Another</Link>
+          <a href={getWALink(confirmed.waMsg)} target="_blank" rel="noopener noreferrer" style={{ height: 44, padding: '0 24px', borderRadius: 8, background: '#25d366', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            💬 Send WhatsApp Confirmation
+          </a>
+          <Link to="/vaccination/wallet" style={{ height: 44, padding: '0 24px', borderRadius: 8, border: '1px solid #d0d5dd', color: '#0f172a', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>💳 View Wallet</Link>
+          <Link to="/vaccination" style={{ height: 44, padding: '0 24px', borderRadius: 8, border: '1px solid #d0d5dd', color: '#0f172a', textDecoration: 'none', fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}>Back to Vaccination</Link>
         </div>
       </div>
     );

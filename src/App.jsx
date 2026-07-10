@@ -28,6 +28,8 @@ const VaccineListing = lazy(() => import('./pages/VaccineListing'));
 const VaccineDetail = lazy(() => import('./pages/VaccineDetail'));
 const VaccineFinder = lazy(() => import('./pages/VaccineFinder'));
 const VaccinationBooking = lazy(() => import('./pages/VaccinationBooking'));
+const VaccineWallet = lazy(() => import('./pages/VaccineWallet'));
+const CorporateVaccination = lazy(() => import('./pages/CorporateVaccination'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -44,6 +46,7 @@ const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminTestMaster = lazy(() => import('./pages/admin/AdminTestMaster'));
 const AdminHealthPackages = lazy(() => import('./pages/admin/AdminHealthPackages'));
+const AdminVaccination = lazy(() => import('./pages/admin/AdminVaccination'));
 const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
 const AdminCMS = lazy(() => import('./pages/admin/AdminCMS'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
@@ -205,6 +208,8 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/upload-prescription" element={<UploadPrescription />} />
+            <Route path="/vaccination/wallet" element={<VaccineWallet />} />
+            <Route path="/vaccination/corporate" element={<CorporateVaccination />} />
             <Route path="/vaccination/book" element={<VaccinationBooking />} />
             <Route path="/vaccination/all-vaccines" element={<VaccineListing />} />
             <Route path="/vaccination/vaccine-finder" element={<VaccineFinder />} />
@@ -235,6 +240,7 @@ export default function App() {
             <Route path="permissions" element={<AdminPermissions />} />
             <Route path="test-master" element={<AdminTestMaster />} />
             <Route path="health-packages" element={<AdminHealthPackages />} />
+          <Route path="vaccination" element={<AdminVaccination />} />
             <Route path="cms" element={<AdminCMS />} />
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
