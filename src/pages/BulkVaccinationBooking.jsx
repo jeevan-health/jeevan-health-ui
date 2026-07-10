@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import { useToast } from '../components/Toast';
 import { vaccines, vaccineCategories } from '../data/vaccinationData';
 
 const BULK_KEY = 'jh_bulk_vaccination';
 
 export default function BulkVaccinationBooking() {
   const t = useT();
+  const toast = useToast();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     organization: '', contactName: '', email: '', phone: '',
@@ -32,6 +34,7 @@ export default function BulkVaccinationBooking() {
     existing.push(entry);
     localStorage.setItem(BULK_KEY, JSON.stringify(existing));
     setSubmitted(true);
+    toast(t('bulk.request.confirmed', 'Bulk vaccination request submitted!'), 'success');
   };
 
   const totalCost = selectedVaccines.reduce((sum, v) => sum + v.price * form.participants, 0);

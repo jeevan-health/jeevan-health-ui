@@ -4,6 +4,7 @@ import useCartStore from '../../stores/cartStore';
 import useUploadModal from '../../stores/uploadModalStore';
 import SmartSearch from './SmartSearch';
 import { useT } from '../../i18n/LanguageProvider';
+import { useMobileNavStore } from '../MobileNav';
 
 export default function Header() {
   const t = useT();
@@ -16,6 +17,9 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="header-inner">
+        <button onClick={() => useMobileNavStore.getState().toggle()} className="hdr-hamburger" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <Link to="/" className="header-logo">
           <img src="/logo.png" alt={t('header.logoAlt', 'Jeevan HealthCare at Home')} />
         </Link>
@@ -110,8 +114,11 @@ export default function Header() {
           display: flex; align-items: center; justify-content: center;
           padding: 0 4px; box-shadow: 0 1px 3px rgba(239,68,68,0.3);
         }
+        .hdr-hamburger { display: none; background: none; border: none; padding: 4px; cursor: pointer; color: #333; border-radius: 6px; }
+        .hdr-hamburger:hover { background: #f5f5f5; }
         .hdr-mobile-search { display: none; padding: 0 12px 8px; }
         @media (max-width: 768px) {
+          .hdr-hamburger { display: flex; }
           .header-inner { padding: 6px 10px; gap: 6px; }
           .header-logo img { height: 28px; }
           .hdr-search-wrap { display: none; }

@@ -4,6 +4,7 @@ import Footer from './Footer';
 import UploadModal from './UploadModal';
 import FloatingActions from './FloatingActions';
 import CartDrawer from './CartDrawer';
+import MobileNav from '../MobileNav';
 import useAuthStore from '../../stores/authStore';
 import useUploadModal from '../../stores/uploadModalStore';
 import useCartStore from '../../stores/cartStore';
@@ -46,6 +47,7 @@ export default function Layout() {
       <Footer />
       <UploadModal />
       <CartDrawer />
+      <MobileNav />
       <FloatingActions />
       <div className="mobile-bottom-bar">
         {navItems.map(item => {

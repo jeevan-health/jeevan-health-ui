@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import { useToast } from '../components/Toast';
 import {
   nursingCategories, nursingServices, nurseLevels, nurses, nursingPackages,
   equipmentItems, STORAGE_KEYS,
@@ -52,6 +53,7 @@ const PAYMENT_OPTIONS = [
 
 export default function NurseBookingEnhanced() {
   const t = useT();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSlug = searchParams.get('service');
@@ -205,6 +207,7 @@ export default function NurseBookingEnhanced() {
       leads.push({ ...booking, leadId: 'LD-' + Date.now().toString(36).toUpperCase(), stage: 'call-centre', source: 'website-booking' });
       localStorage.setItem(STORAGE_KEYS.LEADS, JSON.stringify(leads));
       setConfirmed(booking);
+      toast(t('nurse.booking.confirmed', 'Nursing care booking confirmed! Assessment required.'), 'success');
       setProcessing(false);
     }, 1500);
   };

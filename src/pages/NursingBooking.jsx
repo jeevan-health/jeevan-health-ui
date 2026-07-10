@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import { useToast } from '../components/Toast';
 import {
   nursingCategories, nursingServices, nurseLevels, nurses, nursingPackages, STORAGE_KEYS,
 } from '../data/nursingData';
@@ -36,6 +37,7 @@ const whatsappNumber = '918978933399';
 
 export default function NursingBooking() {
   const t = useT();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSlug = searchParams.get('service');
@@ -140,6 +142,7 @@ export default function NursingBooking() {
       bookings.push(booking);
       localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
       setConfirmed(booking);
+      toast(t('nursing.booking.confirmed', 'Nursing booking confirmed!'), 'success');
       setProcessing(false);
     }, 1500);
   };

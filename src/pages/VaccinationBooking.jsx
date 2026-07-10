@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import { useToast } from '../components/Toast';
 import { vaccines } from '../data/vaccinationData';
 import { sendBookingConfirmation, getWALink } from '../services/waService';
 
@@ -25,6 +26,7 @@ const TIME_SLOTS = [
 
 export default function VaccinationBooking() {
   const t = useT();
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const preSelectedSlug = searchParams.get('vaccine');
 
@@ -85,6 +87,7 @@ export default function VaccinationBooking() {
       localStorage.setItem('jh_vaccination_bookings', JSON.stringify(bookings));
       const waMsg = sendBookingConfirmation(booking);
       setConfirmed({ ...booking, waMsg });
+      toast(t('vaccination.booking.confirmed', 'Vaccination booked successfully!'), 'success');
       setProcessing(false);
     }, 1500);
   };

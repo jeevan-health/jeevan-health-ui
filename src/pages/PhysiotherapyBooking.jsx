@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import { useToast } from '../components/Toast';
 import {
   physioCategories, therapists, physioPackages, painLevels,
   bodyParts, previousTreatments, painDurations, treatmentModes, STORAGE_KEYS,
@@ -60,6 +61,7 @@ const PAYMENT_METHODS = [
 
 export default function PhysiotherapyBooking() {
   const t = useT();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
@@ -140,6 +142,7 @@ export default function PhysiotherapyBooking() {
       bookings.push(booking);
       localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
       setConfirmed(booking);
+      toast(t('physio.booking.confirmed', 'Physiotherapy booking confirmed!'), 'success');
       setProcessing(false);
     }, 1500);
   };
