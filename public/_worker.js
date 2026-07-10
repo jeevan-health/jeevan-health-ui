@@ -310,6 +310,43 @@ const DYNAMIC_ROUTE_PATTERNS = [
       };
     },
   },
+  {
+    test: /^\/service\/([^/]+)\/in\/([^/]+)$/,
+    build: (type, location) => {
+      const svc = type.replace(/[-/]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const loc = location.replace(/[-/]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return {
+        title: `${svc} at Home in ${loc} — Jeevan HealthCare`,
+        description: `Book ${svc.toLowerCase()} at home in ${loc}. Free home collection by trained professionals. NABL certified labs, accurate reports.`,
+        ogTitle: `${svc} at Home in ${loc} | Jeevan HealthCare`,
+        ogDescription: `Book ${svc.toLowerCase()} at home in ${loc}. Free home collection, certified labs.`,
+      };
+    },
+  },
+  {
+    test: /^\/disease\/(.+)$/,
+    build: (slug) => {
+      const name = slug.replace(/[-/]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return {
+        title: `${name} — Care & Management at Home | Jeevan HealthCare`,
+        description: `Comprehensive ${name.toLowerCase()} care at home. Book lab tests, get expert guidance, and manage your condition from home. Free home collection.`,
+        ogTitle: `${name} — Care at Home | Jeevan HealthCare`,
+        ogDescription: `Manage ${name.toLowerCase()} at home. Lab tests & expert care at your doorstep.`,
+      };
+    },
+  },
+  {
+    test: /^\/test-info\/(.+)$/,
+    build: (slug) => {
+      const name = slug.replace(/[-/]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return {
+        title: `${name} — Book Online at Home | Jeevan HealthCare`,
+        description: `${name} — book online at home with free sample collection. Know price, fasting requirements, report time, and what this test measures.`,
+        ogTitle: `${name} Test | Jeevan HealthCare`,
+        ogDescription: `Book ${name} at home. Free collection, accurate reports.`,
+      };
+    },
+  },
 ];
 
 const NOINDEX_PREFIXES = [

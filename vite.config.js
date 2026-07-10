@@ -15,5 +15,17 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-router/') || id.includes('node_modules/scheduler/')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/lucide-react/') || id.includes('node_modules/@phosphor-icons/') || id.includes('node_modules/zustand/')) {
+            return 'ui-libs';
+          }
+        },
+      },
+    },
   },
 });

@@ -39,4 +39,29 @@
   <url><loc>https://jeevanhealthcare.com/nurse-at-home/services</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/nursing-care/services</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/medical-equipment/cart</loc><priority>0.3</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/gachibowli</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/health-checkup/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/nursing/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/physiotherapy/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/vaccination/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/medical-equipment/in/hyderabad</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/diabetes</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/thyroid</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/hypertension</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/high-cholesterol</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/arthritis</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/anemia</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/liver-health</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/kidney-health</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/cbc-blood-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/hba1c-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/thyroid-profile-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/lipid-profile-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/liver-function-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/kidney-function-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/vitamin-d-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/vitamin-b12-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/iron-studies-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/allergy-panel-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 </urlset>

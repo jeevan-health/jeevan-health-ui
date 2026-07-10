@@ -1,0 +1,171 @@
+export const LOCATIONS = [
+  { slug: 'hyderabad', name: 'Hyderabad', state: 'Telangana', areas: ['Madhapur', 'Gachibowli', 'Hitech City', 'Kondapur', 'Kukatpally', 'Miyapur'] },
+  { slug: 'gachibowli', name: 'Gachibowli', state: 'Telangana', city: 'Hyderabad', areas: ['Gachibowli', 'Financial District', 'Nanakramguda', 'Manikonda'] },
+  { slug: 'hitech-city', name: 'Hitech City', state: 'Telangana', city: 'Hyderabad', areas: ['Hitech City', 'Madhapur', 'Patrika Nagar', 'Jaihindh Enclave'] },
+  { slug: 'madhapur', name: 'Madhapur', state: 'Telangana', city: 'Hyderabad', areas: ['Madhapur', 'Kavuri Hills', 'HUDA Layout', 'Cyber Hills'] },
+  { slug: 'kondapur', name: 'Kondapur', state: 'Telangana', city: 'Hyderabad', areas: ['Kondapur', 'Botanical Garden Road', 'Shilpa Hills', 'Jagadish Nagar'] },
+  { slug: 'kukatpally', name: 'Kukatpally', state: 'Telangana', city: 'Hyderabad', areas: ['Kukatpally', 'JNTU', 'Nizampet', 'Hydernagar'] },
+  { slug: 'miyapur', name: 'Miyapur', state: 'Telangana', city: 'Hyderabad', areas: ['Miyapur', 'Allwyn X Road', 'Bachupally', 'Mallampet'] },
+  { slug: 'jubilee-hills', name: 'Jubilee Hills', state: 'Telangana', city: 'Hyderabad', areas: ['Jubilee Hills', 'Road No 36', 'Film Nagar', 'Yousufguda'] },
+  { slug: 'banjara-hills', name: 'Banjara Hills', state: 'Telangana', city: 'Hyderabad', areas: ['Banjara Hills', 'Road No 12', 'Jubilee Enclave', 'Erramanzil'] },
+  { slug: 'ameerpet', name: 'Ameerpet', state: 'Telangana', city: 'Hyderabad', areas: ['Ameerpet', 'SR Nagar', 'Punjagutta', 'Somajiguda'] },
+  { slug: 'secunderabad', name: 'Secunderabad', state: 'Telangana', city: 'Hyderabad', areas: ['Secunderabad', 'Paradise', 'Railway Colony', 'Bolarum'] },
+  { slug: 'dilsukhnagar', name: 'Dilsukhnagar', state: 'Telangana', city: 'Hyderabad', areas: ['Dilsukhnagar', 'Kothapet', 'Chaitanyapuri', 'Saroornagar'] },
+  { slug: 'lb-nagar', name: 'LB Nagar', state: 'Telangana', city: 'Hyderabad', areas: ['LB Nagar', 'Vanastahipuram', 'Nagarjuna Sagar Road'] },
+  { slug: 'uppal', name: 'Uppal', state: 'Telangana', city: 'Hyderabad', areas: ['Uppal', 'Habsiguda', 'Nacharam', 'Boduppal'] },
+  { slug: 'shamshabad', name: 'Shamshabad', state: 'Telangana', city: 'Hyderabad', areas: ['Shamshabad', 'Rajiv Gandhi Airport', 'Shadnagar'] },
+  { slug: 'tellapur', name: 'Tellapur', state: 'Telangana', city: 'Hyderabad', areas: ['Tellapur', 'Osman Nagar', 'Ramdevguda'] },
+];
+
+export const SERVICE_TYPES = [
+  {
+    id: 'blood-test', slug: 'blood-test', label: 'Blood Test',
+    icon: '🩸', color: '#1866C9',
+    description: (loc) => `Book blood test at home in ${loc}. Free home sample collection by trained phlebotomists. NABL certified labs with accurate digital reports.`,
+    heading: (loc) => `Blood Test at Home in ${loc}`,
+    features: ['Free home sample collection', 'NABL certified labs', 'Reports in 6-24 hours', 'Trained phlebotomists', 'Secure digital reports'],
+    bookingLink: '/diagnostics',
+  },
+  {
+    id: 'health-checkup', slug: 'health-checkup', label: 'Health Checkup',
+    icon: '🏥', color: '#16a34a',
+    description: (loc) => `Book full body health checkup at home in ${loc}. Comprehensive packages for diabetes, cardiac, thyroid & more with free home collection.`,
+    heading: (loc) => `Health Checkup at Home in ${loc}`,
+    features: ['Full body checkup packages', 'Free home collection', 'Comprehensive reports', 'Expert consultation', 'Affordable pricing'],
+    bookingLink: '/health-packages',
+  },
+  {
+    id: 'nursing', slug: 'nursing', label: 'Nursing at Home',
+    icon: '👩‍⚕️', color: '#7C3AED',
+    description: (loc) => `Book trained nurses at home in ${loc}. Wound care, injections, IV infusion, catheter care, post-surgery nursing & elderly care.`,
+    heading: (loc) => `Nursing at Home in ${loc}`,
+    features: ['Trained & verified nurses', 'Wound care & dressing', 'IV infusion & injections', 'Post-surgery care', 'Elderly care'],
+    bookingLink: '/nurse-at-home/book',
+  },
+  {
+    id: 'physiotherapy', slug: 'physiotherapy', label: 'Physiotherapy',
+    icon: '💪', color: '#0D9488',
+    description: (loc) => `Book expert physiotherapists at home in ${loc}. Back pain, knee pain, stroke rehab, sports injury recovery & geriatric care.`,
+    heading: (loc) => `Physiotherapy at Home in ${loc}`,
+    features: ['Expert physiotherapists', '1-on-1 sessions at home', 'Personalized treatment plans', 'All conditions covered', 'Progress tracking'],
+    bookingLink: '/physiotherapy/book',
+  },
+  {
+    id: 'vaccination', slug: 'vaccination', label: 'Vaccination',
+    icon: '💉', color: '#2563EB',
+    description: (loc) => `Book vaccination at home in ${loc}. Baby vaccination, adult vaccines, travel shots, flu vaccines by trained professionals.`,
+    heading: (loc) => `Vaccination at Home in ${loc}`,
+    features: ['Baby & child vaccination', 'Adult vaccinations', 'Travel vaccines', 'Flu shots', 'Corporate vaccination camps'],
+    bookingLink: '/vaccination/book',
+  },
+  {
+    id: 'medical-equipment', slug: 'medical-equipment', label: 'Medical Equipment',
+    icon: '🛏️', color: '#e65100',
+    description: (loc) => `Rent or buy medical equipment at home in ${loc}. Oxygen concentrators, hospital beds, wheelchairs, CPAP machines with free delivery.`,
+    heading: (loc) => `Medical Equipment at Home in ${loc}`,
+    features: ['Free delivery & setup', 'Oxygen concentrators', 'Hospital beds & mattresses', 'Wheelchairs & walkers', 'Affordable monthly rental'],
+    bookingLink: '/medical-equipment',
+  },
+];
+
+export const DISEASES = [
+  { slug: 'diabetes', name: 'Diabetes', icon: '🩸', color: '#dc2626',
+    description: 'Comprehensive diabetes care at home. HbA1c monitoring, blood sugar testing, dietary guidance, and lifestyle management.',
+    symptoms: ['Frequent urination', 'Excessive thirst', 'Unexplained weight loss', 'Fatigue', 'Blurred vision', 'Slow healing wounds'],
+    tests: ['HbA1c', 'Blood Sugar (Fasting)', 'Blood Sugar (Post Prandial)', 'Lipid Profile', 'Kidney Function Test'],
+    care: ['Regular blood sugar monitoring', 'Balanced diet & portion control', 'Regular exercise', 'Medication adherence', 'Foot care'] },
+  { slug: 'thyroid', name: 'Thyroid Disorders', icon: '🦋', color: '#7c3aed',
+    description: 'Thyroid function testing and management at home. T3, T4, TSH tests with free home collection and expert guidance.',
+    symptoms: ['Weight changes', 'Fatigue', 'Hair loss', 'Mood swings', 'Temperature sensitivity', 'Irregular heartbeat'],
+    tests: ['TSH', 'T3 (Free)', 'T4 (Free)', 'Thyroid Profile', 'Thyroid Antibodies'],
+    care: ['Regular thyroid function tests', 'Medication compliance', 'Stress management', 'Balanced iodine intake', 'Regular follow-up'] },
+  { slug: 'hypertension', name: 'High Blood Pressure', icon: '❤️', color: '#e11d48',
+    description: 'Blood pressure monitoring and management at home. Regular BP checks, lipid profiles, and cardiac risk assessment.',
+    symptoms: ['Headaches', 'Shortness of breath', 'Nosebleeds', 'Chest pain', 'Dizziness', 'Blurred vision'],
+    tests: ['Lipid Profile', 'Kidney Function Test', 'ECG', 'Echocardiogram', 'hs-CRP'],
+    care: ['Daily BP monitoring', 'Low sodium diet', 'Regular exercise', 'Medication adherence', 'Stress reduction'] },
+  { slug: 'high-cholesterol', name: 'High Cholesterol', icon: '🫀', color: '#0891b2',
+    description: 'Lipid profile testing at home. Monitor cholesterol, LDL, HDL, and triglycerides to assess heart disease risk.',
+    symptoms: ['Often no symptoms', 'Chest pain (angina)', 'Shortness of breath', 'Numbness in extremities', 'High BP'],
+    tests: ['Lipid Profile', 'Total Cholesterol', 'HDL / LDL', 'Triglycerides', 'hs-CRP'],
+    care: ['Heart-healthy diet', 'Regular exercise', 'Limit saturated fats', 'Medication if prescribed', 'Regular lipid monitoring'] },
+  { slug: 'arthritis', name: 'Arthritis & Joint Pain', icon: '🦴', color: '#f97316',
+    description: 'Arthritis testing and management at home. Rheumatoid factor, uric acid, and joint care with home physiotherapy.',
+    symptoms: ['Joint pain & stiffness', 'Swelling', 'Reduced range of motion', 'Warmth around joints', 'Morning stiffness'],
+    tests: ['Rheumatoid Factor', 'Uric Acid', 'Anti-CCP', 'CRP', 'ESR'],
+    care: ['Physiotherapy at home', 'Anti-inflammatory diet', 'Weight management', 'Joint protection', 'Medication compliance'] },
+  { slug: 'anemia', name: 'Anemia', icon: '🩸', color: '#be123c',
+    description: 'Anemia testing and management at home. CBC, iron studies, vitamin B12 & folate tests to identify the root cause.',
+    symptoms: ['Fatigue', 'Pale skin', 'Shortness of breath', 'Dizziness', 'Cold hands & feet', 'Irregular heartbeat'],
+    tests: ['Complete Blood Count (CBC)', 'Iron Studies', 'Vitamin B12', 'Folate', 'Ferritin'],
+    care: ['Iron-rich diet', 'Vitamin B12 supplementation', 'Regular blood monitoring', 'Treat underlying cause', 'Dietary adjustments'] },
+  { slug: 'liver-health', name: 'Liver Health', icon: '🫁', color: '#65a30d',
+    description: 'Liver function testing at home. SGOT, SGPT, bilirubin, and comprehensive liver panel with free home collection.',
+    symptoms: ['Jaundice (yellow skin/eyes)', 'Abdominal pain', 'Swelling in legs', 'Dark urine', 'Chronic fatigue', 'Nausea'],
+    tests: ['Liver Function Test (LFT)', 'SGOT / SGPT', 'Bilirubin', 'GGT', 'Alkaline Phosphatase'],
+    care: ['Limit alcohol consumption', 'Healthy diet', 'Regular liver monitoring', 'Avoid hepatotoxic medications', 'Vaccination for hepatitis'] },
+  { slug: 'kidney-health', name: 'Kidney Health', icon: '🫘', color: '#6366f1',
+    description: 'Kidney function testing at home. Creatinine, BUN, uric acid, and electrolyte panel with expert guidance.',
+    symptoms: ['Swelling in ankles/feet', 'Fatigue', 'Changes in urination', 'Shortness of breath', 'Nausea', 'Muscle cramps'],
+    tests: ['Kidney Function Test (KFT)', 'Creatinine', 'BUN', 'Uric Acid', 'Electrolyte Panel'],
+    care: ['Stay hydrated', 'Low sodium diet', 'Regular kidney monitoring', 'Manage BP & diabetes', 'Avoid NSAIDs overuse'] },
+];
+
+export const TEST_INFO = [
+  { slug: 'cbc-blood-test', name: 'Complete Blood Count (CBC)', category: 'Complete Blood Count',
+    description: 'A Complete Blood Count (CBC) measures red blood cells, white blood cells, hemoglobin, hematocrit, and platelets. It is a common blood test used to evaluate overall health and detect a wide range of disorders.',
+    whatItMeasures: ['Red Blood Cell (RBC) count — oxygen carrying capacity', 'White Blood Cell (WBC) count — immune system health', 'Hemoglobin — oxygen transport protein levels', 'Hematocrit — proportion of blood volume from RBCs', 'Platelet count — blood clotting ability'],
+    price: '₹299', fasting: 'No fasting required', reportTime: '6 hours' },
+  { slug: 'hba1c-test', name: 'HbA1c (Glycated Hemoglobin)', category: 'Diabetes',
+    description: 'The HbA1c test measures your average blood sugar levels over the past 2-3 months. It is the gold standard for diabetes monitoring and diagnosis.',
+    whatItMeasures: ['Average blood glucose over 2-3 months', 'Diabetes control assessment', 'Prediabetes screening', 'Treatment effectiveness monitoring'],
+    price: '₹449', fasting: 'No fasting required', reportTime: '24 hours' },
+  { slug: 'thyroid-profile-test', name: 'Thyroid Profile (T3, T4, TSH)', category: 'Thyroid',
+    description: 'The Thyroid Profile measures T3, T4, and TSH hormone levels to evaluate thyroid gland function. It helps diagnose hypothyroidism, hyperthyroidism, and other thyroid disorders.',
+    whatItMeasures: ['TSH — pituitary thyroid-stimulating hormone', 'T4 (Free/Total) — main thyroid hormone', 'T3 (Free/Total) — active thyroid hormone'],
+    price: '₹399', fasting: 'Fasting 8-10 hours recommended', reportTime: '24 hours' },
+  { slug: 'lipid-profile-test', name: 'Lipid Profile', category: 'Lipid Profile',
+    description: 'A Lipid Profile measures cholesterol levels including total cholesterol, HDL, LDL, and triglycerides to assess cardiovascular disease risk.',
+    whatItMeasures: ['Total Cholesterol — overall cholesterol level', 'HDL — "good" cholesterol', 'LDL — "bad" cholesterol', 'Triglycerides — blood fat level', 'VLDL — very low density lipoprotein'],
+    price: '₹349', fasting: 'Fasting 9-12 hours required', reportTime: '12 hours' },
+  { slug: 'liver-function-test', name: 'Liver Function Test (LFT)', category: 'Liver Function',
+    description: 'A Liver Function Test measures enzymes, proteins, and bilirubin in your blood to evaluate liver health and detect liver damage or disease.',
+    whatItMeasures: ['SGOT/AST & SGPT/ALT — liver enzymes', 'ALP — alkaline phosphatase', 'Bilirubin — liver processing of waste', 'Total Protein & Albumin — liver synthesis', 'GGT — gamma-glutamyl transferase'],
+    price: '₹449', fasting: 'Fasting 8-10 hours recommended', reportTime: '24 hours' },
+  { slug: 'kidney-function-test', name: 'Kidney Function Test (KFT)', category: 'Kidney Function',
+    description: 'A Kidney Function Test measures creatinine, BUN, uric acid, and electrolytes to assess how well your kidneys are filtering waste from your blood.',
+    whatItMeasures: ['Creatinine — kidney filtration marker', 'BUN — blood urea nitrogen', 'Uric Acid — purine metabolism waste', 'Electrolytes — sodium, potassium, chloride', 'Calcium & Phosphorus — mineral balance'],
+    price: '₹399', fasting: 'Fasting 8 hours recommended', reportTime: '24 hours' },
+  { slug: 'vitamin-d-test', name: 'Vitamin D Total', category: 'Vitamin D',
+    description: 'The Vitamin D test measures 25-hydroxyvitamin D levels to detect vitamin D deficiency or excess. Vitamin D is essential for bone health, immune function, and overall wellbeing.',
+    whatItMeasures: ['Vitamin D3 (cholecalciferol) levels', 'Vitamin D2 (ergocalciferol) levels', 'Total 25-hydroxyvitamin D', 'Bone health indicator'],
+    price: '₹599', fasting: 'No fasting required', reportTime: '24 hours' },
+  { slug: 'vitamin-b12-test', name: 'Vitamin B12', category: 'Vitamin B12',
+    description: 'The Vitamin B12 test measures cobalamin levels to detect deficiency that can cause anemia, neurological issues, and fatigue.',
+    whatItMeasures: ['Active B12 levels', 'Methylmalonic acid (indirect marker)', 'Homocysteine levels (associated marker)'],
+    price: '₹699', fasting: 'No fasting required', reportTime: '24 hours' },
+  { slug: 'iron-studies-test', name: 'Iron Studies', category: 'Iron Studies',
+    description: 'Iron Studies measure serum iron, ferritin, TIBC, and transferrin saturation to evaluate your body\'s iron stores and detect iron deficiency or overload.',
+    whatItMeasures: ['Serum Iron — iron in blood', 'Ferritin — stored iron', 'TIBC — total iron binding capacity', 'Transferrin Saturation — iron transport'],
+    price: '₹699', fasting: 'Fasting 10-12 hours required', reportTime: '24 hours' },
+  { slug: 'allergy-panel-test', name: 'Allergy Panel Testing', category: 'Allergy',
+    description: 'Allergy blood tests measure IgE antibodies against common allergens to identify what substances trigger your allergic reactions.',
+    whatItMeasures: ['Food allergen IgE (milk, egg, peanut, wheat, soy)', 'Inhalant allergen IgE (pollen, dust, mold, dander)', 'Total IgE levels', 'Specific allergen identification'],
+    price: '₹2,499', fasting: 'No fasting required', reportTime: '5-7 days' },
+];
+
+export function getLocation(slug) {
+  return LOCATIONS.find(l => l.slug === slug);
+}
+
+export function getService(slug) {
+  return SERVICE_TYPES.find(s => s.slug === slug);
+}
+
+export function getDisease(slug) {
+  return DISEASES.find(d => d.slug === slug);
+}
+
+export function getTestInfo(slug) {
+  return TEST_INFO.find(t => t.slug === slug);
+}

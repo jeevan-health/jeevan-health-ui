@@ -111,6 +111,10 @@ const AdminNursing = lazy(() => import('./pages/admin/AdminNursing'));
 const VaccineSeoLanding = lazy(() => import('./pages/VaccineSeoLanding'));
 const VaccineWhatsAppMarketing = lazy(() => import('./pages/VaccineWhatsAppMarketing'));
 
+const LocationServicePage = lazy(() => import('./pages/LocationServicePage'));
+const DiseaseCarePage = lazy(() => import('./pages/DiseaseCarePage'));
+const TestInfoPage = lazy(() => import('./pages/TestInfoPage'));
+
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
 const NurseDashboard = lazy(() => import('./pages/role/NurseDashboard'));
@@ -326,6 +330,9 @@ export default function App() {
             <Route path="/book-appointment/:doctorId" element={<BookAppointment />} />
             <Route path="/policy/:slug" element={<PolicyPage />} />
             <Route path="/health-tool/:slug" element={<HealthToolPage />} />
+            <Route path="/service/:type/in/:location" element={<LocationServicePage />} />
+            <Route path="/disease/:slug" element={<DiseaseCarePage />} />
+            <Route path="/test-info/:slug" element={<TestInfoPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
           <Route path="/signup" element={<Signup />} />
