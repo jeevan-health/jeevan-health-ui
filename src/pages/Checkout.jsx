@@ -5,6 +5,7 @@ import useCartStore from '../stores/cartStore';
 import useDashboardStore from '../stores/dashboardStore';
 import { seedTests } from '../data/seedData';
 import PhysioCrossSell from '../components/PhysioCrossSell';
+import VaccineCrossSell from '../components/VaccineCrossSell';
 
 const STEPS = ['Address', 'Patient', 'Date & Time', 'Review', 'Payment'];
 
@@ -270,6 +271,14 @@ export default function Checkout() {
             source="checkout-confirmation"
             compact={true}
           />
+          <div style={{ marginTop: 8 }}>
+            <VaccineCrossSell
+              testResults={itemDetails.map(i => ({ testName: i.name, value: '', status: '' }))}
+              patientCondition=""
+              source="checkout-confirmation"
+              compact={true}
+            />
+          </div>
         </div>
         <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-secondary)', marginTop: 12 }}>{t('checkout.confirmed.redirecting', 'Redirecting to dashboard automatically...')}</p>
       </div>

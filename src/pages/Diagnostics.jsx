@@ -7,6 +7,7 @@ import { seedTests, categoryList, makeSlug } from '../data/seedData';
 import SmartSearch from '../components/layout/SmartSearch';
 import TestCard from '../components/TestCard';
 import PhysioCrossSell from '../components/PhysioCrossSell';
+import VaccineCrossSell from '../components/VaccineCrossSell';
 import useCmsStore from '../stores/cmsStore';
 
 export default function Diagnostics() {
@@ -172,6 +173,9 @@ export default function Diagnostics() {
       {!query && (
         <div className="container" style={{ paddingTop: 0, paddingBottom: 20 }}>
           <PhysioCrossSell source="diagnostics-page" compact={true} />
+          <div style={{ marginTop: 8 }}>
+            <VaccineCrossSell source="diagnostics-page" compact={true} />
+          </div>
         </div>
       )}
 

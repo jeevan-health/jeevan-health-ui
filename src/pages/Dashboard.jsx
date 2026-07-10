@@ -8,6 +8,7 @@ import { useT } from '../i18n/LanguageProvider';
 import useDailyActivityStore from '../stores/dailyActivityStore';
 import HealthToolsGrid from '../components/healthTools/HealthToolsGrid';
 import PhysioCrossSell from '../components/PhysioCrossSell';
+import VaccineCrossSell from '../components/VaccineCrossSell';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -1013,6 +1014,12 @@ export default function Dashboard() {
                 source="dashboard-health"
                 compact={true}
               />
+              <VaccineCrossSell
+                patientCondition={store.healthData?.medicalHistory ?
+                  Object.keys(store.healthData.medicalHistory).filter(k => store.healthData.medicalHistory[k]).join(', ') : ''}
+                source="dashboard-health"
+                compact={true}
+              />
             </div>
             )}
           </>
@@ -1196,6 +1203,14 @@ export default function Dashboard() {
                 source="dashboard-overview"
                 compact={false}
               />
+              <div style={{ marginTop: 12 }}>
+                <VaccineCrossSell
+                  patientCondition={store.healthData?.medicalHistory ?
+                    Object.keys(store.healthData.medicalHistory).filter(k => store.healthData.medicalHistory[k]).join(', ') : ''}
+                  source="dashboard-overview"
+                  compact={false}
+                />
+              </div>
             </div>
         )}
 

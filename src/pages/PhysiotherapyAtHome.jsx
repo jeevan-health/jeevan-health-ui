@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import VaccineCrossSell from '../components/VaccineCrossSell';
 import {
   physioCategories,
   trustFeatures,
@@ -317,6 +318,10 @@ export default function PhysiotherapyAtHome() {
             <a href="https://wa.me/919700104108?text=Hi%2C%20I%20want%20to%20know%20more%20about%20physiotherapy%20services" target="_blank" rel="noopener noreferrer" className="btn btn-lg" style={{ background: '#25d366', border: 'none', color: '#fff', height: 48, padding: '0 32px', fontSize: 16, fontWeight: 700, textDecoration: 'none', borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t('talk.to.expert', 'Talk to Expert')}</a>
           </div>
         </div>
+      </div>
+
+      <div className="container" style={{ paddingBottom: 20 }}>
+        <VaccineCrossSell source="physiotherapy-page" compact={true} />
       </div>
 
       <style>{`

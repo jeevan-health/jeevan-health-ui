@@ -82,6 +82,8 @@ const PhysioExercises = lazy(() => import('./pages/PhysioExercises'));
 const PhysioNotifications = lazy(() => import('./pages/PhysioNotifications'));
 const PhysioSeoLanding = lazy(() => import('./pages/PhysioSeoLanding'));
 const PhysioWhatsAppMarketing = lazy(() => import('./pages/PhysioWhatsAppMarketing'));
+const VaccineSeoLanding = lazy(() => import('./pages/VaccineSeoLanding'));
+const VaccineWhatsAppMarketing = lazy(() => import('./pages/VaccineWhatsAppMarketing'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
@@ -239,6 +241,8 @@ export default function App() {
             <Route path="/vaccination/camps" element={<VaccineCamps />} />
             <Route path="/vaccination/bulk-booking" element={<BulkVaccinationBooking />} />
             <Route path="/vaccination/category/:slug" element={<VaccineCategoryPage />} />
+            <Route path="/vaccination/seo/:slug" element={<VaccineSeoLanding />} />
+            <Route path="/vaccination/whatsapp-marketing" element={<VaccineWhatsAppMarketing />} />
             <Route path="/vaccination/:slug" element={<VaccineDetail />} />
             <Route path="/vaccination" element={<VaccinationAtHome />} />
             <Route path="/physiotherapy" element={<PhysiotherapyAtHome />} />
