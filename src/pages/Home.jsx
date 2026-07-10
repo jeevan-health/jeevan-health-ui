@@ -165,12 +165,12 @@ function QuickActions() {
     icon: s.icon || '🔬', label: s.label || 'Service', desc: s.description || '',
     path: s.link || '/diagnostics', color: s.color || '#1866C9',
   })) : [
-    { icon: '🩸', label: t('home.quickActions.bookTest', 'Book Lab Test'), desc: t('home.quickActions.bookTestDesc', '1000+ tests at home, up to 60% off'), path: '/diagnostics', color: '#1866C9' },
-    { icon: '📦', label: t('home.quickActions.healthPackages', 'Health Packages'), desc: t('home.quickActions.healthPackagesDesc', 'Full body, diabetes, cardiac & more'), path: '/services', color: '#16a34a' },
-    { icon: '📤', label: t('home.quickActions.uploadPrescription', 'Upload Prescription'), desc: t('home.quickActions.uploadPrescriptionDesc', 'Upload Rx, we recommend the right tests'), color: '#dc2626' },
-    { icon: '👨‍⚕️', label: t('home.quickActions.doctorConsultation', 'Doctor Consultation'), desc: t('home.quickActions.doctorConsultationDesc', 'Consult top doctors from home'), path: '/consult-doctor', color: '#7c3aed' },
-    { icon: '💊', label: t('home.quickActions.medicineDelivery', 'Medicine Delivery'), desc: t('home.quickActions.medicineDeliveryDesc', 'Medicines delivered to your doorstep'), path: '/contact', color: '#e65100' },
-    { icon: '🏠', label: t('home.quickActions.homeNursing', 'Home Nursing'), desc: t('home.quickActions.homeNursingDesc', 'Trained nurses at home'), path: '/contact', color: '#0891b2' },
+    { icon: '👪', label: t('home.quickActions.consultation', 'Consultation'), desc: t('home.quickActions.consultationDesc', 'Consult top doctors from home'), path: '/consult-doctor', color: '#7c3aed' },
+    { icon: '🩺', label: t('home.quickActions.diagnostics', 'Diagnostics'), desc: t('home.quickActions.diagnosticsDesc', '5000+ lab tests at your doorstep'), path: '/diagnostics', color: '#1866C9' },
+    { icon: '💉', label: t('home.quickActions.pharmacy', 'Pharmacy'), desc: t('home.quickActions.pharmacyDesc', 'Medicines delivered to your home'), path: '/contact', color: '#e65100' },
+    { icon: '👴', label: t('home.quickActions.nursing', 'Nursing'), desc: t('home.quickActions.nursingDesc', 'Skilled nursing care at home'), path: '/nurse-at-home', color: '#0891b2' },
+    { icon: '🏋️', label: t('home.quickActions.physiotherapy', 'Physiotherapy'), desc: t('home.quickActions.physiotherapyDesc', 'Recover with expert physiotherapists'), path: '/physiotherapy', color: '#16a34a' },
+    { icon: '💉', label: t('home.quickActions.vaccination', 'Vaccination at Home'), desc: t('home.quickActions.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
