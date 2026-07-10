@@ -78,7 +78,7 @@ function HeroSection() {
     { icon: '💉', label: t('home.hero.features.vaccination', 'Vaccination at Home'), desc: t('home.hero.features.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
   return (
-    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #0F5DA8 0%, #20B7F5 50%, #00D9FF 100%)', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : '#0F5DA8', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
