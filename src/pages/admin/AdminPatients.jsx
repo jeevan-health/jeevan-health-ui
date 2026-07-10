@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import usePatientsStore from '../../stores/patientsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -91,7 +92,7 @@ export default function AdminPatients() {
 
         <div style={sectionCard}>
           <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>📅 {t('admin.patients.bookings', 'Bookings')} ({bookings.length})</h4>
-          {bookings.length === 0 && <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('admin.patients.no_bookings', 'No bookings found.')}</p>}
+          {bookings.length === 0 && <EmptyState icon="👤" title="No patients found" message="No patients match your current view." />}
           {bookings.map(b => (
             <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 12 }}>
               <div><span style={{ fontWeight: 600 }}>{b.id}</span> — {b.testName || '—'} | {b.date} {b.timeSlot}</div>

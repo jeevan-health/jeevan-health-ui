@@ -3,6 +3,7 @@ import useAuthStore from '../../stores/authStore';
 import { getOrders } from '../../services/localOrderService';
 import useBookingsStore from '../../stores/bookingsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -29,7 +30,7 @@ export default function CallCenterDashboard() {
       <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
         <div style={card}>
           <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 10px' }}>{t('callCenterDashboard.todaysBookingsHeading', "📅 Today's Bookings")}</h4>
-          {todayBookings.length === 0 ? <p style={{ fontSize: 12, color: '#94a3b8' }}>{t('callCenterDashboard.noBookingsToday', 'No bookings today.')}</p> : todayBookings.map(b => (
+          {todayBookings.length === 0 ? <EmptyState icon="📅" title="No bookings today" message="All clear for today." /> : todayBookings.map(b => (
             <div key={b.id} style={{ fontSize: 12, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
               {b.patientName || '—'} <span style={{ color: '#64748b' }}>{b.time || '—'} | {b.test || '—'}</span>
             </div>

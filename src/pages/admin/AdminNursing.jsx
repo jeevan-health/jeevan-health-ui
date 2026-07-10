@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 import { nursingCategories, nursingServices as defaultServices, nurses as defaultNurses, nursingPackages as defaultPackages, STORAGE_KEYS } from '../../data/nursingData';
 
 const C = {
@@ -299,7 +300,7 @@ export default function AdminNursing() {
               </thead>
               <tbody>
                 {filteredBookings.length === 0 && (
-                  <tr><td colSpan={8} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('admin.nursing.no_bookings', 'No bookings found.')}</td></tr>
+                  <EmptyState icon="👩‍⚕️" title="No bookings found" message="Nursing bookings will appear here." />
                 )}
                 {filteredBookings.map(b => {
                   const sc = statusColors[b.status] || { bg: '#f1f5f9', text: '#475569' };

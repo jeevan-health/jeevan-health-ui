@@ -38,9 +38,11 @@
   --text-body: #334155;
   --text-secondary: #64748b;
   --text-light: #8b9bb5;
+  --text-primary: #111827;
 
   /* Borders */
   --border: #e2e8f0;
+  --border-color: #e5e7eb;
 
   /* Radii (Design System: card 24px, button 16px, input 12px) */
   --radius-sm: 8px;
@@ -55,6 +57,14 @@
   --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
   --shadow-cyan: 0 4px 14px rgba(0, 217, 255, 0.35);
 
+  /* Component tokens */
+  --card-bg: #ffffff;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.1);
+  --input-bg: #ffffff;
+  --header-bg: var(--brand-secondary);
+  --footer-bg: #0F4A96;
+
   /* Spacing */
   --card-padding: 24px;
   --section-gap: 24px;
@@ -65,6 +75,57 @@
   /* Typography */
   --font: 'Avant Garde', 'AvantGarde', 'Century Gothic', 'ITC Avant Garde Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'SF Mono', 'Fira Code', monospace;
+}
+
+[data-theme="dark"] {
+  --brand-primary: #00B8D6;
+  --brand-primary-dark: #0099B3;
+  --brand-primary-light: #1A3A4A;
+
+  --brand-secondary: #3B82F6;
+  --brand-secondary-dark: #2563EB;
+  --brand-secondary-light: #1E2A4A;
+
+  --primary: #3B82F6;
+  --primary-dark: #2563EB;
+  --primary-light: #1E2A4A;
+  --primary-50: #0F172A;
+  --accent: #00B8D6;
+  --accent-dark: #0099B3;
+
+  --secondary: #34D399;
+  --secondary-light: #0A2A1A;
+  --warning: #FBBF24;
+  --warning-light: #2A1F0A;
+  --danger: #F87171;
+  --danger-light: #2A0F0F;
+
+  --bg-body: #0F172A;
+  --bg-light: #1E293B;
+  --bg-white: #1E293B;
+  --bg-light-blue: #0F172A;
+
+  --text-dark: #F1F5F9;
+  --text-body: #CBD5E1;
+  --text-secondary: #94A3B8;
+  --text-light: #64748B;
+  --text-primary: #F1F5F9;
+
+  --border: #334155;
+  --border-color: #334155;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+  --shadow-md: 0 10px 40px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.5);
+  --shadow-cyan: 0 4px 14px rgba(0, 217, 255, 0.15);
+
+  --card-bg: #1E293B;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.3);
+  --input-bg: #1E293B;
+  --header-bg: #0F172A;
+  --footer-bg: #020617;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }

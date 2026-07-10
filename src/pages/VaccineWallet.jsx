@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { vaccines } from '../data/vaccinationData';
 import { getPendingNotifications, getWALink, markNotificationSent, clearNotifications } from '../services/waService';
+import EmptyState from '../components/EmptyState';
 
 const FAMILY_KEY = 'jh_vaccination_family';
 const BOOKINGS_KEY = 'jh_vaccination_bookings';
@@ -285,10 +286,7 @@ export default function VaccineWallet() {
             )}
           </div>
           {notifications.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 40, borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc' }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}>💬</div>
-              <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('no.notifications', 'No notifications yet. Book a vaccination to receive WhatsApp updates.')}</p>
-            </div>
+            <EmptyState icon="🔔" title="No notifications yet" message="You'll receive notifications about your vaccination schedule here." />
           ) : (
             <div style={{ display: 'grid', gap: 8 }}>
               {notifications.slice().reverse().map(n => (

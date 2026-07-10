@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 import { vaccineCategories as defaultCategories, vaccines as defaultVaccines } from '../../data/vaccinationData';
 
 const BOOKINGS_KEY = 'jh_vaccination_bookings';
@@ -847,7 +848,7 @@ export default function AdminVaccination() {
               </thead>
               <tbody>
                 {bookings.length === 0 && (
-                  <tr><td colSpan={6} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('no.bookings', 'No bookings yet.')}</td></tr>
+                  <EmptyState icon="💉" title="No bookings yet" message="Vaccination bookings will appear here once customers place orders." />
                 )}
                 {bookings.slice().reverse().map(b => (
                   <tr key={b.id} style={{ borderBottom: '1px solid #f0f0f0' }}>

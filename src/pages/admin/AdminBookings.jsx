@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import useBookingsStore from '../../stores/bookingsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -129,7 +130,7 @@ export default function AdminBookings() {
       </div>
 
       {/* Booking List */}
-      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>{t('admin.bookings.no_bookings', 'No bookings found for this view.')}</p>}
+      {filtered.length === 0 && <EmptyState icon="📅" title="No bookings found" message="No bookings match the current filter." />}
       {filtered.map(b => {
         const st = STATUS_MAP[b.status] || STATUS_MAP['scheduled'];
         return (

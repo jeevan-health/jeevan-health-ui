@@ -3,6 +3,7 @@ import useAuthStore from '../../stores/authStore';
 import { getOrders } from '../../services/localOrderService';
 import useBookingsStore from '../../stores/bookingsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -37,7 +38,7 @@ export default function DispatchDashboard() {
           </div>
           <div style={{ background: '#f0f9ff', borderRadius: 8, padding: 12 }}>
             <div style={{ fontWeight: 600, fontSize: 12, color: '#0ea5e9', marginBottom: 6 }}>{t('dispatchDashboard.schedule', '🔵 Schedule')}</div>
-            {todayBookings.length === 0 ? <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>{t('dispatchDashboard.noBookingsToday', 'No bookings today')}</p> : todayBookings.slice(0, 5).map(b => (
+            {todayBookings.length === 0 ? <EmptyState icon="🚚" title="No bookings today" message="No dispatches scheduled for today." /> : todayBookings.slice(0, 5).map(b => (
               <div key={b.id} style={{ fontSize: 11, color: '#0f172a', padding: '3px 0' }}>{b.patientName || '—'} @ {b.time || '—'}</div>
             ))}
           </div>

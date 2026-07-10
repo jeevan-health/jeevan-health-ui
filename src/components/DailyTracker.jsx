@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import useDailyActivityStore, { computeDailyScore } from '../stores/dailyActivityStore';
 import { useT } from '../i18n/LanguageProvider';
+import EmptyState from './EmptyState';
 
 const fmtDate = (iso) => { const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); };
 
@@ -315,7 +316,7 @@ function WeekSummary() {
   const t = useT();
   const store = useDailyActivityStore();
   const week = store.getWeekSummary();
-  if (!week) return <div style={{ padding: 16, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('dailyTracker.noDataYet', 'No data yet')}</div>;
+  if (!week) return <EmptyState icon="📊" title="No data yet" message="Start tracking to see your data here." />;
   const color = week.avg >= 75 ? '#16a34a' : week.avg >= 50 ? '#EAB308' : '#EF4444';
   return (
     <div>

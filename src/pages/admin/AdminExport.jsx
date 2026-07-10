@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 import useAdminStore from '../../stores/adminStore';
 import useBookingsStore from '../../stores/bookingsStore';
 import usePatientsStore from '../../stores/patientsStore';
@@ -139,7 +140,7 @@ export default function AdminExport() {
           {module.icon} {module.label} — Preview ({filtered.length > 100 ? 'Showing first 100 of ' + filtered.length.toLocaleString() : filtered.length} rows)
         </h4>
         {filtered.length === 0 && (
-          <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 20 }}>No data matches your filters.</p>
+          <EmptyState icon="📋" title="No data matches" message="Try adjusting your filters to see more results." />
         )}
         {filtered.length > 0 && (
           <div style={{ overflowX: 'auto', fontSize: 11 }}>

@@ -12,6 +12,8 @@ import { LanguageProvider } from './i18n/LanguageProvider';
 import { ToastProvider } from './components/Toast';
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+import ThemeToggle from './components/ThemeToggle';
 
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
@@ -245,6 +247,7 @@ export default function App() {
   }, []);
 
   return (
+    <ThemeProvider>
     <BrowserRouter>
       <ScrollToTop />
       <AnalyticsTracker />
@@ -252,6 +255,7 @@ export default function App() {
       <LanguageProvider>
       <ChatBotWidget />
       <LeadCapturePopup />
+      <ThemeToggle />
       <Suspense fallback={<Loading />}>
         <PageTransition>
         <Routes>
@@ -511,5 +515,6 @@ export default function App() {
       </LanguageProvider>
       </ToastProvider>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }

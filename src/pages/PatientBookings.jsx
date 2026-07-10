@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import EmptyState from '../components/EmptyState';
 
 const BOOKING_SOURCES = [
   { key: 'jh_nursing_bookings', type: 'nursing', icon: '👩‍⚕️', color: '#7C3AED', labelKey: 'nursing', route: '/nurse-at-home' },
@@ -231,13 +232,7 @@ export default function PatientBookings() {
 
       {/* Booking List */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc' }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>📋</div>
-          <p style={{ fontSize: 14, color: '#64748b', margin: 0 }}>{t('patient.no.bookings', 'No bookings found.')}</p>
-          <Link to="/nurse-at-home" style={{ display: 'inline-block', marginTop: 12, padding: '10px 24px', borderRadius: 8, background: '#7C3AED', color: '#fff', textDecoration: 'none', fontSize: 13, fontWeight: 700 }}>
-            {t('patient.book.now', 'Book a Service')} →
-          </Link>
-        </div>
+          <EmptyState icon="📋" title="No bookings found" message="You haven't placed any orders yet. Browse our services to get started." action={{ label: 'Browse Services', onClick: () => window.location.href = '/services' }} />
       ) : (
         <div style={{ display: 'grid', gap: 10 }}>
           {filtered.map(b => {

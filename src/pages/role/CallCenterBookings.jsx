@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useBookingsStore from '../../stores/bookingsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 export default function CallCenterBookings() {
@@ -16,7 +17,7 @@ export default function CallCenterBookings() {
           <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#0ea5e9' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s || t('callCenterBookings.all', 'All')}</button>
         ))}
       </div>
-      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13, padding: 40 }}>{t('callCenterBookings.empty', 'No bookings.')}</p>}
+      {filtered.length === 0 && <EmptyState icon="📅" title="No bookings" message="There are no bookings matching the current view." />}
       {filtered.map((b, i) => (
         <div key={b.id || i} style={card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

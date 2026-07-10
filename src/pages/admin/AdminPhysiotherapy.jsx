@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../../i18n/LanguageProvider';
+import EmptyState from '../../components/EmptyState';
 import { physioCategories, therapists as defaultTherapists, physioPackages, STORAGE_KEYS } from '../../data/physiotherapyData';
 
 const emptyTherapist = {
@@ -295,7 +296,7 @@ export default function AdminPhysiotherapy() {
               </thead>
               <tbody>
                 {filteredBookings.length === 0 && (
-                  <tr><td colSpan={9} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('admin.physio.no_bookings', 'No bookings found.')}</td></tr>
+                  <EmptyState icon="💪" title="No bookings found" message="Physiotherapy bookings will appear here." />
                 )}
                 {filteredBookings.map(b => {
                   const sc = statusColors[b.status] || { bg: '#f1f5f9', text: '#475569' };

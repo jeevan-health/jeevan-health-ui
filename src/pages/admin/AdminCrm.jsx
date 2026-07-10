@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import useCrmStore from '../../stores/crmStore';
 import { useT } from '../../i18n/LanguageProvider';
 import { getAllLeads, getLeadSources, getLeadCounts, dedupByPhone, convertToCrmCustomer } from '../../utils/leadIngestion';
+import EmptyState from '../../components/EmptyState';
 
 export default function AdminCrm() {
   const t = useT();
@@ -162,7 +163,7 @@ export default function AdminCrm() {
                   </div>
                 </div>
               ))}
-              {filtered.length === 0 && <div style={{ textAlign: 'center', color: '#9ca3af', padding: 40 }}>No customers match your search.</div>}
+              {filtered.length === 0 && <EmptyState icon="🤝" title="No customers found" message="Try adjusting your search or add a new customer." />}
             </div>
           </div>
 
