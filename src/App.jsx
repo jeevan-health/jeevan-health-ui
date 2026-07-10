@@ -77,6 +77,9 @@ const PhysioTherapistDetail = lazy(() => import('./pages/PhysioTherapist'));
 const PhysioPatientDashboard = lazy(() => import('./pages/PhysioDashboard'));
 const PhysioCategoryPage = lazy(() => import('./pages/PhysioCategoryPage'));
 const PhysioConditionPage = lazy(() => import('./pages/PhysioConditionPage'));
+const PhysioCrmLeads = lazy(() => import('./pages/PhysioCrmLeads'));
+const PhysioExercises = lazy(() => import('./pages/PhysioExercises'));
+const PhysioNotifications = lazy(() => import('./pages/PhysioNotifications'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
@@ -237,6 +240,7 @@ export default function App() {
             <Route path="/vaccination/:slug" element={<VaccineDetail />} />
             <Route path="/vaccination" element={<VaccinationAtHome />} />
             <Route path="/physiotherapy" element={<PhysiotherapyAtHome />} />
+            <Route path="/services/physiotherapy" element={<Navigate to="/physiotherapy" replace />} />
             <Route path="/physiotherapy/book" element={<PhysiotherapyBooking />} />
             <Route path="/physiotherapy/therapist/:id" element={<PhysioTherapistDetail />} />
             <Route path="/physiotherapy/my-sessions" element={<PhysioPatientDashboard />} />
@@ -248,6 +252,9 @@ export default function App() {
             <Route path="/post-surgery-physiotherapy" element={<PhysioConditionPage />} />
             <Route path="/sports-physiotherapy" element={<PhysioConditionPage />} />
             <Route path="/elderly-physiotherapy" element={<PhysioConditionPage />} />
+            <Route path="/physiotherapy/crm-leads" element={<PhysioCrmLeads />} />
+            <Route path="/physiotherapy/exercises" element={<PhysioExercises />} />
+            <Route path="/physiotherapy/notifications" element={<PhysioNotifications />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />

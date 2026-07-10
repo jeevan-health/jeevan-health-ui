@@ -279,4 +279,7 @@ export const STORAGE_KEYS = {
   THERAPISTS: 'jh_physio_therapists',
   LEADS: 'jh_physio_leads',
   EXERCISES: 'jh_physio_exercises',
+  NOTIFICATIONS: 'jh_physio_notifications',
+  FAVORITES: 'jh_physio_favorites',
+  EXERCISE_LOG: 'jh_physio_exercise_log',
 };
