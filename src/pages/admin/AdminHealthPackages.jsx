@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { packageList } from '../../data/healthPackages';
+import { useT } from '../../i18n/LanguageProvider';
 
 const STORAGE_KEY = 'jeevan_healthPackages';
 const TARGETS = [...new Set(packageList.map(p => p.target.split('|').map(s => s.trim())).flat())];
@@ -20,6 +21,7 @@ const loadData = () => {
 const saveData = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
 export default function AdminHealthPackages() {
+  const t = useT();
   const [extendedData, setExtendedData] = useState({});
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ target: 'all', status: 'all' });
@@ -91,7 +93,7 @@ export default function AdminHealthPackages() {
   const handleSave = () => {
     const id = editingId || Date.now().toString();
     const data = { ...form };
-    if (!data.name) { alert('Package name is required'); return; }
+    if (!data.name) { alert('{t('admin.health_packages.name_required', 'Package name is required')}'); return; }
     persist(id, data);
     setShowForm(false);
     setEditingId(null);
@@ -105,7 +107,7 @@ export default function AdminHealthPackages() {
   };
 
   const handleDelete = (id) => {
-    if (!confirm('Delete this package?')) return;
+    if (!confirm('{t('admin.health_packages.delete_confirm', 'Delete this package?')}')) return;
     const next = { ...extendedData };
     delete next[id];
     setExtendedData(next);
@@ -143,7 +145,7 @@ export default function AdminHealthPackages() {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button onClick={() => setShowForm(false)} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12 }}>← Back</button>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0f172a', flex: 1 }}>{editingId ? `Edit: ${form.name || 'New Package'}` : 'Add New Package'}</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0f172a', flex: 1 }}>{editingId ? `{t('admin.health_packages.edit_label', 'Edit:')} ${form.name || 'New Package'}` : t('admin.health_packages.add_new', 'Add New Package')}</h2>
           <button onClick={handleSave} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>💾 Save Package</button>
         </div>
 
@@ -285,7 +287,7 @@ export default function AdminHealthPackages() {
     return (
       <div>
         <div style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>Health Packages</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{t('admin.health_packages.title', 'Health Packages')}</h2>
           <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Manage all {filtered.length} health packages — the complete package catalog</p>
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -293,15 +295,15 @@ export default function AdminHealthPackages() {
             style={{ flex: 1, minWidth: 180, maxWidth: 280, fontSize: 13, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontFamily: 'inherit', outline: 'none' }} />
           <select value={filters.target} onChange={e => setFilters({ ...filters, target: e.target.value })}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit', background: '#fff' }}>
-            <option value="all">All Targets</option>
+            <option value="all">{t('admin.health_packages.all_targets', 'All Targets')}</option>
             {TARGETS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
           <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit', background: '#fff' }}>
-            <option value="all">All Status</option>
+            <option value="all">{t('admin.health_packages.all_status', 'All Status')}</option>
             {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>+ Add Package</button>
+          <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>+ {t('admin.health_packages.add_package', 'Add Package')}</button>
         </div>
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 650 }}>
@@ -350,7 +352,7 @@ export default function AdminHealthPackages() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>No packages found matching your filters</td></tr>
+                <tr><td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>{t('admin.health_packages.no_packages', 'No packages found matching your filters')}</td></tr>
               )}
             </tbody>
           </table>

@@ -1,22 +1,24 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useAdminStore from '../../stores/adminStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 export default function AdminDashboard() {
+  const t = useT();
   const analytics = useAdminStore(s => s.analytics);
   const refreshAnalytics = useAdminStore(s => s.refreshAnalytics);
 
   useEffect(() => { refreshAnalytics(); }, []);
 
   const cards = [
-    { label: 'Total Users', value: analytics.usersCount, icon: '👥', color: '#3B82F6' },
-    { label: 'Total Orders', value: analytics.ordersCount, icon: '📋', color: '#10B981' },
-    { label: 'Revenue', value: `₹${(analytics.revenue || 0).toLocaleString()}`, icon: '💰', color: '#F59E0B' },
-    { label: 'Tests', value: analytics.testsCount, icon: '🧪', color: '#8B5CF6' },
-    { label: 'Pending', value: analytics.pendingOrders, icon: '⏳', color: '#F97316' },
-    { label: 'Completed', value: analytics.completedOrders, icon: '✅', color: '#22C55E' },
-    { label: 'Cancelled', value: analytics.cancelledOrders, icon: '❌', color: '#EF4444' },
-    { label: 'Revenue Today', value: `₹${(analytics.revenueToday || 0).toLocaleString()}`, icon: '📅', color: '#EC4899' },
+    { label: t('admin.dashboard.total_users', 'Total Users'), value: analytics.usersCount, icon: '👥', color: '#3B82F6' },
+    { label: t('admin.dashboard.total_orders', 'Total Orders'), value: analytics.ordersCount, icon: '📋', color: '#10B981' },
+    { label: t('admin.dashboard.revenue', 'Revenue'), value: `₹${(analytics.revenue || 0).toLocaleString()}`, icon: '💰', color: '#F59E0B' },
+    { label: t('admin.dashboard.tests', 'Tests'), value: analytics.testsCount, icon: '🧪', color: '#8B5CF6' },
+    { label: t('admin.dashboard.pending', 'Pending'), value: analytics.pendingOrders, icon: '⏳', color: '#F97316' },
+    { label: t('admin.dashboard.completed', 'Completed'), value: analytics.completedOrders, icon: '✅', color: '#22C55E' },
+    { label: t('admin.dashboard.cancelled', 'Cancelled'), value: analytics.cancelledOrders, icon: '❌', color: '#EF4444' },
+    { label: t('admin.dashboard.revenue_today', 'Revenue Today'), value: `₹${(analytics.revenueToday || 0).toLocaleString()}`, icon: '📅', color: '#EC4899' },
   ];
 
   return (

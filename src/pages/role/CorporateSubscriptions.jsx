@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE = [
@@ -8,16 +9,17 @@ const SAMPLE = [
 ];
 
 export default function CorporateSubscriptions() {
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>📑 Subscriptions</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Corporate health plan subscriptions</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('corporateSubscriptions.title', '📑 Subscriptions')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t('corporateSubscriptions.subtitle', 'Corporate health plan subscriptions')}</p>
       {SAMPLE.map((s, i) => (
         <div key={i} style={card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <span style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{s.name}</span>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{s.plan} · {s.employees} employees · {s.amount}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{s.plan} · {s.employees} {t('corporateSubscriptions.employees', 'employees')} · {s.amount}</div>
               <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.start} → {s.end}</div>
             </div>
             <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 4, background: s.status === 'active' ? '#dcfce7' : '#fef3c7', color: s.status === 'active' ? '#16a34a' : '#d97706', fontWeight: 600, textTransform: 'capitalize' }}>{s.status}</span>

@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const SLOTS = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
 
 export default function DoctorAvailability() {
+  const t = useT();
   const [availability, setAvailability] = useState(() => {
     const obj = {};
     DAYS.forEach(d => { obj[d] = [true, true, true, true, true, true]; });
@@ -17,8 +19,8 @@ export default function DoctorAvailability() {
 
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>⏰ Availability</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Set your weekly consultation slots</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('doctorAvailability.title', '⏰ Availability')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t('doctorAvailability.subtitle', 'Set your weekly consultation slots')}</p>
       {DAYS.map(day => (
         <div key={day} style={{ ...card, padding: 14 }}>
           <h4 style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: '0 0 8px' }}>{day}</h4>

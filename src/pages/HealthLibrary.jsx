@@ -1,4 +1,5 @@
 import React from 'react';
+import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import SmartSearch from '../components/layout/SmartSearch';
 
@@ -39,19 +40,20 @@ const symptoms = [
 ];
 
 export default function HealthLibrary() {
+  const t = useT();
   return (
     <div>
       <div style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', padding: '36px 16px', textAlign: 'center', color: '#fff' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>🩺 Jeevan HealthCare at Home Library</h1>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto 16px' }}>Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
+        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>{t('healthLibrary.heading', '🩺 Jeevan HealthCare at Home Library')}</h1>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto 16px' }}>{t('healthLibrary.subtitle', 'Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.')}</p>
         <div style={{ maxWidth: 500, margin: '0 auto' }}>
-          <SmartSearch placeholder="🔍 Search health topics, tests, symptoms..." />
+          <SmartSearch placeholder={t('healthLibrary.searchPlaceholder', '🔍 Search health topics, tests, symptoms...')} />
         </div>
       </div>
 
       <div className="page-section container">
-        <h2 className="section-title">🧪 Tests A-Z</h2>
-        <p className="section-subtitle">Individual pages for every diagnostic test with normal ranges, preparation, and cost</p>
+        <h2 className="section-title">{t('healthLibrary.testsAZ', '🧪 Tests A-Z')}</h2>
+        <p className="section-subtitle">{t('healthLibrary.testsAZSub', 'Individual pages for every diagnostic test with normal ranges, preparation, and cost')}</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10, marginTop: 14 }}>
           {tests.map(g => (
             <div key={g.letter} style={{ background: '#f8f9fa', borderRadius: 12, padding: '12px 14px', border: '1px solid #e8edf2' }}>
@@ -66,13 +68,13 @@ export default function HealthLibrary() {
 
       <div className="page-section" style={{ background: 'var(--bg-light)' }}>
         <div className="container">
-          <h2 className="section-title">🦠 Diseases</h2>
-          <p className="section-subtitle">Understand common conditions and the tests you need</p>
+          <h2 className="section-title">{t('healthLibrary.diseases', '🦠 Diseases')}</h2>
+          <p className="section-subtitle">{t('healthLibrary.diseasesSub', 'Understand common conditions and the tests you need')}</p>
           <div className="grid-4" style={{ gap: 12, marginTop: 14 }}>
             {diseases.map(d => (
               <div key={d.name} style={{ background: '#fff', borderRadius: 14, padding: '16px', border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>Recommended tests:</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('healthLibrary.recommendedTests', 'Recommended tests:')}</div>
                 <div style={{ fontSize: 11, color: '#1866C9', fontWeight: 600, lineHeight: 1.5 }}>{d.tests}</div>
               </div>
             ))}
@@ -81,30 +83,30 @@ export default function HealthLibrary() {
       </div>
 
       <div className="page-section container">
-        <h2 className="section-title">🤒 Symptom Checker</h2>
-        <p className="section-subtitle">Find possible causes and recommended tests based on your symptoms</p>
+        <h2 className="section-title">{t('healthLibrary.symptomChecker', '🤒 Symptom Checker')}</h2>
+        <p className="section-subtitle">{t('healthLibrary.symptomCheckerSub', 'Find possible causes and recommended tests based on your symptoms')}</p>
         <div className="grid-3" style={{ gap: 12, marginTop: 14 }}>
           {symptoms.map(s => (
             <div key={s.name} style={{ background: '#fff', borderRadius: 14, padding: '16px', border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>{s.name}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>Possible tests:</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('healthLibrary.possibleTests', 'Possible tests:')}</div>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {s.tests.split(', ').map(t => (
                   <span key={t} style={{ background: '#E8F1FC', color: '#1866C9', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 6 }}>{t}</span>
                 ))}
               </div>
-              <Link to="/diagnostics" style={{ display: 'inline-block', marginTop: 8, fontSize: 11, color: '#FF3B30', fontWeight: 600, textDecoration: 'none' }}>Check Your Health →</Link>
+              <Link to="/diagnostics" style={{ display: 'inline-block', marginTop: 8, fontSize: 11, color: '#FF3B30', fontWeight: 600, textDecoration: 'none' }}>{t('healthLibrary.checkYourHealth', 'Check Your Health →')}</Link>
             </div>
           ))}
         </div>
       </div>
 
       <div style={{ textAlign: 'center', padding: '28px 16px', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Need Help Finding the Right Test?</h3>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginBottom: 14, maxWidth: 400, margin: '0 auto 14px' }}>Upload your prescription or consult with our health advisors for personalized recommendations.</p>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{t('healthLibrary.cta.title', 'Need Help Finding the Right Test?')}</h3>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginBottom: 14, maxWidth: 400, margin: '0 auto 14px' }}>{t('healthLibrary.cta.text', 'Upload your prescription or consult with our health advisors for personalized recommendations.')}</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Test Now</Link>
-          <Link to="/contact" className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13 }}>📞 Talk to Advisor</Link>
+          <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('healthLibrary.cta.bookTest', '🔵 Book Test Now')}</Link>
+          <Link to="/contact" className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('healthLibrary.cta.talkToAdvisor', '📞 Talk to Advisor')}</Link>
         </div>
       </div>
     </div>

@@ -1,4 +1,7 @@
+import { useT } from '../../i18n/LanguageProvider';
+
 export default function HealthToolModal({ open, onClose, title, icon, children }) {
+  const t = useT();
   if (!open) return null;
   return (
     <div style={{
@@ -39,7 +42,7 @@ export default function HealthToolModal({ open, onClose, title, icon, children }
           padding: '12px 20px', background: '#fef9c3', borderTop: '1px solid #fde68a',
           fontSize: 11, color: '#92400e', lineHeight: 1.4,
         }}>
-          ⚕️ This tool provides wellness guidance and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.
+          ⚕️ {t('healthToolModal.disclaimer', 'This tool provides wellness guidance and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.')}
         </div>
       </div>
     </div>

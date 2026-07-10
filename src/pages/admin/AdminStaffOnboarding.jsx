@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useStaffStore from '../../stores/staffStore';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -14,6 +15,7 @@ const SECTION_LABELS = {
 };
 
 export default function AdminStaffOnboarding() {
+  const t = useT();
   const entries = useStaffStore(s => s.entries);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

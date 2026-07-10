@@ -4,6 +4,7 @@ import { getTestBySlug, getTestEducation } from '../data/testEducation';
 import { seedTests } from '../data/seedData';
 import useCartStore from '../stores/cartStore';
 import useUploadModal from '../stores/uploadModalStore';
+import { useT } from '../i18n/LanguageProvider';
 
 function Section({ icon, title, children, open, onToggle, id }) {
   return (
@@ -66,6 +67,7 @@ function Pill({ children, active, color }) {
 const slugify = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 export default function TestDetail() {
+  const t = useT();
   const { slug } = useParams();
   const navigate = useNavigate();
   const [test, setTest] = useState(null);
@@ -83,7 +85,7 @@ export default function TestDetail() {
       setTest(found);
       const edu = getTestEducation(found);
       setEducation(edu);
-      document.title = edu?.seo?.metaTitle || `${found.name} | Jeevan HealthCare at Home`;
+      document.title = edu?.seo?.metaTitle || `${found.name} | ${t('testDetail.siteName', 'Jeevan HealthCare at Home')}`;
     }
   }, [slug]);
 
@@ -101,15 +103,15 @@ export default function TestDetail() {
   const packages = test ? seedTests.filter(t => t.subcategory === 'Health Packages' && t.category === test.category).slice(0, 3) : [];
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const shareText = `${education?.fullName || test?.name} - Book at home ₹${test?.offerPrice || test?.price} | Jeevan HealthCare at Home`;
+  const shareText = `${education?.fullName || test?.name} - ${t('testDetail.bookAtHome', 'Book at home')} ₹${test?.offerPrice || test?.price} | ${t('testDetail.siteName', 'Jeevan HealthCare at Home')}`;
 
   if (!test || !education) {
     return (
       <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
         <div className="container" style={{ textAlign: 'center', padding: '40px 16px' }}>
           <span style={{ fontSize: 48 }}>🔬</span>
-          <p style={{ color: '#999', marginTop: 12 }}>Test not found</p>
-          <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ marginTop: 16 }}>Back to Diagnostics</button>
+          <p style={{ color: '#999', marginTop: 12 }}>{t('testDetail.notFound', 'Test not found')}</p>
+          <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ marginTop: 16 }}>{t('testDetail.backToDiagnostics', 'Back to Diagnostics')}</button>
         </div>
       </div>
     );
@@ -130,13 +132,13 @@ export default function TestDetail() {
 
         {/* Back */}
         <button onClick={() => navigate('/diagnostics')} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#888', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, padding: '12px 0' }}>
-          ← Back to Diagnostics
+          {t('testDetail.backToDiagnostics', '← Back to Diagnostics')}
         </button>
 
         {/* ===== 1. TEST IDENTITY ===== */}
         <div style={{ marginBottom: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          <Tag label={test.category || 'Diagnostic'} bg={`${theme}15`} color={theme} />
-          {test.fasting_required && <Tag label="Fasting Required" bg="#fff3e0" color="#e65100" />}
+          <Tag label={test.category || t('testDetail.diagnostic', 'Diagnostic')} bg={`${theme}15`} color={theme} />
+          {test.fasting_required && <Tag label={t('testDetail.fastingRequired', 'Fasting Required')} bg="#fff3e0" color="#e65100" />}
           {test.subcategory && <Tag label={test.subcategory} bg="#f5f5f5" color="#666" />}
         </div>
 
@@ -148,7 +150,7 @@ export default function TestDetail() {
               <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, letterSpacing: -0.3 }}>{education.fullName}</h1>
               {education.scientificName && (
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: '2px 0 0' }}>
-                  <strong>Scientific Name:</strong> {education.scientificName}
+                  <strong>{t('testDetail.scientificName', 'Scientific Name')}:</strong> {education.scientificName}
                 </p>
               )}
             </div>
@@ -156,7 +158,7 @@ export default function TestDetail() {
 
           {education.synonyms.length > 0 && (
             <div style={{ marginTop: 4, marginBottom: 10 }}>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Also Known As: </span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{t('testDetail.alsoKnownAs', 'Also Known As')}: </span>
               <span style={{ fontSize: 11, color: '#fff', fontWeight: 500 }}>{education.synonyms.join(' · ')}</span>
             </div>
           )}
@@ -166,19 +168,19 @@ export default function TestDetail() {
           </p>
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12, fontSize: 11 }}>
-            <span>⭐ 4.8 Rating</span>
-            <span>👥 15,000+ Bookings</span>
-            <span>🏠 Home Collection Available</span>
+            <span>{t('testDetail.rating', '⭐ 4.8 Rating')}</span>
+            <span>{t('testDetail.bookings', '👥 15,000+ Bookings')}</span>
+            <span>{t('testDetail.homeCollection', '🏠 Home Collection Available')}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
             <div>
               {test.mrp && test.mrp > (test.offerPrice || test.price) && (
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'line-through' }}>MRP: ₹{test.mrp}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'line-through' }}>{t('testDetail.mrp', 'MRP')}: ₹{test.mrp}</div>
               )}
               <div style={{ fontSize: 28, fontWeight: 800 }}>₹{test.offerPrice || test.price}</div>
               {test.mrp && test.mrp > (test.offerPrice || test.price) && (
-                <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 600 }}>Save ₹{test.mrp - (test.offerPrice || test.price)}</div>
+                <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 600 }}>{t('testDetail.save', 'Save')} ₹{test.mrp - (test.offerPrice || test.price)}</div>
               )}
             </div>
             <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 12px' }}>
@@ -187,16 +189,16 @@ export default function TestDetail() {
             </div>
             <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 12px' }}>
               <span>🩸</span>
-              <span style={{ fontSize: 12 }}>Blood</span>
+              <span style={{ fontSize: 12 }}>{t('testDetail.sampleTypeBlood', 'Blood')}</span>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
             <button onClick={toggleCart} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 13, fontWeight: 700, padding: '10px 24px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)' }}>
-              {inCart ? '✓ In Cart' : '📋 Book Now'}
+              {inCart ? t('testDetail.inCart', '✓ In Cart') : t('testDetail.bookNow', '📋 Book Now')}
             </button>
             <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ padding: '10px 20px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit' }}>
-              📤 Upload Prescription
+              {t('testDetail.uploadPrescription', '📤 Upload Prescription')}
             </button>
           </div>
         </div>
@@ -213,26 +215,26 @@ export default function TestDetail() {
         </div>
 
         {/* ===== 4. WHAT IS THIS TEST ===== */}
-        <Section icon="🩺" title="Test Overview" open={openSections.overview} onToggle={() => toggle('overview')}>
+        <Section icon="🩺" title={t('testDetail.testOverview', 'Test Overview')} open={openSections.overview} onToggle={() => toggle('overview')}>
           <p style={{ margin: '0 0 10px', fontWeight: 500, fontSize: 13 }}>{w.purpose}</p>
-          <p style={{ margin: '0 0 10px' }}><strong>What is this test?</strong></p>
+          <p style={{ margin: '0 0 10px' }}><strong>{t('testDetail.whatIsThisTest', 'What is this test?')}</strong></p>
           <p style={{ margin: '0 0 10px' }}>{test.description}</p>
           <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">{w.screeningOrDiagnostic}</InfoBox>
         </Section>
 
         {/* ===== 5. WHY IS THIS DONE ===== */}
-        <Section icon="❓" title="Why Is This Test Done?" open={openSections.whyDone} onToggle={() => toggle('whyDone')}>
-          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Purpose of this test:</p>
+        <Section icon="❓" title={t('testDetail.whyIsTestDone', 'Why Is This Test Done?')} open={openSections.whyDone} onToggle={() => toggle('whyDone')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{t('testDetail.purposeOfTest', 'Purpose of this test:')}</p>
           <ListItems items={w.whyDone} />
-          <InfoBox icon="✅" bg="#e8f0fe" color="#1866C9">Regular testing helps in early detection and better health outcomes.</InfoBox>
+          <InfoBox icon="✅" bg="#e8f0fe" color="#1866C9">{t('testDetail.regularTesting', 'Regular testing helps in early detection and better health outcomes.')}</InfoBox>
         </Section>
 
         {/* ===== 6. WHAT DOES IT MEASURE ===== */}
-        <Section icon="🔬" title="What Does This Test Measure?" open={openSections.measure} onToggle={() => toggle('measure')}>
+        <Section icon="🔬" title={t('testDetail.whatDoesItMeasure', 'What Does This Test Measure?')} open={openSections.measure} onToggle={() => toggle('measure')}>
           <p style={{ margin: '0 0 8px' }}>{w.whatItMeasures}</p>
           {education.biomarker && (
             <div style={{ marginTop: 8, padding: '10px 12px', background: '#f8f9fa', borderRadius: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>Measured Biomarker:</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{t('testDetail.measuredBiomarker', 'Measured Biomarker')}:</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: theme }}>{education.biomarker.name}</div>
             </div>
           )}
@@ -240,23 +242,23 @@ export default function TestDetail() {
 
         {/* ===== 7. BIOMARKER INFORMATION ===== */}
         {education.biomarker && (
-          <Section icon="🧬" title="Biomarker Information" open={openSections.biomarker} onToggle={() => toggle('biomarker')}>
+          <Section icon="🧬" title={t('testDetail.biomarkerInfo', 'Biomarker Information')} open={openSections.biomarker} onToggle={() => toggle('biomarker')}>
             <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8, marginBottom: 8 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: theme, marginBottom: 4 }}>{education.biomarker.name}</div>
-              <p style={{ margin: '0 0 6px', fontSize: 12 }}><strong>What is {education.biomarker.name}?</strong></p>
+              <p style={{ margin: '0 0 6px', fontSize: 12 }}><strong>{t('testDetail.whatIs', 'What is')} {education.biomarker.name}?</strong></p>
               <p style={{ margin: '0 0 8px', fontSize: 12 }}>{education.biomarker.what}</p>
-              <p style={{ margin: '0 0 4px', fontSize: 12 }}><strong>Why is it important?</strong></p>
+              <p style={{ margin: '0 0 4px', fontSize: 12 }}><strong>{t('testDetail.whyImportant', 'Why is it important?')}</strong></p>
               <p style={{ margin: 0, fontSize: 12 }}>{education.biomarker.why}</p>
             </div>
           </Section>
         )}
 
         {/* ===== 8. WHO SHOULD TAKE THIS TEST ===== */}
-        <Section icon="👤" title="Who Should Take This Test?" open={openSections.who} onToggle={() => toggle('who')}>
+        <Section icon="👤" title={t('testDetail.whoShouldTake', 'Who Should Take This Test?')} open={openSections.who} onToggle={() => toggle('who')}>
           <ListItems items={education.whoShouldTake} />
           {education.whoShouldTakeDetailed && (
             <div style={{ marginTop: 10 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Recommended for:</p>
+              <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('testDetail.recommendedFor', 'Recommended for:')}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {education.whoShouldTakeDetailed.patientGroups?.map((g, i) => (
                   <span key={i} style={{ padding: '4px 10px', borderRadius: 8, fontSize: 11, background: `${theme}10`, color: theme, fontWeight: 500 }}>{g.group}</span>
@@ -264,13 +266,13 @@ export default function TestDetail() {
               </div>
             </div>
           )}
-          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">Doctors recommend this test for routine health monitoring and early detection.</InfoBox>
+          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">{t('testDetail.doctorsRecommend', 'Doctors recommend this test for routine health monitoring and early detection.')}</InfoBox>
         </Section>
 
         {/* ===== 9. SYMPTOMS ===== */}
         {education.symptoms.length > 0 && (
-          <Section icon="⚠️" title="Symptoms Related To This Test" open={openSections.symptoms} onToggle={() => toggle('symptoms')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>If you experience any of these symptoms, this test may help identify the cause:</p>
+          <Section icon="⚠️" title={t('testDetail.symptomsRelated', 'Symptoms Related To This Test')} open={openSections.symptoms} onToggle={() => toggle('symptoms')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('testDetail.symptomsDesc', 'If you experience any of these symptoms, this test may help identify the cause:')}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {education.symptoms.map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0' }}>
@@ -279,14 +281,14 @@ export default function TestDetail() {
                 </div>
               ))}
             </div>
-            <InfoBox icon="💡" bg="#fff3e0" color="#e65100">Having these symptoms doesn't always mean disease. Consult a doctor for proper evaluation.</InfoBox>
+            <InfoBox icon="💡" bg="#fff3e0" color="#e65100">{t('testDetail.symptomsDisclaimer', "Having these symptoms doesn't always mean disease. Consult a doctor for proper evaluation.")}</InfoBox>
           </Section>
         )}
 
         {/* ===== 10. DISEASES / CONDITIONS ===== */}
         {education.relatedDiseases.length > 0 && (
-          <Section icon="🏥" title="Related Diseases & Conditions" open={openSections.diseases} onToggle={() => toggle('diseases')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>This test helps evaluate the following conditions:</p>
+          <Section icon="🏥" title={t('testDetail.relatedDiseases', 'Related Diseases & Conditions')} open={openSections.diseases} onToggle={() => toggle('diseases')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('testDetail.diseasesDesc', 'This test helps evaluate the following conditions:')}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {education.relatedDiseases.map((d, i) => (
                 <span key={i} style={{ padding: '4px 10px', borderRadius: 8, fontSize: 11, background: '#fef2f2', color: '#dc2626', fontWeight: 500 }}>{d}</span>
@@ -296,21 +298,21 @@ export default function TestDetail() {
         )}
 
         {/* ===== 11. TEST PREPARATION ===== */}
-        <Section icon="📋" title="Test Preparation" open={openSections.prep} onToggle={() => toggle('prep')}>
+        <Section icon="📋" title={t('testDetail.testPreparation', 'Test Preparation')} open={openSections.prep} onToggle={() => toggle('prep')}>
           <div style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600 }}>{education.fastingRequired ? '🌙 Fasting Required' : '🍽️ No Fasting Required'}</span>
+            <span style={{ fontSize: 12, fontWeight: 600 }}>{education.fastingRequired ? t('testDetail.fastingRequiredIcon', '🌙 Fasting Required') : t('testDetail.noFastingRequired', '🍽️ No Fasting Required')}</span>
           </div>
           <p style={{ margin: '0 0 10px' }}>{education.preparation}</p>
           {education.fastingRequired ? (
-            <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">Follow fasting instructions carefully. Water is allowed. Avoid tea, coffee, smoking, and food during fasting.</InfoBox>
+            <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">{t('testDetail.fastingInstructions', 'Follow fasting instructions carefully. Water is allowed. Avoid tea, coffee, smoking, and food during fasting.')}</InfoBox>
           ) : (
-            <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">No special preparation needed. Take the test at any time of day.</InfoBox>
+            <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">{t('testDetail.noPrepNeeded', 'No special preparation needed. Take the test at any time of day.')}</InfoBox>
           )}
         </Section>
 
         {/* ===== 12. SAMPLE COLLECTION PROCESS ===== */}
-        <Section icon="📦" title="Sample Collection Process" open={openSections.sample} onToggle={() => toggle('sample')}>
-          <p style={{ margin: '0 0 12px' }}>Your comfort and safety are our priority. Here is how the process works:</p>
+        <Section icon="📦" title={t('testDetail.sampleCollection', 'Sample Collection Process')} open={openSections.sample} onToggle={() => toggle('sample')}>
+          <p style={{ margin: '0 0 12px' }}>{t('testDetail.sampleCollectionDesc', 'Your comfort and safety are our priority. Here is how the process works:')}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 10 }}>
             {education.sampleProcessSteps.map((step, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < education.sampleProcessSteps.length - 1 ? '1px dashed #eee' : 'none' }}>
@@ -325,18 +327,18 @@ export default function TestDetail() {
               </div>
             ))}
           </div>
-          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">Free home sample collection included. Choose your preferred time slot — morning, afternoon, or evening.</InfoBox>
+          <InfoBox icon="✅" bg="#e8f5e9" color="#2e7d32">{t('testDetail.freeHomeCollection', 'Free home sample collection included. Choose your preferred time slot — morning, afternoon, or evening.')}</InfoBox>
         </Section>
 
         {/* ===== 13. RESULT INTERPRETATION ===== */}
-        <Section icon="📊" title="Result Interpretation" open={openSections.interpretation} onToggle={() => toggle('interpretation')}>
+        <Section icon="📊" title={t('testDetail.resultInterpretation', 'Result Interpretation')} open={openSections.interpretation} onToggle={() => toggle('interpretation')}>
           {education.normalRange && (
             <div style={{ marginBottom: 12, overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                 <thead>
                   <tr style={{ background: `${theme}10` }}>
-                    <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Category</th>
-                    <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Value</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>{t('testDetail.category', 'Category')}</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>{t('testDetail.value', 'Value')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -351,15 +353,15 @@ export default function TestDetail() {
             </div>
           )}
           <ListItems items={education.resultInterpretation} />
-          <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">Never self-diagnose based on test results. Always consult a qualified healthcare provider.</InfoBox>
+          <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">{t('testDetail.noSelfDiagnose', 'Never self-diagnose based on test results. Always consult a qualified healthcare provider.')}</InfoBox>
         </Section>
 
         {/* ===== 14. NORMAL REFERENCE RANGE ===== */}
-        <Section icon="📏" title="Normal Reference Range" open={openSections.refRange} onToggle={() => toggle('refRange')}>
-          <p style={{ margin: '0 0 8px' }}>Reference ranges may vary slightly between laboratories. The following are standard reference ranges:</p>
+        <Section icon="📏" title={t('testDetail.normalRefRange', 'Normal Reference Range')} open={openSections.refRange} onToggle={() => toggle('refRange')}>
+          <p style={{ margin: '0 0 8px' }}>{t('testDetail.refRangeDesc', 'Reference ranges may vary slightly between laboratories. The following are standard reference ranges:')}</p>
           {education.normalRange && (
             <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8, marginBottom: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{education.normalRange.label || 'Reference Range'}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{education.normalRange.label || t('testDetail.referenceRange', 'Reference Range')}</div>
               {Object.entries(education.normalRange).filter(([k]) => k !== 'label').map(([key, val]) => (
                 <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 11, borderBottom: '1px solid #eee' }}>
                   <span style={{ textTransform: 'capitalize', color: '#666' }}>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
@@ -368,12 +370,12 @@ export default function TestDetail() {
               ))}
             </div>
           )}
-          <InfoBox icon="💡" bg="#e8f0fe" color="#1866C9">Always interpret your results in consultation with a doctor who knows your medical history.</InfoBox>
+          <InfoBox icon="💡" bg="#e8f0fe" color="#1866C9">{t('testDetail.consultDoctorRefRange', 'Always interpret your results in consultation with a doctor who knows your medical history.')}</InfoBox>
         </Section>
 
         {/* ===== 15. RISK LEVEL ===== */}
         {education.riskLevels.length > 0 && (
-          <Section icon="🚦" title="Risk Level Assessment" open={openSections.risk} onToggle={() => toggle('risk')}>
+          <Section icon="🚦" title={t('testDetail.riskLevel', 'Risk Level Assessment')} open={openSections.risk} onToggle={() => toggle('risk')}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {education.riskLevels.map((r, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: r.color === 'green' ? '#f0fdf4' : r.color === 'orange' ? '#fff7ed' : '#fef2f2', border: `1px solid ${r.color === 'green' ? '#bbf7d0' : r.color === 'orange' ? '#fed7aa' : '#fecaca'}` }}>
@@ -389,64 +391,64 @@ export default function TestDetail() {
         )}
 
         {/* ===== 16. WHAT IF ABNORMAL ===== */}
-        <Section icon="⚠️" title="What If Result Is Abnormal?" open={openSections.abnormal} onToggle={() => toggle('abnormal')}>
-          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Understanding abnormal results:</p>
+        <Section icon="⚠️" title={t('testDetail.whatIfAbnormal', 'What If Result Is Abnormal?')} open={openSections.abnormal} onToggle={() => toggle('abnormal')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{t('testDetail.understandingAbnormal', 'Understanding abnormal results:')}</p>
           <p style={{ margin: '0 0 10px' }}>{education.abnormalMeaning}</p>
-          <InfoBox icon="💡" bg="#fff3e0" color="#e65100">Abnormal results do not always mean disease. Many factors including diet, medications, and stress can affect results.</InfoBox>
+          <InfoBox icon="💡" bg="#fff3e0" color="#e65100">{t('testDetail.abnormalDisclaimer', 'Abnormal results do not always mean disease. Many factors including diet, medications, and stress can affect results.')}</InfoBox>
         </Section>
 
         {/* ===== 17. WHEN TO CONSULT DOCTOR ===== */}
-        <Section icon="👨‍⚕️" title="When To Consult A Doctor?" open={openSections.consult} onToggle={() => toggle('consult')}>
-          <p style={{ margin: '0 0 8px' }}>Consult a doctor if:</p>
+        <Section icon="👨‍⚕️" title={t('testDetail.whenToConsult', 'When To Consult A Doctor?')} open={openSections.consult} onToggle={() => toggle('consult')}>
+          <p style={{ margin: '0 0 8px' }}>{t('testDetail.consultDoctorIf', 'Consult a doctor if:')}</p>
           <ListItems items={education.whenToConsultDoctor} />
-          <InfoBox icon="📞" bg="#e8f5e9" color="#2e7d32">Jeevan HealthCare at Home provides free doctor consultation with every test.</InfoBox>
+          <InfoBox icon="📞" bg="#e8f5e9" color="#2e7d32">{t('testDetail.freeConsultation', 'Jeevan HealthCare at Home provides free doctor consultation with every test.')}</InfoBox>
         </Section>
 
         {/* ===== 18. TEST LIMITATIONS ===== */}
         {education.limitations.length > 0 && (
-          <Section icon="🚫" title="Test Limitations" open={openSections.limitations} onToggle={() => toggle('limitations')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>Important considerations for accurate interpretation:</p>
+          <Section icon="🚫" title={t('testDetail.testLimitations', 'Test Limitations')} open={openSections.limitations} onToggle={() => toggle('limitations')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('testDetail.limitationsDesc', 'Important considerations for accurate interpretation:')}</p>
             <ListItems items={education.limitations} />
-            <InfoBox icon="💡" bg="#f3e8ff" color="#7c3aed">Your doctor will consider these limitations when interpreting your results.</InfoBox>
+            <InfoBox icon="💡" bg="#f3e8ff" color="#7c3aed">{t('testDetail.limitationsDoctor', 'Your doctor will consider these limitations when interpreting your results.')}</InfoBox>
           </Section>
         )}
 
         {/* ===== 19. MEDICATION INFLUENCE ===== */}
         {education.medicationInfluence.length > 0 && (
-          <Section icon="💊" title="Medication Influence" open={openSections.medications} onToggle={() => toggle('medications')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>The following medications may affect test results:</p>
+          <Section icon="💊" title={t('testDetail.medicationInfluence', 'Medication Influence')} open={openSections.medications} onToggle={() => toggle('medications')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('testDetail.medicationsDesc', 'The following medications may affect test results:')}</p>
             <ListItems items={education.medicationInfluence} />
-            <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">Always inform your doctor about all medications, supplements, and herbal products you are taking.</InfoBox>
+            <InfoBox icon="⚠️" bg="#fff3e0" color="#e65100">{t('testDetail.medicationsDisclaimer', 'Always inform your doctor about all medications, supplements, and herbal products you are taking.')}</InfoBox>
           </Section>
         )}
 
         {/* ===== 20. LIFESTYLE FACTORS ===== */}
         {education.lifestyleFactors.length > 0 && (
-          <Section icon="🏃" title="Lifestyle Factors" open={openSections.lifestyle} onToggle={() => toggle('lifestyle')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>Lifestyle choices that can affect your results:</p>
+          <Section icon="🏃" title={t('testDetail.lifestyleFactors', 'Lifestyle Factors')} open={openSections.lifestyle} onToggle={() => toggle('lifestyle')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('testDetail.lifestyleDesc', 'Lifestyle choices that can affect your results:')}</p>
             <ListItems items={education.lifestyleFactors} />
-            <InfoBox icon="💪" bg="#e8f5e9" color="#2e7d32">Healthy lifestyle choices can improve your health parameters over time.</InfoBox>
+            <InfoBox icon="💪" bg="#e8f5e9" color="#2e7d32">{t('testDetail.lifestylePositive', 'Healthy lifestyle choices can improve your health parameters over time.')}</InfoBox>
           </Section>
         )}
 
         {/* ===== 21. SAMPLE QUALITY ISSUES ===== */}
         {education.sampleQualityIssues.length > 0 && (
-          <Section icon="🔍" title="Sample Quality & Accuracy" open={openSections.quality} onToggle={() => toggle('quality')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>Results may vary due to:</p>
+          <Section icon="🔍" title={t('testDetail.sampleQuality', 'Sample Quality & Accuracy')} open={openSections.quality} onToggle={() => toggle('quality')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('testDetail.sampleQualityDesc', 'Results may vary due to:')}</p>
             <ListItems items={education.sampleQualityIssues} />
-            <InfoBox icon="✅" bg="#e8f0fe" color="#1866C9">Our labs follow strict quality control protocols to ensure accurate results.</InfoBox>
+            <InfoBox icon="✅" bg="#e8f0fe" color="#1866C9">{t('testDetail.qualityControl', 'Our labs follow strict quality control protocols to ensure accurate results.')}</InfoBox>
           </Section>
         )}
 
         {/* ===== 22. COMPARE SIMILAR TESTS ===== */}
         {education.comparableTests.length > 0 && (
-          <Section icon="⚖️" title="Compare Similar Tests" open={openSections.compare} onToggle={() => toggle('compare')}>
+          <Section icon="⚖️" title={t('testDetail.compareSimilar', 'Compare Similar Tests')} open={openSections.compare} onToggle={() => toggle('compare')}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                 <thead>
                   <tr style={{ background: `${theme}10` }}>
-                    <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Test</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>Difference</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>{t('testDetail.test', 'Test')}</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #eee' }}>{t('testDetail.difference', 'Difference')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -466,7 +468,7 @@ export default function TestDetail() {
         {related.length > 0 && (
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 16 }}>🔗</span> Related Tests
+              <span style={{ fontSize: 16 }}>🔗</span> {t('testDetail.relatedTests', 'Related Tests')}
             </h3>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {related.map(t => (
@@ -483,7 +485,7 @@ export default function TestDetail() {
         {packages.length > 0 && (
           <div style={{ background: '#fff8e1', borderRadius: 14, border: '1px solid #ffe082', padding: 16, marginBottom: 10 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 16 }}>📦</span> Recommended Packages
+              <span style={{ fontSize: 16 }}>📦</span> {t('testDetail.recommendedPackages', 'Recommended Packages')}
             </h3>
             {packages.map(p => (
               <Link key={p.id} to={`/package/${slugify(p.name)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', textDecoration: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
@@ -491,21 +493,21 @@ export default function TestDetail() {
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>⭐ {p.name}</div>
                   <div style={{ fontSize: 11, color: '#888' }}>₹{p.offerPrice || p.price}</div>
                 </div>
-                <span style={{ fontSize: 11, color: '#e65100', fontWeight: 600 }}>View →</span>
+                <span style={{ fontSize: 11, color: '#e65100', fontWeight: 600 }}>{t('testDetail.view', 'View →')}</span>
               </Link>
             ))}
           </div>
         )}
 
         {/* ===== 25. FAQ SECTION ===== */}
-        <Section icon="❓" title="Frequently Asked Questions" open={openSections.faq} onToggle={() => toggle('faq')}>
+        <Section icon="❓" title={t('testDetail.faq', 'Frequently Asked Questions')} open={openSections.faq} onToggle={() => toggle('faq')}>
           <div style={{ display: 'flex', gap: 4, marginBottom: 10, flexWrap: 'wrap' }}>
-            <Pill active={faqFilter === 'all'} onClick={() => setFaqFilter('all')}>All</Pill>
-            <Pill active={faqFilter === 'general'} onClick={() => setFaqFilter('general')}>General</Pill>
-            <Pill active={faqFilter === 'preparation'} onClick={() => setFaqFilter('preparation')}>Preparation</Pill>
-            <Pill active={faqFilter === 'procedure'} onClick={() => setFaqFilter('procedure')}>Procedure</Pill>
-            <Pill active={faqFilter === 'results'} onClick={() => setFaqFilter('results')}>Results</Pill>
-            <Pill active={faqFilter === 'booking'} onClick={() => setFaqFilter('booking')}>Booking</Pill>
+            <Pill active={faqFilter === 'all'} onClick={() => setFaqFilter('all')}>{t('testDetail.faqAll', 'All')}</Pill>
+            <Pill active={faqFilter === 'general'} onClick={() => setFaqFilter('general')}>{t('testDetail.faqGeneral', 'General')}</Pill>
+            <Pill active={faqFilter === 'preparation'} onClick={() => setFaqFilter('preparation')}>{t('testDetail.faqPreparation', 'Preparation')}</Pill>
+            <Pill active={faqFilter === 'procedure'} onClick={() => setFaqFilter('procedure')}>{t('testDetail.faqProcedure', 'Procedure')}</Pill>
+            <Pill active={faqFilter === 'results'} onClick={() => setFaqFilter('results')}>{t('testDetail.faqResults', 'Results')}</Pill>
+            <Pill active={faqFilter === 'booking'} onClick={() => setFaqFilter('booking')}>{t('testDetail.faqBooking', 'Booking')}</Pill>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {education.faqs.filter(f => faqFilter === 'all' || f.c === faqFilter).map((faq, i) => (
@@ -524,7 +526,7 @@ export default function TestDetail() {
 
         {/* ===== 26. SOCIAL SHARING ===== */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 14, marginBottom: 10 }}>
-          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 8px', color: '#888' }}>📤 Share this test</h3>
+          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 8px', color: '#888' }}>{t('testDetail.shareTest', '📤 Share this test')}</h3>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} target="_blank" rel="noopener" style={{ width: 36, height: 36, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none' }}>💬</a>
             <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener" style={{ width: 36, height: 36, borderRadius: '50%', background: '#1877f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none' }}>f</a>
@@ -552,23 +554,23 @@ export default function TestDetail() {
           </div>
           <div style={{ padding: '14px 16px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <InfoItem icon="💰" label="Offer Price" value={`₹${test.offerPrice || test.price}`} valueColor="#e53935" bold />
-              <InfoItem icon="🏷️" label="MRP" value={test.mrp && test.mrp > (test.offerPrice || test.price) ? `₹${test.mrp}` : '—'} valueColor={test.mrp && test.mrp > (test.offerPrice || test.price) ? '#999' : '#ccc'} strikethrough={test.mrp && test.mrp > (test.offerPrice || test.price)} />
-              <InfoItem icon="⏱️" label="Report Time" value={test.report_time || '24 hours'} />
-              <InfoItem icon="🩸" label="Sample Type" value={test.sample_type || 'Blood'} />
+              <InfoItem icon="💰" label={t('testDetail.offerPrice', 'Offer Price')} value={`₹${test.offerPrice || test.price}`} valueColor="#e53935" bold />
+              <InfoItem icon="🏷️" label={t('testDetail.mrp', 'MRP')} value={test.mrp && test.mrp > (test.offerPrice || test.price) ? `₹${test.mrp}` : '—'} valueColor={test.mrp && test.mrp > (test.offerPrice || test.price) ? '#999' : '#ccc'} strikethrough={test.mrp && test.mrp > (test.offerPrice || test.price)} />
+              <InfoItem icon="⏱️" label={t('testDetail.reportTime', 'Report Time')} value={test.report_time || t('testDetail.reportTimeDefault', '24 hours')} />
+              <InfoItem icon="🩸" label={t('testDetail.sampleType', 'Sample Type')} value={test.sample_type || t('testDetail.sampleTypeBlood', 'Blood')} />
               {education.fastingRequired !== undefined && (
-                <InfoItem icon="🍽️" label="Fasting" value={education.fastingRequired ? 'Required' : 'Not Required'} valueColor={education.fastingRequired ? '#e65100' : '#2e7d32'} />
+                <InfoItem icon="🍽️" label={t('testDetail.fasting', 'Fasting')} value={education.fastingRequired ? t('testDetail.required', 'Required') : t('testDetail.notRequired', 'Not Required')} valueColor={education.fastingRequired ? '#e65100' : '#2e7d32'} />
               )}
-              <InfoItem icon="🏠" label="Home Collection" value="Free" valueColor="#2e7d32" />
-              <InfoItem icon="🏅" label="Accreditation" value="NABL Certified" valueColor="#1565c0" />
-              <InfoItem icon="📊" label="Test Type" value={test.category === 'Cardiac' || test.category === 'Diabetes' || test.category === 'Thyroid' ? 'Monitoring' : 'Diagnostic'} />
-              <InfoItem icon="🔄" label="Report Delivery" value="WhatsApp, Email & App" />
+              <InfoItem icon="🏠" label={t('testDetail.homeCollectionLabel', 'Home Collection')} value={t('testDetail.free', 'Free')} valueColor="#2e7d32" />
+              <InfoItem icon="🏅" label={t('testDetail.accreditation', 'Accreditation')} value={t('testDetail.nablCertified', 'NABL Certified')} valueColor="#1565c0" />
+              <InfoItem icon="📊" label={t('testDetail.testType', 'Test Type')} value={test.category === 'Cardiac' || test.category === 'Diabetes' || test.category === 'Thyroid' ? 'Monitoring' : 'Diagnostic'} />
+              <InfoItem icon="🔄" label={t('testDetail.reportDelivery', 'Report Delivery')} value={t('testDetail.reportDeliveryChannels', 'WhatsApp, Email & App')} />
             </div>
             <div style={{ borderTop: '1px solid #f0f0f0', marginTop: 10, paddingTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 11, color: '#888' }}>
-                <strong style={{ color: '#555' }}>Savings:</strong> {test.mrp && test.mrp > (test.offerPrice || test.price) ? `₹${test.mrp - (test.offerPrice || test.price)} (${Math.round((1 - (test.offerPrice || test.price) / test.mrp) * 100)}% off)` : 'Best Price'}
+                <strong style={{ color: '#555' }}>{t('testDetail.savings', 'Savings')}:</strong> {test.mrp && test.mrp > (test.offerPrice || test.price) ? `₹${test.mrp - (test.offerPrice || test.price)} (${Math.round((1 - (test.offerPrice || test.price) / test.mrp) * 100)}% off)` : t('testDetail.bestPrice', 'Best Price')}
               </div>
-              <div style={{ fontSize: 10, color: '#aaa' }}>🛡️ Safe & Hygienic</div>
+              <div style={{ fontSize: 10, color: '#aaa' }}>{t('testDetail.safeHygienic', '🛡️ Safe & Hygienic')}</div>
             </div>
           </div>
         </div>
@@ -601,12 +603,12 @@ export default function TestDetail() {
             {test.mrp && test.mrp > (test.offerPrice || test.price) && (
               <span style={{ fontSize: 11, color: '#999', textDecoration: 'line-through' }}>₹{test.mrp}</span>
             )}
-            <span style={{ fontSize: 10, color: '#2e7d32', fontWeight: 600 }}>Free Collection</span>
+            <span style={{ fontSize: 10, color: '#2e7d32', fontWeight: 600 }}>{t('testDetail.freeCollection', 'Free Collection')}</span>
           </div>
         </div>
         <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, textDecoration: 'none', color: '#fff', fontSize: 18 }}>📞</a>
         <button onClick={toggleCart} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 12, fontWeight: 700, padding: '10px 20px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)', whiteSpace: 'nowrap' }}>
-          {inCart ? '✓ In Cart' : '📋 Book Now'}
+          {inCart ? t('testDetail.inCart', '✓ In Cart') : t('testDetail.bookNow', '📋 Book Now')}
         </button>
       </div>
 

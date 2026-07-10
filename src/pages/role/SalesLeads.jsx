@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE = [
@@ -9,14 +10,15 @@ const SAMPLE = [
 ];
 
 export default function SalesLeads() {
+  const t = useT();
   const [filter, setFilter] = useState('');
   const filtered = filter ? SAMPLE.filter(l => l.status === filter) : SAMPLE;
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>👥 Leads</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.sales.leads', '👥 Leads')}</h2>
       <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
         {['', 'hot', 'warm', 'cold'].map(s => (
-          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#e11d48' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s || 'All'}</button>
+          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#e11d48' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s || t('role.sales.all', 'All')}</button>
         ))}
       </div>
       {filtered.map((l, i) => {
@@ -29,7 +31,7 @@ export default function SalesLeads() {
             <div>
               <span style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{l.name}</span>
               <div style={{ fontSize: 12, color: '#64748b' }}>{l.contact} · {l.phone} · {l.source}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>Value: {l.value} · Stage: {l.stage}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{t('role.sales.value', 'Value:')} {l.value} {t('role.sales.stage', '· Stage:')} {l.stage}</div>
             </div>
             <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 4, background: bgColor, color: textColor, fontWeight: 600, textTransform: 'capitalize' }}>{l.status}</span>
           </div>

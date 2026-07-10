@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { seedTests } from '../../data/seedData';
 import useAdminStore from '../../stores/adminStore';
 import { generateAllTestsData } from '../../utils/generateTestData';
+import { useT } from '../../i18n/LanguageProvider';
 
 const STORAGE_KEY = 'jeevan_testMaster';
 const CATEGORIES = ['Hematology', 'Diabetes', 'Thyroid', 'Cardiac', 'Vitamins', 'Full Body', 'Anemia', 'Fever', 'Cancer', 'Hormones', 'Allergy', 'Arthritis', 'Pregnancy', 'Liver', 'STD', 'Kidney'];
@@ -44,6 +45,7 @@ const loadData = () => {
 const saveData = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
 export default function AdminTestMaster() {
+  const t = useT();
   const getCatalog = useAdminStore(s => s.getCatalog);
   const catalog = useMemo(() => getCatalog(), []);
   const [extendedData, setExtendedData] = useState({});
@@ -136,7 +138,7 @@ export default function AdminTestMaster() {
     data.preparation_instructions = data.preparation;
     data.fasting_required = data.fastingRequired;
     data.report_time = data.reportTime;
-    if (!data.name) { alert('Test name is required'); return; }
+    if (!data.name) { alert('${t('admin.test_master.name_required', 'Test name is required')}'); return; }
     persist(id, data);
     setShowForm(false);
     setEditingId(null);
@@ -150,7 +152,7 @@ export default function AdminTestMaster() {
   };
 
   const handleDelete = (id) => {
-    if (!confirm('Delete this test?')) return;
+    if (!confirm('${t('admin.test_master.delete_confirm', 'Delete this test?')}')) return;
     const next = { ...extendedData };
     delete next[id];
     setExtendedData(next);
@@ -158,7 +160,7 @@ export default function AdminTestMaster() {
   };
 
   const handleDuplicate = (test) => {
-    const data = { ...test, name: test.name + ' (Copy)' };
+    const data = { ...test, name: test.name + t('admin.test_master.copy', ' (Copy)') };
     const id = Date.now();
     persist(id, data);
   };
@@ -189,7 +191,7 @@ export default function AdminTestMaster() {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <button onClick={() => setShowForm(false)} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12 }}>← Back</button>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0f172a', flex: 1 }}>{editingId ? `Edit: ${form.name || 'New Test'}` : 'Add New Test'}</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0f172a', flex: 1 }}>{editingId ? `${t('admin.test_master.edit_label', 'Edit:')} ${form.name || 'New Test'}` : t('admin.test_master.add_new', 'Add New Test')}</h2>
           <button onClick={handleSave} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>💾 Save Test</button>
         </div>
 
@@ -206,7 +208,7 @@ export default function AdminTestMaster() {
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20 }}>
           {activeSection === 'identity' && (
             <div style={{ display: 'grid', gap: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 1: Test Identity</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s1_test_identity', 'SECTION 1: Test Identity')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                 <Field label="Test ID" value={form.testId} onChange={v => updateForm('testId', v)} />
                 <Field label="Internal Test Code" value={form.internalCode} onChange={v => updateForm('internalCode', v)} />
@@ -241,7 +243,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'classification' && (
             <div style={{ display: 'grid', gap: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 2: Classification</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s2_classification', 'SECTION 2: Classification')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                 <Select label="Category" value={form.category} onChange={v => updateForm('category', v)} options={CATEGORIES} />
                 <Select label="Sub Category" value={form.subcategory} onChange={v => updateForm('subcategory', v)} options={SUBCATEGORIES} />
@@ -290,7 +292,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'content' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 3: Website Content</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s3_content', 'SECTION 3: Website Content')}</h3>
               <TextArea label="Short Description" value={form.shortDescription} onChange={v => updateForm('shortDescription', v)} rows={2} />
               <TextArea label="Long Description" value={form.longDescription} onChange={v => updateForm('longDescription', v)} rows={4} />
               <TextArea label="What is this Test?" value={form.whatIsThis} onChange={v => updateForm('whatIsThis', v)} rows={3} />
@@ -305,7 +307,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'education' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 4: Patient Education</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s4_education', 'SECTION 4: Patient Education')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
@@ -331,7 +333,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'biomarkers' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 5: Biomarker Management</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s5_biomarkers', 'SECTION 5: Biomarker Management')}</h3>
               {form.biomarkers.map((b, i) => (
                 <div key={i} style={{ background: '#f8fafc', borderRadius: 10, padding: 14, border: '1px solid #e2e8f0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -362,7 +364,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'refRanges' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 6: Reference Range Management</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s6_ref_ranges', 'SECTION 6: Reference Range Management')}</h3>
               <p style={{ fontSize: 11, color: '#64748b', margin: 0 }}>Define age-wise and gender-wise reference ranges.</p>
               {form.refRanges.map((r, i) => (
                 <div key={i} style={{ background: '#f8fafc', borderRadius: 10, padding: 14, border: '1px solid #e2e8f0' }}>
@@ -390,7 +392,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'pricing' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 7: Pricing Management</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s7_pricing', 'SECTION 7: Pricing Management')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                 <Field label="MRP (₹)" value={form.mrp} onChange={v => updateForm('mrp', Number(v))} type="number" />
                 <Field label="Offer Price (₹)" value={form.offerPrice} onChange={v => updateForm('offerPrice', Number(v))} type="number" />
@@ -413,7 +415,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'booking' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 8: Booking Settings</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s8_booking', 'SECTION 8: Booking Settings')}</h3>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                 <label style={{ fontSize: 12, fontWeight: 500, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}>
                   <input type="checkbox" checked={form.bookingAvailable} onChange={e => updateForm('bookingAvailable', e.target.checked)} /> Booking Available
@@ -435,7 +437,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'marketing' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 9: Related Marketing</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s9_marketing', 'SECTION 9: Related Marketing')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <TextArea label="Related Tests (comma separated)" value={form.relatedTests} onChange={v => updateForm('relatedTests', v)} rows={2} />
                 <TextArea label="Related Packages (comma separated)" value={form.relatedPackages} onChange={v => updateForm('relatedPackages', v)} rows={2} />
@@ -448,7 +450,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'faqs' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 10: FAQ Management</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s10_faqs', 'SECTION 10: FAQ Management')}</h3>
               {form.faqs.map((f, i) => (
                 <div key={i} style={{ background: '#f8fafc', borderRadius: 10, padding: 14, border: '1px solid #e2e8f0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -477,7 +479,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'seo' && (
             <div style={{ display: 'grid', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 11: SEO Management</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s11_seo', 'SECTION 11: SEO Management')}</h3>
               <Field label="SEO URL" value={form.seoUrl} onChange={v => updateForm('seoUrl', v)} placeholder="/test/hba1c" />
               <Field label="Meta Title" value={form.metaTitle} onChange={v => updateForm('metaTitle', v)} />
               <TextArea label="Meta Description" value={form.metaDescription} onChange={v => updateForm('metaDescription', v)} rows={2} />
@@ -489,7 +491,7 @@ export default function AdminTestMaster() {
 
           {activeSection === 'status' && (
             <div style={{ display: 'grid', gap: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>SECTION 12: Test Status</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0 }}>${t('admin.test_master.s12_status', 'SECTION 12: Test Status')}</h3>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {STATUS_OPTIONS.map(s => {
                   const colors = { Draft: { bg: '#f1f5f9', text: '#64748b' }, Active: { bg: '#dcfce7', text: '#16a34a' }, Inactive: { bg: '#fee2e2', text: '#dc2626' }, 'Temporarily Unavailable': { bg: '#fef3c7', text: '#d97706' }, 'Coming Soon': { bg: '#dbeafe', text: '#2563eb' } };
@@ -513,7 +515,7 @@ export default function AdminTestMaster() {
     return (
       <div>
         <div style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>Test Management</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{t('admin.test_master.test_mgmt', 'Test Management')}</h2>
           <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Manage all {filtered.length} tests — Master data for the entire platform</p>
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -521,15 +523,15 @@ export default function AdminTestMaster() {
             style={{ flex: 1, minWidth: 180, maxWidth: 280, fontSize: 13, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontFamily: 'inherit', outline: 'none' }} />
           <select value={filters.category} onChange={e => setFilters({ ...filters, category: e.target.value })}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit', background: '#fff' }}>
-            <option value="all">All Categories</option>
+            <option value="all">{t('admin.test_master.all_categories', 'All Categories')}</option>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit', background: '#fff' }}>
-            <option value="all">All Status</option>
+            <option value="all">{t('admin.test_master.all_status', 'All Status')}</option>
             {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>+ Add Test</button>
+          <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>+ {t('admin.test_master.add_test', 'Add Test')}</button>
           <button onClick={() => {
             if (!confirm(`Generate complete data for all ${seedTests.length} tests? This will overwrite existing data.`)) return;
             const data = generateAllTestsData();
@@ -542,12 +544,12 @@ export default function AdminTestMaster() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 700 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>Test Name</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>Category</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>Price</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>Report</th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: 11 }}>Status</th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: 11 }}>Actions</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>{t('admin.test_master.test_name_header', 'Test Name')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>{t('admin.test_master.category_header', 'Category')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>{t('admin.test_master.price_header', 'Price')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#64748b', fontSize: 11 }}>{t('admin.test_master.report_header', 'Report')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: 11 }}>{t('admin.test_master.status_header', 'Status')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: 11 }}>{t('admin.test_master.actions_header', 'Actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -580,7 +582,7 @@ export default function AdminTestMaster() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>No tests found matching your filters</td></tr>
+                <tr><td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>{t('admin.test_master.no_tests', 'No tests found matching your filters')}</td></tr>
               )}
             </tbody>
           </table>

@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useInventoryStore, { CATEGORIES, UNITS } from '../../stores/inventoryStore';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 
 export default function AdminInventory() {
+  const t = useT();
   const items = useInventoryStore(s => s.items);
   const addItem = useInventoryStore(s => s.addItem);
   const updateItem = useInventoryStore(s => s.updateItem);
@@ -71,7 +73,7 @@ export default function AdminInventory() {
           <input type="checkbox" checked={lowOnly} onChange={e => setLowOnly(e.target.checked)} /> Low stock only
         </label>
         <div style={{ flex: 1 }} />
-        <button onClick={() => { setEditId(null); resetForm(); setShowAdd(true); }} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ Add Item</button>
+        <button onClick={() => { setEditId(null); resetForm(); setShowAdd(true); }} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ {t('admin.inventory.add_item', 'Add Item')}</button>
       </div>
 
       {/* Low Stock Banner */}
@@ -105,7 +107,7 @@ export default function AdminInventory() {
               </div>
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                 <button onClick={() => setAdjustId(i.id)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#a16207' }}>Stock</button>
-                <button onClick={() => handleEdit(i)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>Edit</button>
+                <button onClick={() => handleEdit(i)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.inventory.edit', 'Edit')}</button>
                 <button onClick={() => { if (confirm(`Delete ${i.name}?`)) deleteItem(i.id); }} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>Del</button>
               </div>
             </div>
@@ -133,7 +135,7 @@ export default function AdminInventory() {
                   </div>
                   <input value={reason} onChange={e => setReason(e.target.value)} style={inputStyle} placeholder="Reason (optional)" />
                 </div>
-                <button onClick={() => setAdjustId(null)} style={{ marginTop: 8, padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b', width: '100%' }}>Cancel</button>
+                <button onClick={() => setAdjustId(null)} style={{ marginTop: 8, padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b', width: '100%' }}>{t('admin.inventory.cancel', 'Cancel')}</button>
               </div>
             </div>
           );
@@ -162,7 +164,7 @@ export default function AdminInventory() {
             </div>
             <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, resize: 'vertical', minHeight: 50, marginTop: 10 }} placeholder="Notes (optional)" />
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowAdd(false); setEditId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
+              <button onClick={() => { setShowAdd(false); setEditId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.inventory.cancel', 'Cancel')}</button>
               <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editId ? 'Update' : 'Add Item'}</button>
             </div>
           </div>

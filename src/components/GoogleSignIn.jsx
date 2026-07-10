@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
+import { useT } from '../i18n/LanguageProvider';
 
 const CLIENT_ID = '9700104108-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com';
 
 export default function GoogleSignIn({ onError }) {
+  const t = useT();
   const btnRef = useRef(null);
   const initialized = useRef(false);
   const navigate = useNavigate();
@@ -63,7 +65,7 @@ export default function GoogleSignIn({ onError }) {
       setUser(user);
       navigate('/dashboard');
     } catch (err) {
-      if (onError) onError('Google Sign-In failed. Please try again.');
+      if (onError) onError(t('googleSignIn.failed', 'Google Sign-In failed. Please try again.'));
     }
   }
 

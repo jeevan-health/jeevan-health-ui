@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import useCrmStore from '../../stores/crmStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 export default function AdminCrm() {
+  const t = useT();
   const { data, addCustomer, updateCustomer, deleteCustomer, addInteraction, addTask, updateTask, deleteTask, addPipelineStage, deletePipelineStage, updatePipelineStage, reset } = useCrmStore();
   const [tab, setTab] = useState('customers');
   const [search, setSearch] = useState('');

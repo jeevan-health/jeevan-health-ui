@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
 import { searchTests, getPopularSearches } from '../../utils/searchIntelligence';
 import { packageList } from '../../data/healthPackages';
+import { useT } from '../../i18n/LanguageProvider';
 
-export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms, diseases...', onSearch, autoFocus, value: externalValue, onChange: externalOnChange, onSubmit: externalOnSubmit }) {
+export default function SmartSearch({ placeholder, onSearch, autoFocus, value: externalValue, onChange: externalOnChange, onSubmit: externalOnSubmit }) {
   const isControlled = externalValue !== undefined;
   const [internalQuery, setInternalQuery] = useState('');
   const query = isControlled ? externalValue : internalQuery;
@@ -13,6 +14,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
   const [focusIndex, setFocusIndex] = useState(-1);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('all');
+  const t = useT();
   const ref = useRef();
   const navigate = useNavigate();
 
@@ -78,18 +80,18 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
       <div style={{ display: 'flex', border: '2px solid #d0d5dd', borderRadius: 10, overflow: 'hidden', background: '#fff', transition: 'border-color 0.2s' }}>
         <input type="text" value={query} onChange={e => handleChange(e.target.value)}
           onKeyDown={handleKey} onFocus={() => query.trim() && setOpen(true)} autoFocus={autoFocus}
-          placeholder={placeholder}
+          placeholder={placeholder || t('smartSearch.placeholder', '🔍 Search tests, symptoms, diseases...')}
           style={{ flex: 1, border: 'none', padding: '9px 8px 9px 12px', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
         {query && <button onClick={() => { handleChange(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
       </div>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #e8edf2', zIndex: 9999, maxHeight: 420, overflow: 'auto' }}>
           <div style={{ display: 'flex', borderBottom: '1px solid #e8edf2', padding: '6px 8px', gap: 4, background: '#fafafa', position: 'sticky', top: 0, zIndex: 1 }}>
-            {[
-              { key: 'all', label: `All (${results.length + pkgResults.length})` },
-              { key: 'tests', label: `Individual (${results.length})` },
-              { key: 'packages', label: `Packages (${pkgResults.length})` },
-            ].map(tab => (
+              {[
+                { key: 'all', label: `${t('smartSearch.filterAll', 'All')} (${results.length + pkgResults.length})` },
+                { key: 'tests', label: `${t('smartSearch.filterIndividual', 'Individual')} (${results.length})` },
+                { key: 'packages', label: `${t('smartSearch.filterPackages', 'Packages')} (${pkgResults.length})` },
+              ].map(tab => (
               <button key={tab.key} onClick={() => setFilter(tab.key)}
                 style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: filter === tab.key ? '#1866C9' : 'transparent', color: filter === tab.key ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit', transition: 'all 0.15s' }}>
                 {tab.label}
@@ -98,18 +100,18 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
           </div>
 
           {filter === 'tests' && results.length === 0 && (
-            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No tests found. Try searching for a symptom or disease.</div>
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{t('smartSearch.noTests', 'No tests found. Try searching for a symptom or disease.')}</div>
           )}
           {filter === 'all' && results.length === 0 && pkgResults.length === 0 && (
-            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No tests or packages found. Try a different search term.</div>
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{t('smartSearch.noResults', 'No tests or packages found. Try a different search term.')}</div>
           )}
           {filter === 'packages' && pkgResults.length === 0 && (
-            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>No packages found. Try a different search term.</div>
+            <div style={{ padding: 16, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center' }}>{t('smartSearch.noPackages', 'No packages found. Try a different search term.')}</div>
           )}
 
           {(filter === 'all' || filter === 'packages') && pkgResults.length > 0 && (
             <div>
-              {filter !== 'packages' && <div style={{ padding: '6px 14px', fontSize: 10, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', background: '#f8fafc' }}>Health Packages</div>}
+              {filter !== 'packages' && <div style={{ padding: '6px 14px', fontSize: 10, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', background: '#f8fafc' }}>{t('smartSearch.healthPackages', 'Health Packages')}</div>}
               {pkgResults.map(pkg => (
                 <Link key={pkg.slug} to={`/package/${pkg.slug}`} onClick={() => { setOpen(false); if (!isControlled) setInternalQuery(''); }}
                   style={{ padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', borderBottom: '1px solid #f0f0f0' }}>
@@ -118,7 +120,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{pkg.name}</div>
                     <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 600 }}>₹{pkg.offerPrice} · {pkg.testCount} tests · {pkg.discount}% off</div>
                   </div>
-                  <span style={{ fontSize: 10, color: '#1866C9', fontWeight: 600 }}>View →</span>
+                  <span style={{ fontSize: 10, color: '#1866C9', fontWeight: 600 }}>{t('smartSearch.view', 'View →')}</span>
                 </Link>
               ))}
             </div>
@@ -129,7 +131,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
               return (
                 <div key={`sym-${r.symptom}`} style={{ borderBottom: '1px solid #f0f0f0' }}>
                   <div style={{ padding: '10px 14px', background: '#FFF8E1', fontSize: 12, fontWeight: 600, color: '#E65100', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🤒 "{r.symptom}" — Recommended Tests:
+                    🤒 "{r.symptom}" — {t('smartSearch.recommendedTests', 'Recommended Tests')}:
                   </div>
                   {r.tests.slice(0, 4).map(t => {
                     const slug = slugify(t.name);
@@ -154,18 +156,18 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <span style={{ fontSize: 16 }}>🩸</span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{r.test?.name}</span>
-                  {r.matchType === 'exact' && <span style={{ fontSize: 9, background: '#E8F1FC', color: '#1866C9', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>Best Match</span>}
+                  {r.matchType === 'exact' && <span style={{ fontSize: 9, background: '#E8F1FC', color: '#1866C9', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>{t('smartSearch.bestMatch', 'Best Match')}</span>}
                 </div>
                 {r.aliases?.length > 0 && (
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                    Also called: {r.aliases.slice(0, 4).map(a => <span key={a} style={{ background: '#f5f5f5', padding: '1px 6px', borderRadius: 3, marginRight: 3 }}>{a}</span>)}
+                    {t('smartSearch.alsoCalled', 'Also called')}: {r.aliases.slice(0, 4).map(a => <span key={a} style={{ background: '#f5f5f5', padding: '1px 6px', borderRadius: 3, marginRight: 3 }}>{a}</span>)}
                   </div>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
                   <span style={{ color: '#16a34a', fontWeight: 700 }}>₹{r.test?.offerPrice || r.test?.price}</span>
                   <span style={{ color: 'var(--text-secondary)' }}>⏱ {r.test?.report_time}</span>
-                  {r.test?.fasting_required && <span style={{ color: '#E65100' }}>🕐 Fasting</span>}
-                  {!r.test?.fasting_required && <span style={{ color: '#16a34a' }}>✅ No Fasting</span>}
+                  {r.test?.fasting_required && <span style={{ color: '#E65100' }}>🕐 {t('smartSearch.fasting', 'Fasting')}</span>}
+                  {!r.test?.fasting_required && <span style={{ color: '#16a34a' }}>✅ {t('smartSearch.noFasting', 'No Fasting')}</span>}
                 </div>
                 {r.diseases?.length > 0 && (
                   <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginTop: 4 }}>
@@ -177,7 +179,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
           })}
           {popular.length > 0 && (
             <div style={{ borderTop: '1px solid #f0f0f0', padding: '8px 14px' }}>
-              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Popular Searches</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('smartSearch.popularSearches', 'Popular Searches')}</div>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {popular.map(p => (
                   <span key={p} onClick={() => navigate(`/diagnostics?q=${encodeURIComponent(p)}`)} style={{ fontSize: 10, background: '#f5f5f5', padding: '3px 8px', borderRadius: 6, cursor: 'pointer', color: '#1866C9' }}>

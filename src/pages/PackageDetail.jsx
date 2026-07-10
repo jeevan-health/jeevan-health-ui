@@ -5,6 +5,7 @@ import useUploadModal from '../stores/uploadModalStore';
 import { getPackageBySlug, packageList } from '../data/healthPackages';
 import { seedTests } from '../data/seedData';
 import { makeSlug } from '../data/seedData';
+import { useT } from '../i18n/LanguageProvider';
 
 function Section({ icon, title, children, open, onToggle }) {
   return (
@@ -36,6 +37,7 @@ function Tag({ label, color, bg }) {
 }
 
 export default function PackageDetail() {
+  const t = useT();
   const { slug } = useParams();
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
@@ -48,7 +50,7 @@ export default function PackageDetail() {
     const found = getPackageBySlug(slug);
     if (found) {
       setPkg(found);
-      document.title = `${found.name} | Jeevan HealthCare at Home`;
+      document.title = `${found.name} | ${t('packageDetail.siteName', 'Jeevan HealthCare at Home')}`;
     }
   }, [slug]);
 
@@ -57,8 +59,8 @@ export default function PackageDetail() {
       <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
         <div className="container" style={{ textAlign: 'center', padding: '40px 16px' }}>
           <span style={{ fontSize: 48 }}>📦</span>
-          <p style={{ color: '#999', marginTop: 12 }}>Package not found</p>
-          <button onClick={() => navigate('/health-packages')} className="btn btn-primary" style={{ marginTop: 16 }}>View All Packages</button>
+          <p style={{ color: '#999', marginTop: 12 }}>{t('packageDetail.notFound', 'Package not found')}</p>
+          <button onClick={() => navigate('/health-packages')} className="btn btn-primary" style={{ marginTop: 16 }}>{t('packageDetail.viewAllPackages', 'View All Packages')}</button>
         </div>
       </div>
     );
@@ -79,7 +81,7 @@ export default function PackageDetail() {
       <div className="container" style={{ maxWidth: 800, paddingBottom: 120, margin: '0 auto' }}>
 
         <button onClick={() => navigate('/health-packages')} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#888', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, padding: '12px 0' }}>
-          ← Back to Packages
+          {t('packageDetail.backToPackages', '← Back to Packages')}
         </button>
 
         {/* HERO */}
@@ -95,26 +97,26 @@ export default function PackageDetail() {
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', margin: '8px 0 12px', lineHeight: 1.5 }}>{pkg.description}</p>
 
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 12, fontSize: 11 }}>
-            <span>⭐ {pkg.rating} Rating</span>
-            <span>👥 {pkg.bookings} Bookings</span>
-            <span>🧪 {pkg.testCount} Tests</span>
-            <span>🏠 Free Home Collection</span>
+            <span>⭐ {pkg.rating} {t('packageDetail.ratingLabel', 'Rating')}</span>
+            <span>👥 {pkg.bookings} {t('packageDetail.bookings', 'Bookings')}</span>
+            <span>🧪 {pkg.testCount} {t('packageDetail.tests', 'Tests')}</span>
+            <span>🏠 {t('packageDetail.freeHomeCollection', 'Free Home Collection')}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'line-through' }}>MRP: ₹{pkg.mrp.toLocaleString()}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textDecoration: 'line-through' }}>{t('packageDetail.mrp', 'MRP')}: ₹{pkg.mrp.toLocaleString()}</div>
               <div style={{ fontSize: 28, fontWeight: 800 }}>₹{pkg.offerPrice.toLocaleString()}</div>
-              <div style={{ fontSize: 12, color: '#4ade80', fontWeight: 600 }}>Save ₹{(pkg.mrp - pkg.offerPrice).toLocaleString()} ({pkg.discount}% OFF)</div>
+              <div style={{ fontSize: 12, color: '#4ade80', fontWeight: 600 }}>{t('packageDetail.save', 'Save')} ₹{(pkg.mrp - pkg.offerPrice).toLocaleString()} ({pkg.discount}% {t('packageDetail.off', 'OFF')})</div>
             </div>
             {totalValue > 0 && (
               <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 12px', textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>Total Test Value</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{t('packageDetail.totalTestValue', 'Total Test Value')}</div>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>₹{totalValue.toLocaleString()}</div>
               </div>
             )}
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 12px', textAlign: 'center' }}>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>Reports</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{t('packageDetail.reports', 'Reports')}</div>
               <div style={{ fontSize: 14, fontWeight: 700 }}>⏱ {pkg.reportTime}</div>
             </div>
           </div>
@@ -124,35 +126,35 @@ export default function PackageDetail() {
               if (inCart) removeItem(pkg.id, 'package');
               else addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' });
             }} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 13, fontWeight: 700, padding: '10px 24px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)' }}>
-              {inCart ? '✓ In Cart' : '📋 Book Now'}
+              {inCart ? t('packageDetail.inCart', '✓ In Cart') : t('packageDetail.bookNow', '📋 Book Now')}
             </button>
             <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ padding: '10px 20px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'inherit' }}>
-              📤 Upload Prescription
+              {t('packageDetail.uploadPrescription', '📤 Upload Prescription')}
             </button>
           </div>
         </div>
 
         {/* WHO SHOULD TAKE */}
-        <Section icon="👤" title="Who Should Take This Package?" open={openSections.who} onToggle={() => toggle('who')}>
+        <Section icon="👤" title={t('packageDetail.whoShouldTake', 'Who Should Take This Package?')} open={openSections.who} onToggle={() => toggle('who')}>
           <ListItems items={pkg.whoShouldTake} />
-          <Tag label={`For: ${pkg.target}`} color={pkg.color} bg={`${pkg.color}15`} />
+          <Tag label={`${t('packageDetail.for', 'For')}: ${pkg.target}`} color={pkg.color} bg={`${pkg.color}15`} />
         </Section>
 
         {/* WHY THIS PACKAGE */}
-        <Section icon="❓" title="Why This Package?" open={openSections.why} onToggle={() => toggle('why')}>
-          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Benefits of this package:</p>
+        <Section icon="❓" title={t('packageDetail.whyThisPackage', 'Why This Package?')} open={openSections.why} onToggle={() => toggle('why')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{t('packageDetail.benefits', 'Benefits of this package:')}</p>
           <ListItems items={pkg.benefits} />
           {totalValue > 0 && (
             <div style={{ marginTop: 8, padding: '8px 12px', background: '#e8f5e9', borderRadius: 8, fontSize: 11, color: '#2e7d32', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>💰</span> Individual test value: ₹{totalValue.toLocaleString()} — You save ₹{(totalValue - pkg.offerPrice).toLocaleString()} with this package!
+              <span>💰 {t('packageDetail.individualTestValue', 'Individual test value')}: ₹{totalValue.toLocaleString()} — {t('packageDetail.youSave', 'You save')} ₹{(totalValue - pkg.offerPrice).toLocaleString()} {t('packageDetail.withThisPackage', 'with this package!')}</span>
             </div>
           )}
         </Section>
 
         {/* CONDITIONS COVERED */}
         {pkg.conditions && pkg.conditions.length > 0 && (
-          <Section icon="🏥" title="Conditions Covered" open={openSections.conditions} onToggle={() => toggle('conditions')}>
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>This package helps screen for and monitor:</p>
+          <Section icon="🏥" title={t('packageDetail.conditionsCovered', 'Conditions Covered')} open={openSections.conditions} onToggle={() => toggle('conditions')}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: '#999' }}>{t('packageDetail.conditionsDesc', 'This package helps screen for and monitor:')}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {pkg.conditions.map((c, i) => (
                 <span key={i} style={{ padding: '4px 10px', borderRadius: 8, fontSize: 11, background: '#fef2f2', color: '#dc2626', fontWeight: 500 }}>{c}</span>
@@ -162,7 +164,7 @@ export default function PackageDetail() {
         )}
 
         {/* TESTS INCLUDED */}
-        <Section icon="🧪" title={`Tests Included (${pkg.testsIncluded.length})`} open={openSections.tests} onToggle={() => toggle('tests')}>
+        <Section icon="🧪" title={t('packageDetail.testsIncluded', 'Tests Included') + ` (${pkg.testsIncluded.length})`} open={openSections.tests} onToggle={() => toggle('tests')}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {pkg.testsIncluded.map((t, i) => {
               const testData = seedTests.find(s => s.name === t);
@@ -178,27 +180,27 @@ export default function PackageDetail() {
             })}
           </div>
           <div style={{ marginTop: 8, padding: '8px 12px', background: '#f0fdf4', borderRadius: 8, fontSize: 11, color: '#166534', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>✅</span> All tests include free home sample collection
+            <span>✅ {t('packageDetail.freeSampleCollection', 'All tests include free home sample collection')}</span>
           </div>
         </Section>
 
         {/* TEST PREPARATION */}
-        <Section icon="📋" title="Test Preparation" open={openSections.prep} onToggle={() => toggle('prep')}>
+        <Section icon="📋" title={t('packageDetail.testPreparation', 'Test Preparation')} open={openSections.prep} onToggle={() => toggle('prep')}>
           <p style={{ margin: '0 0 8px' }}>{pkg.preparation}</p>
-          <InfoBox bg="#fff3e0" color="#e65100" icon="⚠️">Follow preparation instructions carefully for accurate results.</InfoBox>
+          <InfoBox bg="#fff3e0" color="#e65100" icon="⚠️">{t('packageDetail.prepInstruction', 'Follow preparation instructions carefully for accurate results.')}</InfoBox>
         </Section>
 
         {/* SAMPLE COLLECTION */}
-        <Section icon="📦" title="Sample Collection & Reports" open={openSections.sample} onToggle={() => toggle('sample')}>
-          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>How it works:</p>
+        <Section icon="📦" title={t('packageDetail.sampleCollectionReports', 'Sample Collection & Reports')} open={openSections.sample} onToggle={() => toggle('sample')}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{t('packageDetail.howItWorks', 'How it works:')}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
-              { step: 'Book Online', icon: '📱', desc: 'Book in 2 minutes — select your date and time' },
-              { step: 'Home Visit', icon: '🏠', desc: 'Trained phlebotomist arrives at your doorstep' },
-              { step: 'Sample Collection', icon: '💉', desc: `Blood and urine samples collected in 15-20 minutes` },
-              { step: 'Lab Processing', icon: '🔬', desc: 'Samples processed at NABL certified lab' },
-              { step: 'Quality Check', icon: '✅', desc: 'Results verified by lab professionals' },
-              { step: 'Digital Report', icon: '📱', desc: `Reports in ${pkg.reportTime} via WhatsApp/Email/App` },
+              { step: t('packageDetail.stepBookOnline', 'Book Online'), icon: '📱', desc: t('packageDetail.descBookOnline', 'Book in 2 minutes — select your date and time') },
+              { step: t('packageDetail.stepHomeVisit', 'Home Visit'), icon: '🏠', desc: t('packageDetail.descHomeVisit', 'Trained phlebotomist arrives at your doorstep') },
+              { step: t('packageDetail.stepSampleCollection', 'Sample Collection'), icon: '💉', desc: t('packageDetail.descSampleCollection', 'Blood and urine samples collected in 15-20 minutes') },
+              { step: t('packageDetail.stepLabProcessing', 'Lab Processing'), icon: '🔬', desc: t('packageDetail.descLabProcessing', 'Samples processed at NABL certified lab') },
+              { step: t('packageDetail.stepQualityCheck', 'Quality Check'), icon: '✅', desc: t('packageDetail.descQualityCheck', 'Results verified by lab professionals') },
+              { step: t('packageDetail.stepDigitalReport', 'Digital Report'), icon: '📱', desc: `${t('packageDetail.descDigitalReport', 'Reports in')} ${pkg.reportTime} ${t('packageDetail.viaChannels', 'via WhatsApp/Email/App')}` },
             ].map((s, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < 5 ? '1px dashed #eee' : 'none' }}>
                 <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${pkg.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{s.icon}</div>
@@ -213,7 +215,7 @@ export default function PackageDetail() {
 
         {/* FAQ */}
         {pkg.faqs && pkg.faqs.length > 0 && (
-          <Section icon="❓" title="Frequently Asked Questions" open={openSections.faq} onToggle={() => toggle('faq')}>
+          <Section icon="❓" title={t('packageDetail.faq', 'Frequently Asked Questions')} open={openSections.faq} onToggle={() => toggle('faq')}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {pkg.faqs.map((faq, i) => (
                 <div key={i} style={{ border: '1px solid #e8edf2', borderRadius: 8, overflow: 'hidden' }}>
@@ -234,7 +236,7 @@ export default function PackageDetail() {
         {otherPkgs.length > 0 && (
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 16, marginBottom: 10 }}>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 16 }}>📦</span> Other Health Packages
+              <span style={{ fontSize: 16 }}>📦</span> {t('packageDetail.otherPackages', 'Other Health Packages')}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {otherPkgs.map(p => (
@@ -242,9 +244,9 @@ export default function PackageDetail() {
                   <span style={{ fontSize: 24 }}>{p.icon}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a' }}>{p.name}</div>
-                    <div style={{ fontSize: 10, color: '#888' }}>{p.testCount} tests · ₹{p.offerPrice.toLocaleString()}</div>
+                    <div style={{ fontSize: 10, color: '#888' }}>{p.testCount} {t('packageDetail.testsUnit', 'tests')} · ₹{p.offerPrice.toLocaleString()}</div>
                   </div>
-                  <span style={{ fontSize: 11, color: pkg.color, fontWeight: 600 }}>View →</span>
+                  <span style={{ fontSize: 11, color: pkg.color, fontWeight: 600 }}>{t('packageDetail.view', 'View →')}</span>
                 </Link>
               ))}
             </div>
@@ -253,7 +255,7 @@ export default function PackageDetail() {
 
         {/* SHARE */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', padding: 14, marginBottom: 10 }}>
-          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 8px', color: '#888' }}>📤 Share this package</h3>
+          <h3 style={{ fontSize: 12, fontWeight: 600, margin: '0 0 8px', color: '#888' }}>{t('packageDetail.share', '📤 Share this package')}</h3>
           <div style={{ display: 'flex', gap: 8 }}>
             {[
               { icon: '💬', url: `https://wa.me/?text=${encodeURIComponent(pkg.name + ' - ₹' + pkg.offerPrice + ' | ' + window.location.href)}`, bg: '#25d366' },
@@ -274,7 +276,7 @@ export default function PackageDetail() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 16, fontWeight: 800, color: '#e53935' }}>₹{pkg.offerPrice.toLocaleString()}</span>
             <span style={{ fontSize: 11, color: '#999', textDecoration: 'line-through' }}>₹{pkg.mrp.toLocaleString()}</span>
-            <span style={{ fontSize: 10, color: '#2e7d32', fontWeight: 600 }}>{pkg.discount}% OFF</span>
+            <span style={{ fontSize: 10, color: '#2e7d32', fontWeight: 600 }}>{pkg.discount}% {t('packageDetail.off', 'OFF')}</span>
           </div>
         </div>
         <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, textDecoration: 'none', color: '#fff', fontSize: 18 }}>📞</a>
@@ -282,7 +284,7 @@ export default function PackageDetail() {
           if (inCart) removeItem(pkg.id, 'package');
           else addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' });
         }} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 12, fontWeight: 700, padding: '10px 20px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)', whiteSpace: 'nowrap' }}>
-          {inCart ? '✓ In Cart' : '📋 Book Now'}
+          {inCart ? t('packageDetail.inCart', '✓ In Cart') : t('packageDetail.bookNow', '📋 Book Now')}
         </button>
       </div>
 

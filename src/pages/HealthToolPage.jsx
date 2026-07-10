@@ -1,3 +1,4 @@
+import { useT } from '../i18n/LanguageProvider';
 import { useParams, Link } from 'react-router-dom';
 import BmiCalculator from '../components/healthTools/BmiCalculator';
 import HeartHealthCalculator from '../components/healthTools/HeartHealthCalculator';
@@ -49,6 +50,7 @@ const CALCULATORS = {
 };
 
 export default function HealthToolPage() {
+  const t = useT();
   const { slug } = useParams();
   const tool = CALCULATORS[slug];
 
@@ -56,9 +58,9 @@ export default function HealthToolPage() {
     return (
       <div className="page-section container text-center" style={{ padding: '80px 16px' }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>🔬</div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Calculator Not Found</h1>
-        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>The health calculator you are looking for does not exist.</p>
-        <Link to="/" className="btn btn-primary">Go Home</Link>
+        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>{t('healthTool.notFound', 'Calculator Not Found')}</h1>
+        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>{t('healthTool.notFoundDesc', 'The health calculator you are looking for does not exist.')}</p>
+        <Link to="/" className="btn btn-primary">{t('healthTool.goHome', 'Go Home')}</Link>
       </div>
     );
   }
@@ -68,7 +70,7 @@ export default function HealthToolPage() {
   return (
     <div className="page-section container" style={{ maxWidth: 640, margin: '0 auto', padding: '32px 16px' }}>
       <Link to="/" style={{ fontSize: 12, color: '#1866C9', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 16 }}>
-        ← Home
+        ← {t('healthTool.homeLink', 'Home')}
       </Link>
 
       <div style={{ background: '#fff', borderRadius: 16, padding: 24, border: '1px solid #e2e8f0' }}>
@@ -86,8 +88,7 @@ export default function HealthToolPage() {
 
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #e2e8f0' }}>
           <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
-            This calculator is for informational purposes only and is not a substitute for professional medical advice.
-            Always consult your healthcare provider for personalized health guidance.
+            {t('healthTool.disclaimer', 'This calculator is for informational purposes only and is not a substitute for professional medical advice. Always consult your healthcare provider for personalized health guidance.')}
           </p>
         </div>
       </div>

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import useCmsStore from '../../stores/cmsStore';
 import { getPackagesByAxis } from '../../utils/packageGenerator';
 import { seedTests } from '../../data/seedData';
+import { useT } from '../../i18n/LanguageProvider';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const labelStyle = { fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4, fontWeight: 500 };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 export default function AdminCMS() {
+  const t = useT();
   const content = useCmsStore(s => s.content);
   const updateHero = useCmsStore(s => s.updateHero);
   const updateTrustStrip = useCmsStore(s => s.updateTrustStrip);

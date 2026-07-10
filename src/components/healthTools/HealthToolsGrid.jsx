@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TOOLS } from '../../utils/healthCalculations';
 import HealthToolModal from './HealthToolModal';
+import { useT } from '../../i18n/LanguageProvider';
 import BmiCalculator from './BmiCalculator';
 import BpCalculator from './BpCalculator';
 import HeartHealthCalculator from './HeartHealthCalculator';
@@ -28,6 +29,7 @@ const CALCULATORS = {
 };
 
 export default function HealthToolsGrid() {
+  const t = useT();
   const [openTool, setOpenTool] = useState(null);
 
   const activeCalc = CALCULATORS[openTool];
@@ -36,8 +38,8 @@ export default function HealthToolsGrid() {
     <>
       <div className="card" style={{ marginBottom: 12 }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-          🩺 Health Tools
-          <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}>(Tap to use)</span>
+          🩺 {t('healthTools.title', 'Health Tools')}
+          <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}>{t('healthTools.tapToUse', '(Tap to use)')}</span>
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: 8 }}>
           {TOOLS.map(tool => (

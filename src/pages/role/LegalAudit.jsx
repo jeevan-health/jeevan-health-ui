@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE = [
@@ -10,10 +11,11 @@ const SAMPLE = [
 ];
 
 export default function LegalAudit() {
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>📋 Audit Logs</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>System activity and audit trail</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.legalAudit.title', '📋 Audit Logs')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t('role.legalAudit.subtitle', 'System activity and audit trail')}</p>
       {SAMPLE.map((a, i) => (
         <div key={i} style={card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 
 const orders = [
@@ -11,6 +12,7 @@ const orders = [
 ];
 
 export default function MyTestOrders() {
+  const t = useT();
   const [filter, setFilter] = useState('all');
   const filtered = filter === 'all' ? orders : orders.filter(o => o.status.toLowerCase() === filter);
 
@@ -23,14 +25,14 @@ export default function MyTestOrders() {
 
   return (
     <div className="page-section container">
-      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>My Orders</h1>
-      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>Track and manage your test bookings</p>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>{t('orders.title', 'My Orders')}</h1>
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>{t('orders.subtitle', 'Track and manage your test bookings')}</p>
 
       <div className="grid-4" style={{ marginBottom: 20 }}>
         {Object.entries(stats).map(([k, v]) => (
           <div key={k} className="card" style={{ textAlign: 'center', padding: 16 }}>
             <div style={{ fontSize: 22, fontWeight: 700, textTransform: 'capitalize' }}>{v}</div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{k}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t(`orders.stat.${k}`, k.charAt(0).toUpperCase() + k.slice(1))}</div>
           </div>
         ))}
       </div>
@@ -39,30 +41,30 @@ export default function MyTestOrders() {
         {['all', 'completed', 'processing', 'scheduled', 'cancelled'].map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-outline'}`}
-            style={{ textTransform: 'capitalize' }}>{f}</button>
+            style={{ textTransform: 'capitalize' }}>{t(`orders.filter.${f}`, f.charAt(0).toUpperCase() + f.slice(1))}</button>
         ))}
       </div>
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        {filtered.length === 0 && <p style={{ padding: 24, textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>No orders found.</p>}
+        {filtered.length === 0 && <p style={{ padding: 24, textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>{t('orders.noOrders', 'No orders found.')}</p>}
         {filtered.map(o => (
           <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap', gap: 8 }}>
             <div style={{ flex: 1, minWidth: 200 }}>
               <p style={{ fontSize: 13, fontWeight: 600 }}>{o.test}</p>
               <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{o.id} · {o.date}</p>
-              {o.collection && <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Collection: {o.collection}</p>}
+              {o.collection && <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('orders.collection', 'Collection:')} {o.collection}</p>}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className={`badge ${o.status === 'Completed' ? 'badge-green' : o.status === 'Processing' ? 'badge-primary' : o.status === 'Scheduled' ? 'badge-yellow' : 'badge-red'}`}>{o.status}</span>
               <span style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>₹{o.amount}</span>
-              {o.reportUrl && <button className="btn btn-outline btn-sm">View</button>}
+              {o.reportUrl && <button className="btn btn-outline btn-sm">{t('orders.view', 'View')}</button>}
             </div>
           </div>
         ))}
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 20 }}>
-        <Link to="/diagnostics" className="btn btn-primary">Book Another Test</Link>
+        <Link to="/diagnostics" className="btn btn-primary">{t('orders.bookAnother', 'Book Another Test')}</Link>
       </div>
     </div>
   );

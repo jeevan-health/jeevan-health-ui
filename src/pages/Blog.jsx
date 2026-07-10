@@ -1,7 +1,9 @@
+import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import useCmsStore from '../stores/cmsStore';
 
 export default function Blog() {
+  const t = useT();
   const blog = useCmsStore(s => s.content?.blog) || {};
   const posts = (blog.posts || []).filter(p => p.active !== false);
   const bgColors = ['#1866C9', '#16a34a', '#7c3aed', '#dc2626', '#0891b2', '#e65100'];
@@ -10,13 +12,13 @@ export default function Blog() {
     <div>
       <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: '0 0 8px', letterSpacing: -0.5 }}>{blog.pageTitle || 'Health Blog'}</h1>
+          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: '0 0 8px', letterSpacing: -0.5 }}>{blog.pageTitle || t('blog.pageTitle', 'Health Blog')}</h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: 0, lineHeight: 1.5 }}>{blog.pageSubtitle || ''}</p>
         </div>
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px' }}>
-        {posts.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>No blog posts yet.</p>}
+        {posts.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>{t('blog.noPosts', 'No blog posts yet.')}</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {posts.map((post, i) => (
             <Link key={post.id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -32,7 +34,7 @@ export default function Blog() {
                     </div>
                     <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 6px', lineHeight: 1.3 }}>{post.title}</h2>
                     <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.5 }}>{post.excerpt}</p>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>By {post.author}</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>{t('blog.by', 'By')} {post.author}</div>
                   </div>
                 </div>
               </div>

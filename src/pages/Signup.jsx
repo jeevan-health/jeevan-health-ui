@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 
 function roleRedirect(role) {
@@ -7,6 +8,7 @@ function roleRedirect(role) {
 }
 
 export default function Signup() {
+  const t = useT();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState(1);
@@ -18,7 +20,7 @@ export default function Signup() {
 
   async function handleSendOtp(e) {
     e.preventDefault();
-    if (phone.length !== 10) { setError('Enter a valid 10-digit phone number'); return; }
+    if (phone.length !== 10) { setError(t('signup.error.invalidPhone', 'Enter a valid 10-digit phone number')); return; }
     setError('');
     setLoading(true);
     await new Promise(r => setTimeout(r, 800));
@@ -28,13 +30,13 @@ export default function Signup() {
 
   async function handleVerify(e) {
     e.preventDefault();
-    if (otp.length < 4) { setError('Enter the OTP'); return; }
+    if (otp.length < 4) { setError(t('signup.error.enterOtp', 'Enter the OTP')); return; }
     setError('');
     setLoading(true);
     const ok = await verifyOtp(phone, otp);
     setLoading(false);
     if (ok) navigate(roleRedirect(useAuthStore.getState().user?.role), { replace: true });
-    else setError('Invalid OTP. Try again.');
+    else setError(t('signup.error.invalidOtp', 'Invalid OTP. Try again.'));
   }
 
   async function handleGoogleLogin() {
@@ -43,17 +45,17 @@ export default function Signup() {
     const ok = await googleLogin();
     setLoading(false);
     if (ok) navigate(roleRedirect(useAuthStore.getState().user?.role), { replace: true });
-    else setError('Google login failed. Try again.');
+    else setError(t('signup.error.googleFailed', 'Google login failed. Try again.'));
   }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-body)', padding: 16 }}>
       <div className="card" style={{ maxWidth: 400, width: '100%', padding: 32 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <img src="https://www.jeevanhealthcare.com/logo.png" alt="Jeevan HealthCare at Home" style={{ height: 48, marginBottom: 8 }} onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
+          <img src="https://www.jeevanhealthcare.com/logo.png" alt={t('signup.logo.alt', 'Jeevan HealthCare at Home')} style={{ height: 48, marginBottom: 8 }} onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
           <div style={{ display: 'none', fontSize: 36, marginBottom: 8 }}>⚕️</div>
-          <h1 style={{ fontSize: 20, fontWeight: 700 }}>Welcome to Jeevan HealthCare at Home</h1>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>Login to book tests and manage your health</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>{t('signup.welcome.title', 'Welcome to Jeevan HealthCare at Home')}</h1>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{t('signup.welcome.subtitle', 'Login to book tests and manage your health')}</p>
         </div>
 
         {error && <div style={{ padding: '10px 14px', background: '#fee2e2', color: '#dc2626', borderRadius: 8, fontSize: 12, marginBottom: 12 }}>{error}</div>}
@@ -61,14 +63,14 @@ export default function Signup() {
         {/* Google Login */}
         {showGoogleConsent ? (
           <div style={{ padding: 16, background: '#f8f9fa', borderRadius: 12, marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Continue with Google</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('signup.google.title', 'Continue with Google')}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
-              Jeevan HealthCare at Home would like to access your <strong>name, email address, and profile picture</strong> from your Google account for account creation and personalization.
+              {t('signup.google.consent.prefix', 'Jeevan HealthCare at Home would like to access your')} <strong>{t('signup.google.consent.fields', 'name, email address, and profile picture')}</strong> {t('signup.google.consent.suffix', 'from your Google account for account creation and personalization.')}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setShowGoogleConsent(false)} className="btn btn-outline" style={{ flex: 1, fontSize: 12, justifyContent: 'center' }}>Cancel</button>
+              <button onClick={() => setShowGoogleConsent(false)} className="btn btn-outline" style={{ flex: 1, fontSize: 12, justifyContent: 'center' }}>{t('signup.google.cancel', 'Cancel')}</button>
               <button onClick={handleGoogleLogin} disabled={loading} className="btn btn-primary" style={{ flex: 1, fontSize: 12, justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
-                {loading ? 'Signing in...' : 'Allow'}
+                {loading ? t('signup.google.signingIn', 'Signing in...') : t('signup.google.allow', 'Allow')}
               </button>
             </div>
           </div>
@@ -86,49 +88,49 @@ export default function Signup() {
               <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
               <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
             </svg>
-            {loading ? 'Signing in...' : 'Continue with Google'}
+            {loading ? t('signup.google.signingIn', 'Signing in...') : t('signup.google.continue', 'Continue with Google')}
           </button>
         )}
 
         {/* Divider */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <div style={{ flex: 1, height: 1, background: '#e8edf2' }} />
-          <span style={{ fontSize: 11, color: 'var(--text-light)' }}>or with OTP</span>
+          <span style={{ fontSize: 11, color: 'var(--text-light)' }}>{t('signup.divider.orOtp', 'or with OTP')}</span>
           <div style={{ flex: 1, height: 1, background: '#e8edf2' }} />
         </div>
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp}>
-            <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>Phone Number</label>
+            <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>{t('signup.phone.label', 'Phone Number')}</label>
             <div style={{ display: 'flex', gap: 8 }}>
               <span style={{ padding: '10px 0', fontSize: 14, color: 'var(--text-secondary)' }}>+91</span>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="Enter your phone number" className="input" required />
+                placeholder={t('signup.phone.placeholder', 'Enter your phone number')} className="input" required />
             </div>
             <button type="submit" className="btn btn-primary btn-block btn-lg mt-4" disabled={loading}>
-              {loading ? 'Sending OTP...' : 'Send OTP'}
+              {loading ? t('signup.phone.sendingOtp', 'Sending OTP...') : t('signup.phone.sendOtp', 'Send OTP')}
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerify}>
-            <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>Enter OTP</label>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>OTP sent to +91 {phone}</p>
+            <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>{t('signup.otp.label', 'Enter OTP')}</label>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('signup.otp.sentTo', 'OTP sent to +91')} {phone}</p>
             <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="Enter OTP" className="input" required />
+              placeholder={t('signup.otp.placeholder', 'Enter OTP')} className="input" required />
             <button type="submit" className="btn btn-primary btn-block btn-lg mt-4" disabled={loading}>
-              {loading ? 'Verifying...' : 'Verify & Login'}
+              {loading ? t('signup.otp.verifying', 'Verifying...') : t('signup.otp.verifyLogin', 'Verify & Login')}
             </button>
             <button type="button" onClick={() => setStep(1)} style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: 12, width: '100%', textAlign: 'center' }}>
-              Change phone number
+              {t('signup.otp.changePhone', 'Change phone number')}
             </button>
           </form>
         )}
 
         <p style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 16 }}>
-          By continuing, you agree to our Terms & Privacy Policy
+          {t('signup.terms', 'By continuing, you agree to our Terms & Privacy Policy')}
         </p>
         <div style={{ textAlign: 'center', marginTop: 8 }}>
-          <Link to="/" style={{ fontSize: 12, color: 'var(--primary)' }}>← Back to Home</Link>
+          <Link to="/" style={{ fontSize: 12, color: 'var(--primary)' }}>{t('signup.backToHome', '← Back to Home')}</Link>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../../i18n/LanguageProvider';
 
 const PACKAGES = [
   { name: 'Basic Health Checkup', price: 999, mrp: 2499, tests: 52, badge: null, color: '#1866C9',
@@ -16,6 +17,7 @@ const PACKAGES = [
 const ALL_FEATURES = ['Blood Tests', 'Diabetes Screening', 'Thyroid Profile', 'Vitamin Tests', 'Heart Health Tests', 'Liver Function', 'Kidney Function', 'ECG', 'Doctor Consultation', 'Home Collection', 'Digital Reports'];
 
 export default function PackageCompare() {
+  const t = useT();
   const [onlyDiff, setOnlyDiff] = useState(false);
 
   const visibleFeatures = onlyDiff
@@ -25,13 +27,13 @@ export default function PackageCompare() {
   return (
     <div style={{ background: '#F5FAFF', borderRadius: 20, padding: '24px 16px', margin: '24px 0' }}>
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>Compare Health Checkup Packages</h2>
-        <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>Choose the package that best matches your healthcare needs.</p>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px' }}>{t('pkgCompare.title', 'Compare Health Checkup Packages')}</h2>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>{t('pkgCompare.subtitle', 'Choose the package that best matches your healthcare needs.')}</p>
       </div>
 
       <label style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12, cursor: 'pointer' }}>
         <input type="checkbox" checked={onlyDiff} onChange={e => setOnlyDiff(e.target.checked)} style={{ accentColor: '#1866C9' }} />
-        Show only differences
+        {t('pkgCompare.showDiff', 'Show only differences')}
       </label>
 
       {/* Desktop Table */}
@@ -40,14 +42,14 @@ export default function PackageCompare() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 600 }}>
             <thead>
               <tr style={{ background: '#fff' }}>
-                <th style={{ textAlign: 'left', padding: '12px 14px', borderBottom: '2px solid #e8edf2', fontWeight: 700, color: '#1a1a1a' }}>Features</th>
+                <th style={{ textAlign: 'left', padding: '12px 14px', borderBottom: '2px solid #e8edf2', fontWeight: 700, color: '#1a1a1a' }}>{t('pkgCompare.features', 'Features')}</th>
                 {PACKAGES.map(p => (
                   <th key={p.name} style={{ textAlign: 'center', padding: '12px 10px', borderBottom: '2px solid #e8edf2', position: 'relative', background: p.badge ? '#f0fdf4' : '#fff' }}>
                     {p.badge && <div style={{ fontSize: 8, fontWeight: 700, color: '#166534', background: '#bbf7d0', padding: '2px 8px', borderRadius: 4, display: 'inline-block', marginBottom: 4 }}>⭐ {p.badge}</div>}
                     <div style={{ fontSize: 13, fontWeight: 700, color: p.color }}>{p.name}</div>
                     <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a1a', marginTop: 2 }}>₹{p.price}</div>
                     <div style={{ fontSize: 10, color: 'var(--text-secondary)', textDecoration: 'line-through' }}>₹{p.mrp}</div>
-                    <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>{p.tests} Tests</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>{p.tests} {t('pkgCompare.tests', 'Tests')}</div>
                   </th>
                 ))}
               </tr>
@@ -64,7 +66,7 @@ export default function PackageCompare() {
                 </tr>
               ))}
               <tr style={{ background: '#f8f9fa' }}>
-                <td style={{ padding: '10px 14px', fontWeight: 600, fontSize: 11 }}>Best For</td>
+                <td style={{ padding: '10px 14px', fontWeight: 600, fontSize: 11 }}>{t('pkgCompare.bestFor', 'Best For')}</td>
                 {PACKAGES.map(p => (
                   <td key={p.name} style={{ textAlign: 'center', padding: '10px', fontSize: 11, color: 'var(--text-secondary)' }}>{p.bestFor}</td>
                 ))}
@@ -78,7 +80,7 @@ export default function PackageCompare() {
               textAlign: 'center', padding: '10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textDecoration: 'none',
               background: p.badge ? '#16a34a' : 'var(--primary)', color: '#fff', display: 'block',
             }}>
-              {p.badge ? '⭐ Book Now' : 'Book Now'}
+              {p.badge ? t('pkgCompare.bookNowBadge', '⭐ Book Now') : t('pkgCompare.bookNow', 'Book Now')}
             </Link>
           ))}
         </div>
@@ -98,7 +100,7 @@ export default function PackageCompare() {
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
                 <span style={{ fontSize: 20, fontWeight: 800 }}>₹{p.price}</span>
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)', textDecoration: 'line-through' }}>₹{p.mrp}</span>
-                <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 600 }}>{p.tests} Tests</span>
+                <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 600 }}>{p.tests} {t('pkgCompare.tests', 'Tests')}</span>
               </div>
             </div>
             <div style={{ padding: '10px 16px' }}>
@@ -109,7 +111,7 @@ export default function PackageCompare() {
                 </div>
               ))}
               <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 6, padding: '4px 0', borderTop: '1px solid #f5f5f5' }}>
-                Best for: <strong>{p.bestFor}</strong>
+                {t('pkgCompare.bestForLabel', 'Best for')}: <strong>{p.bestFor}</strong>
               </div>
             </div>
             <div style={{ padding: '10px 16px 14px' }}>
@@ -117,7 +119,7 @@ export default function PackageCompare() {
                 display: 'block', textAlign: 'center', padding: '10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textDecoration: 'none',
                 background: p.badge ? '#16a34a' : 'var(--primary)', color: '#fff',
               }}>
-                {p.badge ? '⭐ Book Now' : 'Book Now'}
+                {p.badge ? t('pkgCompare.bookNowBadge', '⭐ Book Now') : t('pkgCompare.bookNow', 'Book Now')}
               </Link>
             </div>
           </div>

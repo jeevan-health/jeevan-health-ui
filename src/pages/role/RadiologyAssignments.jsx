@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE = [
@@ -9,14 +10,15 @@ const SAMPLE = [
 ];
 
 export default function RadiologyAssignments() {
+  const t = useT();
   const [filter, setFilter] = useState('');
   const filtered = filter ? SAMPLE.filter(a => a.status === filter) : SAMPLE;
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>📋 Assignments</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.radiology.assignments', '📋 Assignments')}</h2>
       <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
         {['', 'pending', 'in_progress', 'completed'].map(s => (
-          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#6366f1' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s || 'All'}</button>
+          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#6366f1' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s || t('role.radiology.all', 'All')}</button>
         ))}
       </div>
       {filtered.map((a, i) => (

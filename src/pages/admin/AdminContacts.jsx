@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useAdminStore from '../../stores/adminStore';
 
 export default function AdminContacts() {
+  const t = useT();
   const contacts = useAdminStore(s => s.contacts);
   const refreshContacts = useAdminStore(s => s.refreshContacts);
   const markContactRead = useAdminStore(s => s.markContactRead);
@@ -11,7 +13,7 @@ export default function AdminContacts() {
   return (
     <div>
       {contacts.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>No contact submissions yet</div>
+        <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>{t('admin.contacts.no_contacts', 'No contact submissions yet')}</div>
       ) : (
         <div style={{ display: 'grid', gap: 12 }}>
           {contacts.map(c => (

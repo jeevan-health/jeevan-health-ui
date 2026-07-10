@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useAuditStore, { PAGE_SIZE } from '../../stores/auditStore';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 12 };
@@ -38,6 +39,7 @@ const formatTime = (ts) => {
 };
 
 export default function AdminAuditLog() {
+  const t = useT();
   const log = useAuditStore(s => s.log);
   const getFiltered = useAuditStore(s => s.getFiltered);
   const clearLogs = useAuditStore(s => s.clearLogs);

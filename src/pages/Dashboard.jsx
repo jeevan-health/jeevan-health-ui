@@ -4,6 +4,7 @@ import useDashboardStore, { computeHealthScore, EMPTY_HEALTH } from '../stores/d
 import useAuthStore from '../stores/authStore';
 import DailyTracker from '../components/DailyTracker';
 
+import { useT } from '../i18n/LanguageProvider';
 import useDailyActivityStore from '../stores/dailyActivityStore';
 import HealthToolsGrid from '../components/healthTools/HealthToolsGrid';
 
@@ -35,7 +36,7 @@ function getSmartRecommendations(computed, healthData) {
   return recs.slice(0, 3);
 }
 
-function StepIndicator({ current }) {
+function StepIndicator({ current, t }) {
   return (
     <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
       {STEP_LABELS.map((label, i) => (
@@ -43,7 +44,7 @@ function StepIndicator({ current }) {
           <div style={{ width: 24, height: 24, borderRadius: '50%', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, background: i + 1 <= current ? '#1866C9' : '#e8edf2', color: i + 1 <= current ? '#fff' : '#94a3b8' }}>
             {i + 1}
           </div>
-          <div style={{ fontSize: 9, color: i + 1 <= current ? '#1866C9' : '#94a3b8', fontWeight: i + 1 === current ? 700 : 500 }}>{label}</div>
+          <div style={{ fontSize: 9, color: i + 1 <= current ? '#1866C9' : '#94a3b8', fontWeight: i + 1 === current ? 700 : 500 }}>{t ? t(`dashboard.health.step.${label.toLowerCase()}`, label) : label}</div>
         </div>
       ))}
     </div>
@@ -145,6 +146,7 @@ function TrendMiniBar({ values, color = '#1866C9' }) {
 }
 
 export default function Dashboard() {
+  const t = useT();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState(() => {
@@ -267,7 +269,7 @@ export default function Dashboard() {
             borderRight: vertical && activeSection === item.key ? '3px solid #1866C9' : '3px solid transparent',
             borderBottom: !vertical && activeSection === item.key ? '2px solid #1866C9' : '2px solid transparent',
           }}>
-          <span>{item.icon}</span> <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+          <span>{item.icon}</span> <span style={{ whiteSpace: 'nowrap' }}>{t(`dashboard.nav.${item.key}`, item.label)}</span>
         </button>
       ))}
     </nav>
@@ -278,7 +280,7 @@ export default function Dashboard() {
       {/* Sidebar */}
       <aside className="dash-sidebar">
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>My Health</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>{t('dashboard.sidebar.myHealth', 'My Health')}</div>
         </div>
         {renderNav(true)}
       </aside>
@@ -296,8 +298,8 @@ export default function Dashboard() {
                 {p.name.charAt(0)}
               </div>
               <div style={{ minWidth: 0 }}>
-                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{GREETING_ICON} Good {GREETING} {p.name.split(' ')[0]}</h1>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>Last Check: <strong>{p.lastCheckup}</strong></p>
+                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{GREETING_ICON} {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)} {p.name.split(' ')[0]}</h1>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>{t('dashboard.lastCheck', 'Last Check:')} <strong>{p.lastCheckup}</strong></p>
               </div>
             </div>
 
@@ -320,7 +322,7 @@ export default function Dashboard() {
                     {healthScoreComputed.recommendation.icon}
                   </div>
                   <div>
-                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>HEALTH SCORE</div>
+                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
                     <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
                     <div style={{ fontSize: 9, color: healthScoreComputed.recommendation.color, fontWeight: 600, lineHeight: 1.1 }}>{healthScoreComputed.recommendation.zone}</div>
                   </div>
@@ -329,7 +331,7 @@ export default function Dashboard() {
                 <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>
                   <div style={{ fontSize: 22 }}>🩺</div>
                   <div>
-                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>HEALTH SCORE</div>
+                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#1866C9', lineHeight: 1.2 }}>--/100</div>
                   </div>
                 </div>
@@ -340,22 +342,22 @@ export default function Dashboard() {
           {/* CTA buttons */}
           {!store.healthData && (
             <button onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 12, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 44, marginBottom: 10 }}>
-              🩺 Start Health Assessment
+              {t('dashboard.startAssessment', '🩺 Start Health Assessment')}
             </button>
           )}
           <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>🧪</span>
               <div style={{ lineHeight: 1.3 }}>
-                <div style={{ fontWeight: 700 }}>Book a Test</div>
-                <div style={{ fontSize: 11, opacity: 0.8 }}>Home Collection</div>
+                <div style={{ fontWeight: 700 }}>{t('dashboard.bookTest', 'Book a Test')}</div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.homeCollection', 'Home Collection')}</div>
               </div>
             </button>
             <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>📄</span>
               <div style={{ lineHeight: 1.3 }}>
-                <div style={{ fontWeight: 700 }}>Upload Report</div>
-                <div style={{ fontSize: 11, opacity: 0.8 }}>Prescription</div>
+                <div style={{ fontWeight: 700 }}>{t('dashboard.uploadReport', 'Upload Report')}</div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.prescription', 'Prescription')}</div>
               </div>
             </button>
           </div>
@@ -375,7 +377,7 @@ export default function Dashboard() {
                   cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 24,
                   transition: 'all 0.15s', minHeight: 40,
                 }}>
-                <span>{item.icon}</span> <span>{item.label}</span>
+                <span>{item.icon}</span> <span>{t(`dashboard.nav.${item.key}`, item.label)}</span>
               </button>
             ))}
           </nav>
@@ -385,10 +387,10 @@ export default function Dashboard() {
         {activeSection === 'overview' && (
           <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 24 }}>
             {[
-              { icon: '📅', label: 'Upcoming Bookings', value: upcoming.length, color: '#2563eb', bg: '#dbeafe' },
-              { icon: '🧪', label: 'Reports Available', value: reports.length, color: '#16a34a', bg: '#dcfce7' },
-              { icon: '👨‍👩‍👧‍👦', label: 'Family Members', value: family.length, color: '#c2410c', bg: '#fed7aa' },
-              { icon: '📦', label: 'Active Orders', value: activeOrders, color: '#7c3aed', bg: '#ede9fe' },
+              { icon: '📅', label: t('dashboard.overview.upcoming', 'Upcoming Bookings'), value: upcoming.length, color: '#2563eb', bg: '#dbeafe' },
+              { icon: '🧪', label: t('dashboard.overview.reports', 'Reports Available'), value: reports.length, color: '#16a34a', bg: '#dcfce7' },
+              { icon: '👨‍👩‍👧‍👦', label: t('dashboard.overview.family', 'Family Members'), value: family.length, color: '#c2410c', bg: '#fed7aa' },
+              { icon: '📦', label: t('dashboard.overview.orders', 'Active Orders'), value: activeOrders, color: '#7c3aed', bg: '#ede9fe' },
             ].map(card => (
               <div key={card.label} className="card" style={{ textAlign: 'center', cursor: 'pointer', padding: '18px 12px', borderRadius: 16 }} onClick={() => setActiveSection(card.icon === '📅' ? 'bookings' : card.icon === '🧪' ? 'reports' : card.icon === '👨‍👩‍👧‍👦' ? 'family' : 'wallet')}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>{card.icon}</div>
@@ -400,12 +402,12 @@ export default function Dashboard() {
         )}
 
         {/* ===== UPCOMING BOOKINGS ===== */}
-        <Section id="bookings" title="Upcoming Bookings" icon="📅" active={activeSection}>
+        <Section id="bookings" title={t('dashboard.section.bookings', 'Upcoming Bookings')} icon="📅" active={activeSection}>
           {upcoming.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: 32 }}>
               <div style={{ fontSize: 36, marginBottom: 8 }}>📅</div>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>No upcoming bookings</p>
-              <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">Book a Test</button>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('dashboard.noUpcoming', 'No upcoming bookings')}</p>
+              <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">{t('dashboard.bookTestBtn', 'Book a Test')}</button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -424,15 +426,15 @@ export default function Dashboard() {
                     <span>📍 {b.location}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    <button className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>View</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(b); setRescheduleDate(null); setRescheduleSlot(null); }}>Reschedule</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Cancel booking for ${b.test} on ${b.date}?`)) { store.cancelBooking(b.id); } }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>Cancel</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>{t('dashboard.view', 'View')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(b); setRescheduleDate(null); setRescheduleSlot(null); }}>{t('dashboard.reschedule', 'Reschedule')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(t('dashboard.cancelConfirm', 'Cancel booking for') + ` ${b.test} ${t('dashboard.onDate', 'on')} ${b.date}?`)) { store.cancelBooking(b.id); } }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>{t('dashboard.cancel', 'Cancel')}</button>
                   </div>
                 </div>
               ))}
             </div>
           )}
-          <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>+ Book New Test</button>
+          <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>{t('dashboard.bookNewTest', '+ Book New Test')}</button>
         </Section>
 
         {/* Booking Detail Modal */}
@@ -440,7 +442,7 @@ export default function Dashboard() {
           <div className="panel-overlay" onClick={() => setShowBookingDetail(null)}>
             <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
               <div className="panel-header">
-                <h3 style={{ fontSize: 15, fontWeight: 700 }}>📋 Booking Details</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('dashboard.bookingDetail.title', '📋 Booking Details')}</h3>
                 <button onClick={() => setShowBookingDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
               </div>
               <div className="panel-body">
@@ -450,23 +452,23 @@ export default function Dashboard() {
                     <Badge variant={showBookingDetail.status === 'Confirmed' ? 'green' : 'yellow'}>{showBookingDetail.status}</Badge>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Booking ID</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.bookingId', 'Booking ID')}</span>
                     <span style={{ fontWeight: 600 }}>{showBookingDetail.id}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Date</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.date', 'Date')}</span>
                     <span style={{ fontWeight: 600 }}>{showBookingDetail.date}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Time</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.time', 'Time')}</span>
                     <span style={{ fontWeight: 600 }}>{showBookingDetail.time}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Location</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.location', 'Location')}</span>
                     <span style={{ fontWeight: 600 }}>{showBookingDetail.location}</span>
                   </div>
                   <div style={{ marginTop: 8, background: '#e8f5e9', padding: '10px', borderRadius: 8, fontSize: 11, color: '#2e7d32' }}>
-                    ✅ A confirmation message has been sent to your registered mobile number.
+                    {t('dashboard.bookingDetail.confirmationMsg', '✅ A confirmation message has been sent to your registered mobile number.')}
                   </div>
                 </div>
               </div>
@@ -479,12 +481,12 @@ export default function Dashboard() {
           <div className="panel-overlay" onClick={() => setShowReschedule(null)}>
             <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
               <div className="panel-header">
-                <h3 style={{ fontSize: 15, fontWeight: 700 }}>📅 Reschedule Booking</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('dashboard.rescheduleModal.title', '📅 Reschedule Booking')}</h3>
                 <button onClick={() => setShowReschedule(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
               </div>
               <div className="panel-body">
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Select a new date and time for <strong>{showReschedule.test}</strong></p>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>New Date</div>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('dashboard.rescheduleModal.selectNew', 'Select a new date and time for')} <strong>{showReschedule.test}</strong></p>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('dashboard.rescheduleModal.newDate', 'New Date')}</div>
                 <div style={{ display: 'flex', gap: 4, overflow: 'auto', paddingBottom: 8, marginBottom: 12 }}>
                   {rescheduleDates.map(d => {
                     const fmt = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -492,13 +494,13 @@ export default function Dashboard() {
                     return (
                       <button key={d.toISOString()} onClick={() => setRescheduleDate(d)}
                         style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, border: `2px solid ${rescheduleDate?.toDateString() === d.toDateString() ? 'var(--primary)' : 'var(--border)'}`, background: rescheduleDate?.toDateString() === d.toDateString() ? 'var(--primary)' : '#fff', color: rescheduleDate?.toDateString() === d.toDateString() ? '#fff' : 'var(--text-body)', cursor: 'pointer', fontSize: 11, fontWeight: rescheduleDate?.toDateString() === d.toDateString() ? 700 : 500, fontFamily: 'inherit', textAlign: 'center', minWidth: 70 }}>
-                        <div style={{ fontSize: 9, opacity: 0.8 }}>{isToday ? 'Today' : fmt.split(' ')[0]}</div>
+                        <div style={{ fontSize: 9, opacity: 0.8 }}>{isToday ? t('dashboard.today', 'Today') : fmt.split(' ')[0]}</div>
                         <div>{fmt.split(' ').slice(1).join(' ')}</div>
                       </button>
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>New Time</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t('dashboard.rescheduleModal.newTime', 'New Time')}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
                   {timeSlots.map(s => (
                     <button key={s} onClick={() => setRescheduleSlot(s)}
@@ -509,22 +511,22 @@ export default function Dashboard() {
                     </button>
                   ))}
                 </div>
-                <button onClick={() => { if (rescheduleDate && rescheduleSlot) { store.cancelBooking(showReschedule.id); setShowReschedule(null); alert(`Booking rescheduled to ${rescheduleDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })} at ${rescheduleSlot}`); } else { alert('Please select both date and time'); } }} className="btn btn-primary btn-block">Confirm Reschedule</button>
+                <button onClick={() => { if (rescheduleDate && rescheduleSlot) { store.cancelBooking(showReschedule.id); setShowReschedule(null); alert(`${t('dashboard.rescheduleModal.confirmed', 'Booking rescheduled to')} ${rescheduleDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })} ${t('dashboard.rescheduleModal.at', 'at')} ${rescheduleSlot}`); } else { alert(t('dashboard.rescheduleModal.selectBoth', 'Please select both date and time')); } }} className="btn btn-primary btn-block">{t('dashboard.rescheduleModal.confirm', 'Confirm Reschedule')}</button>
               </div>
             </div>
           </div>
         )}
 
         {/* ===== MY REPORTS ===== */}
-        <Section id="reports" title="My Reports" icon="🧪" active={activeSection}>
+        <Section id="reports" title={t('dashboard.section.reports', 'My Reports')} icon="🧪" active={activeSection}>
           {/* Filter/search bar */}
           <div className="report-search-bar" style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'nowrap', alignItems: 'center', width: '100%' }}>
-            <input placeholder="Search by test name..." className="input" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />
+            <input placeholder={t('dashboard.reports.searchPlaceholder', 'Search by test name...')} className="input" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />
             <select className="select" style={{ width: 130, flexShrink: 0, fontSize: 12, padding: '10px 8px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportFilter} onChange={e => setReportFilter(e.target.value)}>
-              <option>All Reports</option>
-              <option>This Month</option>
-              <option>Last 3 Months</option>
-              <option>Last 6 Months</option>
+              <option>{t('dashboard.reports.filterAll', 'All Reports')}</option>
+              <option>{t('dashboard.reports.filterMonth', 'This Month')}</option>
+              <option>{t('dashboard.reports.filter3Months', 'Last 3 Months')}</option>
+              <option>{t('dashboard.reports.filter6Months', 'Last 6 Months')}</option>
             </select>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -548,7 +550,7 @@ export default function Dashboard() {
                   </div>
                   <Badge variant={r.status === 'Normal' ? 'green' : r.status === 'Low' ? 'orange' : 'yellow'}>{r.status}</Badge>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    <button className="btn btn-outline btn-sm" onClick={() => setFullReportIndex(fullReportIndex === i ? null : i)}>View</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => setFullReportIndex(fullReportIndex === i ? null : i)}>{t('dashboard.view', 'View')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => {
                       const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
                       const text = `📄 ${r.test} — ${r.date}\n${lines}\n\n— Jeevan HealthCare at Home`;
@@ -556,16 +558,16 @@ export default function Dashboard() {
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a'); a.href = url; a.download = `${r.test.replace(/\s+/g, '_')}.txt`;
                       a.click(); URL.revokeObjectURL(url);
-                    }}>📥 PDF</button>
+                    }}>{t('dashboard.reports.pdf', '📥 PDF')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => {
                       const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
                       const text = `📄 ${r.test} — ${r.date}\n\n${lines}\n\nShared from Jeevan HealthCare at Home`;
                       if (navigator.share) {
                         navigator.share({ title: `${r.test} - Jeevan HealthCare at Home`, text });
                       } else {
-                        navigator.clipboard.writeText(text).then(() => alert('✅ Report copied to clipboard. Share via WhatsApp, Email, etc.'));
+                        navigator.clipboard.writeText(text).then(() => alert(t('dashboard.reports.copied', '✅ Report copied to clipboard. Share via WhatsApp, Email, etc.')));
                       }
-                    }}>📤 Share</button>
+                    }}>{t('dashboard.reports.share', '📤 Share')}</button>
                   </div>
                 </div>
 
@@ -573,23 +575,23 @@ export default function Dashboard() {
                 {fullReportIndex === i && (
                   <div style={{ marginTop: 12, padding: 12, background: '#f8f9fa', borderRadius: 10, fontSize: 12 }}>
                     <div style={{ fontWeight: 600, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
-                      <span>Test Values</span>
+                      <span>{t('dashboard.reports.testValues', 'Test Values')}</span>
                       <button className="btn btn-outline btn-sm" onClick={() => {
                         const trend = store.healthTrends?.hba1c;
                         if (trend && trend.length > 1) {
                           const vals = trend.map(t => `${t.date}: ${t.value}%`).join('\n');
-                          alert(`📈 HbA1c Trend:\n\n${vals}\n\nShowing last ${trend.length} readings`);
+                          alert(`${t('dashboard.reports.hba1cTrend', '📈 HbA1c Trend:')}\n\n${vals}\n\n${t('dashboard.reports.showingReadings', 'Showing last')} ${trend.length} ${t('dashboard.reports.readings', 'readings')}`);
                         } else {
-                          alert('📈 Trend data available only for HbA1c. More trends coming soon.');
+                          alert(t('dashboard.reports.trendUnavailable', '📈 Trend data available only for HbA1c. More trends coming soon.'));
                         }
-                      }}>📈 View Trend</button>
+                      }}>{t('dashboard.reports.viewTrend', '📈 View Trend')}</button>
                     </div>
                     <div style={{ display: 'grid', gap: 6 }}>
                       {Object.entries(r.values).map(([key, val]) => (
                         <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: '#fff', borderRadius: 6, border: '1px solid #e8edf2' }}>
                           <span style={{ fontWeight: 500, flex: 1 }}>{key}</span>
                           <span style={{ fontWeight: 700, color: val.flag === 'high' || val.flag === 'low' ? '#dc2626' : '#16a34a', marginRight: 12 }}>{val.value} {val.unit}</span>
-                          <span style={{ color: 'var(--text-light)', fontSize: 10 }}>Range: {val.range}</span>
+                          <span style={{ color: 'var(--text-light)', fontSize: 10 }}>{t('dashboard.reports.range', 'Range:')} {val.range}</span>
                         </div>
                       ))}
                     </div>
@@ -601,16 +603,16 @@ export default function Dashboard() {
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a'); a.href = url; a.download = `${r.test.replace(/\s+/g, '_')}_Report.txt`;
                         a.click(); URL.revokeObjectURL(url);
-                      }}>📥 Download All as ZIP</button>
+                      }}>{t('dashboard.reports.downloadZip', '📥 Download All as ZIP')}</button>
                       <button className="btn btn-outline btn-sm" style={{ color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
                         const lines = Object.entries(r.values).map(([key, val]) => `${key}: ${val.value} ${val.unit} (Range: ${val.range})`).join('\n');
                         const text = `🩺 ${r.test} — ${r.date}\n\n${lines}\n\nShared from Jeevan HealthCare at Home`;
                         if (navigator.share) {
                           navigator.share({ title: `${r.test} - Jeevan HealthCare at Home`, text });
                         } else {
-                          navigator.clipboard.writeText(text).then(() => alert('✅ Report summary copied! Share it with your doctor via WhatsApp or Email.'));
+                          navigator.clipboard.writeText(text).then(() => alert(t('dashboard.reports.summaryCopied', '✅ Report summary copied! Share it with your doctor via WhatsApp or Email.')));
                         }
-                      }}>🩺 Share with Doctor</button>
+                      }}>{t('dashboard.reports.shareDoctor', '🩺 Share with Doctor')}</button>
                     </div>
                   </div>
                 )}
@@ -620,7 +622,7 @@ export default function Dashboard() {
         </Section>
 
         {/* ===== INVOICES ===== */}
-        <Section id="invoices" title="Invoices & Payments" icon="📄" active={activeSection}>
+        <Section id="invoices" title={t('dashboard.section.invoices', 'Invoices & Payments')} icon="📄" active={activeSection}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {invoices.map(inv => (
               <div key={inv.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -633,20 +635,20 @@ export default function Dashboard() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#1866C9' }}>₹{inv.amount}</div>
-                  <Badge variant="green">Paid ✅</Badge>
+                  <Badge variant="green">{t('dashboard.invoices.paid', 'Paid ✅')}</Badge>
                   <button className="btn btn-outline btn-sm" onClick={() => {
                     const text = `Jeevan HealthCare at Home\nTax Invoice\n\nInvoice No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount: ₹${inv.amount}\nStatus: Paid\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThank you for choosing Jeevan HealthCare at Home!`;
                     const blob = new Blob([text], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
                     const el = document.createElement('a'); el.href = url; el.download = `Invoice_${inv.id}.txt`; el.click(); URL.revokeObjectURL(url);
-                  }}>📄 Invoice</button>
+                  }}>{t('dashboard.invoices.invoice', '📄 Invoice')}</button>
                   <button className="btn btn-outline btn-sm" onClick={() => {
                     const text = `Jeevan HealthCare at Home\nPayment Receipt\n\nReceipt No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount Paid: ₹${inv.amount}\nPayment Method: Online\nStatus: Paid ✅\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThis is a computer-generated receipt.`;
                     const blob = new Blob([text], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
                     const el = document.createElement('a'); el.href = url; el.download = `Receipt_${inv.id}.txt`; el.click(); URL.revokeObjectURL(url);
-                  }}>🧾 Receipt</button>
-                  <button className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>🔄 Re-book</button>
+                  }}>{t('dashboard.invoices.receipt', '🧾 Receipt')}</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.invoices.rebook', '🔄 Re-book')}</button>
                 </div>
               </div>
             ))}
@@ -654,7 +656,7 @@ export default function Dashboard() {
         </Section>
 
         {/* ===== FAMILY MEMBERS ===== */}
-        <Section id="family" title="Family Members" icon="👨‍👩‍👧‍👦" active={activeSection}>
+        <Section id="family" title={t('dashboard.section.family', 'Family Members')} icon="👨‍👩‍👧‍👦" active={activeSection}>
           <div className="dash-family-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
             {family.map(m => (
               <div key={m.id} className="card" style={{ cursor: 'pointer' }}>
@@ -664,11 +666,11 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{m.relation} · {m.age} yrs · {m.bloodGroup}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{m.relation} · {m.age} {t('dashboard.family.yrs', 'yrs')} · {m.bloodGroup}</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>
-                  Last Checkup: {m.lastCheckup}
+                  {t('dashboard.family.lastCheckup', 'Last Checkup:')} {m.lastCheckup}
                 </div>
                 {m.abhaId && (
                   <div style={{ fontSize: 10, color: '#1866C9', background: '#e8f0fe', padding: '2px 8px', borderRadius: 6, display: 'inline-block', marginBottom: 8 }}>
@@ -676,10 +678,10 @@ export default function Dashboard() {
                   </div>
                 )}
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    <button className="btn btn-outline btn-sm" onClick={() => setShowRecordsMember(m)} style={{ fontSize: 10, padding: '4px 8px' }}>📋 Records</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ fontSize: 10, padding: '4px 8px' }}>🧪 Book Test</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ fontSize: 10, padding: '4px 8px', color: '#1866C9' }}>✏️ Edit</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`Remove ${m.name}?`)) store.removeFamilyMember(m.id); }} style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}>🗑 Remove</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => setShowRecordsMember(m)} style={{ fontSize: 10, padding: '4px 8px' }}>{t('dashboard.family.records', '📋 Records')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ fontSize: 10, padding: '4px 8px' }}>{t('dashboard.family.bookTest', '🧪 Book Test')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ fontSize: 10, padding: '4px 8px', color: '#1866C9' }}>{t('dashboard.family.edit', '✏️ Edit')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`${t('dashboard.family.removeConfirm', 'Remove')} ${m.name}?`)) store.removeFamilyMember(m.id); }} style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}>{t('dashboard.family.remove', '🗑 Remove')}</button>
                   </div>
               </div>
             ))}
@@ -687,7 +689,7 @@ export default function Dashboard() {
             {/* Add Member Card */}
             <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', borderStyle: 'dashed' }} onClick={() => setShowFamilyModal(true)}>
               <div style={{ fontSize: 32, marginBottom: 8, color: '#1866C9' }}>+</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#1866C9' }}>Add Member</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#1866C9' }}>{t('dashboard.family.addMember', 'Add Member')}</div>
             </div>
           </div>
 
@@ -696,7 +698,7 @@ export default function Dashboard() {
             <div className="panel-overlay" onClick={() => setShowRecordsMember(null)}>
               <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
                 <div className="panel-header">
-                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>📋 {showRecordsMember.name}'s Records</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('dashboard.records.title', "📋 {name}'s Records").replace('{name}', showRecordsMember.name)}</h3>
                   <button onClick={() => setShowRecordsMember(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
                 </div>
                 <div className="panel-body">
@@ -707,28 +709,28 @@ export default function Dashboard() {
                       </div>
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 600 }}>{showRecordsMember.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{showRecordsMember.relation} · {showRecordsMember.age} yrs · {showRecordsMember.bloodGroup}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{showRecordsMember.relation} · {showRecordsMember.age} {t('dashboard.family.yrs', 'yrs')} · {showRecordsMember.bloodGroup}</div>
                       </div>
                     </div>
 
                     <div style={{ fontSize: 12 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Blood Group</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.records.bloodGroup', 'Blood Group')}</span>
                         <span style={{ fontWeight: 600 }}>{showRecordsMember.bloodGroup}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Last Checkup</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.records.lastCheckup', 'Last Checkup')}</span>
                         <span style={{ fontWeight: 600 }}>{showRecordsMember.lastCheckup}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>ABHA ID</span>
-                        <span style={{ fontWeight: 600 }}>{showRecordsMember.abhaId || 'Not linked'}</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.records.abha', 'ABHA ID')}</span>
+                        <span style={{ fontWeight: 600 }}>{showRecordsMember.abhaId || t('dashboard.records.notLinked', 'Not linked')}</span>
                       </div>
                     </div>
 
                     {reports.length > 0 && (
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Recent Reports</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('dashboard.records.recentReports', 'Recent Reports')}</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                           {reports.filter(r => r.status !== 'Normal' || true).slice(0, 3).map(r => (
                             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: '#f8f9fa', borderRadius: 6, fontSize: 11 }}>
@@ -741,7 +743,7 @@ export default function Dashboard() {
                     )}
 
                     <button onClick={() => { setShowRecordsMember(null); navigate('/diagnostics'); }} className="btn btn-primary btn-block" style={{ fontSize: 12 }}>
-                      Book Test for {showRecordsMember.name}
+                      {t('dashboard.records.bookTest', 'Book Test for')} {showRecordsMember.name}
                     </button>
                   </div>
                 </div>
@@ -754,31 +756,31 @@ export default function Dashboard() {
             <div className="panel-overlay" onClick={() => setShowFamilyModal(false)}>
               <div className="panel" onClick={e => e.stopPropagation()}>
                 <div className="panel-header">
-                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>{editingFamily ? 'Edit Family Member' : 'Add Family Member'}</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 700 }}>{editingFamily ? t('dashboard.familyModal.edit', 'Edit Family Member') : t('dashboard.familyModal.add', 'Add Family Member')}</h3>
                   <button onClick={() => { setShowFamilyModal(false); setEditingFamily(null); setFamilyForm({ name: '', relation: '', age: '', gender: '' }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
                 </div>
                 <div className="panel-body">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <input className="input" placeholder="Full Name" value={familyForm.name} onChange={e => setFamilyForm(p => ({ ...p, name: e.target.value }))} />
+                    <input className="input" placeholder={t('dashboard.familyModal.namePlaceholder', 'Full Name')} value={familyForm.name} onChange={e => setFamilyForm(p => ({ ...p, name: e.target.value }))} />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       <select className="select" value={familyForm.relation} onChange={e => setFamilyForm(p => ({ ...p, relation: e.target.value }))}>
-                        <option value="">Relation</option>
-                        <option value="Spouse">Spouse</option>
-                        <option value="Son">Son</option>
-                        <option value="Daughter">Daughter</option>
-                        <option value="Father">Father</option>
-                        <option value="Mother">Mother</option>
-                        <option value="Sibling">Sibling</option>
+                        <option value="">{t('dashboard.familyModal.relation', 'Relation')}</option>
+                        <option value="Spouse">{t('dashboard.familyModal.spouse', 'Spouse')}</option>
+                        <option value="Son">{t('dashboard.familyModal.son', 'Son')}</option>
+                        <option value="Daughter">{t('dashboard.familyModal.daughter', 'Daughter')}</option>
+                        <option value="Father">{t('dashboard.familyModal.father', 'Father')}</option>
+                        <option value="Mother">{t('dashboard.familyModal.mother', 'Mother')}</option>
+                        <option value="Sibling">{t('dashboard.familyModal.sibling', 'Sibling')}</option>
                       </select>
-                      <input className="input" type="number" placeholder="Age" value={familyForm.age} onChange={e => setFamilyForm(p => ({ ...p, age: e.target.value }))} />
+                      <input className="input" type="number" placeholder={t('dashboard.familyModal.agePlaceholder', 'Age')} value={familyForm.age} onChange={e => setFamilyForm(p => ({ ...p, age: e.target.value }))} />
                     </div>
                     <select className="select" value={familyForm.gender} onChange={e => setFamilyForm(p => ({ ...p, gender: e.target.value }))}>
-                      <option value="">Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="">{t('dashboard.familyModal.gender', 'Gender')}</option>
+                      <option value="Male">{t('dashboard.familyModal.male', 'Male')}</option>
+                      <option value="Female">{t('dashboard.familyModal.female', 'Female')}</option>
+                      <option value="Other">{t('dashboard.familyModal.other', 'Other')}</option>
                     </select>
-                    <button onClick={addFamily} className="btn btn-primary btn-block">{editingFamily ? 'Save Changes' : 'Add Member'}</button>
+                    <button onClick={addFamily} className="btn btn-primary btn-block">{editingFamily ? t('dashboard.familyModal.saveChanges', 'Save Changes') : t('dashboard.familyModal.addMember', 'Add Member')}</button>
                   </div>
                 </div>
               </div>
@@ -787,8 +789,8 @@ export default function Dashboard() {
         </Section>
 
         {/* ===== APPOINTMENTS ===== */}
-        <Section id="appointments" title="Appointments" icon="👨‍⚕️" active={activeSection}>
-          <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Upcoming</h3>
+        <Section id="appointments" title={t('dashboard.section.appointments', 'Appointments')} icon="👨‍⚕️" active={activeSection}>
+          <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.appointments.upcoming', 'Upcoming')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
             {appointments.filter(a => a.status === 'Upcoming').map(a => (
               <div key={a.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -798,17 +800,17 @@ export default function Dashboard() {
                   <div style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 2 }}>📅 {a.date} · 🕘 {a.time}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                  {a.link && <button className="btn btn-green btn-sm" onClick={() => window.open(a.link, '_blank')}>🔗 Join Meeting</button>}
-                  <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(a); setRescheduleDate(null); setRescheduleSlot(null); }}>Reschedule</button>
+                  {a.link && <button className="btn btn-green btn-sm" onClick={() => window.open(a.link, '_blank')}>{t('dashboard.appointments.joinMeeting', '🔗 Join Meeting')}</button>}
+                  <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(a); setRescheduleDate(null); setRescheduleSlot(null); }}>{t('dashboard.appointments.reschedule', 'Reschedule')}</button>
                 </div>
               </div>
             ))}
             {appointments.filter(a => a.status === 'Upcoming').length === 0 && (
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>No upcoming appointments</p>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dashboard.appointments.noUpcoming', 'No upcoming appointments')}</p>
             )}
           </div>
 
-          <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Past Appointments</h3>
+          <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.appointments.past', 'Past Appointments')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {appointments.filter(a => a.status === 'Completed').map(a => (
               <div key={a.id} className="card">
@@ -817,32 +819,32 @@ export default function Dashboard() {
                     <div style={{ fontSize: 13, fontWeight: 600 }}>🩺 {a.doctor}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.specialty} · {a.mode} · {a.date}</div>
                   </div>
-                  <Badge variant="green">Completed ✓</Badge>
+                  <Badge variant="green">{t('dashboard.appointments.completed', 'Completed ✓')}</Badge>
                 </div>
                 {a.diagnosis && (
                   <div style={{ marginTop: 8, padding: 10, background: '#f8f9fa', borderRadius: 8, fontSize: 12 }}>
-                    <div><strong>Diagnosis:</strong> {a.diagnosis}</div>
-                    <div style={{ marginTop: 4 }}><strong>Prescription:</strong> {a.prescription}</div>
-                    {a.followUp && <div style={{ marginTop: 4 }}><strong>Follow-up:</strong> {a.followUp}</div>}
+                    <div><strong>{t('dashboard.appointments.diagnosis', 'Diagnosis:')}</strong> {a.diagnosis}</div>
+                    <div style={{ marginTop: 4 }}><strong>{t('dashboard.appointments.prescription', 'Prescription:')}</strong> {a.prescription}</div>
+                    {a.followUp && <div style={{ marginTop: 4 }}><strong>{t('dashboard.appointments.followUp', 'Follow-up:')}</strong> {a.followUp}</div>}
                     <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                      <button className="btn btn-primary btn-sm" onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(`I need a follow-up appointment for ${a.diagnosis} (Previous: Dr. ${a.doctor}, ${a.date})`)}`, '_blank'); }}>📅 Book Follow-up</button>
-                      <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: a.doctor, date: a.date, diagnosis: a.diagnosis, prescription: a.prescription, followUp: a.followUp })}>👁️ View Rx</button>
+                      <button className="btn btn-primary btn-sm" onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(`I need a follow-up appointment for ${a.diagnosis} (Previous: Dr. ${a.doctor}, ${a.date})`)}`, '_blank'); }}>{t('dashboard.appointments.bookFollowup', '📅 Book Follow-up')}</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: a.doctor, date: a.date, diagnosis: a.diagnosis, prescription: a.prescription, followUp: a.followUp })}>{t('dashboard.appointments.viewRx', '👁️ View Rx')}</button>
                       <button className="btn btn-outline btn-sm" onClick={() => {
                         const text = `Jeevan HealthCare at Home — Prescription\nDoctor: ${a.doctor}\nDate: ${a.date}\nDiagnosis: ${a.diagnosis}\nPrescription: ${a.prescription}${a.followUp ? `\nFollow-up: ${a.followUp}` : ''}`;
                         const blob = new Blob([text], { type: 'text/plain' });
                         const url = URL.createObjectURL(blob);
                         const el = document.createElement('a'); el.href = url; el.download = `Prescription_${a.doctor.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
-                      }}>📥 Download</button>
+                      }}>{t('dashboard.appointments.download', '📥 Download')}</button>
                       <button className="btn btn-outline btn-sm" style={{ color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
                         const text = `🩺 Prescription — Dr. ${a.doctor}\n${a.date}\n\nDiagnosis: ${a.diagnosis}\nRx: ${a.prescription}${a.followUp ? `\nFollow-up: ${a.followUp}` : ''}\n\n— Jeevan HealthCare at Home`;
                         if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${a.doctor}`, text }); }
-                        else { navigator.clipboard.writeText(text).then(() => alert('✅ Prescription copied!')); }
-                      }}>📤 Share</button>
+                        else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.appointments.prescriptionCopied', '✅ Prescription copied!'))); }
+                      }}>{t('dashboard.appointments.share', '📤 Share')}</button>
                     </div>
                   </div>
                 )}
                 <div style={{ marginTop: 8 }}>
-                  <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>🧪 Book Diagnostic Test</button>
+                  <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('dashboard.appointments.bookDiag', '🧪 Book Diagnostic Test')}</button>
                 </div>
               </div>
             ))}
@@ -850,55 +852,55 @@ export default function Dashboard() {
         </Section>
 
         {/* ===== HEALTH WALLET ===== */}
-        <Section id="wallet" title="Health Wallet" icon="💳" active={activeSection}>
+        <Section id="wallet" title={t('dashboard.section.wallet', 'Health Wallet')} icon="💳" active={activeSection}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
             <div className="card" style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', border: 'none' }}>
-              <div style={{ fontSize: 13, opacity: 0.85 }}>Wallet Balance</div>
+              <div style={{ fontSize: 13, opacity: 0.85 }}>{t('dashboard.wallet.balance', 'Wallet Balance')}</div>
               <div style={{ fontSize: 32, fontWeight: 800, margin: '4px 0' }}>₹{wallet.balance}</div>
-              <div style={{ fontSize: 12, opacity: 0.75 }}>Use for test bookings & health services</div>
+              <div style={{ fontSize: 12, opacity: 0.75 }}>{t('dashboard.wallet.balanceDesc', 'Use for test bookings & health services')}</div>
             </div>
             <div className="card">
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Available Coupons</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.wallet.coupons', 'Available Coupons')}</div>
               {wallet.coupons.map(c => (
                 <div key={c.code} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
-                  <span><strong>{c.code}</strong> — ₹{c.discount} off</span>
-                  <span style={{ color: 'var(--text-light)' }}>Min ₹{c.minOrder}</span>
+                  <span><strong>{c.code}</strong> — ₹{c.discount} {t('dashboard.wallet.off', 'off')}</span>
+                  <span style={{ color: 'var(--text-light)' }}>{t('dashboard.wallet.min', 'Min')} ₹{c.minOrder}</span>
                 </div>
               ))}
             </div>
             <div className="card">
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Rewards Earned</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.wallet.rewards', 'Rewards Earned')}</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#E65100' }}>{wallet.rewardsPoints} pts</div>
-              <button className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>Redeem Now</button>
+              <button className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>{t('dashboard.wallet.redeem', 'Redeem Now')}</button>
             </div>
           </div>
         </Section>
 
         {/* ===== ABHA HEALTH ID ===== */}
-        <Section id="abha" title="ABHA Health ID" icon="🆔" active={activeSection}>
+        <Section id="abha" title={t('dashboard.section.abha', 'ABHA Health ID')} icon="🆔" active={activeSection}>
           <div className="card" style={{ background: 'linear-gradient(135deg, #f0fdf4, #fff)', border: '1px solid #bbf7d0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <span style={{ fontSize: 24 }}>🆔</span>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>ABHA Health ID</h3>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>{t('dashboard.abha.title', 'ABHA Health ID')}</h3>
                 </div>
-                <Badge variant="green">Connected ✅</Badge>
+                <Badge variant="green">{t('dashboard.abha.connected', 'Connected ✅')}</Badge>
                 <div style={{ fontSize: 13, marginTop: 8 }}>
-                  <strong>ABHA Number:</strong> {abha.number}
+                  <strong>{t('dashboard.abha.number', 'ABHA Number:')}</strong> {abha.number}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Linked Records: {abha.linkedRecords}
+                  {t('dashboard.abha.linkedRecords', 'Linked Records:')} {abha.linkedRecords}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <button className="btn btn-outline btn-sm">Manage</button>
-                <button className="btn btn-outline btn-sm">Update</button>
-                <button className="btn btn-outline btn-sm">Link Records</button>
+                <button className="btn btn-outline btn-sm">{t('dashboard.abha.manage', 'Manage')}</button>
+                <button className="btn btn-outline btn-sm">{t('dashboard.abha.update', 'Update')}</button>
+                <button className="btn btn-outline btn-sm">{t('dashboard.abha.linkRecords', 'Link Records')}</button>
               </div>
             </div>
             <div style={{ marginTop: 12, padding: 10, background: '#f0fdf4', borderRadius: 8, fontSize: 11, color: '#16a34a' }}>
-              ✅ Digital health records · Easy sharing with healthcare providers · Unified medical history
+              {t('dashboard.abha.benefits', '✅ Digital health records · Easy sharing with healthcare providers · Unified medical history')}
             </div>
           </div>
         </Section>
@@ -909,8 +911,8 @@ export default function Dashboard() {
             {/* Health Sub-Tab Nav */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 14, background: '#f3f4f6', borderRadius: 10, padding: 3 }}>
               {[
-                { key: 'overview', label: 'Health Overview', icon: '🩺' },
-                { key: 'tracker', label: 'Daily Tracker', icon: '📊' },
+                { key: 'overview', label: t('dashboard.healthTab.overview', 'Health Overview'), icon: '🩺' },
+                { key: 'tracker', label: t('dashboard.healthTab.tracker', 'Daily Tracker'), icon: '📊' },
               ].map(t => (
                 <button key={t.key} onClick={() => setHealthSubTab(t.key)}
                   style={{ flex: 1, padding: '8px 12px', border: 'none', borderRadius: 8, background: healthSubTab === t.key ? '#fff' : 'transparent', fontSize: 12, fontWeight: healthSubTab === t.key ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit', color: healthSubTab === t.key ? '#1866C9' : '#6B7280', boxShadow: healthSubTab === t.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
@@ -932,7 +934,7 @@ export default function Dashboard() {
                         {healthScoreComputed.recommendation.icon}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Health Score</h2>
+                        <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{t('dashboard.healthCenter.scoreTitle', 'Health Score')}</h2>
                         <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 18, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: healthScoreComputed.recommendation.color, marginTop: 2 }}>{healthScoreComputed.recommendation.message}</div>
                       </div>
@@ -950,14 +952,14 @@ export default function Dashboard() {
                         </div>
                       ))}
                     </div>
-                    <button className="btn btn-primary btn-sm btn-block" style={{ width: '100%' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Update Assessment</button>
+                    <button className="btn btn-primary btn-sm btn-block" style={{ width: '100%' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>{t('dashboard.healthCenter.updateAssessment', 'Update Assessment')}</button>
                   </>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '16px 0' }}>
                     <div style={{ fontSize: 40, marginBottom: 8 }}>🩺</div>
-                    <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Your Health Score</h2>
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Complete the assessment to see your score</p>
-                    <button className="btn btn-primary btn-sm" onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>Start Health Assessment</button>
+                    <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthCenter.yourScore', 'Your Health Score')}</h2>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('dashboard.healthCenter.completeAssessment', 'Complete the assessment to see your score')}</p>
+                    <button className="btn btn-primary btn-sm" onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>{t('dashboard.healthCenter.startAssessment', 'Start Health Assessment')}</button>
                   </div>
                 )}
               </div>
@@ -967,7 +969,7 @@ export default function Dashboard() {
               {/* Lab Trends */}
               {store.healthTrends.hba1c.length > 0 && (
                 <div className="card" style={{ marginBottom: 12 }}>
-                  <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>📈 Lab Trends</h3>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>{t('dashboard.healthCenter.labTrends', '📈 Lab Trends')}</h3>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
                       <span>HbA1c</span>
@@ -980,7 +982,7 @@ export default function Dashboard() {
 
               {/* Recommendations */}
               <div className="card" style={{ background: 'linear-gradient(135deg, #FFF8E1, #fff)' }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>⭐ Recommendations</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>{t('dashboard.healthCenter.recommendations', '⭐ Recommendations')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {(healthScoreComputed && store.healthData ? getSmartRecommendations(healthScoreComputed, store.healthData) : []).slice(0, 3).map(rec => (
                     <div key={rec.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
@@ -990,7 +992,7 @@ export default function Dashboard() {
                         <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{rec.why}</div>
                         <div style={{ fontSize: 12, fontWeight: 700, color: '#1866C9' }}>₹{rec.price}</div>
                       </div>
-                      <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">Book</button>
+                      <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">{t('dashboard.healthCenter.book', 'Book')}</button>
                     </div>
                   ))}
                 </div>
@@ -1011,20 +1013,20 @@ export default function Dashboard() {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 700 }}>{p.name}</div>
                 <div style={{ fontSize: 12, opacity: 0.85 }}>{p.phone}</div>
-                {p.healthScore != null && <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>Health Score: {p.healthScore}/100 🟢</div>}
+                {p.healthScore != null && <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>{t('dashboard.profile.healthScore', 'Health Score:')} {p.healthScore}/100 🟢</div>}
               </div>
             </div>
 
             {/* ACCOUNT Section */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>Account</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>{t('dashboard.profile.sectionAccount', 'Account')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
                 {[
-                  { icon: '👨‍👩‍👧‍👦', label: 'Family Members', section: 'family' },
-                  { icon: '🧪', label: 'Reports', section: 'reports' },
-                  { icon: '💳', label: 'Wallet', section: 'wallet' },
-                  { icon: '🧾', label: 'Invoices', section: 'invoices' },
-                  { icon: '🆔', label: 'ABHA ID', section: 'abha' },
+                  { icon: '👨‍👩‍👧‍👦', label: t('dashboard.profile.familyMembers', 'Family Members'), section: 'family' },
+                  { icon: '🧪', label: t('dashboard.profile.reports', 'Reports'), section: 'reports' },
+                  { icon: '💳', label: t('dashboard.profile.wallet', 'Wallet'), section: 'wallet' },
+                  { icon: '🧾', label: t('dashboard.profile.invoices', 'Invoices'), section: 'invoices' },
+                  { icon: '🆔', label: t('dashboard.profile.abha', 'ABHA ID'), section: 'abha' },
                 ].map(item => (
                   <button key={item.section} onClick={() => setActiveSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
                     <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
@@ -1037,11 +1039,11 @@ export default function Dashboard() {
 
             {/* HEALTH Section */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>Health</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>{t('dashboard.profile.sectionHealth', 'Health')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
                 {[
-                  { icon: '🩺', label: 'Health Score', section: 'health' },
-                  { icon: '👨‍⚕️', label: 'Appointments', section: 'appointments' },
+                  { icon: '🩺', label: t('dashboard.profile.healthScore', 'Health Score'), section: 'health' },
+                  { icon: '👨‍⚕️', label: t('dashboard.profile.appointments', 'Appointments'), section: 'appointments' },
                 ].map(item => (
                   <button key={item.section} onClick={() => setActiveSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
                     <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
@@ -1054,16 +1056,16 @@ export default function Dashboard() {
 
             {/* SETTINGS Section */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>Settings</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>{t('dashboard.profile.sectionSettings', 'Settings')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
                 <button onClick={() => { openProfileEdit(); setActiveSection('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
                   <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>⚙️</span>
-                  <span style={{ flex: 1 }}>Settings</span>
+                  <span style={{ flex: 1 }}>{t('dashboard.profile.settings', 'Settings')}</span>
                   <span style={{ color: '#cbd5e1' }}>›</span>
                 </button>
                 <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: '#dc2626', WebkitTapHighlightColor: 'transparent' }}>
                   <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>🚪</span>
-                  <span style={{ flex: 1 }}>Logout</span>
+                  <span style={{ flex: 1 }}>{t('dashboard.profile.logout', 'Logout')}</span>
                   <span style={{ color: '#fecaca' }}>›</span>
                 </button>
               </div>
@@ -1078,13 +1080,13 @@ export default function Dashboard() {
               <div className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <h3 style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🔔 Notifications
+                    {t('dashboard.notifs.title', '🔔 Notifications')}
                     {store.unreadCount() > 0 && (
                       <span style={{ background: '#dc2626', color: '#fff', fontSize: 10, padding: '1px 6px', borderRadius: 8 }}>{store.unreadCount()}</span>
                     )}
                   </h3>
                   <button onClick={() => setShowNotifs(!showNotifs)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: '#1866C9', fontFamily: 'inherit' }}>
-                    {showNotifs ? 'Hide' : 'View All'}
+                    {showNotifs ? t('dashboard.notifs.hide', 'Hide') : t('dashboard.notifs.viewAll', 'View All')}
                   </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -1103,7 +1105,7 @@ export default function Dashboard() {
               {/* Saved Prescriptions */}
               <div className="card">
                 <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  📋 Saved Prescriptions
+                  {t('dashboard.prescriptions.title', '📋 Saved Prescriptions')}
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {prescriptions.map(p => (
@@ -1113,41 +1115,41 @@ export default function Dashboard() {
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.date} · {p.medicines}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                        <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: p.name, date: p.date, prescription: p.medicines })}>👁️</button>
+                        <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: p.name, date: p.date, prescription: p.medicines })}>{t('dashboard.prescriptions.view', '👁️')}</button>
                         <button className="btn btn-outline btn-sm" onClick={() => {
                           const text = `Jeevan HealthCare at Home — Prescription\nDoctor: ${p.name}\nDate: ${p.date}\nRx: ${p.medicines}`;
                           const blob = new Blob([text], { type: 'text/plain' });
                           const url = URL.createObjectURL(blob);
                           const el = document.createElement('a'); el.href = url; el.download = `Prescription_${p.name.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
-                        }}>📥</button>
+                        }}>{t('dashboard.prescriptions.download', '📥')}</button>
                         <button className="btn btn-outline btn-sm" onClick={() => {
                           const text = `🩺 Prescription — Dr. ${p.name}\n${p.date}\n\nRx: ${p.medicines}\n\n— Jeevan HealthCare at Home`;
                           if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${p.name}`, text }); }
-                          else { navigator.clipboard.writeText(text).then(() => alert('✅ Prescription copied!')); }
-                        }}>📤</button>
+                          else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.prescriptions.copied', '✅ Prescription copied!'))); }
+                        }}>{t('dashboard.prescriptions.share', '📤')}</button>
                       </div>
                     </div>
                   ))}
                 </div>
-                <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>📤 Upload New</button>
+                <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>{t('dashboard.prescriptions.uploadNew', '📤 Upload New')}</button>
               </div>
 
               {/* Recommended for You */}
               <div className="card" style={{ background: 'linear-gradient(135deg, #FFF8E1, #fff)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  ⭐ Recommended for You
+                  {t('dashboard.recommended.title', '⭐ Recommended for You')}
                 </h3>
                 <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
-                  {store.healthData ? 'Based on your health profile' : 'Take the health assessment for personalized recommendations'}
+                  {store.healthData ? t('dashboard.recommended.hasData', 'Based on your health profile') : t('dashboard.recommended.noData', 'Take the health assessment for personalized recommendations')}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {(() => {
                     const recs = healthScoreComputed && store.healthData
                       ? getSmartRecommendations(healthScoreComputed, store.healthData)
                       : [
-                          { name: 'Complete Blood Count (CBC)', price: 499, why: 'Essential baseline test' },
-                          { name: 'Vitamin D & B12', price: 899, why: 'Common deficiency check' },
-                          { name: 'Annual Health Checkup', price: 2499, why: 'Complete wellness review' },
+                          { name: t('dashboard.recommended.default1Name', 'Complete Blood Count (CBC)'), price: 499, why: t('dashboard.recommended.default1Why', 'Essential baseline test') },
+                          { name: t('dashboard.recommended.default2Name', 'Vitamin D & B12'), price: 899, why: t('dashboard.recommended.default2Why', 'Common deficiency check') },
+                          { name: t('dashboard.recommended.default3Name', 'Annual Health Checkup'), price: 2499, why: t('dashboard.recommended.default3Why', 'Complete wellness review') },
                         ];
                     return recs.map(rec => (
                       <div key={rec.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fff', borderRadius: 10, border: '1px solid #e8edf2' }}>
@@ -1157,7 +1159,7 @@ export default function Dashboard() {
                           <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{rec.why}</div>
                           <div style={{ fontSize: 12, fontWeight: 700, color: '#1866C9', marginTop: 1 }}>₹{rec.price}</div>
                         </div>
-                        <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}>Book Now</button>
+                        <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}>{t('dashboard.recommended.bookNow', 'Book Now')}</button>
                       </div>
                     ));
                   })()}
@@ -1167,17 +1169,17 @@ export default function Dashboard() {
         )}
 
         {/* ===== SETTINGS ===== */}
-        <Section id="settings" title="Settings" icon="⚙️" active={activeSection}>
+        <Section id="settings" title={t('dashboard.section.settings', 'Settings')} icon="⚙️" active={activeSection}>
           <div className="card">
-            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Profile Settings</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>{t('dashboard.settings.profileSettings', 'Profile Settings')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
               {[
-                { label: 'Full Name', value: p.name },
-                { label: 'Phone', value: p.phone },
-                { label: 'Email', value: p.email || '—' },
-                { label: 'Blood Group', value: p.bloodGroup },
-                { label: 'Date of Birth', value: p.dob },
-                { label: 'Gender', value: p.gender },
+                { label: t('dashboard.settings.fullName', 'Full Name'), value: p.name },
+                { label: t('dashboard.settings.phone', 'Phone'), value: p.phone },
+                { label: t('dashboard.settings.email', 'Email'), value: p.email || '—' },
+                { label: t('dashboard.settings.bloodGroup', 'Blood Group'), value: p.bloodGroup },
+                { label: t('dashboard.settings.dob', 'Date of Birth'), value: p.dob },
+                { label: t('dashboard.settings.gender', 'Gender'), value: p.gender },
               ].map(f => (
                 <div key={f.label}>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{f.label}</div>
@@ -1185,7 +1187,7 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <button className="btn btn-outline btn-sm" style={{ marginTop: 12 }} onClick={openProfileEdit}>Edit Profile</button>
+            <button className="btn btn-outline btn-sm" style={{ marginTop: 12 }} onClick={openProfileEdit}>{t('dashboard.settings.editProfile', 'Edit Profile')}</button>
           </div>
         </Section>
 
@@ -1194,28 +1196,28 @@ export default function Dashboard() {
           <div className="panel-overlay" onClick={() => setShowProfileModal(false)}>
             <div className="panel" onClick={e => e.stopPropagation()}>
               <div className="panel-header">
-                <h3 style={{ fontSize: 15, fontWeight: 700 }}>Edit Profile</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('dashboard.profileModal.title', 'Edit Profile')}</h3>
                 <button onClick={() => setShowProfileModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
               </div>
               <div className="panel-body">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div className="grid-2">
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Full Name *</label>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.fullName', 'Full Name')} *</label>
                       <input className="input" value={profileForm.name} onChange={e => setProfileForm(f => ({ ...f, name: e.target.value }))} />
                     </div>
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Phone *</label>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.phone', 'Phone')} *</label>
                       <input className="input" value={profileForm.phone} onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))} />
                     </div>
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Email</label>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.email', 'Email')}</label>
                     <input className="input" value={profileForm.email} onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))} />
                   </div>
                   <div className="grid-2">
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Blood Group</label>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.bloodGroup', 'Blood Group')}</label>
                       <select className="select" value={profileForm.bloodGroup} onChange={e => setProfileForm(f => ({ ...f, bloodGroup: e.target.value }))}>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
@@ -1228,19 +1230,19 @@ export default function Dashboard() {
                       </select>
                     </div>
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Gender</label>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.gender', 'Gender')}</label>
                       <select className="select" value={profileForm.gender} onChange={e => setProfileForm(f => ({ ...f, gender: e.target.value }))}>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="Male">{t('dashboard.profileModal.male', 'Male')}</option>
+                        <option value="Female">{t('dashboard.profileModal.female', 'Female')}</option>
+                        <option value="Other">{t('dashboard.profileModal.other', 'Other')}</option>
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Date of Birth</label>
-                    <input className="input" value={profileForm.dob} onChange={e => setProfileForm(f => ({ ...f, dob: e.target.value }))} placeholder="e.g. 15 Mar 1990" />
+                    <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.dob', 'Date of Birth')}</label>
+                    <input className="input" value={profileForm.dob} onChange={e => setProfileForm(f => ({ ...f, dob: e.target.value }))} placeholder={t('dashboard.profileModal.dobPlaceholder', 'e.g. 15 Mar 1990')} />
                   </div>
-                  <button onClick={saveProfile} className="btn btn-primary btn-block">Save Changes</button>
+                  <button onClick={saveProfile} className="btn btn-primary btn-block">{t('dashboard.profileModal.saveChanges', 'Save Changes')}</button>
                 </div>
               </div>
             </div>
@@ -1254,19 +1256,19 @@ export default function Dashboard() {
         <div className="panel-overlay" onClick={() => setShowPrescriptionModal(null)}>
           <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
             <div className="panel-header">
-              <h3 style={{ fontSize: 15, fontWeight: 700 }}>🩺 Prescription</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('dashboard.prescriptionModal.title', '🩺 Prescription')}</h3>
               <button onClick={() => setShowPrescriptionModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>✕</button>
             </div>
             <div className="panel-body">
               <div style={{ fontSize: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div><strong>Doctor:</strong> {showPrescriptionModal.doctor}</div>
-                <div><strong>Date:</strong> {showPrescriptionModal.date}</div>
-                {showPrescriptionModal.diagnosis && <div><strong>Diagnosis:</strong> {showPrescriptionModal.diagnosis}</div>}
+                <div><strong>{t('dashboard.prescriptionModal.doctor', 'Doctor:')}</strong> {showPrescriptionModal.doctor}</div>
+                <div><strong>{t('dashboard.prescriptionModal.date', 'Date:')}</strong> {showPrescriptionModal.date}</div>
+                {showPrescriptionModal.diagnosis && <div><strong>{t('dashboard.prescriptionModal.diagnosis', 'Diagnosis:')}</strong> {showPrescriptionModal.diagnosis}</div>}
                 <div style={{ background: '#FFF8E1', padding: 12, borderRadius: 8, border: '1px solid #f0e6b8' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>📋 Prescribed Medicines</div>
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('dashboard.prescriptionModal.medicines', '📋 Prescribed Medicines')}</div>
                   <div>{showPrescriptionModal.prescription}</div>
                 </div>
-                {showPrescriptionModal.followUp && <div><strong>Follow-up:</strong> {showPrescriptionModal.followUp}</div>}
+                {showPrescriptionModal.followUp && <div><strong>{t('dashboard.prescriptionModal.followUp', 'Follow-up:')}</strong> {showPrescriptionModal.followUp}</div>}
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
                 <button className="btn btn-outline btn-sm" style={{ flex: 1 }} onClick={() => {
@@ -1274,12 +1276,12 @@ export default function Dashboard() {
                   const blob = new Blob([text], { type: 'text/plain' });
                   const url = URL.createObjectURL(blob);
                   const el = document.createElement('a'); el.href = url; el.download = `Prescription_${showPrescriptionModal.doctor.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
-                }}>📥 Download</button>
+                }}>{t('dashboard.prescriptionModal.download', '📥 Download')}</button>
                 <button className="btn btn-outline btn-sm" style={{ flex: 1, color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
                   const text = `🩺 Prescription — Dr. ${showPrescriptionModal.doctor}\n${showPrescriptionModal.date}${showPrescriptionModal.diagnosis ? `\nDiagnosis: ${showPrescriptionModal.diagnosis}` : ''}\nRx: ${showPrescriptionModal.prescription}${showPrescriptionModal.followUp ? `\nFollow-up: ${showPrescriptionModal.followUp}` : ''}\n\n— Jeevan HealthCare at Home`;
                   if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${showPrescriptionModal.doctor}`, text }); }
-                  else { navigator.clipboard.writeText(text).then(() => alert('✅ Prescription copied!')); }
-                }}>📤 Share</button>
+                  else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.prescriptionModal.copied', '✅ Prescription copied!'))); }
+                }}>{t('dashboard.prescriptionModal.share', '📤 Share')}</button>
               </div>
             </div>
           </div>
@@ -1291,7 +1293,7 @@ export default function Dashboard() {
         <div className="panel-overlay" onClick={() => setShowHealthModal(false)}>
           <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 500, maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="panel-header">
-              <h3 style={{ fontSize: 15, fontWeight: 700 }}>🩺 Health Assessment</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>{t('dashboard.healthModal.title', '🩺 Health Assessment')}</h3>
               <button onClick={() => setShowHealthModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, fontFamily: 'inherit' }}>✕</button>
             </div>
             <div className="panel-body">
@@ -1301,32 +1303,32 @@ export default function Dashboard() {
                 {/* STEP 1: Personal Profile */}
                 {healthStep === 1 && (
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>👤 Personal Profile</h4>
-                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Basic details for risk assessment</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthModal.step1Title', '👤 Personal Profile')}</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.healthModal.step1Desc', 'Basic details for risk assessment')}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Age Group</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.ageGroup', 'Age Group')}</label>
                         <select className="select" value={healthForm.personalProfile.ageGroup} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, ageGroup: e.target.value } }))}>
-                          <option value="">Select age group</option>
-                          <option value="below-25">Below 25</option>
-                          <option value="25-35">25 – 35</option>
-                          <option value="36-45">36 – 45</option>
-                          <option value="46-55">46 – 55</option>
-                          <option value="above-55">Above 55</option>
+                          <option value="">{t('dashboard.healthModal.selectAgeGroup', 'Select age group')}</option>
+                          <option value="below-25">{t('dashboard.healthModal.below25', 'Below 25')}</option>
+                          <option value="25-35">{t('dashboard.healthModal.age25to35', '25 – 35')}</option>
+                          <option value="36-45">{t('dashboard.healthModal.age36to45', '36 – 45')}</option>
+                          <option value="46-55">{t('dashboard.healthModal.age46to55', '46 – 55')}</option>
+                          <option value="above-55">{t('dashboard.healthModal.above55', 'Above 55')}</option>
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Gender</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.gender', 'Gender')}</label>
                         <select className="select" value={healthForm.personalProfile.gender} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, gender: e.target.value } }))}>
-                          <option value="">Select</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
+                          <option value="">{t('dashboard.healthModal.select', 'Select')}</option>
+                          <option value="male">{t('dashboard.healthModal.male', 'Male')}</option>
+                          <option value="female">{t('dashboard.healthModal.female', 'Female')}</option>
+                          <option value="other">{t('dashboard.healthModal.other', 'Other')}</option>
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>City / Area</label>
-                        <input className="input" placeholder="e.g. Hyderabad" value={healthForm.personalProfile.location} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, location: e.target.value } }))} />
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.city', 'City / Area')}</label>
+                        <input className="input" placeholder={t('dashboard.healthModal.cityPlaceholder', 'e.g. Hyderabad')} value={healthForm.personalProfile.location} onChange={e => setHealthForm(f => ({ ...f, personalProfile: { ...f.personalProfile, location: e.target.value } }))} />
                       </div>
                     </div>
                   </div>
@@ -1335,51 +1337,51 @@ export default function Dashboard() {
                 {/* STEP 2: Lifestyle */}
                 {healthStep === 2 && (
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>🏃 Lifestyle & Habits</h4>
-                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>How you live affects your health score</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthModal.step2Title', '🏃 Lifestyle & Habits')}</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.healthModal.step2Desc', 'How you live affects your health score')}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Smoking / Tobacco</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.smoking', 'Smoking / Tobacco')}</label>
                         <select className="select" value={healthForm.lifestyle.smoking} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, smoking: e.target.value } }))}>
-                          <option value="never">Never used</option>
-                          <option value="quit">Quit more than 1 year ago</option>
-                          <option value="occasional">Occasionally</option>
-                          <option value="daily">Daily smoker</option>
+                          <option value="never">{t('dashboard.healthModal.smokeNever', 'Never used')}</option>
+                          <option value="quit">{t('dashboard.healthModal.smokeQuit', 'Quit more than 1 year ago')}</option>
+                          <option value="occasional">{t('dashboard.healthModal.smokeOccasional', 'Occasionally')}</option>
+                          <option value="daily">{t('dashboard.healthModal.smokeDaily', 'Daily smoker')}</option>
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Alcohol Consumption</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.alcohol', 'Alcohol Consumption')}</label>
                         <select className="select" value={healthForm.lifestyle.alcohol} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, alcohol: e.target.value } }))}>
-                          <option value="never">Never</option>
-                          <option value="occasional">Occasionally</option>
-                          <option value="weekly">Weekly</option>
-                          <option value="frequent">Daily / Frequent</option>
+                          <option value="never">{t('dashboard.healthModal.alcoholNever', 'Never')}</option>
+                          <option value="occasional">{t('dashboard.healthModal.alcoholOccasional', 'Occasionally')}</option>
+                          <option value="weekly">{t('dashboard.healthModal.alcoholWeekly', 'Weekly')}</option>
+                          <option value="frequent">{t('dashboard.healthModal.alcoholFrequent', 'Daily / Frequent')}</option>
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Physical Activity</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.activity', 'Physical Activity')}</label>
                         <select className="select" value={healthForm.lifestyle.exercise} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, exercise: e.target.value } }))}>
-                          <option value="frequent">Exercise 5+ days/week</option>
-                          <option value="moderate">Exercise 2–4 days/week</option>
-                          <option value="sedentary">Mostly sitting</option>
-                          <option value="none">No activity</option>
+                          <option value="frequent">{t('dashboard.healthModal.activityFrequent', 'Exercise 5+ days/week')}</option>
+                          <option value="moderate">{t('dashboard.healthModal.activityModerate', 'Exercise 2–4 days/week')}</option>
+                          <option value="sedentary">{t('dashboard.healthModal.activitySedentary', 'Mostly sitting')}</option>
+                          <option value="none">{t('dashboard.healthModal.activityNone', 'No activity')}</option>
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Sleep</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.sleep', 'Sleep')}</label>
                         <select className="select" value={healthForm.lifestyle.sleep} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, sleep: e.target.value } }))}>
-                          <option value="good">7–9 hours</option>
-                          <option value="fair">5–7 hours</option>
-                          <option value="poor">Less than 5 hours</option>
+                          <option value="good">{t('dashboard.healthModal.sleepGood', '7–9 hours')}</option>
+                          <option value="fair">{t('dashboard.healthModal.sleepFair', '5–7 hours')}</option>
+                          <option value="poor">{t('dashboard.healthModal.sleepPoor', 'Less than 5 hours')}</option>
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Stress Level</label>
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.stress', 'Stress Level')}</label>
                         <select className="select" value={healthForm.lifestyle.stress} onChange={e => setHealthForm(f => ({ ...f, lifestyle: { ...f.lifestyle, stress: e.target.value } }))}>
-                          <option value="low">Low</option>
-                          <option value="moderate">Moderate</option>
-                          <option value="high">High</option>
-                          <option value="very-high">Very High</option>
+                          <option value="low">{t('dashboard.healthModal.stressLow', 'Low')}</option>
+                          <option value="moderate">{t('dashboard.healthModal.stressModerate', 'Moderate')}</option>
+                          <option value="high">{t('dashboard.healthModal.stressHigh', 'High')}</option>
+                          <option value="very-high">{t('dashboard.healthModal.stressVeryHigh', 'Very High')}</option>
                         </select>
                       </div>
                     </div>
@@ -1389,16 +1391,16 @@ export default function Dashboard() {
                 {/* STEP 3: Body Measurements */}
                 {healthStep === 3 && (
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>⚖️ Body Measurements</h4>
-                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Height, weight & BMI calculation</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthModal.step3Title', '⚖️ Body Measurements')}</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.healthModal.step3Desc', 'Height, weight & BMI calculation')}</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Height (cm)</label>
-                        <input className="input" type="number" placeholder="e.g. 170" value={healthForm.bodyMeasurements.heightCm} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, heightCm: e.target.value } }))} min={50} max={250} />
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.height', 'Height (cm)')}</label>
+                        <input className="input" type="number" placeholder={t('dashboard.healthModal.heightPlaceholder', 'e.g. 170')} value={healthForm.bodyMeasurements.heightCm} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, heightCm: e.target.value } }))} min={50} max={250} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Weight (kg)</label>
-                        <input className="input" type="number" placeholder="e.g. 72" value={healthForm.bodyMeasurements.weightKg} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, weightKg: e.target.value } }))} min={10} max={300} />
+                        <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.weight', 'Weight (kg)')}</label>
+                        <input className="input" type="number" placeholder={t('dashboard.healthModal.weightPlaceholder', 'e.g. 72')} value={healthForm.bodyMeasurements.weightKg} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, weightKg: e.target.value } }))} min={10} max={300} />
                       </div>
                     </div>
                     {healthForm.bodyMeasurements.heightCm && healthForm.bodyMeasurements.weightKg && (
@@ -1409,7 +1411,7 @@ export default function Dashboard() {
                           const w = parseFloat(healthForm.bodyMeasurements.weightKg);
                           if (h > 0 && w > 0) {
                             const bmi = Math.round((w / (h * h)) * 10) / 10;
-                            const cat = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Healthy' : bmi < 30 ? 'Overweight' : bmi < 35 ? 'Obese' : 'Severely Obese';
+                            const cat = bmi < 18.5 ? t('dashboard.healthModal.underweight', 'Underweight') : bmi < 25 ? t('dashboard.healthModal.healthy', 'Healthy') : bmi < 30 ? t('dashboard.healthModal.overweight', 'Overweight') : bmi < 35 ? t('dashboard.healthModal.obese', 'Obese') : t('dashboard.healthModal.severelyObese', 'Severely Obese');
                             const catColor = bmi < 18.5 ? '#EAB308' : bmi < 25 ? '#16a34a' : bmi < 30 ? '#F97316' : '#dc2626';
                             return <span>{bmi} — <span style={{ color: catColor, fontWeight: 600 }}>{cat}</span></span>;
                           }
@@ -1418,8 +1420,8 @@ export default function Dashboard() {
                       </div>
                     )}
                     <div style={{ marginTop: 8 }}>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Waist Circumference (cm) — <span style={{ fontWeight: 400, color: '#94a3b8' }}>optional</span></label>
-                      <input className="input" type="number" placeholder="e.g. 90" value={healthForm.bodyMeasurements.waistCm} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, waistCm: e.target.value } }))} />
+                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.healthModal.waist', 'Waist Circumference (cm)')} — <span style={{ fontWeight: 400, color: '#94a3b8' }}>{t('dashboard.healthModal.optional', 'optional')}</span></label>
+                      <input className="input" type="number" placeholder={t('dashboard.healthModal.waistPlaceholder', 'e.g. 90')} value={healthForm.bodyMeasurements.waistCm} onChange={e => setHealthForm(f => ({ ...f, bodyMeasurements: { ...f.bodyMeasurements, waistCm: e.target.value } }))} />
                     </div>
                   </div>
                 )}
@@ -1427,15 +1429,15 @@ export default function Dashboard() {
                 {/* STEP 4: Family History */}
                 {healthStep === 4 && (
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>🧬 Family History</h4>
-                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Does anyone in your family have these conditions?</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthModal.step4Title', '🧬 Family History')}</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.healthModal.step4Desc', 'Does anyone in your family have these conditions?')}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {[
-                        { key: 'diabetes', label: 'Diabetes', icon: '🩸' },
-                        { key: 'bp', label: 'High Blood Pressure', icon: '🫀' },
-                        { key: 'heartDisease', label: 'Heart Disease', icon: '❤️' },
-                        { key: 'thyroid', label: 'Thyroid Disease', icon: '🦋' },
-                        { key: 'cancer', label: 'Cancer', icon: '🎗️' },
+                        { key: 'diabetes', label: t('dashboard.healthModal.diabetes', 'Diabetes'), icon: '🩸' },
+                        { key: 'bp', label: t('dashboard.healthModal.highBp', 'High Blood Pressure'), icon: '🫀' },
+                        { key: 'heartDisease', label: t('dashboard.healthModal.heartDisease', 'Heart Disease'), icon: '❤️' },
+                        { key: 'thyroid', label: t('dashboard.healthModal.thyroid', 'Thyroid Disease'), icon: '🦋' },
+                        { key: 'cancer', label: t('dashboard.healthModal.cancer', 'Cancer'), icon: '🎗️' },
                       ].map(opt => (
                         <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, cursor: 'pointer', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 10, background: healthForm.familyHistory[opt.key] ? '#e8f0fe' : '#fff', userSelect: 'none', transition: 'all 0.15s' }}>
                           <input type="checkbox" checked={!!healthForm.familyHistory[opt.key]} onChange={e => setHealthForm(f => ({ ...f, familyHistory: { ...f.familyHistory, [opt.key]: e.target.checked } }))} style={{ accentColor: '#1866C9' }} />
@@ -1450,13 +1452,13 @@ export default function Dashboard() {
                 {/* STEP 5: Medical History */}
                 {healthStep === 5 && (
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>💊 Medical History</h4>
-                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Do you currently have any health conditions?</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthModal.step5Title', '💊 Medical History')}</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.healthModal.step5Desc', 'Do you currently have any health conditions?')}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {MEDICAL_CONDITIONS.map(cond => (
                         <label key={cond.key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, cursor: 'pointer', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 10, background: healthForm.medicalHistory[cond.key] ? '#FFF0F0' : '#fff', userSelect: 'none', transition: 'all 0.15s' }}>
                           <input type="checkbox" checked={!!healthForm.medicalHistory[cond.key]} onChange={e => setHealthForm(f => ({ ...f, medicalHistory: { ...f.medicalHistory, [cond.key]: e.target.checked } }))} style={{ accentColor: '#dc2626' }} />
-                          <span style={{ fontWeight: healthForm.medicalHistory[cond.key] ? 600 : 400 }}>{cond.label}</span>
+                          <span style={{ fontWeight: healthForm.medicalHistory[cond.key] ? 600 : 400 }}>{t('dashboard.medicalCondition.' + cond.key, cond.label)}</span>
                         </label>
                       ))}
                     </div>
@@ -1466,32 +1468,32 @@ export default function Dashboard() {
                 {/* STEP 6: Lab Results */}
                 {healthStep === 6 && (
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>🔬 Lab Results</h4>
-                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>Enter your latest report values (leave blank if unknown)</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px' }}>{t('dashboard.healthModal.step6Title', '🔬 Lab Results')}</h4>
+                    <p style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.healthModal.step6Desc', 'Enter your latest report values (leave blank if unknown)')}</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>HbA1c (%)</label>
-                        <input className="input" type="number" step="0.1" placeholder="e.g. 5.4" value={healthForm.labResults.hba1c} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, hba1c: e.target.value } }))} />
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>{t('dashboard.healthModal.labHba1c', 'HbA1c (%)')}</label>
+                        <input className="input" type="number" step="0.1" placeholder={t('dashboard.healthModal.labHba1cPlaceholder', 'e.g. 5.4')} value={healthForm.labResults.hba1c} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, hba1c: e.target.value } }))} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>LDL (mg/dL)</label>
-                        <input className="input" type="number" placeholder="e.g. 95" value={healthForm.labResults.ldl} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, ldl: e.target.value } }))} />
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>{t('dashboard.healthModal.labLdl', 'LDL (mg/dL)')}</label>
+                        <input className="input" type="number" placeholder={t('dashboard.healthModal.labLdlPlaceholder', 'e.g. 95')} value={healthForm.labResults.ldl} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, ldl: e.target.value } }))} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>TSH (mIU/L)</label>
-                        <input className="input" type="number" step="0.1" placeholder="e.g. 2.5" value={healthForm.labResults.tsh} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, tsh: e.target.value } }))} />
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>{t('dashboard.healthModal.labTsh', 'TSH (mIU/L)')}</label>
+                        <input className="input" type="number" step="0.1" placeholder={t('dashboard.healthModal.labTshPlaceholder', 'e.g. 2.5')} value={healthForm.labResults.tsh} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, tsh: e.target.value } }))} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>Vitamin D (ng/mL)</label>
-                        <input className="input" type="number" placeholder="e.g. 35" value={healthForm.labResults.vitaminD} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, vitaminD: e.target.value } }))} />
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>{t('dashboard.healthModal.labVitaminD', 'Vitamin D (ng/mL)')}</label>
+                        <input className="input" type="number" placeholder={t('dashboard.healthModal.labVitaminDPlaceholder', 'e.g. 35')} value={healthForm.labResults.vitaminD} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, vitaminD: e.target.value } }))} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>Creatinine (mg/dL)</label>
-                        <input className="input" type="number" step="0.1" placeholder="e.g. 1.0" value={healthForm.labResults.creatinine} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, creatinine: e.target.value } }))} />
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>{t('dashboard.healthModal.labCreatinine', 'Creatinine (mg/dL)')}</label>
+                        <input className="input" type="number" step="0.1" placeholder={t('dashboard.healthModal.labCreatininePlaceholder', 'e.g. 1.0')} value={healthForm.labResults.creatinine} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, creatinine: e.target.value } }))} />
                       </div>
                       <div>
-                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>ALT (U/L)</label>
-                        <input className="input" type="number" placeholder="e.g. 30" value={healthForm.labResults.alt} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, alt: e.target.value } }))} />
+                        <label style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 }}>{t('dashboard.healthModal.labAlt', 'ALT (U/L)')}</label>
+                        <input className="input" type="number" placeholder={t('dashboard.healthModal.labAltPlaceholder', 'e.g. 30')} value={healthForm.labResults.alt} onChange={e => setHealthForm(f => ({ ...f, labResults: { ...f.labResults, alt: e.target.value } }))} />
                       </div>
                     </div>
                   </div>
@@ -1500,10 +1502,10 @@ export default function Dashboard() {
                 {/* Navigation */}
                 <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
                   {healthStep > 1 && (
-                    <button onClick={() => setHealthStep(s => s - 1)} className="btn btn-outline btn-sm" style={{ flex: 1 }}>← Back</button>
+                    <button onClick={() => setHealthStep(s => s - 1)} className="btn btn-outline btn-sm" style={{ flex: 1 }}>{t('dashboard.healthModal.back', '← Back')}</button>
                   )}
                   {healthStep < 6 ? (
-                    <button onClick={() => setHealthStep(s => s + 1)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>Next →</button>
+                    <button onClick={() => setHealthStep(s => s + 1)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>{t('dashboard.healthModal.next', 'Next →')}</button>
                   ) : (
                     <button onClick={() => {
                       const bm = healthForm.bodyMeasurements;
@@ -1525,7 +1527,7 @@ export default function Dashboard() {
                       store.updateHealthData(data);
                       setShowHealthModal(false);
                       setHealthStep(1);
-                    }} className="btn btn-primary btn-sm" style={{ flex: 1 }}>💾 Save Assessment</button>
+                    }} className="btn btn-primary btn-sm" style={{ flex: 1 }}>{t('dashboard.healthModal.save', '💾 Save Assessment')}</button>
                   )}
                 </div>
               </div>
@@ -1537,7 +1539,7 @@ export default function Dashboard() {
       {/* Coming Soon Toast */}
       {comingSoon && (
         <div style={{ position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)', zIndex: 99999, background: '#1e293b', color: '#fff', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600, boxShadow: '0 8px 32px rgba(0,0,0,0.2)', animation: 'fadeInUp 0.3s ease', whiteSpace: 'nowrap' }}>
-          🚧 {comingSoon} — Coming Soon
+          🚧 {comingSoon} — {t('dashboard.comingSoon', 'Coming Soon')}
         </div>
       )}
 

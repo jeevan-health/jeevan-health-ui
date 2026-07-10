@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { packageList } from '../data/healthPackages';
 import useCartStore from '../stores/cartStore';
 import useCmsStore from '../stores/cmsStore';
+import { useT } from '../i18n/LanguageProvider';
 
 export default function HealthPackages() {
+  const t = useT();
   const addItem = useCartStore(s => s.addItem);
   const cmsContent = useCmsStore(s => s.content);
   const [selectedTarget, setSelectedTarget] = useState('');
@@ -22,14 +24,14 @@ export default function HealthPackages() {
     <div>
       <div style={{ background: 'linear-gradient(135deg, #0b3b2c 0%, #1a6b4a 100%)', padding: '32px 0 36px' }}>
         <div className="container">
-          <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: '0 0 6px' }}>{hero.pageTitle || 'Health Packages'}</h1>
+          <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: '0 0 6px' }}>{hero.pageTitle || t('healthPackages.pageTitle', 'Health Packages')}</h1>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '0 0 16px' }}>
-            {hero.pageSubtitle || 'Curated health checkup packages for every need — comprehensive screening at the best price'}
+            {hero.pageSubtitle || t('healthPackages.pageSubtitle', 'Curated health checkup packages for every need — comprehensive screening at the best price')}
           </p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <button onClick={() => setSelectedTarget('')}
               style={{ padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${!selectedTarget ? '#4ade80' : 'rgba(255,255,255,0.3)'}`, background: !selectedTarget ? '#4ade80' : 'rgba(255,255,255,0.15)', color: !selectedTarget ? '#0b3b2c' : '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
-              All Packages
+              {t('healthPackages.allPackages', 'All Packages')}
             </button>
             {targets.map(t => (
               <button key={t} onClick={() => setSelectedTarget(t)}
@@ -54,15 +56,15 @@ export default function HealthPackages() {
                 <div className="pkg-stats">
                   <div className="pkg-stat">
                     <span className="pkg-stat-value">{pkg.testCount}</span>
-                    <span className="pkg-stat-label">Tests</span>
+                    <span className="pkg-stat-label">{t('healthPackages.tests', 'Tests')}</span>
                   </div>
                   <div className="pkg-stat">
                     <span className="pkg-stat-value">⭐ {pkg.rating}</span>
-                    <span className="pkg-stat-label">Rating</span>
+                    <span className="pkg-stat-label">{t('healthPackages.rating', 'Rating')}</span>
                   </div>
                   <div className="pkg-stat">
                     <span className="pkg-stat-value">{pkg.reportTime}</span>
-                    <span className="pkg-stat-label">Reports</span>
+                    <span className="pkg-stat-label">{t('healthPackages.reports', 'Reports')}</span>
                   </div>
                 </div>
 
@@ -71,19 +73,19 @@ export default function HealthPackages() {
                     <span key={i} className="pkg-test-tag">✓ {t}</span>
                   ))}
                   {pkg.testsIncluded.length > 5 && (
-                    <span className="pkg-test-tag pkg-test-more">+{pkg.testsIncluded.length - 5} more</span>
+                    <span className="pkg-test-tag pkg-test-more">+{pkg.testsIncluded.length - 5} {t('healthPackages.more', 'more')}</span>
                   )}
                 </div>
 
                 <div className="pkg-footer">
                   <div>
-                    <span className="pkg-mrp">MRP: ₹{pkg.mrp.toLocaleString()}</span>
+                    <span className="pkg-mrp">{t('healthPackages.mrp', 'MRP')}: ₹{pkg.mrp.toLocaleString()}</span>
                     <div className="pkg-price">₹{pkg.offerPrice.toLocaleString()}</div>
-                    <div className="pkg-discount">{pkg.discount}% OFF</div>
+                    <div className="pkg-discount">{pkg.discount}% {t('healthPackages.off', 'OFF')}</div>
                   </div>
                   <div className="pkg-actions">
-                    <Link to={`/package/${pkg.id}`} className="btn btn-outline btn-sm">View Details</Link>
-                    <button onClick={() => { addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' }); }} className="btn btn-primary btn-sm">Book Now</button>
+                    <Link to={`/package/${pkg.id}`} className="btn btn-outline btn-sm">{t('healthPackages.viewDetails', 'View Details')}</Link>
+                    <button onClick={() => { addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' }); }} className="btn btn-primary btn-sm">{t('healthPackages.bookNow', 'Book Now')}</button>
                   </div>
                 </div>
               </div>

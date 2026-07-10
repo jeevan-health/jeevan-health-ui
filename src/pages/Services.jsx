@@ -1,3 +1,4 @@
+import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import {
   Stethoscope, Pill, Flask, User, Users as UsersIcon,
@@ -14,6 +15,10 @@ const iconMap = {
   CheckCircle, Phone, WhatsappLogo, MagnifyingGlass, Truck, FileText, ArrowRight,
   Heartbeat, Warning, Lightbulb, FirstAid, Briefcase, Leaf, Cloud,
 };
+
+function getIcon(name) {
+  return iconMap[name] || Sparkle;
+}
 
 const fallback = {
   heroCtas: [
@@ -49,11 +54,8 @@ const fallback = {
   ctaWhatsapp: '919700104108',
 };
 
-function getIcon(name) {
-  return iconMap[name] || Sparkle;
-}
-
 export default function Services() {
+  const t = useT();
   const sp = useCmsStore(s => s.content?.servicesPage) || {};
   const qActions = (sp.quickActions || []).length > 0 ? sp.quickActions : fallback.quickActions;
   const categories = (sp.categories || []).length > 0 ? sp.categories : fallback.categories;
@@ -65,10 +67,10 @@ export default function Services() {
       <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #0F4A96 100%)', padding: '28px 16px 32px', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, margin: '0 0 8px', letterSpacing: -0.5 }}>
-            {sp.heroTitle || 'Complete Healthcare at Your Doorstep'}
+            {sp.heroTitle || t('services.hero.title', 'Complete Healthcare at Your Doorstep')}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '0 0 16px', lineHeight: 1.5 }}>
-            {sp.heroSubtitle || 'Doctor consultations, lab tests, pharmacy, nursing, physiotherapy, vaccinations & more — all from one trusted platform.'}
+            {sp.heroSubtitle || t('services.hero.subtitle', 'Doctor consultations, lab tests, pharmacy, nursing, physiotherapy, vaccinations & more — all from one trusted platform.')}
           </p>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
             {heroCtas.map((cta, i) => {
@@ -128,8 +130,8 @@ export default function Services() {
       <div style={{ padding: '24px 16px 0' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>All Services</h2>
-            <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 4 }}>Comprehensive healthcare, delivered to your home</p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{t('services.categories.heading', 'All Services')}</h2>
+            <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 4 }}>{t('services.categories.subtitle', 'Comprehensive healthcare, delivered to your home')}</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {categories.map(cat => (
@@ -159,14 +161,14 @@ export default function Services() {
 
       {/* CTA */}
       <div style={{ textAlign: 'center', padding: '32px 16px' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{sp.ctaHeading || 'Need help choosing a service?'}</h3>
-        <p style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 16 }}>{sp.ctaText || 'Call us or WhatsApp for free guidance'}</p>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{sp.ctaHeading || t('services.cta.heading', 'Need help choosing a service?')}</h3>
+        <p style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 16 }}>{sp.ctaText || t('services.cta.text', 'Call us or WhatsApp for free guidance')}</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href={`tel:${sp.ctaPhone || '+919700104108'}`} style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Phone size={16} weight="fill" /> Call {sp.ctaPhone || '+91 97001 04108'}
+            <Phone size={16} weight="fill" /> {t('services.cta.call', 'Call')} {sp.ctaPhone || '+91 97001 04108'}
           </a>
           <a href={`https://wa.me/${sp.ctaWhatsapp || '919700104108'}`} target="_blank" rel="noopener noreferrer" style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 13, background: '#25d366', color: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <WhatsappLogo size={16} weight="fill" /> WhatsApp Now
+            <WhatsappLogo size={16} weight="fill" /> {t('services.cta.whatsapp', 'WhatsApp Now')}
           </a>
         </div>
       </div>

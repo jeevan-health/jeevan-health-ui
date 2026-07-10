@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const KPIS = [
@@ -11,10 +12,11 @@ const KPIS = [
 ];
 
 export default function AnalyticsKPI() {
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>📈 Key Performance Indicators</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Track business health metrics</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('analyticsKpi.title', '📈 Key Performance Indicators')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t('analyticsKpi.subtitle', 'Track business health metrics')}</p>
       <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
         {KPIS.map(k => (
           <div key={k.label} style={card}>

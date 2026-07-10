@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE_CASES = [
@@ -11,12 +12,13 @@ const SAMPLE_CASES = [
 export default function EmergencyCases() {
   const [filter, setFilter] = useState('');
   const filtered = filter ? SAMPLE_CASES.filter(c => c.status === filter) : SAMPLE_CASES;
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>🚨 Active Cases</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.emergencyCases.title', '🚨 Active Cases')}</h2>
       <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
         {['', 'active', 'en_route', 'resolved'].map(s => (
-          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#dc2626' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontWeight: filter === s ? 600 : 400 }}>{s || 'All'}</button>
+          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#dc2626' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontWeight: filter === s ? 600 : 400 }}>{s ? t('role.emergencyCases.filter' + s.replace(/_/g, '').replace(/./, c => c.toUpperCase()), s) : t('role.emergencyCases.filterAll', 'All')}</button>
         ))}
       </div>
       {filtered.map((c, i) => (

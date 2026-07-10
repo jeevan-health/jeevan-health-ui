@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' };
 
@@ -10,12 +11,13 @@ const SAMPLE = [
 ];
 
 export default function TrainingStaff() {
+  const t = useT();
   const [search, setSearch] = useState('');
   const filtered = search ? SAMPLE.filter(s => (s.name + s.dept).toLowerCase().includes(search.toLowerCase())) : SAMPLE;
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>👥 Staff Training</h2>
-      <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 260, marginBottom: 16, fontSize: 12 }} placeholder="🔍 Search staff..." />
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.training.staffTraining', '👥 Staff Training')}</h2>
+      <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 260, marginBottom: 16, fontSize: 12 }} placeholder={t('role.training.searchStaff', '🔍 Search staff...')} />
       {filtered.map((s, i) => (
         <div key={i} style={card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

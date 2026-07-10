@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE = [
@@ -13,16 +14,17 @@ export default function FinanceTransactions() {
   const [filter, setFilter] = useState('');
   const filtered = filter ? SAMPLE.filter(t => t.status === filter) : SAMPLE;
   const total = SAMPLE.filter(t => t.status === 'completed').reduce((s, t) => s + parseInt(t.amount.replace(/[₹,]/g, '')), 0);
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>💳 Transactions</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.financeTransactions.title', '💳 Transactions')}</h2>
       <div style={{ ...card, textAlign: 'center', marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-        <div style={{ fontSize: 11, color: '#64748b' }}>Total Completed</div>
+        <div style={{ fontSize: 11, color: '#64748b' }}>{t('role.financeTransactions.totalCompleted', 'Total Completed')}</div>
         <div style={{ fontSize: 28, fontWeight: 800, color: '#16a34a' }}>₹{total.toLocaleString()}</div>
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 16, marginBottom: 12, flexWrap: 'wrap' }}>
         {['', 'completed', 'pending', 'failed'].map(s => (
-          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#15803d' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s || 'All'}</button>
+          <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: filter === s ? '#15803d' : '#fff', color: filter === s ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11 }}>{s ? t('role.financeTransactions.filter' + s.charAt(0).toUpperCase() + s.slice(1), s) : t('role.financeTransactions.filterAll', 'All')}</button>
         ))}
       </div>
       {filtered.map((t, i) => (

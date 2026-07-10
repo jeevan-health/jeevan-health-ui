@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPhlebotomists, savePhlebotomist, deletePhlebotomist, getOrders } from '../../services/localOrderService';
+import { useT } from '../../i18n/LanguageProvider';
 
 const ALL_AREAS = ['Kukatpally', 'Madhapur', 'Gachibowli', 'Hitech City', 'Banjara Hills', 'Jubilee Hills', 'Kondapur', 'Miyapur', 'Ameerpet', 'Begumpet', 'Secunderabad', 'Dilsukhnagar', 'Uppal', 'LB Nagar', 'Shamshabad', 'Patancheru', 'Nizampet', 'KPHB', 'SR Nagar', 'Panjagutta'];
 
@@ -34,6 +35,7 @@ const emptyForm = () => ({
 });
 
 export default function AdminCollection() {
+  const t = useT();
   const [phlebotomists, setPhlebotomists] = useState([]);
   const [orders, setOrders] = useState([]);
   const [tab, setTab] = useState('phlebotomists');

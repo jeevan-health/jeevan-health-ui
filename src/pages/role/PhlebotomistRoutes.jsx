@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' };
 
@@ -10,10 +11,11 @@ const SAMPLE_ROUTES = [
 
 export default function PhlebotomistRoutes() {
   const [routes] = useState(SAMPLE_ROUTES);
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>🗺️ Routes</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Today's collection routes and stops</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.phlebotomist.routes', '🗺️ Routes')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t("role.phlebotomist.subtitle", "Today's collection routes and stops")}</p>
       {routes.map((r, i) => (
         <div key={i} style={{ ...card, border: r.status === 'active' ? '2px solid #059669' : '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>

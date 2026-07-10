@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const SAMPLE = [
@@ -10,16 +11,17 @@ const SAMPLE = [
 ];
 
 export default function ITSupportSystem() {
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>⚙️ System Status</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Monitor and manage IT infrastructure</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.itsupSystem.title', '⚙️ System Status')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t('role.itsupSystem.subtitle', 'Monitor and manage IT infrastructure')}</p>
       {SAMPLE.map((s, i) => (
         <div key={i} style={{ ...card, borderLeft: `4px solid ${s.status === 'online' ? '#22c55e' : s.status === 'degraded' ? '#f97316' : '#ef4444'}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <span style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{s.system}</span>
-              <div style={{ fontSize: 12, color: '#64748b' }}>Uptime: {s.uptime} · Last incident: {s.lastIncident}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{t('role.itsupSystem.uptime', 'Uptime')}: {s.uptime} · {t('role.itsupSystem.lastIncident', 'Last incident')}: {s.lastIncident}</div>
             </div>
             <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 4, background: s.status === 'online' ? '#dcfce7' : '#fff7ed', color: s.status === 'online' ? '#16a34a' : '#f97316', fontWeight: 600, textTransform: 'capitalize' }}>{s.status}</span>
           </div>

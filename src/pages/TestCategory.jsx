@@ -4,15 +4,17 @@ import useCartStore from '../stores/cartStore';
 import { seedTests, categoryList, getCategoryBySlug, makeSlug } from '../data/seedData';
 import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
+import { useT } from '../i18n/LanguageProvider';
 
 export default function TestCategory() {
+  const t = useT();
   const { category: slug } = useParams();
   const navigate = useNavigate();
   const addItem = useCartStore(s => s.addItem);
   const diag = useCmsStore(s => s.content.diagnostics || {});
 
   const catMeta = getCategoryBySlug(slug);
-  const displayName = slug === 'all' ? 'All Tests' : (catMeta ? catMeta.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+  const displayName = slug === 'all' ? t('testCategory.allTests', 'All Tests') : (catMeta ? catMeta.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
 
   const allCategoryNames = categoryList.map(c => c.name);
   const fullList = slug === 'all' ? seedTests : (catMeta ? seedTests.filter(t => t.category === catMeta.name) : seedTests.filter(t =>
@@ -43,7 +45,7 @@ export default function TestCategory() {
 
   const catIcon = catMeta ? catMeta.icon : '🔬';
   const catColor = catMeta ? catMeta.color : 'var(--primary)';
-  const catDesc = catMeta ? catMeta.description : 'Browse all available diagnostic tests';
+  const catDesc = catMeta ? catMeta.description : t('testCategory.browseAll', 'Browse all available diagnostic tests');
 
   if (!catMeta && slug !== 'all') {
     const slugTest = seedTests.find(t => makeSlug(t.name) === slug);
@@ -59,7 +61,7 @@ export default function TestCategory() {
     <div>
       <div style={{ background: `linear-gradient(135deg, ${catColor} 0%, ${catColor}cc 100%)`, padding: '28px 0 32px' }}>
         <div className="container">
-          <Link to="/diagnostics" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>← Back to Diagnostics</Link>
+          <Link to="/diagnostics" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>{t('testCategory.backToDiagnostics', '← Back to Diagnostics')}</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
             <span style={{ fontSize: 32 }}>{catIcon}</span>
             <div>
@@ -70,19 +72,19 @@ export default function TestCategory() {
           <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
               <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{fullList.length}</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Tests</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('testCategory.tests', 'Tests')}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
               <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{subcategories.length}</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Categories</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('testCategory.categories', 'Categories')}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
-              <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>⏱ 24h</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Avg Report</div>
+              <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{t('testCategory.avgReportTime', '⏱ 24h')}</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('testCategory.avgReport', 'Avg Report')}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
-              <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>✓ Free</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Home Pickup</div>
+              <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{t('testCategory.freePickup', '✓ Free')}</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('testCategory.homePickup', 'Home Pickup')}</div>
             </div>
           </div>
         </div>
@@ -91,7 +93,7 @@ export default function TestCategory() {
       {fullList.length >= 3 && !catMeta?.name?.startsWith('Full') && (
         <div className="page-section" style={{ background: 'var(--bg-light)', paddingTop: 20, paddingBottom: 20 }}>
           <div className="container">
-            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>Recommended for You</h2>
+            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>{t('testCategory.recommended', 'Recommended for You')}</h2>
             <div className="grid-3">
               {fullList.filter(t => !t.name.toLowerCase().includes('panel') && !t.name.toLowerCase().includes('profile')).slice(0, 3).map(t => (
                 <TestCard key={t.id} test={t} />
@@ -104,17 +106,17 @@ export default function TestCategory() {
       <div className="page-section container" style={{ paddingTop: 20 }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: 180, position: 'relative' }}>
-            <input type="text" placeholder={`Search ${displayName}...`} value={search}
+            <input type="text" placeholder={`${t('testCategory.search', 'Search')} ${displayName}...`} value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ width: '100%', padding: '8px 12px 8px 32px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             <span style={{ position: 'absolute', left: 10, top: 8, fontSize: 13, color: 'var(--text-secondary)' }}>🔍</span>
           </div>
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 12, background: '#fff' }}>
-            <option value="popularity">Popularity</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name">Name: A-Z</option>
+            <option value="popularity">{t('testCategory.sortPopularity', 'Popularity')}</option>
+            <option value="price-low">{t('testCategory.sortPriceLow', 'Price: Low to High')}</option>
+            <option value="price-high">{t('testCategory.sortPriceHigh', 'Price: High to Low')}</option>
+            <option value="name">{t('testCategory.sortName', 'Name: A-Z')}</option>
           </select>
         </div>
 
@@ -122,7 +124,7 @@ export default function TestCategory() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
             <button onClick={() => setActiveSubcat('')}
               style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${activeSubcat === '' ? catColor : 'var(--border)'}`, background: activeSubcat === '' ? `${catColor}15` : '#fff', color: activeSubcat === '' ? catColor : 'var(--text-secondary)', fontSize: 11, cursor: 'pointer', fontWeight: activeSubcat === '' ? 600 : 400 }}>
-              All
+              {t('testCategory.all', 'All')}
             </button>
             {popularSubs.map(sub => (
               <button key={sub} onClick={() => setActiveSubcat(sub)}
@@ -133,7 +135,7 @@ export default function TestCategory() {
           </div>
         )}
 
-        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} test{results.length !== 1 ? 's' : ''} found</p>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} {t('testCategory.testsFound', 'tests found')}</p>
 
         {results.length > 0 ? (
           <div className="grid-3">
@@ -143,8 +145,8 @@ export default function TestCategory() {
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>No tests found matching your criteria</p>
-            <button onClick={() => { setSearch(''); setActiveSubcat(''); }} className="btn btn-outline" style={{ marginTop: 8 }}>Clear Filters</button>
+            <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>{t('testCategory.noTestsFound', 'No tests found matching your criteria')}</p>
+            <button onClick={() => { setSearch(''); setActiveSubcat(''); }} className="btn btn-outline" style={{ marginTop: 8 }}>{t('testCategory.clearFilters', 'Clear Filters')}</button>
           </div>
         )}
       </div>
@@ -152,7 +154,7 @@ export default function TestCategory() {
       {slug !== 'all' && allCategoryNames.length > 1 && (
         <div className="page-section" style={{ background: 'var(--bg-light)', paddingTop: 24, paddingBottom: 24 }}>
           <div className="container">
-            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Browse Other Categories</h2>
+            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>{t('testCategory.browseOtherCategories', 'Browse Other Categories')}</h2>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {allCategoryNames.filter(n => (!catMeta || n !== catMeta.name)).slice(0, 8).map(name => {
                 const meta = categoryList.find(c => c.name === name);

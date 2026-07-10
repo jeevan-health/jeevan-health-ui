@@ -1,40 +1,50 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 const NAV_ITEMS = [
-  { path: '/admin', label: 'Dashboard', icon: '📊', exact: true },
-  { path: '/admin/orders', label: 'Orders', icon: '📋' },
-  { path: '/admin/bookings', label: 'Bookings', icon: '📅' },
-  { path: '/admin/collection', label: 'Phlebotomists', icon: '🚑' },
-  { path: '/admin/reports', label: 'Reports', icon: '📄' },
-  { path: '/admin/users', label: 'Users', icon: '👥' },
-  { path: '/admin/patients', label: 'Patients', icon: '👤' },
-  { path: '/admin/doctors', label: 'Doctors', icon: '🩺' },
-  { path: '/admin/staff-onboarding', label: 'Staff Onboarding', icon: '📋' },
-  { path: '/admin/doctor-onboarding', label: 'Doctor Onboarding', icon: '🩺' },
-  { path: '/admin/permissions', label: 'Permissions', icon: '🔐' },
-  { path: '/admin/test-master', label: 'Test Master', icon: '🧪' },
-  { path: '/admin/health-packages', label: 'Health Packages', icon: '📦' },
-  { path: '/admin/vaccination', label: 'Vaccination ⭐', icon: '💉' },
-  { path: '/admin/inventory', label: 'Inventory', icon: '📋' },
-  { path: '/admin/cms', label: 'Website CMS', icon: '🌐' },
-  { path: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
-  { path: '/admin/contacts', label: 'Contacts', icon: '✉️' },
-  { path: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
-  { path: '/admin/seo', label: 'SEO', icon: '🔍' },
-  { path: '/admin/marketing', label: 'Marketing', icon: '📣' },
-  { path: '/admin/crm', label: 'CRM', icon: '🤝' },
-  { path: '/admin/whatsapp', label: 'WhatsApp', icon: '💬' },
-  { path: '/admin/export', label: 'Data Export', icon: '📤' },
+  { path: '/admin', label: 'admin.layout.dashboard', fallback: 'Dashboard', icon: '📊', exact: true },
+  { path: '/admin/orders', label: 'admin.layout.orders', fallback: 'Orders', icon: '📋' },
+  { path: '/admin/bookings', label: 'admin.layout.bookings', fallback: 'Bookings', icon: '📅' },
+  { path: '/admin/collection', label: 'admin.layout.phlebotomists', fallback: 'Phlebotomists', icon: '🚑' },
+  { path: '/admin/reports', label: 'admin.layout.reports', fallback: 'Reports', icon: '📄' },
+  { path: '/admin/users', label: 'admin.layout.users', fallback: 'Users', icon: '👥' },
+  { path: '/admin/patients', label: 'admin.layout.patients', fallback: 'Patients', icon: '👤' },
+  { path: '/admin/doctors', label: 'admin.layout.doctors', fallback: 'Doctors', icon: '🩺' },
+  { path: '/admin/staff-onboarding', label: 'admin.layout.staff_onboarding', fallback: 'Staff Onboarding', icon: '📋' },
+  { path: '/admin/doctor-onboarding', label: 'admin.layout.doctor_onboarding', fallback: 'Doctor Onboarding', icon: '🩺' },
+  { path: '/admin/permissions', label: 'admin.layout.permissions', fallback: 'Permissions', icon: '🔐' },
+  { path: '/admin/test-master', label: 'admin.layout.test_master', fallback: 'Test Master', icon: '🧪' },
+  { path: '/admin/health-packages', label: 'admin.layout.health_packages', fallback: 'Health Packages', icon: '📦' },
+  { path: '/admin/vaccination', label: 'admin.layout.vaccination', fallback: 'Vaccination ⭐', icon: '💉' },
+  { path: '/admin/inventory', label: 'admin.layout.inventory', fallback: 'Inventory', icon: '📋' },
+  { path: '/admin/cms', label: 'admin.layout.cms', fallback: 'Website CMS', icon: '🌐' },
+  { path: '/admin/coupons', label: 'admin.layout.coupons', fallback: 'Coupons', icon: '🏷️' },
+  { path: '/admin/contacts', label: 'admin.layout.contacts', fallback: 'Contacts', icon: '✉️' },
+  { path: '/admin/audit-log', label: 'admin.layout.audit_log', fallback: 'Audit Log', icon: '📋' },
+  { path: '/admin/seo', label: 'admin.layout.seo', fallback: 'SEO', icon: '🔍' },
+  { path: '/admin/marketing', label: 'admin.layout.marketing', fallback: 'Marketing', icon: '📣' },
+  { path: '/admin/crm', label: 'admin.layout.crm', fallback: 'CRM', icon: '🤝' },
+  { path: '/admin/whatsapp', label: 'admin.layout.whatsapp', fallback: 'WhatsApp', icon: '💬' },
+  { path: '/admin/export', label: 'admin.layout.data_export', fallback: 'Data Export', icon: '📤' },
 ];
 
 export default function AdminLayout() {
+  const t = useT();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
+
+  const getLabel = (item) => {
+    try {
+      return t(item.label, item.fallback);
+    } catch {
+      return item.fallback;
+    }
+  };
 
   const isActive = (item) => item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path);
 
@@ -56,7 +66,7 @@ export default function AdminLayout() {
           background: 'linear-gradient(135deg, #0F5DA8, #1A7AD4)',
         }}>
           <button onClick={() => setCollapsed(!collapsed)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 18, padding: 4, opacity: 0.9 }}>☰</button>
-          {!collapsed && <span style={{ fontWeight: 700, fontSize: 15, color: '#fff', letterSpacing: 0.3 }}>Jeevan Admin</span>}
+          {!collapsed && <span style={{ fontWeight: 700, fontSize: 15, color: '#fff', letterSpacing: 0.3 }}>{t('admin.layout.brand', 'Jeevan Admin')}</span>}
         </div>
 
         {/* Nav Items */}
@@ -74,7 +84,7 @@ export default function AdminLayout() {
               fontWeight: isActive(item) ? 600 : 400,
             }}>
               <span style={{ fontSize: 16 }}>{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span>{getLabel(item)}</span>}
             </Link>
           ))}
         </nav>
@@ -105,11 +115,11 @@ export default function AdminLayout() {
               <button onClick={() => navigate('/dashboard')} style={{
                 flex: 1, padding: '6px 0', background: '#fff', border: '1px solid #e2e8f0',
                 color: '#475569', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontFamily: 'inherit',
-              }}>Site</button>
+              }}>{t('admin.layout.site', 'Site')}</button>
               <button onClick={() => { logout(); navigate('/admin/login'); }} style={{
                 flex: 1, padding: '6px 0', background: '#fff', border: '1px solid #fecaca',
                 color: '#ef4444', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontFamily: 'inherit',
-              }}>Logout</button>
+              }}>{t('admin.layout.logout', 'Logout')}</button>
             </div>
           )}
         </div>
@@ -124,10 +134,10 @@ export default function AdminLayout() {
           justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10,
         }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>
-            {NAV_ITEMS.find(i => isActive(i))?.label || 'Admin'}
+            {getLabel(NAV_ITEMS.find(i => isActive(i)) || NAV_ITEMS[0]) || 'Admin'}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: '#64748b' }}>
-            <Link to="/" style={{ color: '#1866C9', textDecoration: 'none' }}>← Back to Site</Link>
+            <Link to="/" style={{ color: '#1866C9', textDecoration: 'none' }}>{t('admin.layout.back_to_site', '← Back to Site')}</Link>
           </div>
         </div>
         <div style={{ padding: 24 }}>

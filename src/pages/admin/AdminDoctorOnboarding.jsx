@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useDoctorOnboardingStore from '../../stores/doctorOnboardingStore';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -8,6 +9,7 @@ const sectionLabel = { fontSize: 11, fontWeight: 700, color: '#64748b', textTran
 const LABELS = ['Basic Information', 'Professional Details', 'Availability & Consultation Mode', 'Charges & Bank Details', 'Declaration & Consent'];
 
 export default function AdminDoctorOnboarding() {
+  const t = useT();
   const entries = useDoctorOnboardingStore(s => s.entries);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

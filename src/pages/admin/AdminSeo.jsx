@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useSeoStore from '../../stores/seoStore';
 
 export default function AdminSeo() {
+  const t = useT();
   const { data, updateKeyword, addKeyword, deleteKeyword, updatePage, updateAnalytics, resetSeo } = useSeoStore();
   const [tab, setTab] = useState('overview');
   const [showAddKw, setShowAddKw] = useState(false);
@@ -77,7 +79,7 @@ export default function AdminSeo() {
               <div><label style={{ display: 'block', fontSize: 11, color: '#6b7280', marginBottom: 2 }}>Difficulty (0-100)</label><input type="number" min="0" max="100" value={kwForm.difficulty} onChange={e => setKwForm({ ...kwForm, difficulty: e.target.value })} required style={{ padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: 13, width: 80 }} /></div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button type="submit" style={{ padding: '6px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Add</button>
-                <button type="button" onClick={() => setShowAddKw(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Cancel</button>
+                <button type="button" onClick={() => setShowAddKw(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>{t('admin.seo.cancel', 'Cancel')}</button>
               </div>
             </form>
           )}

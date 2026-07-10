@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { heartRiskScore, calcBMI, getRecommendedTests } from '../../utils/healthCalculations';
 import useCartStore from '../../stores/cartStore';
 import { useNavigate } from 'react-router-dom';
+import { useT } from '../../i18n/LanguageProvider';
 
 const s = {
   label: { fontSize: 10, color: '#64748b', fontWeight: 600, display: 'block', marginBottom: 2 },
@@ -13,6 +14,7 @@ const s = {
 };
 
 export default function HeartHealthCalculator() {
+  const t = useT();
   const [form, setForm] = useState({ age: '', gender: 'male', height: '', weight: '', systolicBp: '', smoking: 'no', alcohol: 'no', diabetes: 'no', cholesterol: 'normal', exercise: 'moderate', familyHistory: 'no' });
   const [calculated, setCalculated] = useState(false);
   const addItem = useCartStore(s => s.addItem);
@@ -28,36 +30,36 @@ export default function HeartHealthCalculator() {
   return (
     <div>
       <div style={s.inputRow}>
-        <div><label style={s.label}>Age</label><input className="input" type="number" value={form.age} onChange={e => u('age', e.target.value)} style={{ fontSize: 12 }} /></div>
-        <div><label style={s.label}>Gender</label><select value={form.gender} onChange={e => u('gender', e.target.value)} style={s.select}><option value="male">Male</option><option value="female">Female</option></select></div>
+        <div><label style={s.label}>{t('heart.age', 'Age')}</label><input className="input" type="number" value={form.age} onChange={e => u('age', e.target.value)} style={{ fontSize: 12 }} /></div>
+        <div><label style={s.label}>{t('heart.gender', 'Gender')}</label><select value={form.gender} onChange={e => u('gender', e.target.value)} style={s.select}><option value="male">{t('heart.male', 'Male')}</option><option value="female">{t('heart.female', 'Female')}</option></select></div>
       </div>
       <div style={s.inputRow}>
-        <div><label style={s.label}>Height (cm)</label><input className="input" type="number" value={form.height} onChange={e => u('height', e.target.value)} style={{ fontSize: 12 }} /></div>
-        <div><label style={s.label}>Weight (kg)</label><input className="input" type="number" value={form.weight} onChange={e => u('weight', e.target.value)} style={{ fontSize: 12 }} /></div>
+        <div><label style={s.label}>{t('heart.height', 'Height (cm)')}</label><input className="input" type="number" value={form.height} onChange={e => u('height', e.target.value)} style={{ fontSize: 12 }} /></div>
+        <div><label style={s.label}>{t('heart.weight', 'Weight (kg)')}</label><input className="input" type="number" value={form.weight} onChange={e => u('weight', e.target.value)} style={{ fontSize: 12 }} /></div>
       </div>
       <div style={s.inputRow}>
-        <div><label style={s.label}>Systolic BP (mmHg)</label><input className="input" type="number" value={form.systolicBp} onChange={e => u('systolicBp', e.target.value)} style={{ fontSize: 12 }} /></div>
-        <div><label style={s.label}>Smoking</label><select value={form.smoking} onChange={e => u('smoking', e.target.value)} style={s.select}><option value="no">No</option><option value="former">Former</option><option value="yes">Yes</option></select></div>
+        <div><label style={s.label}>{t('heart.systolicBp', 'Systolic BP (mmHg)')}</label><input className="input" type="number" value={form.systolicBp} onChange={e => u('systolicBp', e.target.value)} style={{ fontSize: 12 }} /></div>
+        <div><label style={s.label}>{t('heart.smoking', 'Smoking')}</label><select value={form.smoking} onChange={e => u('smoking', e.target.value)} style={s.select}><option value="no">{t('heart.no', 'No')}</option><option value="former">{t('heart.former', 'Former')}</option><option value="yes">{t('heart.yes', 'Yes')}</option></select></div>
       </div>
       <div style={s.inputRow}>
-        <div><label style={s.label}>Alcohol</label><select value={form.alcohol} onChange={e => u('alcohol', e.target.value)} style={s.select}><option value="no">No</option><option value="occasional">Occasional</option><option value="daily">Daily</option></select></div>
-        <div><label style={s.label}>Diabetes</label><select value={form.diabetes} onChange={e => u('diabetes', e.target.value)} style={s.select}><option value="no">No</option><option value="borderline">Borderline</option><option value="yes">Yes</option></select></div>
+        <div><label style={s.label}>{t('heart.alcohol', 'Alcohol')}</label><select value={form.alcohol} onChange={e => u('alcohol', e.target.value)} style={s.select}><option value="no">{t('heart.no', 'No')}</option><option value="occasional">{t('heart.occasional', 'Occasional')}</option><option value="daily">{t('heart.daily', 'Daily')}</option></select></div>
+        <div><label style={s.label}>{t('heart.diabetes', 'Diabetes')}</label><select value={form.diabetes} onChange={e => u('diabetes', e.target.value)} style={s.select}><option value="no">{t('heart.no', 'No')}</option><option value="borderline">{t('heart.borderline', 'Borderline')}</option><option value="yes">{t('heart.yes', 'Yes')}</option></select></div>
       </div>
       <div style={s.inputRow}>
-        <div><label style={s.label}>Cholesterol</label><select value={form.cholesterol} onChange={e => u('cholesterol', e.target.value)} style={s.select}><option value="normal">Normal</option><option value="borderline">Borderline</option><option value="high">High</option></select></div>
-        <div><label style={s.label}>Exercise</label><select value={form.exercise} onChange={e => u('exercise', e.target.value)} style={s.select}><option value="active">Active</option><option value="moderate">Moderate</option><option value="light">Light</option><option value="sedentary">Sedentary</option></select></div>
+        <div><label style={s.label}>{t('heart.cholesterol', 'Cholesterol')}</label><select value={form.cholesterol} onChange={e => u('cholesterol', e.target.value)} style={s.select}><option value="normal">{t('heart.normal', 'Normal')}</option><option value="borderline">{t('heart.borderline', 'Borderline')}</option><option value="high">{t('heart.high', 'High')}</option></select></div>
+        <div><label style={s.label}>{t('heart.exercise', 'Exercise')}</label><select value={form.exercise} onChange={e => u('exercise', e.target.value)} style={s.select}><option value="active">{t('heart.active', 'Active')}</option><option value="moderate">{t('heart.moderate', 'Moderate')}</option><option value="light">{t('heart.light', 'Light')}</option><option value="sedentary">{t('heart.sedentary', 'Sedentary')}</option></select></div>
       </div>
       <div style={s.inputFull}>
-        <label style={s.label}>Family History of Heart Disease</label>
-        <select value={form.familyHistory} onChange={e => u('familyHistory', e.target.value)} style={s.select}><option value="no">No</option><option value="yes">Yes</option></select>
+        <label style={s.label}>{t('heart.familyHistory', 'Family History of Heart Disease')}</label>
+        <select value={form.familyHistory} onChange={e => u('familyHistory', e.target.value)} style={s.select}><option value="no">{t('heart.no', 'No')}</option><option value="yes">{t('heart.yes', 'Yes')}</option></select>
       </div>
 
-      <button style={s.btnCalc} onClick={() => setCalculated(true)} disabled={!canCalc}>❤️ Calculate Heart Health</button>
+      <button style={s.btnCalc} onClick={() => setCalculated(true)} disabled={!canCalc}>❤️ {t('heart.calculate', 'Calculate Heart Health')}</button>
 
       {calculated && result && (
         <>
           <div style={{ textAlign: 'center', padding: '16px', background: '#fef2f2', borderRadius: 12, marginBottom: 16, border: '1px solid #fecaca' }}>
-            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>HEART HEALTH SCORE</div>
+            <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>{t('heart.healthScore', 'HEART HEALTH SCORE')}</div>
             <div style={{ fontSize: 36, fontWeight: 800, color: result.category.color }}>{result.score}<span style={{ fontSize: 16, fontWeight: 500, color: '#94a3b8' }}>/{result.max}</span></div>
             <div style={{ fontSize: 13, fontWeight: 600, color: result.category.color }}>{result.category.icon} {result.category.label}</div>
             {bmi && <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>BMI: {bmi}</div>}
@@ -65,29 +67,29 @@ export default function HeartHealthCalculator() {
 
           {result.score < 60 ? (
             <div style={{ background: '#fef2f2', borderRadius: 10, padding: 12, marginBottom: 16, border: '1px solid #fecaca' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#dc2626', marginBottom: 4 }}>⚠️ Preventive Care Recommended</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#dc2626', marginBottom: 4 }}>⚠️ {t('heart.preventiveCare', 'Preventive Care Recommended')}</div>
               <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: '#7f1d1d', lineHeight: 1.7 }}>
-                <li>Schedule a cardiac evaluation with your healthcare provider</li>
-                <li>Monitor blood pressure and cholesterol regularly</li>
-                <li>Aim for 30 mins of moderate exercise daily</li>
-                <li>Maintain a heart-healthy diet low in saturated fats</li>
-                <li>Avoid smoking and limit alcohol consumption</li>
+                <li>{t('heart.care1', 'Schedule a cardiac evaluation with your healthcare provider')}</li>
+                <li>{t('heart.care2', 'Monitor blood pressure and cholesterol regularly')}</li>
+                <li>{t('heart.care3', 'Aim for 30 mins of moderate exercise daily')}</li>
+                <li>{t('heart.care4', 'Maintain a heart-healthy diet low in saturated fats')}</li>
+                <li>{t('heart.care5', 'Avoid smoking and limit alcohol consumption')}</li>
               </ul>
             </div>
           ) : (
             <div style={{ background: '#f0fdf4', borderRadius: 10, padding: 12, marginBottom: 16, border: '1px solid #bbf7d0' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>✅ Keep It Up!</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>✅ {t('heart.keepItUp', 'Keep It Up!')}</div>
               <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: '#166534', lineHeight: 1.7 }}>
-                <li>Continue regular exercise and balanced diet</li>
-                <li>Get annual health check-ups</li>
-                <li>Maintain healthy sleep and stress levels</li>
+                <li>{t('heart.keep1', 'Continue regular exercise and balanced diet')}</li>
+                <li>{t('heart.keep2', 'Get annual health check-ups')}</li>
+                <li>{t('heart.keep3', 'Maintain healthy sleep and stress levels')}</li>
               </ul>
             </div>
           )}
 
           {recs && (
             <div style={{ background: '#fdf8f0', borderRadius: 10, padding: 12, border: '1px solid #fde68a' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#92400e', marginBottom: 6 }}>🩺 Recommended Tests</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#92400e', marginBottom: 6 }}>🩺 {t('heart.recommendedTests', 'Recommended Tests')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
                 {recs.tests.map(t => (
                   <div key={t.name} style={{ fontSize: 12, color: '#334155' }}>✔ {t.name} <span style={{ fontSize: 10, color: '#94a3b8' }}>— {t.reason}</span></div>
@@ -99,9 +101,9 @@ export default function HeartHealthCalculator() {
                 </button>
               ))}
               <button onClick={() => recs.tests.forEach(t => addItem({ id: t.name, type: 'test', name: t.name, price: t.price, offerPrice: t.price }))} style={{ ...s.btnSec, width: '100%', background: '#1866C9', color: '#fff', border: 'none', fontWeight: 600, marginBottom: 6 }}>
-                🛒 Book Tests (₹{recs.totalCost})
+                🛒 {t('heart.bookTests', 'Book Tests')} (₹{recs.totalCost})
               </button>
-              <button onClick={() => navigate('/contact')} style={{ ...s.btnSec, width: '100%', fontWeight: 600 }}>👨‍⚕️ Consult Doctor</button>
+              <button onClick={() => navigate('/contact')} style={{ ...s.btnSec, width: '100%', fontWeight: 600 }}>👨‍⚕️ {t('heart.consultDoctor', 'Consult Doctor')}</button>
             </div>
           )}
         </>

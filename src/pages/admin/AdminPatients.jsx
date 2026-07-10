@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import usePatientsStore from '../../stores/patientsStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -8,9 +9,10 @@ function loadOrders() { try { return JSON.parse(localStorage.getItem('jeevan_ord
 function loadBookings() { try { return JSON.parse(localStorage.getItem('jh_bookings') || '[]'); } catch { return []; } }
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-const TAG_OPTIONS = ['regular', 'new', 'diabetic', 'cardiac', 'senior', 'pregnant', 'follow-up', 'vip'];
 
 export default function AdminPatients() {
+  const t = useT();
+  const TAG_OPTIONS = ['regular', 'new', 'diabetic', 'cardiac', 'senior', 'pregnant', 'follow-up', 'vip'];
   const patients = usePatientsStore(s => s.patients);
   const addPatient = usePatientsStore(s => s.addPatient);
   const updatePatient = usePatientsStore(s => s.updatePatient);
@@ -55,7 +57,7 @@ export default function AdminPatients() {
     const bookings = loadBookings().filter(b => b.patientName === viewPt.name || b.patientPhone === viewPt.phone);
     return (
       <div>
-        <button onClick={() => setViewPt(null)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b', marginBottom: 16 }}>← Back to Patients</button>
+        <button onClick={() => setViewPt(null)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b', marginBottom: 16 }}>{t('admin.patients.back', '← Back to Patients')}</button>
         <div style={sectionCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
@@ -64,21 +66,21 @@ export default function AdminPatients() {
               <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                 {viewPt.gender && <span style={{ fontSize: 11, background: '#f1f5f9', padding: '3px 8px', borderRadius: 4, color: '#475569' }}>{viewPt.gender}</span>}
                 {viewPt.bloodGroup && <span style={{ fontSize: 11, background: '#fef2f2', padding: '3px 8px', borderRadius: 4, color: '#dc2626', fontWeight: 600 }}>{viewPt.bloodGroup}</span>}
-                {viewPt.dateOfBirth && <span style={{ fontSize: 11, background: '#f1f5f9', padding: '3px 8px', borderRadius: 4, color: '#475569' }}>DOB: {viewPt.dateOfBirth}</span>}
+                {viewPt.dateOfBirth && <span style={{ fontSize: 11, background: '#f1f5f9', padding: '3px 8px', borderRadius: 4, color: '#475569' }}>{t('admin.patients.dob', 'DOB')}: {viewPt.dateOfBirth}</span>}
                 {(viewPt.tags || []).map(t => <span key={t} style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: '#3b82f6', padding: '2px 8px', borderRadius: 4 }}>{t}</span>)}
               </div>
               {viewPt.address && <div style={{ fontSize: 12, color: '#64748b', marginTop: 6 }}>{viewPt.address}{viewPt.city ? `, ${viewPt.city}` : ''}</div>}
               {viewPt.notes && <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, fontStyle: 'italic' }}>📝 {viewPt.notes}</div>}
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
-              <button onClick={() => { handleEdit(viewPt); setViewPt(null); }} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>Edit</button>
+              <button onClick={() => { handleEdit(viewPt); setViewPt(null); }} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.patients.edit', 'Edit')}</button>
             </div>
           </div>
         </div>
 
         <div style={sectionCard}>
-          <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>📋 Orders ({orders.length})</h4>
-          {orders.length === 0 && <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>No orders found.</p>}
+          <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>📋 {t('admin.patients.orders', 'Orders')} ({orders.length})</h4>
+          {orders.length === 0 && <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('admin.patients.no_orders', 'No orders found.')}</p>}
           {orders.map(o => (
             <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 12 }}>
               <div><span style={{ fontWeight: 600 }}>{o.id}</span> — {Array.isArray(o.tests) ? o.tests.map(t => t.name || t).join(', ') : o.tests}</div>
@@ -88,8 +90,8 @@ export default function AdminPatients() {
         </div>
 
         <div style={sectionCard}>
-          <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>📅 Bookings ({bookings.length})</h4>
-          {bookings.length === 0 && <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>No bookings found.</p>}
+          <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>📅 {t('admin.patients.bookings', 'Bookings')} ({bookings.length})</h4>
+          {bookings.length === 0 && <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('admin.patients.no_bookings', 'No bookings found.')}</p>}
           {bookings.map(b => (
             <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 12 }}>
               <div><span style={{ fontWeight: 600 }}>{b.id}</span> — {b.testName || '—'} | {b.date} {b.timeSlot}</div>
@@ -104,14 +106,14 @@ export default function AdminPatients() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>👤 Patients ({patients.length})</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>👤 {t('admin.patients.title', 'Patients')} ({patients.length})</div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 220, fontSize: 12 }} placeholder="🔍 Search name/phone/email..." />
-          <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ Add Patient</button>
+          <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 220, fontSize: 12 }} placeholder={t('admin.patients.search_placeholder', '🔍 Search name/phone/email...')} />
+          <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ {t('admin.patients.add_patient', 'Add Patient')}</button>
         </div>
       </div>
 
-      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>No patients found.</p>}
+      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>{t('admin.patients.no_patients', 'No patients found.')}</p>}
       {filtered.map(p => (
         <div key={p.id} style={sectionCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
@@ -131,9 +133,9 @@ export default function AdminPatients() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
-              <button onClick={() => { handleEdit(p); setViewPt(null); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>Edit</button>
-              <button onClick={() => setViewPt(p)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>View</button>
-              <button onClick={() => { if (confirm(`Delete ${p.name}?`)) deletePatient(p.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>Del</button>
+              <button onClick={() => { handleEdit(p); setViewPt(null); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.patients.edit', 'Edit')}</button>
+              <button onClick={() => setViewPt(p)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.patients.view', 'View')}</button>
+              <button onClick={() => { if (confirm(`${t('admin.patients.delete_confirm', 'Delete')} ${p.name}?`)) deletePatient(p.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>{t('admin.patients.del', 'Del')}</button>
             </div>
           </div>
         </div>
@@ -142,37 +144,37 @@ export default function AdminPatients() {
       {showAdd && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 480, maxWidth: '90vw', maxHeight: '85vh', overflowY: 'auto' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? 'Edit Patient' : 'Add Patient'}</h4>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? t('admin.patients.edit_patient', 'Edit Patient') : t('admin.patients.add_patient', 'Add Patient')}</h4>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
-              <input placeholder="Name *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
-              <input placeholder="Phone" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
-              <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
-              <input type="date" placeholder="DOB" value={form.dateOfBirth} onChange={e => setForm({ ...form, dateOfBirth: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.patients.name_req', 'Name *')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.patients.phone', 'Phone')} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.patients.email', 'Email')} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+              <input type="date" placeholder={t('admin.patients.dob', 'DOB')} value={form.dateOfBirth} onChange={e => setForm({ ...form, dateOfBirth: e.target.value })} style={inputStyle} />
               <select value={form.gender} onChange={e => setForm({ ...form, gender: e.target.value })} style={inputStyle}>
-                <option value="">— Gender —</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                <option value="">{t('admin.patients.gender_select', '— Gender —')}</option>
+                <option value="Male">{t('admin.patients.male', 'Male')}</option>
+                <option value="Female">{t('admin.patients.female', 'Female')}</option>
+                <option value="Other">{t('admin.patients.other', 'Other')}</option>
               </select>
               <select value={form.bloodGroup} onChange={e => setForm({ ...form, bloodGroup: e.target.value })} style={inputStyle}>
-                <option value="">— Blood Group —</option>
+                <option value="">{t('admin.patients.blood_group_select', '— Blood Group —')}</option>
                 {BLOOD_GROUPS.map(b => <option key={b} value={b}>{b}</option>)}
               </select>
-              <input placeholder="Address" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} style={{ ...inputStyle, gridColumn: '1 / -1' }} />
-              <input placeholder="City" value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.patients.address', 'Address')} value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} style={{ ...inputStyle, gridColumn: '1 / -1' }} />
+              <input placeholder={t('admin.patients.city', 'City')} value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} style={inputStyle} />
             </div>
             <div style={{ marginTop: 10 }}>
-              <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 6 }}>Tags</label>
+              <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 6 }}>{t('admin.patients.tags', 'Tags')}</label>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {TAG_OPTIONS.map(t => (
                   <button key={t} onClick={() => toggleTag(t)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: form.tags.includes(t) ? '#3b82f6' : '#f1f5f9', color: form.tags.includes(t) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: form.tags.includes(t) ? 600 : 400 }}>{t}</button>
                 ))}
               </div>
             </div>
-            <textarea rows={2} placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginTop: 10 }} />
+            <textarea rows={2} placeholder={t('admin.patients.notes', 'Notes')} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginTop: 10 }} />
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
-              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? 'Update' : 'Add Patient'}</button>
+              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.patients.cancel', 'Cancel')}</button>
+              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? t('admin.patients.update', 'Update') : t('admin.patients.add_patient', 'Add Patient')}</button>
             </div>
           </div>
         </div>

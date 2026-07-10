@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useWhatsAppStore from '../../stores/whatsappStore';
 
 export default function AdminWhatsApp() {
+  const t = useT();
   const { data, addTemplate, updateTemplate, deleteTemplate, sendMessage, reset } = useWhatsAppStore();
   const [tab, setTab] = useState('templates');
   const [showAddTmpl, setShowAddTmpl] = useState(false);
@@ -34,7 +36,7 @@ export default function AdminWhatsApp() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>💬 WhatsApp Manager</h2>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowSend(true)} style={{ padding: '6px 14px', background: '#25d366', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>Send Message</button>
+          <button onClick={() => setShowSend(true)} style={{ padding: '6px 14px', background: '#25d366', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>{t('admin.whatsapp.send_message', 'Send Message')}</button>
           <button onClick={reset} style={{ padding: '6px 14px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>Reset</button>
         </div>
       </div>
@@ -54,7 +56,7 @@ export default function AdminWhatsApp() {
           </select></div>
           <div style={{ display: 'flex', gap: 6 }}>
             <button type="submit" style={{ padding: '6px 14px', background: '#25d366', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Send</button>
-            <button type="button" onClick={() => setShowSend(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Cancel</button>
+            <button type="button" onClick={() => setShowSend(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>{t('admin.whatsapp.cancel', 'Cancel')}</button>
           </div>
         </form>
       )}
@@ -73,7 +75,7 @@ export default function AdminWhatsApp() {
               <div style={{ width: '100%' }}><label style={{ display: 'block', fontSize: 11, color: '#6b7280', marginBottom: 2 }}>Template Content</label><textarea value={tmplForm.content} onChange={e => setTmplForm({ ...tmplForm, content: e.target.value })} required rows={3} style={{ width: '100%', padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: 13, resize: 'vertical' }} /></div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button type="submit" style={{ padding: '6px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Create</button>
-                <button type="button" onClick={() => setShowAddTmpl(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Cancel</button>
+                <button type="button" onClick={() => setShowAddTmpl(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>{t('admin.whatsapp.cancel', 'Cancel')}</button>
               </div>
             </form>
           )}

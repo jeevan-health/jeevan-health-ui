@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useUploadModal from '../../stores/uploadModalStore';
-
-const ACTIONS = [
-  { icon: '💬', label: 'Chat on WhatsApp', href: 'https://wa.me/919700104108', color: '#25D366', pulse: true },
-  { icon: '📞', label: 'Call Now', href: 'tel:+919700104108', color: '#1866C9', pulse: false },
-  { icon: '📄', label: 'Upload Prescription', action: 'upload', color: '#FF9800', pulse: false },
-  { icon: '🆘', label: 'Need Help?', action: 'help', color: '#20B7F5', pulse: false },
-];
+import { useT } from '../../i18n/LanguageProvider';
 
 export default function FloatingActions() {
+  const t = useT();
+  const ACTIONS = [
+    { icon: '💬', label: t('floating.chatWhatsApp', 'Chat on WhatsApp'), href: 'https://wa.me/919700104108', color: '#25D366', pulse: true },
+    { icon: '📞', label: t('floating.callNow', 'Call Now'), href: 'tel:+919700104108', color: '#1866C9', pulse: false },
+    { icon: '📄', label: t('floating.uploadRx', 'Upload Prescription'), action: 'upload', color: '#FF9800', pulse: false },
+    { icon: '🆘', label: t('floating.needHelp', 'Need Help?'), action: 'help', color: '#20B7F5', pulse: false },
+  ];
   const [expanded, setExpanded] = useState(false);
   const [visible, setVisible] = useState(true);
   const [showHelpPanel, setShowHelpPanel] = useState(false);
@@ -40,12 +41,12 @@ export default function FloatingActions() {
   };
 
   const helpItems = [
-    { icon: '🔬', label: 'Book a Test', href: '/diagnostics' },
-    { icon: '🔍', label: 'Find a Test', href: '/diagnostics' },
-    { icon: '📦', label: 'Health Packages', href: '/services' },
-    { icon: '📋', label: 'Report Support', href: '/contact' },
-    { icon: '🏠', label: 'Home Collection', href: '/diagnostics' },
-    { icon: '👨‍⚕️', label: 'Talk to an Executive', href: 'tel:+919700104108' },
+    { icon: '🔬', label: t('floating.bookTest', 'Book a Test'), href: '/diagnostics' },
+    { icon: '🔍', label: t('floating.findTest', 'Find a Test'), href: '/diagnostics' },
+    { icon: '📦', label: t('floating.healthPackages', 'Health Packages'), href: '/services' },
+    { icon: '📋', label: t('floating.reportSupport', 'Report Support'), href: '/contact' },
+    { icon: '🏠', label: t('floating.homeCollection', 'Home Collection'), href: '/diagnostics' },
+    { icon: '👨‍⚕️', label: t('floating.talkExecutive', 'Talk to an Executive'), href: 'tel:+919700104108' },
   ];
 
   return (
@@ -55,8 +56,8 @@ export default function FloatingActions() {
           <div className="fab-trust-badge" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)', borderRadius: 12, padding: '8px 12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid #e8edf2', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, animation: 'fabFadeIn 0.3s ease' }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#16a34a' }}>🟢 Online Now</div>
-              <div style={{ fontSize: 9, color: 'var(--text-secondary)' }}>Avg response: &lt; 2 min</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#16a34a' }}>🟢 {t('floating.onlineNow', 'Online Now')}</div>
+              <div style={{ fontSize: 9, color: 'var(--text-secondary)' }}>{t('floating.avgResponse', 'Avg response:')} &lt; 2 min</div>
             </div>
           </div>
         )}
@@ -87,7 +88,7 @@ export default function FloatingActions() {
       {showHelpPanel && (
         <div onClick={() => setShowHelpPanel(false)} style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(0,0,0,0.3)' }}>
           <div onClick={e => e.stopPropagation()} className="fab-help-panel" style={{ position: 'fixed', bottom: 100, right: 24, background: '#fff', borderRadius: 16, padding: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', width: 240, animation: 'fabFadeIn 0.2s ease', zIndex: 9999 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>💬 Need Help?</div>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>💬 {t('floating.needHelpPanel', 'Need Help?')}</div>
             {helpItems.map(item => (
               <a key={item.label} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', textDecoration: 'none', color: 'var(--text-body)', fontSize: 12, borderBottom: '1px solid #f5f5f5' }}>
                 <span style={{ fontSize: 16 }}>{item.icon}</span>

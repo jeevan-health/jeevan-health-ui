@@ -1,3 +1,4 @@
+import { useT } from '../i18n/LanguageProvider';
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useDoctorsStore from '../stores/doctorsStore';
@@ -5,6 +6,7 @@ import useDoctorsStore from '../stores/doctorsStore';
 const card = { background: '#fff', borderRadius: 16, padding: 24, border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'box-shadow 0.2s' };
 
 export default function ConsultDoctor() {
+  const t = useT();
   const doctors = useDoctorsStore(s => s.doctors);
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -31,17 +33,17 @@ export default function ConsultDoctor() {
         {/* Hero */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🩺</div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>Consult a Doctor</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>{t('consultDoctor.heading', 'Consult a Doctor')}</h1>
           <p style={{ fontSize: 14, color: '#64748b', maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>
-            Book a consultation with top doctors from the comfort of your home. Online, clinic, or home visit — choose what works for you.
+            {t('consultDoctor.subtitle', 'Book a consultation with top doctors from the comfort of your home. Online, clinic, or home visit — choose what works for you.')}
           </p>
         </div>
 
         {/* Search + Filter */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid #d1d5db', fontSize: 14, fontFamily: 'inherit', width: 280, background: '#fff' }} placeholder="🔍 Search by name, specialty..." />
+          <input value={search} onChange={e => setSearch(e.target.value)} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid #d1d5db', fontSize: 14, fontFamily: 'inherit', width: 280, background: '#fff' }} placeholder={t('consultDoctor.searchPlaceholder', '🔍 Search by name, specialty...')} />
           <select value={specFilter} onChange={e => setSpecFilter(e.target.value)} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid #d1d5db', fontSize: 14, fontFamily: 'inherit', background: '#fff', width: 200 }}>
-            <option value="">All Specialties</option>
+            <option value="">{t('consultDoctor.allSpecialties', 'All Specialties')}</option>
             {allSpecs.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
@@ -50,7 +52,7 @@ export default function ConsultDoctor() {
         {filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>👨‍⚕️</div>
-            <p style={{ fontSize: 14 }}>No doctors available. Check back later.</p>
+            <p style={{ fontSize: 14 }}>{t('consultDoctor.noDoctors', 'No doctors available. Check back later.')}</p>
           </div>
         )}
 
@@ -62,9 +64,9 @@ export default function ConsultDoctor() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px' }}>{d.name}</h3>
                   <div style={{ fontSize: 12, color: '#1866C9', fontWeight: 600, marginBottom: 4 }}>{(d.specializations || []).slice(0, 3).join(', ')}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>{(d.qualifications || []).join(', ')} | {d.experience} yrs exp</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>{(d.qualifications || []).join(', ')} | {d.experience} {t('consultDoctor.yearsExp', 'yrs exp')}</div>
                   <div style={{ fontSize: 12, color: '#64748b' }}>
-                    {d.consultationFee ? `₹${d.consultationFee}/consult` : 'Fee varies'}
+                    {d.consultationFee ? `${t('consultDoctor.rupee', '₹')}${d.consultationFee}/consult` : t('consultDoctor.feeVaries', 'Fee varies')}
                     {(d.consultationModes || []).length > 0 && ` | ${d.consultationModes.map(m => ({online: '🖥️', clinic: '🏥', home: '🚑'})[m] || m).join(' ')}`}
                   </div>
                 </div>
@@ -77,7 +79,7 @@ export default function ConsultDoctor() {
                 </div>
               )}
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: '#eef2ff', color: '#1866C9' }}>Book Now →</span>
+                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: '#eef2ff', color: '#1866C9' }}>{t('consultDoctor.bookNow', 'Book Now →')}</span>
               </div>
             </div>
           ))}

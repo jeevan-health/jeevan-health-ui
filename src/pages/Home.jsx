@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests } from '../data/seedData';
@@ -7,6 +8,7 @@ import SmartSearch from '../components/layout/SmartSearch';
 import useCmsStore from '../stores/cmsStore';
 
 export default function Home() {
+  const t = useT();
   const popular = seedTests.slice(0, 8);
   const pkgs = packageList.slice(0, 4);
   const cms = useCmsStore();
@@ -55,20 +57,21 @@ export default function Home() {
 }
 
 function HeroSection() {
+  const t = useT();
   const hero = useCmsStore(s => s.content?.hero);
   const h = hero || {};
   if (h.active === false) return null;
   const statBadges = h.statBadges || [
-    { icon: '🔬', label: '5000+ Tests', sublabel: '' },
-    { icon: '🚚', label: 'Free Home Collection', sublabel: '' },
-    { icon: '🏥', label: 'NABL Certified Labs', sublabel: '' },
-    { icon: '⏱️', label: 'Reports in 24 Hours', sublabel: '' },
+    { icon: '🔬', label: t('home.hero.statBadges.tests', '5000+ Tests'), sublabel: '' },
+    { icon: '🚚', label: t('home.hero.statBadges.freeCollection', 'Free Home Collection'), sublabel: '' },
+    { icon: '🏥', label: t('home.hero.statBadges.labs', 'NABL Certified Labs'), sublabel: '' },
+    { icon: '⏱️', label: t('home.hero.statBadges.reports', 'Reports in 24 Hours'), sublabel: '' },
   ];
   const featureIcons = h.featureIcons || [
-    { icon: 'family', label: 'Family' },
-    { icon: 'doctor', label: 'Doctor' },
-    { icon: 'phlebotomist', label: 'Phlebotomist' },
-    { icon: 'senior', label: 'Senior Citizen' },
+    { icon: 'family', label: t('home.hero.features.family', 'Family') },
+    { icon: 'doctor', label: t('home.hero.features.doctor', 'Doctor') },
+    { icon: 'phlebotomist', label: t('home.hero.features.phlebotomist', 'Phlebotomist') },
+    { icon: 'senior', label: t('home.hero.features.senior', 'Senior Citizen') },
   ];
 
   const iconSVGs = {
@@ -89,27 +92,27 @@ function HeroSection() {
             ))}
           </div>
           <h1 style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.15, margin: '0 0 6px', letterSpacing: -0.5 }}>
-            {h.heading || 'Book Lab Tests <br />At Home'}
+            {h.heading || t('home.hero.heading', 'Book Lab Tests <br />At Home')}
           </h1>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.6, maxWidth: 480 }}>
-            {h.subheading || "India's most trusted diagnostics platform. Free sample collection by trained phlebotomists. NABL certified labs. Accurate digital reports delivered to your doorstep."}
+            {h.subheading || t('home.hero.subheading', "India's most trusted diagnostics platform. Free sample collection by trained phlebotomists. NABL certified labs. Accurate digital reports delivered to your doorstep.")}
           </p>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>{h.ctaText || 'Book Lab Tests'}</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>{h.ctaSecondaryText || '📄 Upload Prescription'}</button>
+            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>{h.ctaText || t('home.hero.cta', 'Book Lab Tests')}</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>{h.ctaSecondaryText || t('home.hero.ctaSecondary', '📄 Upload Prescription')}</button>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-            <Link to={h.ctaTertiaryLink || '/services'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>{h.ctaTertiaryText || '📦 Book Health Package'}</Link>
+            <Link to={h.ctaTertiaryLink || '/services'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>{h.ctaTertiaryText || t('home.hero.ctaTertiary', '📦 Book Health Package')}</Link>
           </div>
           <div style={{ marginBottom: 20, maxWidth: 480 }}>
-            <SmartSearch placeholder="🔍 Search tests, symptoms, diseases..." />
+            <SmartSearch placeholder={t('home.hero.searchPlaceholder', '🔍 Search tests, symptoms, diseases...')} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: 'flex', gap: 2 }}>
               {[1,2,3,4,5].map(i => <span key={i} style={{ fontSize: 16, color: '#FFD54F' }}>★</span>)}
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{h.rating || '4.9'}</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{h.ratingLabel || '50,000+ Happy Patients'}</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{h.ratingLabel || t('home.hero.ratingLabel', '50,000+ Happy Patients')}</span>
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -127,15 +130,16 @@ function HeroSection() {
 }
 
 function TrustStrip() {
+  const t = useT();
   const trustStrip = useCmsStore(s => s.content?.trustStrip);
   const items = trustStrip?.items || [
-    { icon: '✔', label: 'NABL Certified' },
-    { icon: '✔', label: 'Free Home Collection' },
-    { icon: '✔', label: 'Same Day Collection' },
-    { icon: '✔', label: 'Secure Payment' },
-    { icon: '✔', label: 'Doctor Support' },
-    { icon: '✔', label: 'Digital Reports' },
-    { icon: '✔', label: '24x7 Support' },
+    { icon: '✔', label: t('home.trustStrip.NABL', 'NABL Certified') },
+    { icon: '✔', label: t('home.trustStrip.freeCollection', 'Free Home Collection') },
+    { icon: '✔', label: t('home.trustStrip.sameDay', 'Same Day Collection') },
+    { icon: '✔', label: t('home.trustStrip.securePayment', 'Secure Payment') },
+    { icon: '✔', label: t('home.trustStrip.doctorSupport', 'Doctor Support') },
+    { icon: '✔', label: t('home.trustStrip.digitalReports', 'Digital Reports') },
+    { icon: '✔', label: t('home.trustStrip.support', '24x7 Support') },
   ];
   if (trustStrip?.active === false) return null;
   return (
@@ -152,18 +156,19 @@ function TrustStrip() {
 }
 
 function QuickActions() {
+  const t = useT();
   const services = useCmsStore(s => s.content?.services);
   const svcs = (services || []).filter(s => s.active !== false);
   const actions = svcs.length > 0 ? svcs.map(s => ({
     icon: s.icon || '🔬', label: s.label || 'Service', desc: s.description || '',
     path: s.link || '/diagnostics', color: s.color || '#1866C9',
   })) : [
-    { icon: '🩸', label: 'Book Lab Test', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#1866C9' },
-    { icon: '📦', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#16a34a' },
-    { icon: '📤', label: 'Upload Prescription', desc: 'Upload Rx, we recommend the right tests', color: '#dc2626' },
-    { icon: '👨‍⚕️', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/consult-doctor', color: '#7c3aed' },
-    { icon: '💊', label: 'Medicine Delivery', desc: 'Medicines delivered to your doorstep', path: '/contact', color: '#e65100' },
-    { icon: '🏠', label: 'Home Nursing', desc: 'Trained nurses at home', path: '/contact', color: '#0891b2' },
+    { icon: '🩸', label: t('home.quickActions.bookTest', 'Book Lab Test'), desc: t('home.quickActions.bookTestDesc', '1000+ tests at home, up to 60% off'), path: '/diagnostics', color: '#1866C9' },
+    { icon: '📦', label: t('home.quickActions.healthPackages', 'Health Packages'), desc: t('home.quickActions.healthPackagesDesc', 'Full body, diabetes, cardiac & more'), path: '/services', color: '#16a34a' },
+    { icon: '📤', label: t('home.quickActions.uploadPrescription', 'Upload Prescription'), desc: t('home.quickActions.uploadPrescriptionDesc', 'Upload Rx, we recommend the right tests'), color: '#dc2626' },
+    { icon: '👨‍⚕️', label: t('home.quickActions.doctorConsultation', 'Doctor Consultation'), desc: t('home.quickActions.doctorConsultationDesc', 'Consult top doctors from home'), path: '/consult-doctor', color: '#7c3aed' },
+    { icon: '💊', label: t('home.quickActions.medicineDelivery', 'Medicine Delivery'), desc: t('home.quickActions.medicineDeliveryDesc', 'Medicines delivered to your doorstep'), path: '/contact', color: '#e65100' },
+    { icon: '🏠', label: t('home.quickActions.homeNursing', 'Home Nursing'), desc: t('home.quickActions.homeNursingDesc', 'Trained nurses at home'), path: '/contact', color: '#0891b2' },
   ];
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
@@ -173,7 +178,7 @@ function QuickActions() {
         <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
           <div style={{ background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', borderRadius: 14, padding: '14px 16px', marginBottom: 10, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>🌿 Jeevan HealthCare at Home Journey</div>
+              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>{t('home.quickActions.mobile.journey', '🌿 Jeevan HealthCare at Home Journey')}</div>
               <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>
                 {(() => {
                   try {
@@ -186,8 +191,8 @@ function QuickActions() {
                 {(() => {
                   try {
                     const ds = JSON.parse(localStorage.getItem('jh_daily_activity') || '{}');
-                    return ds.streak ? `🔥 ${ds.streak} day streak` : 'Start tracking today →';
-                  } catch { return 'Start tracking today →'; }
+                    return ds.streak ? `${t('home.quickActions.mobile.streak', '🔥 {streak} day streak').replace('{streak}', ds.streak)}` : t('home.quickActions.mobile.startTracking', 'Start tracking today →');
+                  } catch { return t('home.quickActions.mobile.startTracking', 'Start tracking today →'); }
                 })()}
               </div>
             </div>
@@ -202,29 +207,29 @@ function QuickActions() {
           <Link to="/diagnostics" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
               <span style={{ fontSize: 28 }}>🧪</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>Book Test</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Home Collection</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.bookTest', 'Book Test')}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.homeCollection', 'Home Collection')}</span>
             </div>
           </Link>
           <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ fontFamily: 'inherit', cursor: 'pointer', border: 'none', background: 'none', padding: 0, width: '100%' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
               <span style={{ fontSize: 28 }}>📄</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>Upload</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Prescription</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.upload', 'Upload')}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.prescription', 'Prescription')}</span>
             </div>
           </button>
           <Link to="/dashboard?tab=bookings" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
               <span style={{ fontSize: 28 }}>📅</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>My Bookings</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Track Status</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.myBookings', 'My Bookings')}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.trackStatus', 'Track Status')}</span>
             </div>
           </Link>
           <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
               <span style={{ fontSize: 28 }}>🩺</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>Health Score</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Check Now</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.healthScore', 'Health Score')}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.checkNow', 'Check Now')}</span>
             </div>
           </Link>
         </div>
@@ -263,34 +268,35 @@ function QuickActions() {
 }
 
 function PopularTests({ popular }) {
+  const tr = useT();
   const catIcons = { Hematology: '🩸', Diabetes: '🩸', Thyroid: '🦋', Cardiac: '❤️', Vitamins: '💊', Fever: '🌡️', 'Full Body': '🧬', Anemia: '🩸', Hormones: '🧪', Arthritis: '🦴', Pregnancy: '🤰', Cancer: '🎗️', STD: '🔬', Allergy: '🤧', Liver: '🫁' };
-  const badges = ['Trending', 'Most Booked', 'Recommended', 'Trending', 'Most Booked', 'Recommended', 'Trending', 'Most Booked'];
+  const badges = [tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked')];
   const badgeColors = { Trending: '#dc2626', 'Most Booked': '#16a34a', Recommended: '#7c3aed' };
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
           <div>
-            <h2 className="section-title" style={{ margin: 0 }}>Popular Tests</h2>
-            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>Most booked diagnostic tests</p>
+            <h2 className="section-title" style={{ margin: 0 }}>{tr('home.popularTests.title', 'Popular Tests')}</h2>
+            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>{tr('home.popularTests.subtitle', 'Most booked diagnostic tests')}</p>
           </div>
-          <Link to="/diagnostics" className="btn btn-outline" style={{ fontSize: 12 }}>View All Tests →</Link>
+          <Link to="/diagnostics" className="btn btn-outline" style={{ fontSize: 12 }}>{tr('home.popularTests.viewAll', 'View All Tests →')}</Link>
         </div>
         <div className="grid-4" style={{ gap: 14 }}>
-          {popular.map((t, i) => {
-            const slug = t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-            const mrp = t.mrp || Math.round(t.price * 2.2);
-            const offerPrice = t.offerPrice || t.price;
-            const icon = catIcons[t.category] || '🔬';
+          {popular.map((test, i) => {
+            const slug = test.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            const mrp = test.mrp || Math.round(test.price * 2.2);
+            const offerPrice = test.offerPrice || test.price;
+            const icon = catIcons[test.category] || '🔬';
             const badge = badges[i];
             return (
-              <div key={t.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div key={test.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <Link to={`/test/${slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                   <div style={{ background: `linear-gradient(135deg, #1866C9, #0F4A96)`, padding: '20px 16px', position: 'relative' }}>
                     {badge && <span style={{ position: 'absolute', top: 8, left: 8, background: badgeColors[badge], color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badge}</span>}
-                    <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>🔬 {t.category}</span>
+                    <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>🔬 {test.category}</span>
                     <div style={{ fontSize: 36, textAlign: 'center' }}>{icon}</div>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: '#fff', textAlign: 'center', margin: '6px 0 0' }}>{t.name}</h3>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: '#fff', textAlign: 'center', margin: '6px 0 0' }}>{test.name}</h3>
                   </div>
                 </Link>
                 <div style={{ padding: '12px 14px' }}>
@@ -299,18 +305,18 @@ function PopularTests({ popular }) {
                     {offerPrice < mrp && <span style={{ fontSize: 12, color: '#aaa', textDecoration: 'line-through' }}>₹{mrp}</span>}
                   </div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#16a34a', background: '#f0fdf4', padding: '2px 8px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3 }}>🚚 Free Home Collection</span>
-                    {t.report_time && <span style={{ fontSize: 10, color: 'var(--text-secondary)', background: '#f5f6fa', padding: '2px 8px', borderRadius: 4 }}>⏱️ {t.report_time}</span>}
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#16a34a', background: '#f0fdf4', padding: '2px 8px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3 }}>{tr('home.popularTests.freeHomeCollection', '🚚 Free Home Collection')}</span>
+                    {test.report_time && <span style={{ fontSize: 10, color: 'var(--text-secondary)', background: '#f5f6fa', padding: '2px 8px', borderRadius: 4 }}>⏱️ {test.report_time}</span>}
                   </div>
-                  {t.preparation_instructions && (
+                  {test.preparation_instructions && (
                     <p style={{ fontSize: 10, color: '#999', marginBottom: 10, lineHeight: 1.4 }}>
-                      📋 {t.preparation_instructions.length > 60 ? t.preparation_instructions.slice(0, 60) + '...' : t.preparation_instructions}
+                      📋 {test.preparation_instructions.length > 60 ? test.preparation_instructions.slice(0, 60) + '...' : test.preparation_instructions}
                     </p>
                   )}
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/test/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '7px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
-                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>Compare</button>
-                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>+ Add</button>
+                    <Link to={`/test/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '7px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>{tr('home.popularTests.bookNow', 'Book Now')}</Link>
+                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{tr('home.popularTests.compare', 'Compare')}</button>
+                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{tr('home.popularTests.add', '+ Add')}</button>
                   </div>
                 </div>
               </div>
@@ -323,27 +329,28 @@ function PopularTests({ popular }) {
 }
 
 function CategoriesSection() {
+  const t = useT();
   const cats = [
-    { icon: '🩸', label: 'Diabetes', cat: 'Diabetes' },
-    { icon: '❤️', label: 'Heart', cat: 'Cardiac' },
-    { icon: '🫘', label: 'Kidney', cat: 'Full Body' },
-    { icon: '🫁', label: 'Liver', cat: 'Liver' },
-    { icon: '💊', label: 'Vitamin', cat: 'Vitamins' },
-    { icon: '🧪', label: 'Hormones', cat: 'Hormones' },
-    { icon: '🩸', label: 'Anemia', cat: 'Anemia' },
-    { icon: '🦴', label: 'Arthritis', cat: 'Arthritis' },
-    { icon: '🤰', label: 'Pregnancy', cat: 'Pregnancy' },
-    { icon: '🎗️', label: 'Cancer Screening', cat: 'Cancer' },
-    { icon: '🤧', label: 'Allergy', cat: 'Allergy' },
-    { icon: '🌡️', label: 'Fever', cat: 'Fever' },
-    { icon: '🦠', label: 'Infection', cat: 'STD' },
-    { icon: '🦋', label: 'Thyroid', cat: 'Thyroid' },
-    { icon: '🧬', label: 'Full Body', cat: 'Full Body' },
+    { icon: '🩸', label: t('home.categories.diabetes', 'Diabetes'), cat: 'Diabetes' },
+    { icon: '❤️', label: t('home.categories.heart', 'Heart'), cat: 'Cardiac' },
+    { icon: '🫘', label: t('home.categories.kidney', 'Kidney'), cat: 'Full Body' },
+    { icon: '🫁', label: t('home.categories.liver', 'Liver'), cat: 'Liver' },
+    { icon: '💊', label: t('home.categories.vitamin', 'Vitamin'), cat: 'Vitamins' },
+    { icon: '🧪', label: t('home.categories.hormones', 'Hormones'), cat: 'Hormones' },
+    { icon: '🩸', label: t('home.categories.anemia', 'Anemia'), cat: 'Anemia' },
+    { icon: '🦴', label: t('home.categories.arthritis', 'Arthritis'), cat: 'Arthritis' },
+    { icon: '🤰', label: t('home.categories.pregnancy', 'Pregnancy'), cat: 'Pregnancy' },
+    { icon: '🎗️', label: t('home.categories.cancerScreening', 'Cancer Screening'), cat: 'Cancer' },
+    { icon: '🤧', label: t('home.categories.allergy', 'Allergy'), cat: 'Allergy' },
+    { icon: '🌡️', label: t('home.categories.fever', 'Fever'), cat: 'Fever' },
+    { icon: '🦠', label: t('home.categories.infection', 'Infection'), cat: 'STD' },
+    { icon: '🦋', label: t('home.categories.thyroid', 'Thyroid'), cat: 'Thyroid' },
+    { icon: '🧬', label: t('home.categories.fullBody', 'Full Body'), cat: 'Full Body' },
   ];
   return (
     <div className="page-section container">
-      <h2 className="section-title">Browse by Category</h2>
-      <p className="section-subtitle">Find the right test by health concern</p>
+      <h2 className="section-title">{t('home.categories.title', 'Browse by Category')}</h2>
+      <p className="section-subtitle">{t('home.categories.subtitle', 'Find the right test by health concern')}</p>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
         {cats.map(c => (
           <Link key={c.cat} to={`/diagnostics?cat=${c.cat}`}
@@ -365,15 +372,16 @@ function CategoriesSection() {
 }
 
 function PackagesSection({ pkgs, featured }) {
+  const t = useT();
   return (
     <div className="page-section" style={{ background: '#f8f9fa' }}>
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
           <div>
-            <h2 className="section-title" style={{ margin: 0 }}>Health Packages</h2>
-            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>Comprehensive health checkup packages</p>
+            <h2 className="section-title" style={{ margin: 0 }}>{t('home.packages.title', 'Health Packages')}</h2>
+            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>{t('home.packages.subtitle', 'Comprehensive health checkup packages')}</p>
           </div>
-          <Link to="/services" className="btn btn-outline" style={{ fontSize: 12 }}>View All Packages →</Link>
+          <Link to="/services" className="btn btn-outline" style={{ fontSize: 12 }}>{t('home.packages.viewAll', 'View All Packages →')}</Link>
         </div>
         <div className="grid-4" style={{ gap: 14 }}>
           {pkgs.filter(Boolean).slice(0, 4).map((p, i) => {
@@ -381,9 +389,9 @@ function PackagesSection({ pkgs, featured }) {
             return (
               <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <div style={{ background: p.color || '#1866C9', padding: '16px 16px 20px', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct >= 50 ? 'Best Value' : 'Popular'}</span>
+                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct >= 50 ? t('home.packages.bestValue', 'Best Value') : t('home.packages.popular', 'Popular')}</span>
                   <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct}% OFF</span>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.testCount || 'Multiple'} Tests</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.testCount || t('home.packages.multiple', 'Multiple')} {t('home.packages.tests', 'Tests')}</div>
                   <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.2 }}>{p.name}</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>₹{p.offerPrice}</span>
@@ -393,9 +401,9 @@ function PackagesSection({ pkgs, featured }) {
                 <div style={{ padding: '12px 14px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
                     {[
-                      { icon: '🚚', label: 'Free Home Collection' },
-                      { icon: '👨‍⚕️', label: 'Doctor Consultation' },
-                      { icon: '⏱️', label: `Report in ${p.reportTime || '24 Hours'}` },
+                      { icon: '🚚', label: t('home.packages.freeCollection', 'Free Home Collection') },
+                      { icon: '👨‍⚕️', label: t('home.packages.doctorConsult', 'Doctor Consultation') },
+                      { icon: '⏱️', label: `${t('home.packages.reportIn', 'Report in')} ${p.reportTime || t('home.packages.hours24', '24 Hours')}` },
                     ].map(f => (
                       <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
                         <span style={{ width: 14, textAlign: 'center' }}>{f.icon}</span>
@@ -404,8 +412,8 @@ function PackagesSection({ pkgs, featured }) {
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/package/${p.slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Book Now</Link>
-                    <Link to={`/package/${p.slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>View Details</Link>
+                    <Link to={`/package/${p.slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>{t('home.packages.bookNow', 'Book Now')}</Link>
+                    <Link to={`/package/${p.slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>{t('home.packages.viewDetails', 'View Details')}</Link>
                   </div>
                 </div>
               </div>
@@ -418,13 +426,14 @@ function PackagesSection({ pkgs, featured }) {
 }
 
 function HowItWorks() {
+  const t = useT();
   const steps = [
-    { icon: '🛒', title: 'Book Your Test', desc: 'Search from 2000+ tests and health packages. Book instantly online or upload your prescription.', badge: 'Easy Online Booking', badge2: 'Prescription Upload' },
-    { icon: '📅', title: 'Choose Your Slot', desc: 'Select your preferred date and convenient home collection time.', badge: 'Flexible Time Slots', badge2: 'Same Day Availability' },
-    { icon: '🏠', title: 'Home Sample Collection', desc: 'Certified healthcare professionals collect samples safely at your doorstep.', badge: 'Hygienic Collection', badge2: 'Trained Phlebotomists' },
-    { icon: '🔬', title: 'Advanced Lab Testing', desc: 'Your samples are processed using advanced technology and quality-controlled laboratories.', badge: 'Quality Checked', badge2: 'Accurate Results' },
-    { icon: '📱', title: 'Get Digital Reports', desc: 'Receive your reports securely through WhatsApp, email, or patient dashboard.', badge: 'Anytime Access', badge2: 'Download & Share' },
-    { icon: '👨‍⚕️', title: 'Doctor Consultation', desc: 'Understand your results with expert medical guidance and follow-up recommendations.', badge: 'Expert Consultation', badge2: 'Health Guidance' },
+    { icon: '🛒', title: t('home.howItWorks.step1.title', 'Book Your Test'), desc: t('home.howItWorks.step1.desc', 'Search from 2000+ tests and health packages. Book instantly online or upload your prescription.'), badge: t('home.howItWorks.step1.badge', 'Easy Online Booking'), badge2: t('home.howItWorks.step1.badge2', 'Prescription Upload') },
+    { icon: '📅', title: t('home.howItWorks.step2.title', 'Choose Your Slot'), desc: t('home.howItWorks.step2.desc', 'Select your preferred date and convenient home collection time.'), badge: t('home.howItWorks.step2.badge', 'Flexible Time Slots'), badge2: t('home.howItWorks.step2.badge2', 'Same Day Availability') },
+    { icon: '🏠', title: t('home.howItWorks.step3.title', 'Home Sample Collection'), desc: t('home.howItWorks.step3.desc', 'Certified healthcare professionals collect samples safely at your doorstep.'), badge: t('home.howItWorks.step3.badge', 'Hygienic Collection'), badge2: t('home.howItWorks.step3.badge2', 'Trained Phlebotomists') },
+    { icon: '🔬', title: t('home.howItWorks.step4.title', 'Advanced Lab Testing'), desc: t('home.howItWorks.step4.desc', 'Your samples are processed using advanced technology and quality-controlled laboratories.'), badge: t('home.howItWorks.step4.badge', 'Quality Checked'), badge2: t('home.howItWorks.step4.badge2', 'Accurate Results') },
+    { icon: '📱', title: t('home.howItWorks.step5.title', 'Get Digital Reports'), desc: t('home.howItWorks.step5.desc', 'Receive your reports securely through WhatsApp, email, or patient dashboard.'), badge: t('home.howItWorks.step5.badge', 'Anytime Access'), badge2: t('home.howItWorks.step5.badge2', 'Download & Share') },
+    { icon: '👨‍⚕️', title: t('home.howItWorks.step6.title', 'Doctor Consultation'), desc: t('home.howItWorks.step6.desc', 'Understand your results with expert medical guidance and follow-up recommendations.'), badge: t('home.howItWorks.step6.badge', 'Expert Consultation'), badge2: t('home.howItWorks.step6.badge2', 'Health Guidance') },
   ];
   return (
     <div className="page-section" style={{ background: 'linear-gradient(180deg, #F5FAFF 0%, #ffffff 100%)', position: 'relative', overflow: 'hidden' }}>
@@ -432,12 +441,12 @@ function HowItWorks() {
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 6 }}>
           <span style={{ fontSize: 24 }}>🏥</span>
-          <h2 className="section-title" style={{ margin: 0, fontSize: 22 }}>How Jeevan Makes Healthcare Simple</h2>
+          <h2 className="section-title" style={{ margin: 0, fontSize: 22 }}>{t('home.howItWorks.sectionTitle', 'How Jeevan Makes Healthcare Simple')}</h2>
         </div>
-        <p className="section-subtitle text-center">From booking your test to receiving expert medical advice, we make your healthcare journey smooth, safe, and convenient.</p>
+        <p className="section-subtitle text-center">{t('home.howItWorks.sectionSubtitle', 'From booking your test to receiving expert medical advice, we make your healthcare journey smooth, safe, and convenient.')}</p>
         <div className="journey-banner" style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 24, padding: '8px 16px', background: 'rgba(24, 102, 201,0.06)', borderRadius: 30, fontSize: 11, fontWeight: 600, color: '#1866C9', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
-          <span>Book</span><span style={{ color: '#20B7F5' }}>→</span><span>Collect</span><span style={{ color: '#20B7F5' }}>→</span><span>Test</span><span style={{ color: '#20B7F5' }}>→</span><span>Report</span><span style={{ color: '#20B7F5' }}>→</span><span>Consult</span>
-          <span style={{ background: '#22C55E', color: '#fff', fontSize: 9, padding: '1px 8px', borderRadius: 10, marginLeft: 6 }}>Completed in 24-48 Hours</span>
+          <span>{t('home.howItWorks.journey.book', 'Book')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.collect', 'Collect')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.test', 'Test')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.report', 'Report')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.consult', 'Consult')}</span>
+          <span style={{ background: '#22C55E', color: '#fff', fontSize: 9, padding: '1px 8px', borderRadius: 10, marginLeft: 6 }}>{t('home.howItWorks.completed', 'Completed in 24-48 Hours')}</span>
         </div>
         <div className="timeline-wrapper" style={{ position: 'relative', paddingTop: 20 }}>
           <div className="timeline-line" style={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 3, background: 'linear-gradient(90deg, #1866C9, #20B7F5, #1866C9)', borderRadius: 2, zIndex: 0 }} />
@@ -448,7 +457,7 @@ function HowItWorks() {
                   {s.icon}
                 </div>
                 <div className="timeline-card" style={{ background: '#fff', borderRadius: 16, padding: '14px 10px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#1866C9', background: '#E8F1FC', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 6, alignSelf: 'center' }}>Step {String(i + 1).padStart(2, '0')}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#1866C9', background: '#E8F1FC', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 6, alignSelf: 'center' }}>{t('home.howItWorks.step', 'Step')} {String(i + 1).padStart(2, '0')}</div>
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 6, lineHeight: 1.2 }}>{s.title}</h3>
                   <p style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10, flex: 1 }}>{s.desc}</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -465,10 +474,10 @@ function HowItWorks() {
           </div>
         </div>
         <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Ready to Start Your Health Check?</h3>
+          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>{t('home.howItWorks.cta.title', 'Ready to Start Your Health Check?')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Test Now</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.howItWorks.cta.bookTest', '🔵 Book Test Now')}</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.howItWorks.cta.upload', '📄 Upload Prescription')}</button>
           </div>
         </div>
       </div>
@@ -477,32 +486,33 @@ function HowItWorks() {
 }
 
 function Testimonials() {
+  const t = useT();
   const testimonials = useCmsStore(s => s.content?.testimonials);
   const reviews = (testimonials || []).length > 0 ? testimonials : [
-    { name: 'Priya Sharma', text: 'Excellent home collection service. The phlebotomist was on time and very professional. Reports came within 24 hours.', rating: 5, tag: '🩸 Blood Test at Home', img: '👩' },
-    { name: 'Rajesh Kumar', text: 'I have been using Jeevan HealthCare at Home for all my family health checkups. Great prices and reliable reports every time.', rating: 5, tag: '👨‍👩‍👧 Full Body Checkup', img: '👨' },
-    { name: 'Anita Desai', text: 'The home collection service is a lifesaver for my elderly parents. So convenient and safe. Highly recommend!', rating: 5, tag: '👵 Senior Care Package', img: '👵' },
-    { name: 'Vikram Singh', text: 'Corporate health camp was well organised. All employees got their reports on time with detailed analysis.', rating: 5, tag: '🏢 Corporate Health Camp', img: '👨‍💼' },
-    { name: 'Sneha Patel', text: 'The doctor consultation after my reports helped me understand my health better. Truly comprehensive care.', rating: 5, tag: '👨‍⚕️ Doctor Consultation', img: '👩‍⚕️' },
+    { name: 'Priya Sharma', text: t('home.testimonials.review1.text', 'Excellent home collection service. The phlebotomist was on time and very professional. Reports came within 24 hours.'), rating: 5, tag: t('home.testimonials.review1.tag', '🩸 Blood Test at Home'), img: '👩' },
+    { name: 'Rajesh Kumar', text: t('home.testimonials.review2.text', 'I have been using Jeevan HealthCare at Home for all my family health checkups. Great prices and reliable reports every time.'), rating: 5, tag: t('home.testimonials.review2.tag', '👨‍👩‍👧 Full Body Checkup'), img: '👨' },
+    { name: 'Anita Desai', text: t('home.testimonials.review3.text', 'The home collection service is a lifesaver for my elderly parents. So convenient and safe. Highly recommend!'), rating: 5, tag: t('home.testimonials.review3.tag', '👵 Senior Care Package'), img: '👵' },
+    { name: 'Vikram Singh', text: t('home.testimonials.review4.text', 'Corporate health camp was well organised. All employees got their reports on time with detailed analysis.'), rating: 5, tag: t('home.testimonials.review4.tag', '🏢 Corporate Health Camp'), img: '👨‍💼' },
+    { name: 'Sneha Patel', text: t('home.testimonials.review5.text', 'The doctor consultation after my reports helped me understand my health better. Truly comprehensive care.'), rating: 5, tag: t('home.testimonials.review5.tag', '👨‍⚕️ Doctor Consultation'), img: '👩‍⚕️' },
   ];
   const getImg = (t) => t.image || (t.name ? t.name[0] === 'P' ? '👩' : t.name[0] === 'R' ? '👨' : t.name[0] === 'A' ? '👵' : t.name[0] === 'V' ? '👨‍💼' : '👩‍⚕️' : '👤');
 
   const videos = [
-    { title: 'My Jeevan Experience', name: 'Meera Joshi', location: 'Mumbai', topic: 'Home Sample Collection' },
-    { title: 'Care for My Parents', name: 'Arun Kapoor', location: 'Delhi', topic: 'Elderly Care Experience' },
-    { title: 'Corporate Wellness', name: 'Neha Gupta', location: 'Pune', topic: 'Corporate Health Camp' },
+    { title: t('home.testimonials.video1.title', 'My Jeevan Experience'), name: 'Meera Joshi', location: 'Mumbai', topic: t('home.testimonials.video1.topic', 'Home Sample Collection') },
+    { title: t('home.testimonials.video2.title', 'Care for My Parents'), name: 'Arun Kapoor', location: 'Delhi', topic: t('home.testimonials.video2.topic', 'Elderly Care Experience') },
+    { title: t('home.testimonials.video3.title', 'Corporate Wellness'), name: 'Neha Gupta', location: 'Pune', topic: t('home.testimonials.video3.topic', 'Corporate Health Camp') },
   ];
 
   const stories = [
-    { icon: '🩸', title: 'Diabetes Management Journey', before: 'High sugar levels (HbA1c 8.5)', after: 'Regular testing + doctor guidance', result: 'Better health monitoring (HbA1c 6.8)', color: '#dc2626' },
-    { icon: '👴', title: 'Senior Citizen Care Story', before: '80-yr-old with limited mobility', after: 'Home diagnostics support', result: 'Regular monitoring, family peace of mind', color: '#1866C9' },
+    { icon: '🩸', title: t('home.testimonials.story1.title', 'Diabetes Management Journey'), before: t('home.testimonials.story1.before', 'High sugar levels (HbA1c 8.5)'), after: t('home.testimonials.story1.after', 'Regular testing + doctor guidance'), result: t('home.testimonials.story1.result', 'Better health monitoring (HbA1c 6.8)'), color: '#dc2626' },
+    { icon: '👴', title: t('home.testimonials.story2.title', 'Senior Citizen Care Story'), before: t('home.testimonials.story2.before', '80-yr-old with limited mobility'), after: t('home.testimonials.story2.after', 'Home diagnostics support'), result: t('home.testimonials.story2.result', 'Regular monitoring, family peace of mind'), color: '#1866C9' },
   ];
 
   const photos = [
-    { emoji: '👩', label: 'Patient' },
-    { emoji: '👴', label: 'Senior Care' },
-    { emoji: '👨‍👩‍👧', label: 'Family' },
-    { emoji: '🏠', label: 'Home Collection' },
+    { emoji: '👩', label: t('home.testimonials.photo.patient', 'Patient') },
+    { emoji: '👴', label: t('home.testimonials.photo.seniorCare', 'Senior Care') },
+    { emoji: '👨‍👩‍👧', label: t('home.testimonials.photo.family', 'Family') },
+    { emoji: '🏠', label: t('home.testimonials.photo.homeCollection', 'Home Collection') },
   ];
 
   const [activeReview, setActiveReview] = useState(0);
@@ -512,15 +522,15 @@ function Testimonials() {
   return (
     <div className="page-section" style={{ background: '#F5FAFF' }}>
       <div className="container">
-        <h2 className="section-title text-center">❤️ Loved by Thousands of Happy Patients</h2>
-        <p className="section-subtitle text-center">Real experiences from patients who trusted Jeevan for their healthcare journey.</p>
+        <h2 className="section-title text-center">{t('home.testimonials.sectionTitle', '❤️ Loved by Thousands of Happy Patients')}</h2>
+        <p className="section-subtitle text-center">{t('home.testimonials.sectionSubtitle', 'Real experiences from patients who trusted Jeevan for their healthcare journey.')}</p>
 
         <div className="grid-4" style={{ gap: 12, marginBottom: 24 }}>
           {[
-            { label: '2,00,000+', sub: 'Home Collections' },
-            { label: '50,000+', sub: 'Happy Families' },
-            { label: '4.9 ⭐', sub: 'Google Rating' },
-            { label: '10+ Years', sub: 'Healthcare Experience' },
+            { label: '2,00,000+', sub: t('home.testimonials.stat.homeCollections', 'Home Collections') },
+            { label: '50,000+', sub: t('home.testimonials.stat.happyFamilies', 'Happy Families') },
+            { label: '4.9 ⭐', sub: t('home.testimonials.stat.googleRating', 'Google Rating') },
+            { label: '10+ Years', sub: t('home.testimonials.stat.experience', 'Healthcare Experience') },
           ].map(s => (
             <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
               <div className="stats-count" style={{ fontSize: 20, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
@@ -531,12 +541,12 @@ function Testimonials() {
 
         <div className="testimonials-layout" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 20, marginBottom: 24 }}>
           <div style={{ background: '#fff', borderRadius: 20, padding: '24px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Google Rating</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{t('home.testimonials.googleRating', 'Google Rating')}</div>
             <div style={{ fontSize: 36, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>4.9</div>
             <div style={{ fontSize: 22, marginBottom: 8, letterSpacing: 4 }}>⭐⭐⭐⭐⭐</div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12 }}>Based on <strong style={{ color: '#1a1a1a' }}>500+ Reviews</strong></div>
+            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('home.testimonials.basedOn', 'Based on')} <strong style={{ color: '#1a1a1a' }}>{t('home.testimonials.reviewsCount', '500+ Reviews')}</strong></div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#E8F1FC', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#1866C9', marginBottom: 14 }}>
-              <span>✅</span> Verified Patients
+              <span>✅</span> {t('home.testimonials.verifiedPatients', 'Verified Patients')}
             </div>
             <div style={{ width: 32, height: 32, margin: '0 auto', background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 700 }}>G</div>
           </div>
@@ -547,7 +557,7 @@ function Testimonials() {
                 <span style={{ fontSize: 20 }}>{getImg(reviews[activeReview])}</span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700 }}>{reviews[activeReview].name}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{reviews[activeReview].tag || 'Verified Patient'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{reviews[activeReview].tag || t('home.testimonials.verifiedPatient', 'Verified Patient')}</div>
                 </div>
               </div>
               <div style={{ fontSize: 14, letterSpacing: 2 }}>{'⭐'.repeat(reviews[activeReview].rating)}</div>
@@ -561,7 +571,7 @@ function Testimonials() {
           </div>
         </div>
 
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>📸 Patient Moments</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>{t('home.testimonials.patientMoments', '📸 Patient Moments')}</h3>
         <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
           {photos.map(p => (
             <div key={p.emoji} style={{ flex: 1, minWidth: 100, background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
@@ -583,7 +593,7 @@ function Testimonials() {
           ))}
         </div>
 
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>🏆 Success Stories</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>{t('home.testimonials.successStories', '🏆 Success Stories')}</h3>
         <div className="stories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 24 }}>
           {stories.map(s => (
             <div key={s.title} style={{ background: '#fff', borderRadius: 16, padding: '18px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2', borderLeft: `4px solid ${s.color}` }}>
@@ -592,19 +602,19 @@ function Testimonials() {
                 <h4 style={{ fontSize: 13, fontWeight: 700 }}>{s.title}</h4>
               </div>
               <div style={{ fontSize: 11, lineHeight: 1.8 }}>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#dc2626' }}>⬤</span> Before: {s.before}</div>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#20B7F5' }}>⬤</span> Process: {s.after}</div>
-                <div style={{ display: 'flex', gap: 6 }}><span style={{ color: '#16a34a' }}>⬤</span> Result: {s.result}</div>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#dc2626' }}>⬤</span> {t('home.testimonials.before', 'Before')}: {s.before}</div>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#20B7F5' }}>⬤</span> {t('home.testimonials.process', 'Process')}: {s.after}</div>
+                <div style={{ display: 'flex', gap: 6 }}><span style={{ color: '#16a34a' }}>⬤</span> {t('home.testimonials.result', 'Result')}: {s.result}</div>
               </div>
             </div>
           ))}
         </div>
 
         <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>Join Thousands of Families Who Trust Jeevan HealthCare at Home</h3>
+          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>{t('home.testimonials.cta.title', 'Join Thousands of Families Who Trust Jeevan HealthCare at Home')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.testimonials.cta.bookTest', '🔵 Book Health Test')}</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.testimonials.cta.upload', '📄 Upload Prescription')}</button>
           </div>
         </div>
       </div>
@@ -613,18 +623,25 @@ function Testimonials() {
 }
 
 function StatsSection() {
+  const t = useT();
   const stats = [
-    { icon: '👨‍👩‍👧', value: 100000, suffix: '+', label: 'Patients Served', desc: 'Trusted by over one lakh patients for diagnostics and healthcare services.' },
-    { icon: '🧪', value: 5000, suffix: '+', label: 'Tests Available', desc: 'Wide range of diagnostic tests covering preventive and specialized healthcare needs.' },
-    { icon: '📦', value: 150, suffix: '+', label: 'Health Packages', desc: 'Customized health checkup packages for individuals, families, and corporates.' },
-    { icon: '❤️', value: 98, suffix: '%', label: 'Satisfied Patients', desc: 'High patient satisfaction through quality service and reliable healthcare support.' },
-    { icon: '🏆', value: 15, suffix: '+', label: 'Years of Healthcare Experience', desc: 'Years of dedicated service delivering trusted healthcare solutions.' },
-    { icon: '🏢', value: 100, suffix: '+', label: 'Corporate Clients', desc: 'Supporting organizations with employee health checkups and wellness programs.' },
+    { icon: '👨‍👩‍👧', value: 100000, suffix: '+', label: t('home.stats.patientsServed', 'Patients Served'), desc: t('home.stats.patientsServedDesc', 'Trusted by over one lakh patients for diagnostics and healthcare services.') },
+    { icon: '🧪', value: 5000, suffix: '+', label: t('home.stats.testsAvailable', 'Tests Available'), desc: t('home.stats.testsAvailableDesc', 'Wide range of diagnostic tests covering preventive and specialized healthcare needs.') },
+    { icon: '📦', value: 150, suffix: '+', label: t('home.stats.healthPackages', 'Health Packages'), desc: t('home.stats.healthPackagesDesc', 'Customized health checkup packages for individuals, families, and corporates.') },
+    { icon: '❤️', value: 98, suffix: '%', label: t('home.stats.satisfiedPatients', 'Satisfied Patients'), desc: t('home.stats.satisfiedPatientsDesc', 'High patient satisfaction through quality service and reliable healthcare support.') },
+    { icon: '🏆', value: 15, suffix: '+', label: t('home.stats.yearsOfExperience', 'Years of Healthcare Experience'), desc: t('home.stats.yearsOfExperienceDesc', 'Years of dedicated service delivering trusted healthcare solutions.') },
+    { icon: '🏢', value: 100, suffix: '+', label: t('home.stats.corporateClients', 'Corporate Clients'), desc: t('home.stats.corporateClientsDesc', 'Supporting organizations with employee health checkups and wellness programs.') },
   ];
   const [visible, setVisible] = useState(false);
   const [counts, setCounts] = useState(stats.map(() => 0));
   const ref = useRef();
-  const badges = ['NABL Certified Labs', 'Trained Healthcare Professionals', 'Secure Digital Reports', 'Home Collection Available', 'Doctor Support Available'];
+  const badges = [
+    t('home.stats.badge.NABL', 'NABL Certified Labs'),
+    t('home.stats.badge.trainedProfessionals', 'Trained Healthcare Professionals'),
+    t('home.stats.badge.secureReports', 'Secure Digital Reports'),
+    t('home.stats.badge.homeCollection', 'Home Collection Available'),
+    t('home.stats.badge.doctorSupport', 'Doctor Support Available'),
+  ];
 
   useEffect(() => {
     const el = ref.current;
@@ -655,8 +672,8 @@ function StatsSection() {
   return (
     <div className="page-section" style={{ background: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)', position: 'relative', overflow: 'hidden' }}>
       <div ref={ref} className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <h2 className="section-title text-center" style={{ color: '#fff' }}>Trusted Healthcare Partner for Thousands of Families</h2>
-        <p className="section-subtitle text-center" style={{ color: 'rgba(255,255,255,0.8)' }}>Delivering reliable diagnostics and healthcare services with quality, convenience, and compassion.</p>
+        <h2 className="section-title text-center" style={{ color: '#fff' }}>{t('home.stats.sectionTitle', 'Trusted Healthcare Partner for Thousands of Families')}</h2>
+        <p className="section-subtitle text-center" style={{ color: 'rgba(255,255,255,0.8)' }}>{t('home.stats.sectionSubtitle', 'Delivering reliable diagnostics and healthcare services with quality, convenience, and compassion.')}</p>
         <div className="grid-3" style={{ gap: 14, marginTop: 20 }}>
           {stats.map((s, i) => (
             <div key={s.label} className="stats-glass-card" style={{
@@ -680,10 +697,10 @@ function StatsSection() {
           ))}
         </div>
         <div style={{ textAlign: 'center', padding: '22px', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)' }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 10 }}>Experience Trusted Healthcare at Your Doorstep</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 10 }}>{t('home.stats.cta.title', 'Experience Trusted Healthcare at Your Doorstep')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>🔵 Book Health Test</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.stats.cta.bookTest', '🔵 Book Health Test')}</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.stats.cta.upload', '📄 Upload Prescription')}</button>
           </div>
         </div>
       </div>
@@ -692,24 +709,25 @@ function StatsSection() {
 }
 
 function HealthLibrarySection() {
+  const t = useT();
   const categories = [
-    { icon: '🧪', label: 'Tests A-Z', desc: '500+ diagnostic tests with normal ranges & preparation guides', color: '#1866C9' },
-    { icon: '🦠', label: 'Diseases', desc: 'Diabetes, thyroid, heart disease & more health conditions', color: '#dc2626' },
-    { icon: '🤒', label: 'Symptom Checker', desc: 'Check symptoms & find recommended diagnostic tests', color: '#7c3aed' },
-    { icon: '📝', label: 'Health Blogs', desc: 'Expert articles on preventive care, nutrition & wellness', color: '#16a34a' },
-    { icon: '📋', label: 'Preparation Guides', desc: 'Fasting rules, medication guidance & test-day tips', color: '#e65100' },
-    { icon: '📊', label: 'Normal Values', desc: 'Reference ranges for all lab tests by age & gender', color: '#0891b2' },
+    { icon: '🧪', label: t('home.healthLibrary.testsAZ', 'Tests A-Z'), desc: t('home.healthLibrary.testsAZDesc', '500+ diagnostic tests with normal ranges & preparation guides'), color: '#1866C9' },
+    { icon: '🦠', label: t('home.healthLibrary.diseases', 'Diseases'), desc: t('home.healthLibrary.diseasesDesc', 'Diabetes, thyroid, heart disease & more health conditions'), color: '#dc2626' },
+    { icon: '🤒', label: t('home.healthLibrary.symptomChecker', 'Symptom Checker'), desc: t('home.healthLibrary.symptomCheckerDesc', 'Check symptoms & find recommended diagnostic tests'), color: '#7c3aed' },
+    { icon: '📝', label: t('home.healthLibrary.healthBlogs', 'Health Blogs'), desc: t('home.healthLibrary.healthBlogsDesc', 'Expert articles on preventive care, nutrition & wellness'), color: '#16a34a' },
+    { icon: '📋', label: t('home.healthLibrary.preparationGuides', 'Preparation Guides'), desc: t('home.healthLibrary.preparationGuidesDesc', 'Fasting rules, medication guidance & test-day tips'), color: '#e65100' },
+    { icon: '📊', label: t('home.healthLibrary.normalValues', 'Normal Values'), desc: t('home.healthLibrary.normalValuesDesc', 'Reference ranges for all lab tests by age & gender'), color: '#0891b2' },
   ];
   return (
     <div className="page-section" style={{ background: '#fff', borderBottom: '1px solid var(--border)' }}>
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 22 }}>🩺</span>
-          <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>Jeevan HealthCare at Home Library</h2>
+          <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>{t('home.healthLibrary.title', 'Jeevan HealthCare at Home Library')}</h2>
         </div>
-        <p className="section-subtitle text-center">Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.</p>
+        <p className="section-subtitle text-center">{t('home.healthLibrary.subtitle', 'Your trusted source for medical information, diagnostic test details, health tips, and expert guidance.')}</p>
         <div style={{ maxWidth: 540, margin: '0 auto 20px' }}>
-          <SmartSearch placeholder="🔍 Search health topics, tests, symptoms, diseases..." />
+          <SmartSearch placeholder={t('home.healthLibrary.searchPlaceholder', '🔍 Search health topics, tests, symptoms, diseases...')} />
         </div>
         <div className="grid-3" style={{ gap: 12 }}>
           {categories.map(c => (
@@ -729,7 +747,7 @@ function HealthLibrarySection() {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <Link to="/health-library" className="btn btn-primary btn-lg" style={{ fontSize: 13, padding: '10px 28px' }}>🔵 Explore Health Library</Link>
+          <Link to="/health-library" className="btn btn-primary btn-lg" style={{ fontSize: 13, padding: '10px 28px' }}>{t('home.healthLibrary.explore', '🔵 Explore Health Library')}</Link>
         </div>
       </div>
     </div>
@@ -737,19 +755,20 @@ function HealthLibrarySection() {
 }
 
 function FaqSection() {
+  const t = useT();
   const faqs = useCmsStore(s => s.content?.faqs);
   const items = (faqs || []).length > 0 ? faqs : [
-    { question: 'How do I book a test?', answer: 'Simply search for the test you need, select a convenient time slot, and our phlebotomist will visit your home for sample collection.' },
-    { question: 'Is home sample collection free?', answer: 'Yes, home sample collection is completely free for all tests and packages booked through our platform.' },
-    { question: 'How will I receive my reports?', answer: 'Reports are delivered via WhatsApp, Email, and can be downloaded from your account on our website.' },
-    { question: 'Are your labs certified?', answer: 'All our partner labs are NABL-accredited and use state-of-the-art equipment for accurate results.' },
-    { question: 'Can I cancel or reschedule?', answer: 'Yes, you can cancel or reschedule your booking up to 2 hours before the scheduled collection time.' },
+    { question: t('home.faq.q1', 'How do I book a test?'), answer: t('home.faq.a1', 'Simply search for the test you need, select a convenient time slot, and our phlebotomist will visit your home for sample collection.') },
+    { question: t('home.faq.q2', 'Is home sample collection free?'), answer: t('home.faq.a2', 'Yes, home sample collection is completely free for all tests and packages booked through our platform.') },
+    { question: t('home.faq.q3', 'How will I receive my reports?'), answer: t('home.faq.a3', 'Reports are delivered via WhatsApp, Email, and can be downloaded from your account on our website.') },
+    { question: t('home.faq.q4', 'Are your labs certified?'), answer: t('home.faq.a4', 'All our partner labs are NABL-accredited and use state-of-the-art equipment for accurate results.') },
+    { question: t('home.faq.q5', 'Can I cancel or reschedule?'), answer: t('home.faq.a5', 'Yes, you can cancel or reschedule your booking up to 2 hours before the scheduled collection time.') },
   ];
   return (
     <div className="page-section" style={{ background: 'var(--bg-light)' }}>
       <div className="container" style={{ maxWidth: 700, margin: '0 auto' }}>
-        <h2 className="section-title text-center">Frequently Asked Questions</h2>
-        <p className="section-subtitle text-center">Everything you need to know</p>
+        <h2 className="section-title text-center">{t('home.faq.title', 'Frequently Asked Questions')}</h2>
+        <p className="section-subtitle text-center">{t('home.faq.subtitle', 'Everything you need to know')}</p>
         <div style={{ marginTop: 16 }}>
           {items.map((faq, i) => (
             <details key={i} style={{ marginBottom: 8, border: '1px solid var(--border)', borderRadius: 8, background: '#fff', overflow: 'hidden' }}>
@@ -764,25 +783,26 @@ function FaqSection() {
 }
 
 function WhyChooseJeevan() {
+  const t = useT();
   const features = [
-    { icon: '🏅', title: 'NABL Certified Labs', desc: 'Advanced testing facilities following strict quality standards for accurate and reliable results.', badge: 'Quality Assured Reports' },
-    { icon: '🩺', title: 'Expert Phlebotomists', desc: 'Trained healthcare professionals ensuring safe, hygienic, and painless sample collection.', badge: 'Trained Professionals' },
-    { icon: '🏠', title: 'Convenient Home Collection', desc: 'Book lab tests from your home without waiting in queues or visiting diagnostic centers.', badge: 'Available 7 Days a Week' },
-    { icon: '💰', title: 'Affordable Pricing', desc: 'Transparent pricing with quality diagnostics at competitive rates. No hidden charges.', badge: 'No Hidden Charges' },
-    { icon: '📱', title: 'Digital Reports', desc: 'Receive secure reports online anytime through WhatsApp, email, or patient dashboard.', badge: 'Anytime Access' },
-    { icon: '👨‍⚕️', title: 'Doctor Consultation', desc: 'Get expert medical guidance and understand your health reports better.', badge: 'Expert Medical Support' },
-    { icon: '👨‍👩‍👧', title: 'Complete Family Care', desc: 'Manage healthcare needs for parents, children, and loved ones under one platform.', badge: 'Family Health Records' },
-    { icon: '🛡️', title: 'Safe & Hygienic Collection', desc: 'Strict safety protocols with sterile equipment and infection control practices.', badge: 'Safety First' },
+    { icon: '🏅', title: t('home.whyChoose.feature.NABL.title', 'NABL Certified Labs'), desc: t('home.whyChoose.feature.NABL.desc', 'Advanced testing facilities following strict quality standards for accurate and reliable results.'), badge: t('home.whyChoose.feature.NABL.badge', 'Quality Assured Reports') },
+    { icon: '🩺', title: t('home.whyChoose.feature.phlebotomists.title', 'Expert Phlebotomists'), desc: t('home.whyChoose.feature.phlebotomists.desc', 'Trained healthcare professionals ensuring safe, hygienic, and painless sample collection.'), badge: t('home.whyChoose.feature.phlebotomists.badge', 'Trained Professionals') },
+    { icon: '🏠', title: t('home.whyChoose.feature.homeCollection.title', 'Convenient Home Collection'), desc: t('home.whyChoose.feature.homeCollection.desc', 'Book lab tests from your home without waiting in queues or visiting diagnostic centers.'), badge: t('home.whyChoose.feature.homeCollection.badge', 'Available 7 Days a Week') },
+    { icon: '💰', title: t('home.whyChoose.feature.pricing.title', 'Affordable Pricing'), desc: t('home.whyChoose.feature.pricing.desc', 'Transparent pricing with quality diagnostics at competitive rates. No hidden charges.'), badge: t('home.whyChoose.feature.pricing.badge', 'No Hidden Charges') },
+    { icon: '📱', title: t('home.whyChoose.feature.digitalReports.title', 'Digital Reports'), desc: t('home.whyChoose.feature.digitalReports.desc', 'Receive secure reports online anytime through WhatsApp, email, or patient dashboard.'), badge: t('home.whyChoose.feature.digitalReports.badge', 'Anytime Access') },
+    { icon: '👨‍⚕️', title: t('home.whyChoose.feature.doctorConsult.title', 'Doctor Consultation'), desc: t('home.whyChoose.feature.doctorConsult.desc', 'Get expert medical guidance and understand your health reports better.'), badge: t('home.whyChoose.feature.doctorConsult.badge', 'Expert Medical Support') },
+    { icon: '👨‍👩‍👧', title: t('home.whyChoose.feature.familyCare.title', 'Complete Family Care'), desc: t('home.whyChoose.feature.familyCare.desc', 'Manage healthcare needs for parents, children, and loved ones under one platform.'), badge: t('home.whyChoose.feature.familyCare.badge', 'Family Health Records') },
+    { icon: '🛡️', title: t('home.whyChoose.feature.safety.title', 'Safe & Hygienic Collection'), desc: t('home.whyChoose.feature.safety.desc', 'Strict safety protocols with sterile equipment and infection control practices.'), badge: t('home.whyChoose.feature.safety.badge', 'Safety First') },
   ];
   return (
     <div className="page-section" style={{ background: '#F5FAFF' }}>
       <div className="container">
         <div className="grid-4" style={{ gap: 12, marginBottom: 20 }}>
           {[
-            { label: '10+ Years', sub: 'Experience' },
-            { label: '2 Lakh+', sub: 'Home Collections' },
-            { label: '500+', sub: 'Corporate Clients' },
-            { label: '2000+', sub: 'Diagnostic Tests' },
+            { label: t('home.whyChoose.stat.years', '10+ Years'), sub: t('home.whyChoose.stat.experience', 'Experience') },
+            { label: t('home.whyChoose.stat.collections', '2 Lakh+'), sub: t('home.whyChoose.stat.homeCollections', 'Home Collections') },
+            { label: t('home.whyChoose.stat.corporate', '500+'), sub: t('home.whyChoose.stat.corporateClients', 'Corporate Clients') },
+            { label: t('home.whyChoose.stat.tests', '2000+'), sub: t('home.whyChoose.stat.diagnosticTests', 'Diagnostic Tests') },
           ].map(s => (
             <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '16px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
@@ -790,8 +810,8 @@ function WhyChooseJeevan() {
             </div>
           ))}
         </div>
-        <h2 className="section-title text-center">Why Thousands of Families Trust Jeevan HealthCare at Home</h2>
-        <p className="section-subtitle text-center">Reliable diagnostics, expert healthcare professionals, and convenient home healthcare services designed around your family's needs.</p>
+        <h2 className="section-title text-center">{t('home.whyChoose.sectionTitle', 'Why Thousands of Families Trust Jeevan HealthCare at Home')}</h2>
+        <p className="section-subtitle text-center">{t('home.whyChoose.sectionSubtitle', 'Reliable diagnostics, expert healthcare professionals, and convenient home healthcare services designed around your family\'s needs.')}</p>
         <div className="grid-4" style={{ gap: 14, marginTop: 20 }}>
           {features.map(f => (
             <div key={f.title} className="trust-feature-card" style={{
@@ -809,10 +829,10 @@ function WhyChooseJeevan() {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 20, color: '#fff' }}>
-          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Experience Trusted Healthcare at Your Doorstep</h3>
+          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{t('home.whyChoose.cta.title', 'Experience Trusted Healthcare at Your Doorstep')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 28px', fontSize: 14 }}>🔵 Book Health Test Now</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 28px', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>📄 Upload Prescription</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 28px', fontSize: 14 }}>{t('home.whyChoose.cta.bookTest', '🔵 Book Health Test Now')}</Link>
+            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 28px', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.whyChoose.cta.upload', '📄 Upload Prescription')}</button>
           </div>
         </div>
       </div>

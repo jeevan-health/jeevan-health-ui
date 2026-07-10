@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 
 const CHECKS = [
@@ -10,16 +11,17 @@ const CHECKS = [
 ];
 
 export default function QaCompliance() {
+  const t = useT();
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>✅ Compliance Checklist</h2>
-      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>Regulatory and safety compliance tracking</p>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>{t('role.qa.complianceChecklist', '✅ Compliance Checklist')}</h2>
+      <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 16px' }}>{t('role.qa.complianceDesc', 'Regulatory and safety compliance tracking')}</p>
       {CHECKS.map((c, i) => (
         <div key={i} style={{ ...card, borderLeft: `4px solid ${c.status === 'compliant' ? '#65a30d' : '#dc2626'}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <span style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{c.area}</span>
-              <div style={{ fontSize: 12, color: '#64748b' }}>Last: {c.lastCheck} · Next: {c.nextDue}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{t('role.qa.last', 'Last:')} {c.lastCheck} {t('role.qa.next', '· Next:')} {c.nextDue}</div>
             </div>
             <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 4, background: c.status === 'compliant' ? '#dcfce7' : '#fee2e2', color: c.status === 'compliant' ? '#16a34a' : '#dc2626', fontWeight: 600, textTransform: 'capitalize' }}>{c.status}</span>
           </div>

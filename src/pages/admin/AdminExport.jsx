@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useAdminStore from '../../stores/adminStore';
 import useBookingsStore from '../../stores/bookingsStore';
 import usePatientsStore from '../../stores/patientsStore';
@@ -53,6 +54,7 @@ function formatDate(d) {
 }
 
 export default function AdminExport() {
+  const t = useT();
   const [selected, setSelected] = useState('orders');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');

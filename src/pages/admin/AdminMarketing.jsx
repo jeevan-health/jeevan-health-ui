@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useMarketingStore from '../../stores/marketingStore';
 
 export default function AdminMarketing() {
+  const t = useT();
   const { data, addCampaign, updateCampaign, deleteCampaign, updateChannel, reset } = useMarketingStore();
   const [tab, setTab] = useState('overview');
   const [showAdd, setShowAdd] = useState(false);
@@ -78,7 +80,7 @@ export default function AdminMarketing() {
               <div><label style={{ display: 'block', fontSize: 11, color: '#6b7280', marginBottom: 2 }}>Status</label><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 4, fontSize: 13 }}><option value="planned">Planned</option><option value="active">Active</option><option value="completed">Completed</option></select></div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button type="submit" style={{ padding: '6px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Create</button>
-                <button type="button" onClick={() => setShowAdd(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>Cancel</button>
+                <button type="button" onClick={() => setShowAdd(false)} style={{ padding: '6px 14px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>{t('admin.marketing.cancel', 'Cancel')}</button>
               </div>
             </form>
           )}

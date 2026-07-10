@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import useAdminStore from '../../stores/adminStore';
 import useAuthStore from '../../stores/authStore';
 import usePermissionsStore from '../../stores/permissionsStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 const ROLE_OPTIONS = ['user', 'staff', 'admin', 'super_admin'];
 const MODAL_OVERLAY = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
 
 export default function AdminUsers() {
+  const t = useT();
   const usersList = useAdminStore(s => s.usersList);
   const refreshAnalytics = useAdminStore(s => s.refreshAnalytics);
   const updateUserRole = useAuthStore(s => s.updateUserRole);
@@ -33,7 +35,7 @@ export default function AdminUsers() {
   };
 
   const handleDelete = (userId) => {
-    if (!confirm('Delete this user? This cannot be undone.')) return;
+    if (!confirm(t('admin.users.delete_confirm', 'Delete this user? This cannot be undone.'))) return;
     deleteUser(userId);
     refreshAnalytics();
   };
@@ -51,27 +53,27 @@ export default function AdminUsers() {
   return (
     <div>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
-        <input className="input" placeholder="Search by name, phone or email..." value={search} onChange={e => setSearch(e.target.value)}
+        <input className="input" placeholder={t('admin.users.search_placeholder', 'Search by name, phone or email...')} value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, maxWidth: 400, fontSize: 13 }} />
-        <span style={{ fontSize: 12, color: '#64748b' }}>{filtered.length} of {usersList.length} users</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{filtered.length} {t('admin.users.of', 'of')} {usersList.length} {t('admin.users.users', 'users')}</span>
         <button onClick={() => setShowAdd(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 600, whiteSpace: 'nowrap' }}>
-          + Add User
+          + {t('admin.users.add_user', 'Add User')}
         </button>
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>No users found</div>
+        <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>{t('admin.users.no_users', 'No users found')}</div>
       ) : (
         <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Name</th>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Phone</th>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Email</th>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Role</th>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Joined</th>
-                <th style={{ textAlign: 'right', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Actions</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.users.name', 'Name')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.users.phone', 'Phone')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.users.email', 'Email')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.users.role', 'Role')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.users.joined', 'Joined')}</th>
+                <th style={{ textAlign: 'right', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.users.actions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -95,7 +97,7 @@ export default function AdminUsers() {
                   </td>
                   <td style={{ padding: '10px 14px', color: '#64748b', fontSize: 12 }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
                   <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                    <button onClick={() => handleDelete(u.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12, padding: '4px 8px' }}>Delete</button>
+                    <button onClick={() => handleDelete(u.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12, padding: '4px 8px' }}>{t('admin.users.delete', 'Delete')}</button>
                   </td>
                 </tr>
               ))}
@@ -109,22 +111,22 @@ export default function AdminUsers() {
         <div style={MODAL_OVERLAY} onClick={() => setShowAdd(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Add User</h4>
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{t('admin.users.add_user_title', 'Add User')}</h4>
               <button onClick={() => setShowAdd(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <input placeholder="Full Name *" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
-              <input placeholder="Phone Number *" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
-              <input placeholder="Email (optional)" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.users.full_name_req', 'Full Name *')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.users.phone_number_req', 'Phone Number *')} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.users.email_optional', 'Email (optional)')} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={inputStyle} />
               <div>
-                <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>Role</label>
+                <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('admin.users.role_label', 'Role')}</label>
                 <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={inputStyle}>
                   {Object.entries(roles).map(([id, r]) => <option key={id} value={id}>{r.label || id}</option>)}
                 </select>
               </div>
               {roles[form.role] && (
                 <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12, fontSize: 11 }}>
-                  <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: 6 }}>Role Permissions</div>
+                  <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: 6 }}>{t('admin.users.role_permissions', 'Role Permissions')}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
                     {Object.entries(roles[form.role].permissions || {}).map(([mod, perms]) => {
                       const granted = Object.entries(perms).filter(([, v]) => v);
@@ -136,8 +138,8 @@ export default function AdminUsers() {
               )}
             </div>
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
-              <button onClick={handleAdd} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add User</button>
+              <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.users.cancel', 'Cancel')}</button>
+              <button onClick={handleAdd} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{t('admin.users.add_user', 'Add User')}</button>
             </div>
           </div>
         </div>

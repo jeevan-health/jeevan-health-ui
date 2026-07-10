@@ -1,19 +1,9 @@
 import { useState, useMemo } from 'react';
 import useBookingsStore from '../../stores/bookingsStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
-
-const STATUSES = [
-  { value: 'scheduled', label: 'Scheduled', color: '#3b82f6' },
-  { value: 'confirmed', label: 'Confirmed', color: '#22c55e' },
-  { value: 'in_progress', label: 'In Progress', color: '#f59e0b' },
-  { value: 'completed', label: 'Completed', color: '#16a34a' },
-  { value: 'cancelled', label: 'Cancelled', color: '#ef4444' },
-  { value: 'no_show', label: 'No Show', color: '#64748b' },
-];
-
-const STATUS_MAP = Object.fromEntries(STATUSES.map(s => [s.value, s]));
 
 function formatDate(d) {
   if (!d) return '';
@@ -24,6 +14,16 @@ function formatDate(d) {
 function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
 export default function AdminBookings() {
+  const t = useT();
+  const STATUSES = [
+    { value: 'scheduled', label: t('admin.bookings.scheduled', 'Scheduled'), color: '#3b82f6' },
+    { value: 'confirmed', label: t('admin.bookings.confirmed', 'Confirmed'), color: '#22c55e' },
+    { value: 'in_progress', label: t('admin.bookings.in_progress', 'In Progress'), color: '#f59e0b' },
+    { value: 'completed', label: t('admin.bookings.completed', 'Completed'), color: '#16a34a' },
+    { value: 'cancelled', label: t('admin.bookings.cancelled', 'Cancelled'), color: '#ef4444' },
+    { value: 'no_show', label: t('admin.bookings.no_show', 'No Show'), color: '#64748b' },
+  ];
+  const STATUS_MAP = Object.fromEntries(STATUSES.map(s => [s.value, s]));
   const bookings = useBookingsStore(s => s.bookings);
   const timeSlots = useBookingsStore(s => s.timeSlots);
   const addBooking = useBookingsStore(s => s.addBooking);
@@ -77,10 +77,10 @@ export default function AdminBookings() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>📅 Bookings</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>📅 {t('admin.bookings.title', 'Bookings')}</div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowSlots(true)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>⏰ Time Slots</button>
-          <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ New Booking</button>
+          <button onClick={() => setShowSlots(true)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>⏰ {t('admin.bookings.time_slots', 'Time Slots')}</button>
+          <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ {t('admin.bookings.new_booking', 'New Booking')}</button>
         </div>
       </div>
 
@@ -88,19 +88,19 @@ export default function AdminBookings() {
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
         <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{dayStats.total}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>Total</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.total', 'Total')}</div>
         </div>
         <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#3b82f6' }}>{dayStats.scheduled}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>Active</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.active', 'Active')}</div>
         </div>
         <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#22c55e' }}>{dayStats.completed}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>Completed</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.completed', 'Completed')}</div>
         </div>
         <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#ef4444' }}>{dayStats.cancelled}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>Cancelled</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.cancelled', 'Cancelled')}</div>
         </div>
       </div>
 
@@ -108,7 +108,9 @@ export default function AdminBookings() {
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', gap: 4, background: '#f1f5f9', borderRadius: 8, padding: 3 }}>
           {['day', 'week', 'all'].map(v => (
-            <button key={v} onClick={() => setView(v)} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: view === v ? '#fff' : 'transparent', color: view === v ? '#0f172a' : '#64748b', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: view === v ? 600 : 400, boxShadow: view === v ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>{v === 'day' ? 'Day' : v === 'week' ? 'Week' : 'All'}</button>
+            <button key={v} onClick={() => setView(v)} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: view === v ? '#fff' : 'transparent', color: view === v ? '#0f172a' : '#64748b', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: view === v ? 600 : 400, boxShadow: view === v ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>
+              {v === 'day' ? t('admin.bookings.day', 'Day') : v === 'week' ? t('admin.bookings.week', 'Week') : t('admin.bookings.all', 'All')}
+            </button>
           ))}
         </div>
         {view !== 'all' && (
@@ -116,18 +118,18 @@ export default function AdminBookings() {
             <button onClick={() => changeDate(-1)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>←</button>
             <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', minWidth: 130, textAlign: 'center' }}>{formatDate(selDate)}</span>
             <button onClick={() => changeDate(1)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>→</button>
-            <button onClick={() => setSelDate(todayStr())} style={{ marginLeft: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>Today</button>
+            <button onClick={() => setSelDate(todayStr())} style={{ marginLeft: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.bookings.today', 'Today')}</button>
           </div>
         )}
-        <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 200, fontSize: 12 }} placeholder="🔍 Search patient/test..." />
+        <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 200, fontSize: 12 }} placeholder={t('admin.bookings.search_placeholder', '🔍 Search patient/test...')} />
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ ...inputStyle, width: 130, fontSize: 12 }}>
-          <option value="">All Status</option>
+          <option value="">{t('admin.bookings.all_status', 'All Status')}</option>
           {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
       </div>
 
       {/* Booking List */}
-      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>No bookings found for this view.</p>}
+      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>{t('admin.bookings.no_bookings', 'No bookings found for this view.')}</p>}
       {filtered.map(b => {
         const st = STATUS_MAP[b.status] || STATUS_MAP['scheduled'];
         return (
@@ -155,8 +157,8 @@ export default function AdminBookings() {
                 <select value={b.status} onChange={e => updateBooking(b.id, { status: e.target.value })} style={{ fontSize: 11, padding: '3px 6px', borderRadius: 6, border: '1px solid #e2e8f0', fontFamily: 'inherit', background: '#fff' }}>
                   {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
-                <button onClick={() => handleEdit(b)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>Edit</button>
-                <button onClick={() => { if (confirm('Delete booking?')) deleteBooking(b.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>Del</button>
+                <button onClick={() => handleEdit(b)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.bookings.edit', 'Edit')}</button>
+                <button onClick={() => { if (confirm(t('admin.bookings.delete_confirm', 'Delete booking?'))) deleteBooking(b.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>{t('admin.bookings.del', 'Del')}</button>
               </div>
             </div>
           </div>
@@ -167,32 +169,32 @@ export default function AdminBookings() {
       {showAdd && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 480, maxWidth: '90vw', maxHeight: '85vh', overflowY: 'auto' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? 'Edit Booking' : 'New Booking'}</h4>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? t('admin.bookings.edit_booking', 'Edit Booking') : t('admin.bookings.new_booking', 'New Booking')}</h4>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
-              <input placeholder="Patient Name *" value={form.patientName} onChange={e => setForm({ ...form, patientName: e.target.value })} style={inputStyle} />
-              <input placeholder="Patient Phone" value={form.patientPhone} onChange={e => setForm({ ...form, patientPhone: e.target.value })} style={inputStyle} />
-              <input placeholder="Test Name" value={form.testName} onChange={e => setForm({ ...form, testName: e.target.value })} style={inputStyle} />
-              <input placeholder="Doctor Name (optional)" value={form.doctorName} onChange={e => setForm({ ...form, doctorName: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.bookings.patient_name_req', 'Patient Name *')} value={form.patientName} onChange={e => setForm({ ...form, patientName: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.bookings.patient_phone', 'Patient Phone')} value={form.patientPhone} onChange={e => setForm({ ...form, patientPhone: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.bookings.test_name', 'Test Name')} value={form.testName} onChange={e => setForm({ ...form, testName: e.target.value })} style={inputStyle} />
+              <input placeholder={t('admin.bookings.doctor_name_opt', 'Doctor Name (optional)')} value={form.doctorName} onChange={e => setForm({ ...form, doctorName: e.target.value })} style={inputStyle} />
               <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={inputStyle} />
               <select value={form.timeSlot} onChange={e => setForm({ ...form, timeSlot: e.target.value })} style={inputStyle}>
-                <option value="">— Select time slot —</option>
+                <option value="">{t('admin.bookings.select_time_slot', '— Select time slot —')}</option>
                 {timeSlots.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={inputStyle}>
-                <option value="Home Collection">Home Collection</option>
-                <option value="Lab Visit">Lab Visit</option>
-                <option value="Online Consultation">Online Consultation</option>
-                <option value="Clinic Visit">Clinic Visit</option>
+                <option value="Home Collection">{t('admin.bookings.home_collection', 'Home Collection')}</option>
+                <option value="Lab Visit">{t('admin.bookings.lab_visit', 'Lab Visit')}</option>
+                <option value="Online Consultation">{t('admin.bookings.online_consultation', 'Online Consultation')}</option>
+                <option value="Clinic Visit">{t('admin.bookings.clinic_visit', 'Clinic Visit')}</option>
               </select>
               <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
                 {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
-            <input placeholder="Collection/Visit Address" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} style={{ ...inputStyle, marginTop: 10 }} />
-            <textarea rows={2} placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginTop: 10 }} />
+            <input placeholder={t('admin.bookings.address', 'Collection/Visit Address')} value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} style={{ ...inputStyle, marginTop: 10 }} />
+            <textarea rows={2} placeholder={t('admin.bookings.notes', 'Notes')} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginTop: 10 }} />
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
-              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? 'Update' : 'Create Booking'}</button>
+              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.bookings.cancel', 'Cancel')}</button>
+              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? t('admin.bookings.update', 'Update') : t('admin.bookings.create_booking', 'Create Booking')}</button>
             </div>
           </div>
         </div>
@@ -202,16 +204,16 @@ export default function AdminBookings() {
       {showSlots && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowSlots(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>⏰ Time Slot Management</h4>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>⏰ {t('admin.bookings.time_slot_mgmt', 'Time Slot Management')}</h4>
             {timeSlots.map((s, i) => (
               <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' }}>
                 <input value={s} onChange={e => { const t = [...timeSlots]; t[i] = e.target.value; useBookingsStore.getState().setTimeSlots(t); }} style={inputStyle} />
                 <button onClick={() => useBookingsStore.getState().removeTimeSlot(i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14, padding: 4 }}>×</button>
               </div>
             ))}
-            <button onClick={() => useBookingsStore.getState().addTimeSlot('')} style={{ marginTop: 4, padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>+ Add Slot</button>
+            <button onClick={() => useBookingsStore.getState().addTimeSlot('')} style={{ marginTop: 4, padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.bookings.add_slot', '+ Add Slot')}</button>
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowSlots(false)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>Done</button>
+              <button onClick={() => setShowSlots(false)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>{t('admin.bookings.done', 'Done')}</button>
             </div>
           </div>
         </div>

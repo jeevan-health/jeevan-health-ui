@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../stores/cartStore';
 import { categoryMeta, makeSlug } from '../data/seedData';
+import { useT } from '../i18n/LanguageProvider';
 
 const BADGES = ['Most Booked', 'Recommended', 'Trending'];
 const BADGE_STYLES = {
@@ -10,6 +11,7 @@ const BADGE_STYLES = {
 };
 
 export default function TestCard({ test, badge, showActions = true, searchQuery }) {
+  const t = useT();
   const navigate = useNavigate();
   const addItem = useCartStore(s => s.addItem);
   const catMeta = categoryMeta[test.category] || {};
@@ -51,7 +53,7 @@ export default function TestCard({ test, badge, showActions = true, searchQuery 
           {hasDiscount && <span style={{ fontSize: 12, color: '#999', textDecoration: 'line-through' }}>₹{test.mrp}</span>}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#555' }}><span>🚚</span><span>Free Home Collection</span></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#555' }}><span>🚚</span><span>{t('testCard.freeHomeCollection', 'Free Home Collection')}</span></div>
           {test.report_time && <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#555' }}><span>⏱️</span><span>{test.report_time}</span></div>}
           {test.preparation_instructions && <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#555' }}><span>📋</span><span style={{ lineHeight: 1.3 }}>{test.preparation_instructions}</span></div>}
         </div>
@@ -60,15 +62,15 @@ export default function TestCard({ test, badge, showActions = true, searchQuery 
             <button
               onClick={() => { addItem({ id: test.id, name: test.name, price: test.price, offerPrice: test.offerPrice, type: 'test' }); navigate('/checkout'); }}
               style={{ flex: 1, padding: '8px 0', background: '#1866C9', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
-            >Book Now</button>
+            >{t('testCard.bookNow', 'Book Now')}</button>
             <button
-              onClick={() => alert('Compare feature coming soon')}
+              onClick={() => alert(t('testCard.compareComingSoon', 'Compare feature coming soon'))}
               style={{ padding: '8px 12px', background: '#f8f9fa', color: '#555', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, cursor: 'pointer' }}
-            >Compare</button>
+            >{t('testCard.compare', 'Compare')}</button>
             <button
               onClick={() => { addItem({ id: test.id, name: test.name, price: test.price, offerPrice: test.offerPrice, type: 'test' }); }}
               style={{ padding: '8px 12px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
-            >+ Add</button>
+            >{t('testCard.add', '+ Add')}</button>
           </div>
         )}
       </div>

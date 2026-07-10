@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import useAdminStore from '../../stores/adminStore';
 
 export default function AdminCoupons() {
+  const t = useT();
   const coupons = useAdminStore(s => s.coupons);
   const saveCoupon = useAdminStore(s => s.saveCoupon);
   const deleteCoupon = useAdminStore(s => s.deleteCoupon);
@@ -44,7 +46,7 @@ export default function AdminCoupons() {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={handleSave} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>Save</button>
-            <button onClick={() => setEditing(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>Cancel</button>
+            <button onClick={() => setEditing(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>{t('admin.coupons.cancel', 'Cancel')}</button>
           </div>
         </div>
       )}
@@ -56,8 +58,8 @@ export default function AdminCoupons() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Code</th>
-                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Discount</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.coupons.code', 'Code')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>{t('admin.coupons.discount', 'Discount')}</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Min Order</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Used / Max</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Status</th>
@@ -75,8 +77,8 @@ export default function AdminCoupons() {
                     <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: c.active ? '#dcfce7' : '#f1f5f9', color: c.active ? '#166534' : '#64748b' }}>{c.active ? 'Active' : 'Inactive'}</span>
                   </td>
                   <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                    <button onClick={() => handleEdit(c)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12, marginRight: 8 }}>Edit</button>
-                    <button onClick={() => { if (confirm('Delete coupon?')) deleteCoupon(c.code); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Delete</button>
+                    <button onClick={() => handleEdit(c)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12, marginRight: 8 }}>{t('admin.coupons.edit', 'Edit')}</button>
+                    <button onClick={() => { if (confirm('Delete coupon?')) deleteCoupon(c.code); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('admin.coupons.delete', 'Delete')}</button>
                   </td>
                 </tr>
               ))}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useT } from '../i18n/LanguageProvider';
 import { Link, useNavigate } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import useCartStore from '../stores/cartStore';
@@ -8,6 +9,7 @@ import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
 
 export default function Diagnostics() {
+  const t = useT();
   const navigate = useNavigate();
   const addItem = useCartStore(s => s.addItem);
   const cmsContent = useCmsStore(s => s.content);
@@ -37,13 +39,13 @@ export default function Diagnostics() {
         <div className="diag-hero" style={{ background: 'linear-gradient(135deg, #0b3b2c 0%, #1a6b4a 100%)', padding: '40px 0 48px' }}>
           <div className="container">
             <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 700, margin: '0 0 6px', lineHeight: 1.2 }}>
-              {diag.heroHeading || 'Find the right health test in 30 seconds'}
+              {diag.heroHeading || t('diagnostics.hero.heading', 'Find the right health test in 30 seconds')}
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: '0 0 20px' }}>
-              {diag.heroSubtext || '5000+ diagnostic tests. Free home collection. NABL certified labs.'}
+              {diag.heroSubtext || t('diagnostics.hero.subtext', '5000+ diagnostic tests. Free home collection. NABL certified labs.')}
             </p>
             <div style={{ maxWidth: 520 }}>
-              <SmartSearch placeholder="🔍 Search tests, health packages & symptoms..." value={search}
+              <SmartSearch placeholder={t('diagnostics.searchPlaceholder', '🔍 Search tests, health packages & symptoms...')} value={search}
                 onChange={setSearch}
                 onSubmit={v => { setSearch(v); if (v) setSearched(true); }} />
             </div>
@@ -63,7 +65,7 @@ export default function Diagnostics() {
         <div style={{ background: 'var(--bg-light)', borderBottom: '1px solid var(--border)', padding: '12px 0', position: 'sticky', top: 'var(--header-height)', zIndex: 50 }}>
           <div className="container" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
-              <SmartSearch placeholder="🔍 Search tests..." value={search}
+              <SmartSearch placeholder={t('diagnostics.searchPlaceholderSmall', '🔍 Search tests...')} value={search}
                 onChange={setSearch}
                 onSubmit={v => { setSearch(v); if (v) setSearched(true); }} />
             </div>
@@ -75,7 +77,7 @@ export default function Diagnostics() {
 
       {search && searched && searchResults.length > 0 && (
         <div className="page-section container" style={{ paddingTop: 20 }}>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{searchResults.length} test{searchResults.length !== 1 ? 's' : ''} found for "{search}"</p>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{searchResults.length} {t('diagnostics.test', 'test')}{searchResults.length !== 1 ? 's' : ''} {t('diagnostics.foundFor', 'found for')} "{search}"</p>
           <div className="grid-3">
             {searchResults.map(t => (
               <TestCard key={t.id} test={t} />
@@ -87,7 +89,7 @@ export default function Diagnostics() {
           ).length > 12 && (
             <div style={{ textAlign: 'center', marginTop: 16 }}>
               <Link to={`/tests/${search.toLowerCase().replace(/\s+/g, '-')}`} className="btn btn-outline" style={{ fontSize: 13 }}>
-                View all results →
+                {t('diagnostics.viewAllResults', 'View all results →')}
               </Link>
             </div>
           )}
@@ -96,8 +98,8 @@ export default function Diagnostics() {
 
       {search && searched && searchResults.length === 0 && (
         <div className="page-section container" style={{ paddingTop: 40, textAlign: 'center' }}>
-          <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>No tests found for "{search}"</p>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Try searching for "Diabetes", "Thyroid", or "Vitamin D"</p>
+          <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>{t('diagnostics.noTestsFound', 'No tests found for')} "{search}"</p>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('diagnostics.noTestsHint', 'Try searching for "Diabetes", "Thyroid", or "Vitamin D"')}</p>
         </div>
       )}
 
@@ -106,24 +108,24 @@ export default function Diagnostics() {
           <div className="page-section container" style={{ paddingTop: 28 }}>
             <div className="diag-presc-banner" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{diag.bannerHeading || '📋 Have a prescription?'}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{diag.bannerText || "Upload your doctor's prescription and we'll recommend the right tests."}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{diag.bannerHeading || t('diagnostics.banner.heading', '📋 Have a prescription?')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{diag.bannerText || t('diagnostics.banner.text', "Upload your doctor's prescription and we'll recommend the right tests.")}</div>
               </div>
-              <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>{diag.bannerCta || '📤 Upload Prescription'}</button>
+              <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-primary" style={{ background: '#16a34a', border: 'none', fontSize: 12, whiteSpace: 'nowrap' }}>{diag.bannerCta || t('diagnostics.banner.cta', '📤 Upload Prescription')}</button>
             </div>
           </div>
 
           <div className="page-section" style={{ paddingTop: 0, paddingBottom: 32 }}>
             <div className="container">
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Popular Health Categories</h2>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Choose a category to find the right test for your health concern</p>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{t('diagnostics.popularCategories', 'Popular Health Categories')}</h2>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>{t('diagnostics.popularCategoriesSub', 'Choose a category to find the right test for your health concern')}</p>
               <div className="cat-card-grid">
                 {popularCategories.map(cat => (
                   <Link key={cat.name} to={`/tests/${cat.id}`} className="cat-card" style={{ textDecoration: 'none' }}>
                     <div className="cat-card-icon" style={{ background: `${cat.color}15`, color: cat.color }}>{cat.icon}</div>
                     <div className="cat-card-body">
                       <h3>{cat.name}</h3>
-                      <p>{cat.tests.length} Tests</p>
+                      <p>{cat.tests.length} {t('diagnostics.tests', 'Tests')}</p>
                       <span className="cat-card-desc">{cat.description}</span>
                     </div>
                     <span className="cat-card-arrow">→</span>
@@ -131,22 +133,22 @@ export default function Diagnostics() {
                 ))}
               </div>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
-                <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 13 }}>View All Categories →</Link>
+                <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 13 }}>{t('diagnostics.viewAllCategories', 'View All Categories →')}</Link>
               </div>
             </div>
           </div>
 
           <div className="page-section" style={{ background: 'var(--bg-light)', paddingTop: 32, paddingBottom: 32 }}>
             <div className="container">
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Browse Tests by Health Concern</h2>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Find tests recommended for your specific health condition</p>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{t('diagnostics.browseByConcern', 'Browse Tests by Health Concern')}</h2>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>{t('diagnostics.browseByConcernSub', 'Find tests recommended for your specific health condition')}</p>
               <div className="concern-grid">
                 {categoryList.slice(0, 10).map(cat => (
                   <Link key={cat.name} to={`/tests/${cat.id}`} className="concern-card" style={{ textDecoration: 'none' }}>
                     <span className="concern-icon">{cat.icon}</span>
                     <div>
                       <div className="concern-name">{cat.name}</div>
-                      <div className="concern-count">{cat.tests.length} tests</div>
+                      <div className="concern-count">{cat.tests.length} {t('diagnostics.tests', 'tests')}</div>
                     </div>
                   </Link>
                 ))}
@@ -155,8 +157,8 @@ export default function Diagnostics() {
           </div>
 
           <div className="page-section container" style={{ paddingTop: 32 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Most Booked Tests</h2>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Trusted by thousands of patients for accurate results</p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>{t('diagnostics.mostBooked', 'Most Booked Tests')}</h2>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>{t('diagnostics.mostBookedSub', 'Trusted by thousands of patients for accurate results')}</p>
             <div className="grid-3">
               {seedTests.filter(t => ['Complete Blood Count (CBC)', 'HbA1c', 'Thyroid Profile (T3, T4, TSH)', 'Lipid Profile', 'Vitamin D Total', 'Vitamin B12'].includes(t.name)).map(t => (
                 <TestCard key={t.id} test={t} />

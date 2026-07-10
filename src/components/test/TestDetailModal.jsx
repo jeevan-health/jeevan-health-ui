@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { X, Drop, Clock, House, Phone, Flask, Info, Heart, Microscope, Shield, ShoppingCart, Plus, CaretDown, Warning, FileText, ChartBar, Heartbeat, Coin, ArrowClockwise, User, Lightbulb } from '@phosphor-icons/react';
 import testDetailData from './testDetailData';
 import { getTestEducation, getPackageEducation } from '../../utils/testEducation';
+import { useT } from '../../i18n/LanguageProvider';
 
 const iconMap = {
   Lightbulb, User: User, Warning, Drop, Microscope, FileText, ChartBar, Heartbeat, Shield, Coin: Coin, ArrowClockwise, Clock, Info, Heart, Phone,
 };
 
 const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = [], onAddAlsoBooked }) => {
+  const t = useT();
   const [openFaq, setOpenFaq] = useState({});
   if (!test) return null;
   const isPackage = test.subcategory === 'Health Packages';
@@ -51,7 +53,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Also Referred As */}
         {data?.alsoKnownAs && (
-          <Section title="Also Referred As" icon={Info}>
+          <Section title={t('tdm.alsoReferredAs', 'Also Referred As')} icon={Info}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {data.alsoKnownAs.map((a, i) => <Pill key={i} label={a} />)}
             </div>
@@ -60,7 +62,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Applicable For */}
         {data?.applicableFor && (
-          <Section title="Applicable For" icon={Heart}>
+          <Section title={t('tdm.applicableFor', 'Applicable For')} icon={Heart}>
             <Pill label={data.applicableFor.gender} bg="#fce4ec" color="#c62828" />
             <Pill label={data.applicableFor.age} bg="#e8f5e9" color="#2e7d32" />
             {data.applicableFor.conditions.map((c, i) => <Pill key={i} label={c} bg="#fff3e0" color="#e65100" />)}
@@ -68,41 +70,41 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         )}
 
         {/* Report Time */}
-        <Section title="Report Time" icon={Clock} color="#e65100">
+        <Section title={t('tdm.reportTime', 'Report Time')} icon={Clock} color="#e65100">
           <div style={{ background: '#fff8e1', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#e65100' }}>
-            {test.report_time ? `Within ${test.report_time}` : 'Varies by lab location'}
+            {test.report_time ? `${t('tdm.within', 'Within')} ${test.report_time}` : t('tdm.variesByLab', 'Varies by lab location')}
           </div>
         </Section>
 
         {/* Test Details */}
-        <Section title="Test Details" icon={Flask}>
+        <Section title={t('tdm.testDetails', 'Test Details')} icon={Flask}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Contains:</div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>{isPackage ? (test.description?.match(/(\d+)\+?\s*(parameters|tests|params)/i)?.[0] || 'Multiple parameters') : '1 Test'}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Sample Type:</div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>{data?.sampleType || 'Blood Sample'}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>Home Collection:</div>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>{t('tdm.contains', 'Contains')}:</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>{isPackage ? (test.description?.match(/(\d+)\+?\s*(parameters|tests|params)/i)?.[0] || t('tdm.multipleParams', 'Multiple parameters')) : t('tdm.oneTest', '1 Test')}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>{t('tdm.sampleType', 'Sample Type')}:</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>{data?.sampleType || t('tdm.bloodSample', 'Blood Sample')}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-light)' }}>{t('tdm.homeCollection', 'Home Collection')}:</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#2e7d32' }}>
-              {test.home_collection !== false ? 'Yes' : 'Lab visit preferred'}
+              {test.home_collection !== false ? t('tdm.yes', 'Yes') : t('tdm.labVisitPreferred', 'Lab visit preferred')}
             </div>
           </div>
         </Section>
 
         {/* Overview */}
-        <Section title="KNOW MORE ABOUT THIS TEST" icon={Microscope}>
+        <Section title={t('tdm.knowMore', 'KNOW MORE ABOUT THIS TEST')} icon={Microscope}>
           <p style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text-body)' }}>{test.description}</p>
         </Section>
 
         {/* Why This Test is Booked */}
         {data?.symptoms && (
-          <Section title="WHY THIS TEST IS BOOKED" icon={Heart} color="#c62828">
-            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 8 }}>You may need this test if you have:</p>
+          <Section title={t('tdm.whyBooked', 'WHY THIS TEST IS BOOKED')} icon={Heart} color="#c62828">
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 8 }}>{t('tdm.youMayNeed', 'You may need this test if you have')}:</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
               {data.symptoms.map((s, i) => <Pill key={i} label={s} bg="#fce4ec" color="#c62828" />)}
             </div>
             {data.riskConditions && (
               <>
-                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 8 }}>High Risk Conditions:</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)', marginBottom: 8 }}>{t('tdm.highRiskConditions', 'High Risk Conditions')}:</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {data.riskConditions.map((r, i) => <Pill key={i} label={r} bg="#ffebee" color="#b71c1c" />)}
                 </div>
@@ -113,7 +115,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* When Should You Take This Test */}
         {data?.whenToTake && (
-          <Section title="WHEN SHOULD YOU TAKE THIS TEST?" icon={Clock} color="#0F4A96">
+          <Section title={t('tdm.whenToTake', 'WHEN SHOULD YOU TAKE THIS TEST?')} icon={Clock} color="#0F4A96">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.whenToTake.map((w, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
@@ -127,7 +129,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Combo Upsell */}
         {combo && combo.items.length >= 2 && (
-          <Section title="FREQUENTLY BOOKED TOGETHER" icon={ShoppingCart} color="#FF8A00">
+          <Section title={t('tdm.freqBooked', 'FREQUENTLY BOOKED TOGETHER')} icon={ShoppingCart} color="#FF8A00">
             <div style={{ background: '#fff8e1', borderRadius: 12, padding: 16, border: '1px solid #ffecb3' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#e65100' }}>{combo.name}</span>
@@ -146,12 +148,12 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
                   </div>
                 ))}
                 <div style={{ borderTop: '1px dashed #ddd', marginTop: 4, paddingTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ fontWeight: 700, color: 'var(--text-dark)' }}>Combo Price</span>
+                  <span style={{ fontWeight: 700, color: 'var(--text-dark)' }}>{t('tdm.comboPrice', 'Combo Price')}</span>
                   <span style={{ fontWeight: 700, color: '#e65100' }}>₹{combo.comboPrice}</span>
                 </div>
                 {combo.savings > 0 && (
                   <div style={{ fontSize: 12, color: '#2e7d32', fontWeight: 600 }}>
-                    You save ₹{combo.savings}
+                    {t('tdm.youSave', 'You save')} ₹{combo.savings}
                   </div>
                 )}
               </div>
@@ -161,7 +163,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
                   background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
                   border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                 }}>
-                Add All to Cart — ₹{combo.comboPrice}
+                {t('tdm.addAllToCart', 'Add All to Cart')} — ₹{combo.comboPrice}
               </button>
             </div>
           </Section>
@@ -169,7 +171,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Also Booked */}
         {alsoBooked.length > 0 && (
-          <Section title="ALSO BOOKED BY OTHERS" icon={Plus} color="#1866C9">
+          <Section title={t('tdm.alsoBooked', 'ALSO BOOKED BY OTHERS')} icon={Plus} color="#1866C9">
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {alsoBooked.map((item, i) => (
                 <button key={i} onClick={() => onAddAlsoBooked(item)}
@@ -196,27 +198,27 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         )}
 
         {/* Sample Collection */}
-        <Section title="SAMPLE COLLECTION" icon={Drop} color="#0F4A96">
+        <Section title={t('tdm.sampleCollection', 'SAMPLE COLLECTION')} icon={Drop} color="#0F4A96">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
-            <span style={{ color: 'var(--text-light)' }}>Sample Type:</span>
-            <span style={{ fontWeight: 600 }}>{data?.sampleType || 'Blood (Vein sample)'}</span>
-            <span style={{ color: 'var(--text-light)' }}>Collection Method:</span>
-            <span style={{ fontWeight: 600 }}>{data?.collectionMethod || 'Home visit or lab visit'}</span>
-            <span style={{ color: 'var(--text-light)' }}>Collected by:</span>
-            <span style={{ fontWeight: 600 }}>Certified Phlebotomist</span>
+            <span style={{ color: 'var(--text-light)' }}>{t('tdm.sampleType', 'Sample Type')}:</span>
+            <span style={{ fontWeight: 600 }}>{data?.sampleType || t('tdm.bloodVeinSample', 'Blood (Vein sample)')}</span>
+            <span style={{ color: 'var(--text-light)' }}>{t('tdm.collectionMethod', 'Collection Method')}:</span>
+            <span style={{ fontWeight: 600 }}>{data?.collectionMethod || t('tdm.homeOrLab', 'Home visit or lab visit')}</span>
+            <span style={{ color: 'var(--text-light)' }}>{t('tdm.collectedBy', 'Collected by')}:</span>
+            <span style={{ fontWeight: 600 }}>{t('tdm.certifiedPhlebotomist', 'Certified Phlebotomist')}</span>
           </div>
         </Section>
 
         {/* Preparation */}
-        <Section title="PREPARATION" icon={Info} color="#e65100">
+        <Section title={t('tdm.preparation', 'PREPARATION')} icon={Info} color="#e65100">
           <div style={{ background: '#fff8e1', padding: '10px 14px', borderRadius: 8, fontSize: 13, lineHeight: 1.6 }}>
-            {data?.preparation || test.preparation_instructions || 'No special preparation required'}
+            {data?.preparation || test.preparation_instructions || t('tdm.noPrep', 'No special preparation required')}
           </div>
         </Section>
 
         {/* How Test is Done */}
         {data?.procedure && (
-          <Section title="HOW TEST IS DONE" icon={Microscope}>
+          <Section title={t('tdm.howTestDone', 'HOW TEST IS DONE')} icon={Microscope}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.procedure.map((step, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13 }}>
@@ -230,7 +232,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* What Results Mean */}
         {data?.normalRange && (
-          <Section title="WHAT THE RESULTS MEAN" icon={Shield} color="#2e7d32">
+          <Section title={t('tdm.whatResultsMean', 'WHAT THE RESULTS MEAN')} icon={Shield} color="#2e7d32">
             {data.normalRange.sections.map((s, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: i % 2 === 0 ? '#f8f9fa' : '#fff', borderRadius: 6, marginBottom: 4, fontSize: 13 }}>
                 <span style={{ fontWeight: 600, color: 'var(--text-dark)', flex: 1 }}>{s.label}</span>
@@ -247,13 +249,13 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Interpretation */}
         {data?.interpretation && (
-          <Section title="INTERPRETATION">
+          <Section title={t('tdm.interpretation', 'INTERPRETATION')}>
             <div style={{ padding: '8px 12px', background: '#e8f5e9', borderRadius: 6, marginBottom: 4, fontSize: 13 }}>
-              <span style={{ fontWeight: 600, color: '#2e7d32' }}>Normal: </span>
+              <span style={{ fontWeight: 600, color: '#2e7d32' }}>{t('tdm.normal', 'Normal')}: </span>
               <span style={{ color: 'var(--text-body)' }}>{data.interpretation.normal}</span>
             </div>
             <div style={{ padding: '8px 12px', background: '#ffebee', borderRadius: 6, fontSize: 13 }}>
-              <span style={{ fontWeight: 600, color: '#c62828' }}>Abnormal: </span>
+              <span style={{ fontWeight: 600, color: '#c62828' }}>{t('tdm.abnormal', 'Abnormal')}: </span>
               <span style={{ color: 'var(--text-body)' }}>{data.interpretation.abnormal}</span>
             </div>
           </Section>
@@ -261,7 +263,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Related Tests */}
         {data?.relatedTests && (
-          <Section title="RELATED TESTS" icon={Flask}>
+          <Section title={t('tdm.relatedTests', 'RELATED TESTS')} icon={Flask}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {data.relatedTests.map((r, i) => <Pill key={i} label={r} bg="#f3e5f5" color="#7b1fa2" />)}
             </div>
@@ -269,9 +271,9 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         )}
 
         {/* Home Sample Collection */}
-        <Section title="HOME SAMPLE COLLECTION" icon={House} color="#2e7d32">
+        <Section title={t('tdm.homeSampleCollection', 'HOME SAMPLE COLLECTION')} icon={House} color="#2e7d32">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 13 }}>
-            {['Easy online booking', 'Doorstep sample collection', 'Live tracking of phlebotomist', 'Safe & hygienic procedure', 'Digital reports via WhatsApp & Email'].map((item, i) => (
+            {[t('tdm.home1', 'Easy online booking'), t('tdm.home2', 'Doorstep sample collection'), t('tdm.home3', 'Live tracking of phlebotomist'), t('tdm.home4', 'Safe & hygienic procedure'), t('tdm.home5', 'Digital reports via WhatsApp & Email')].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2e7d32', flexShrink: 0 }} />
                 <span style={{ color: 'var(--text-body)' }}>{item}</span>
@@ -281,15 +283,15 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         </Section>
 
         {/* Report Delivery */}
-        <Section title="REPORT DELIVERY" icon={Clock} color="#0F4A96">
+        <Section title={t('tdm.reportDelivery', 'REPORT DELIVERY')} icon={Clock} color="#0F4A96">
           <div style={{ background: '#e3f2fd', padding: '10px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0F4A96' }}>
-            Usually within {test.report_time || '12-24 hours'} — Faster in metro cities
+            {t('tdm.usuallyWithin', 'Usually within')} {test.report_time || t('tdm.twelveToTwentyFour', '12-24 hours')} — {t('tdm.fasterInMetro', 'Faster in metro cities')}
           </div>
         </Section>
 
         {/* Benefits */}
         {data?.benefits && (
-          <Section title="BENEFITS OF THIS TEST" icon={Shield} color="#2e7d32">
+          <Section title={t('tdm.benefits', 'BENEFITS OF THIS TEST')} icon={Shield} color="#2e7d32">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 13 }}>
               {data.benefits.map((b, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -303,7 +305,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* Limitations */}
         {data?.limitations && (
-          <Section title="LIMITATIONS" icon={Info} color="#e65100">
+          <Section title={t('tdm.limitations', 'LIMITATIONS')} icon={Info} color="#e65100">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
               {data.limitations.map((l, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import usePermissionsStore from '../../stores/permissionsStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 export default function AdminPermissions() {
+  const t = useT();
   const roles = usePermissionsStore(s => s.roles);
   const modules = usePermissionsStore(s => s.modules);
   const actions = usePermissionsStore(s => s.actions);
@@ -57,7 +59,7 @@ export default function AdminPermissions() {
         <div style={{ fontSize: 13, color: '#64748b' }}>Manage role-based access control for all admin modules</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleReset} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#ef4444' }}>Reset Defaults</button>
-          <button onClick={() => setShowAdd(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ Add Role</button>
+          <button onClick={() => setShowAdd(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ {t('admin.permissions.add_role', 'Add Role')}</button>
         </div>
       </div>
 
@@ -138,7 +140,7 @@ export default function AdminPermissions() {
               <input placeholder="Display Label (e.g. Lab Manager)" value={newRoleLabel} onChange={e => setNewRoleLabel(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit' }} />
             </div>
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>Cancel</button>
+              <button onClick={() => setShowAdd(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.permissions.cancel', 'Cancel')}</button>
               <button onClick={handleAddRole} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>Add Role</button>
             </div>
           </div>
