@@ -97,14 +97,14 @@ export const trustFeatures = [
 ];
 
 export const equipmentItems = [
-  { id: 1, name: 'Oxygen Concentrator', icon: '🫁', price: 2500, duration: '/day', description: '5L-10L oxygen concentrator with humidifier', category: 'respiratory' },
-  { id: 2, name: 'Hospital Bed', icon: '🛏️', price: 1500, duration: '/day', description: 'Electric semi-fowler bed with mattress', category: 'mobility' },
-  { id: 3, name: 'Wheelchair', icon: '♿', price: 500, duration: '/day', description: 'Foldable wheelchair with comfort cushion', category: 'mobility' },
-  { id: 4, name: 'Suction Machine', icon: '🩺', price: 800, duration: '/day', description: 'Portable suction machine for tracheostomy', category: 'respiratory' },
-  { id: 5, name: 'Multipara Monitor', icon: '📊', price: 1200, duration: '/day', description: 'Monitor for BP, pulse, SpO2, temperature', category: 'monitoring' },
-  { id: 6, name: 'Nebulizer', icon: '💨', price: 200, duration: '/day', description: 'Mesh nebulizer for medication delivery', category: 'respiratory' },
-  { id: 7, name: 'Patient Lift', icon: '🦾', price: 1000, duration: '/day', description: 'Hydraulic patient lift for safe transfers', category: 'mobility' },
-  { id: 8, name: 'Commode Chair', icon: '🚽', price: 300, duration: '/day', description: 'Bedside commode chair with armrests', category: 'mobility' },
+  { id: 1, name: 'Oxygen Concentrator', slug: 'oxygen-concentrator', icon: '🫁', price: 2500, duration: '/day', description: '5L-10L oxygen concentrator with humidifier', category: 'respiratory' },
+  { id: 2, name: 'Hospital Bed', slug: 'hospital-bed', icon: '🛏️', price: 1500, duration: '/day', description: 'Electric semi-fowler bed with mattress', category: 'mobility' },
+  { id: 3, name: 'Wheelchair', slug: 'wheelchair', icon: '♿', price: 500, duration: '/day', description: 'Foldable wheelchair with comfort cushion', category: 'mobility' },
+  { id: 4, name: 'Suction Machine', slug: 'suction-machine', icon: '🩺', price: 800, duration: '/day', description: 'Portable suction machine for tracheostomy', category: 'respiratory' },
+  { id: 5, name: 'Multipara Monitor', slug: 'multipara-monitor', icon: '📊', price: 1200, duration: '/day', description: 'Monitor for BP, pulse, SpO2, temperature', category: 'monitoring' },
+  { id: 6, name: 'Nebulizer', slug: 'nebulizer', icon: '💨', price: 200, duration: '/day', description: 'Mesh nebulizer for medication delivery', category: 'respiratory' },
+  { id: 7, name: 'Patient Lift', slug: 'patient-lift', icon: '🦾', price: 1000, duration: '/day', description: 'Hydraulic patient lift for safe transfers', category: 'mobility' },
+  { id: 8, name: 'Commode Chair', slug: 'commode-chair', icon: '🚽', price: 300, duration: '/day', description: 'Bedside commode chair with armrests', category: 'mobility' },
 ];
 
 export const nurseCRMStages = [

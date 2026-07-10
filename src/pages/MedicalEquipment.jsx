@@ -72,18 +72,25 @@ export default function MedicalEquipment() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
           {filtered.map(item => (
             <div key={item.id} style={{ padding: 18, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff' }}>
-              <div style={{ fontSize: 36, marginBottom: 6 }}>{item.icon}</div>
-              <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{item.name}</h3>
-              <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 8px' }}>{item.description}</p>
+              <Link to={`/medical-equipment/${item.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                <div style={{ fontSize: 36, marginBottom: 6 }}>{item.icon}</div>
+                <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{item.name}</h3>
+                <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 8px' }}>{item.description}</p>
+              </Link>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
+                <Link to={`/medical-equipment/${item.slug}`} style={{ textDecoration: 'none' }}>
                   <span style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>₹{item.price}</span>
                   <span style={{ fontSize: 11, color: '#94a3b8' }}>{item.duration}</span>
+                </Link>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <Link to={`/medical-equipment/${item.slug}`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: C.primary, color: '#fff', fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
+                    {t('nurse.equipment.view', 'View')}
+                  </Link>
+                  <button onClick={() => addToCart(item)}
+                    style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    {t('nurse.equipment.add', 'Add')}
+                  </button>
                 </div>
-                <button onClick={() => addToCart(item)}
-                  style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: C.primary, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  {t('nurse.equipment.add', 'Add')}
-                </button>
               </div>
             </div>
           ))}
