@@ -249,7 +249,7 @@ export default function VaccineWallet() {
           )}
           {family.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, borderRadius: 12, border: '1px solid #e2e8f0', background: '#f8fafc' }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}>👨‍👩‍👧</div>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>👪</div>
               <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>No family members added yet. Add members to track their vaccination records.</p>
             </div>
           ) : (

@@ -656,7 +656,7 @@ export default function Dashboard() {
         </Section>
 
         {/* ===== FAMILY MEMBERS ===== */}
-        <Section id="family" title={t('dashboard.section.family', 'Family Members')} icon="👨‍👩‍👧‍👦" active={activeSection}>
+        <Section id="family" title={t('dashboard.section.family', 'Family Members')} icon="👪" active={activeSection}>
           <div className="dash-family-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
             {family.map(m => (
               <div key={m.id} className="card" style={{ cursor: 'pointer' }}>
