@@ -6,6 +6,7 @@ import DailyTracker from '../components/DailyTracker';
 
 import useDailyActivityStore from '../stores/dailyActivityStore';
 import HealthToolsGrid from '../components/healthTools/HealthToolsGrid';
+import { getOrders } from '../services/localOrderService';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -203,6 +204,26 @@ export default function Dashboard() {
 
   const store = useDashboardStore();
   const authUser = useAuthStore(s => s.user);
+
+  useEffect(() => {
+    const persisted = getOrders();
+    if (persisted.length > 0) {
+      const bookingIds = new Set(store.upcomingBookings.map(b => b.id));
+      const newBookings = persisted
+        .filter(o => !bookingIds.has(o.id))
+        .map(o => ({
+          id: o.id,
+          test: o.tests?.map(t => t.name).join(' + ') || 'Test Order',
+          date: o.collectionDate || new Date(o.createdAt).toLocaleDateString('en-IN'),
+          time: o.collectionTime || '',
+          location: o.collectionAddress || 'Home Collection',
+          status: o.status === 'confirmed' ? 'Confirmed' : o.status === 'completed' ? 'Completed' : 'Processing',
+        }));
+      if (newBookings.length > 0) {
+        useDashboardStore.setState({ upcomingBookings: [...newBookings, ...store.upcomingBookings] });
+      }
+    }
+  }, []);
   const logout = useAuthStore(s => s.logout);
   const p = { ...store.profile, name: authUser?.name || store.profile.name, phone: authUser?.phone || store.profile.phone };
   const reports = store.reports;
