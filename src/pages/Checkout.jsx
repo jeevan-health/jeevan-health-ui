@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../stores/cartStore';
 import useDashboardStore from '../stores/dashboardStore';
-import { createOrder } from '../services/localOrderService';
 import { seedTests } from '../data/seedData';
 
 const STEPS = ['Address', 'Patient', 'Date & Time', 'Review', 'Payment'];
@@ -154,18 +153,6 @@ export default function Checkout() {
       status: 'Confirmed',
       createdAt: new Date().toISOString(),
     };
-
-    // Persist to localStorage order service
-    createOrder({
-      tests: itemDetails.map(i => ({ name: i.name, qty: i.qty || 1, price: i.offerPrice || i.price })),
-      totalAmount: total,
-      collectionDate: fmtDateFull(selectedDate),
-      collectionTime: TIME_SLOTS.find(s => s.value === selectedSlot)?.label,
-      collectionAddress: address ? `${address.street}, ${address.area}, ${address.city}` : 'Home Collection',
-      bookedFor: selectedPatient?.name || 'Self',
-      paymentMethod,
-      patientInfo: selectedPatient || null,
-    });
 
     setOrderPlaced(booking);
     clearCart();

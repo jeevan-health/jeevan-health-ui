@@ -23,6 +23,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const About = lazy(() => import('./pages/About'));
 const UploadPrescription = lazy(() => import('./pages/UploadPrescription'));
 const HealthLibrary = lazy(() => import('./pages/HealthLibrary'));
+const VaccinationAtHome = lazy(() => import('./pages/VaccinationAtHome'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -200,6 +201,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/upload-prescription" element={<UploadPrescription />} />
+            <Route path="/vaccination-at-home" element={<VaccinationAtHome />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
