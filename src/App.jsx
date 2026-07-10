@@ -95,12 +95,14 @@ const NurseWhatsAppService = lazy(() => import('./pages/NurseWhatsAppService'));
 const HomeIcuCare = lazy(() => import('./pages/HomeIcuCare'));
 const MedicalEquipment = lazy(() => import('./pages/MedicalEquipment'));
 const MedicalEquipmentDetail = lazy(() => import('./pages/MedicalEquipmentDetail'));
+const EquipmentCart = lazy(() => import('./pages/EquipmentCart'));
 const NurseMobileApp = lazy(() => import('./pages/NurseMobileApp'));
 const NursingServiceListing = lazy(() => import('./pages/NursingServiceListing'));
 const NursingServiceDetail = lazy(() => import('./pages/NursingServiceDetail'));
 const NurseServiceDetail = lazy(() => import('./pages/NurseServiceDetail'));
 const NursingDashboard = lazy(() => import('./pages/NursingDashboard'));
 const PatientBookings = lazy(() => import('./pages/PatientBookings'));
+const NurseProfile = lazy(() => import('./pages/NurseProfile'));
 const AdminNursing = lazy(() => import('./pages/admin/AdminNursing'));
 const VaccineSeoLanding = lazy(() => import('./pages/VaccineSeoLanding'));
 const VaccineWhatsAppMarketing = lazy(() => import('./pages/VaccineWhatsAppMarketing'));
@@ -306,7 +308,9 @@ export default function App() {
             <Route path="/icu-at-home" element={<HomeIcuCare />} />
             <Route path="/medical-equipment/:slug" element={<MedicalEquipmentDetail />} />
             <Route path="/medical-equipment" element={<MedicalEquipment />} />
+            <Route path="/medical-equipment/cart" element={<EquipmentCart />} />
             <Route path="/nurse-app" element={<NurseMobileApp />} />
+            <Route path="/nurse/:slug" element={<NurseProfile />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />

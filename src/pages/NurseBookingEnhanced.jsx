@@ -616,7 +616,12 @@ export default function NurseBookingEnhanced() {
                       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                         <span style={{ fontSize: 32 }}>{n.image}</span>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{n.name}</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {n.name}
+                            <Link to={`/nurse/${n.slug}`} onClick={e => e.stopPropagation()} style={{ fontSize: 10, fontWeight: 600, color: C.primary, textDecoration: 'none' }}>
+                              {t('nurse.view.profile', 'Profile')} →
+                            </Link>
+                          </div>
                           <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>
                             {n.qualifications} · {n.experience} {t('nurse.years.exp', 'years exp')}
                             {lvl && <span style={{ marginLeft: 6, padding: '1px 6px', borderRadius: 6, background: lvl.color + '20', color: lvl.color, fontWeight: 600, fontSize: 10 }}>{lvl.name}</span>}

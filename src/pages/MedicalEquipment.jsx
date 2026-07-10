@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { equipmentItems } from '../data/nursingData';
 
 const C = { primary: '#0D9488', primaryLight: '#CCFBF1', accent: '#14B8A6', bg: '#F0FDFA' };
+const CART_KEY = 'jh_equipment_cart';
+
+function loadPersistentCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
+}
+
+function savePersistentCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
 
 const categories = [
   { id: 'all', label: 'All Equipment', icon: '📦' },
@@ -15,23 +24,25 @@ const categories = [
 export default function MedicalEquipment() {
   const t = useT();
   const [filter, setFilter] = useState('all');
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => loadPersistentCart());
   const [showCart, setShowCart] = useState(false);
 
   const filtered = filter === 'all' ? equipmentItems : equipmentItems.filter(e => e.category === filter);
 
+  const persist = (next) => { setCart(next); savePersistentCart(next); };
+
   const addToCart = (item) => {
     const existing = cart.find(c => c.id === item.id);
     if (existing) {
-      setCart(cart.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c));
+      persist(cart.map(c => c.id === item.id ? { ...c, qty: (c.qty || 1) + 1, days: c.days || 1 } : c));
     } else {
-      setCart([...cart, { ...item, qty: 1 }]);
+      persist([...cart, { ...item, qty: 1, days: 1 }]);
     }
   };
 
-  const removeFromCart = (id) => setCart(cart.filter(c => c.id !== id));
+  const removeFromCart = (id) => persist(cart.filter(c => c.id !== id));
 
-  const totalRent = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+  const totalRent = cart.reduce((sum, c) => sum + (c.price || 0) * (c.qty || 1), 0);
 
   return (
     <div>
@@ -54,6 +65,9 @@ export default function MedicalEquipment() {
               <button onClick={() => setShowCart(!showCart)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: C.accent, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                 🛒 {t('nurse.equipment.cart', 'Cart')} ({cart.length}) — ₹{totalRent}/day
               </button>
+              <Link to="/medical-equipment/cart" style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                {t('equipment.cart.viewFull', 'View Full Cart')} →
+              </Link>
             </div>
           )}
         </div>
@@ -115,9 +129,14 @@ export default function MedicalEquipment() {
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: '2px solid #e2e8f0' }}>
               <span style={{ fontWeight: 700 }}>{t('total', 'Total')}: ₹{totalRent}/day</span>
-              <Link to="/nurse-at-home/book" style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: C.primary, color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
-                {t('nurse.equipment.proceed', 'Proceed with Nurse Booking')} →
-              </Link>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <Link to="/medical-equipment/cart" style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#0f172a', fontSize: 11, fontWeight: 600, textDecoration: 'none' }}>
+                  {t('equipment.cart.viewCart', 'View Cart')}
+                </Link>
+                <Link to="/nurse-at-home/book" style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: C.primary, color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                  {t('nurse.equipment.proceed', 'Proceed with Nurse Booking')} →
+                </Link>
+              </div>
             </div>
           </div>
         </div>

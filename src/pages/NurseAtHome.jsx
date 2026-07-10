@@ -241,7 +241,12 @@ export default function NurseAtHome() {
                 <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 36 }}>{n.image}</span>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{n.name}</h3>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>
+                      {n.name}
+                      <Link to={`/nurse/${n.slug}`} style={{ marginLeft: 6, fontSize: 10, fontWeight: 600, color: C.primary, textDecoration: 'none' }}>
+                        {t('nurse.view.profile', 'Profile')} →
+                      </Link>
+                    </h3>
                     <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>
                       {n.qualifications} · {n.experience} yrs
                       {level && <span style={{ marginLeft: 6, padding: '1px 6px', borderRadius: 4, background: level.color + '20', color: level.color, fontWeight: 600, fontSize: 10 }}>{level.name}</span>}
