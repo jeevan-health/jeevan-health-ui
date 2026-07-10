@@ -653,7 +653,7 @@ function StatsSection() {
   }, [visible]);
 
   return (
-    <div className="page-section" style={{ background: 'linear-gradient(135deg, #1866C9 0%, #00D9FF 50%, #F4FCFF 100%)', position: 'relative', overflow: 'hidden' }}>
+    <div className="page-section" style={{ background: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)', position: 'relative', overflow: 'hidden' }}>
       <div ref={ref} className="container" style={{ position: 'relative', zIndex: 1 }}>
         <h2 className="section-title text-center" style={{ color: '#fff' }}>Trusted Healthcare Partner for Thousands of Families</h2>
         <p className="section-subtitle text-center" style={{ color: 'rgba(255,255,255,0.8)' }}>Delivering reliable diagnostics and healthcare services with quality, convenience, and compassion.</p>
