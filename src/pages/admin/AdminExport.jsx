@@ -7,6 +7,7 @@ import useDoctorsStore from '../../stores/doctorsStore';
 import useInventoryStore from '../../stores/inventoryStore';
 import useAuthStore from '../../stores/authStore';
 import useAuditStore from '../../stores/auditStore';
+import useCrmStore from '../../stores/crmStore';
 import { getOrders } from '../../services/localOrderService';
 
 const MODULES = [
@@ -17,6 +18,7 @@ const MODULES = [
   { id: 'inventory', label: 'Inventory', icon: '📦', color: '#a16207', getter: () => useInventoryStore.getState().items, cols: ['id', 'name', 'category', 'sku', 'quantity', 'minStock', 'unit', 'costPerUnit', 'supplier', 'createdAt'] },
   { id: 'users', label: 'Users', icon: '👥', color: '#dc2626', getter: () => useAuthStore.getState().getUsers(), cols: ['id', 'name', 'phone', 'email', 'role', 'createdAt', 'updatedAt'] },
   { id: 'audit', label: 'Audit Log', icon: '📋', color: '#4f46e5', getter: () => useAuditStore.getState().logs, cols: ['id', 'action', 'detail', 'module', 'user', 'timestamp'] },
+  { id: 'crm', label: 'CRM Customers', icon: '🤝', color: '#7c3aed', getter: () => useCrmStore.getState().data.customers, cols: ['id', 'name', 'phone', 'email', 'source', 'tags', 'totalOrders', 'totalSpent', 'lastOrder', 'status', 'createdAt', 'city', 'notes', 'nextFollowUp', 'followUpNote'] },
 ];
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', background: '#fff' };

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import useCrmStore from '../../stores/crmStore';
 import { useT } from '../../i18n/LanguageProvider';
+import { getAllLeads, getLeadSources, getLeadCounts, dedupByPhone, convertToCrmCustomer } from '../../utils/leadIngestion';
 
 export default function AdminCrm() {
   const t = useT();
@@ -15,6 +16,8 @@ export default function AdminCrm() {
   const [showTodo, setShowTodo] = useState(false);
   const [taskForm, setTaskForm] = useState({ title: '', dueDate: '', priority: 'medium' });
   const [showInteraction, setShowInteraction] = useState(false);
+  const [leadSourceFilter, setLeadSourceFilter] = useState('all');
+  const [refreshLeads, setRefreshLeads] = useState(0);
   const [intForm, setIntForm] = useState({ type: 'call', summary: '', status: 'completed', customerId: null });
   const [showPipelineStage, setShowPipelineStage] = useState(false);
   const [pipeForm, setPipeForm] = useState({ name: '', value: '0', color: '#e5e7eb' });
@@ -87,6 +90,7 @@ export default function AdminCrm() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setShowTodo(true)} style={{ padding: '6px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>+ Add Task</button>
           <button onClick={() => setShowInteraction(true)} style={{ padding: '6px 14px', background: '#059669', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>+ Log Interaction</button>
+          <button onClick={() => setRefreshLeads(n => n + 1)} style={{ padding: '6px 14px', background: '#f3e8ff', color: '#6b21a8', border: '1px solid #d8b4fe', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>⟳ Sync Leads</button>
           <button onClick={reset} style={{ padding: '6px 14px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', borderRadius: 6, cursor: 'pointer', fontWeight: 500, fontSize: 12 }}>Reset</button>
         </div>
       </div>
@@ -104,6 +108,7 @@ export default function AdminCrm() {
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         <TabBtn label="Customers" id="customers" />
+        <TabBtn label="Lead Sources" id="leads" />
         <TabBtn label="Tasks" id="tasks" />
         <TabBtn label="Pipeline" id="pipeline" />
         <TabBtn label="All Interactions" id="interactions" />
@@ -235,6 +240,68 @@ export default function AdminCrm() {
           )}
         </div>
       )}
+
+      {/* ===== LEAD SOURCES TAB ===== */}
+      {tab === 'leads' && (() => {
+        const allLeads = getAllLeads();
+        const leadCounts = getLeadCounts();
+        const crmPhones = new Set(data.customers.map(c => c.phone?.replace(/\D/g, '')));
+        const filtered = leadSourceFilter === 'all' ? allLeads : allLeads.filter(l => l.sourceKey === leadSourceFilter);
+        const unconverted = l => !crmPhones.has(l.phone?.replace(/\D/g, ''));
+        return (
+          <div>
+            <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+              {Object.entries(leadCounts).map(([label, count]) => (
+                <div key={label} style={{ flex: 1, minWidth: 120, background: '#fff', padding: '12px 16px', borderRadius: 8, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                  <div style={{ fontSize: 11, color: '#6b7280' }}>{label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: '#111827' }}>{count}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <button onClick={() => setLeadSourceFilter('all')} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #d1d5db', background: leadSourceFilter === 'all' ? '#6366f1' : '#fff', color: leadSourceFilter === 'all' ? '#fff' : '#374151', cursor: 'pointer', fontSize: 11, fontWeight: 500 }}>All</button>
+                {getLeadSources().map(s => (
+                  <button key={s.key} onClick={() => setLeadSourceFilter(s.key)} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #d1d5db', background: leadSourceFilter === s.key ? '#6366f1' : '#fff', color: leadSourceFilter === s.key ? '#fff' : '#374151', cursor: 'pointer', fontSize: 11, fontWeight: 500 }}>{s.icon} {s.label}</button>
+                ))}
+              </div>
+              <div style={{ fontSize: 12, color: '#6b7280' }}>{filtered.length} leads · {filtered.filter(unconverted).length} unconverted</div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {filtered.map((lead, i) => {
+                const isConverted = !unconverted(lead);
+                return (
+                  <div key={lead.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: isConverted ? '#f0fdf4' : '#fff' }}>
+                    <span style={{ fontSize: 16 }}>{lead.sourceIcon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 500, fontSize: 13 }}>{lead.name}</div>
+                      <div style={{ fontSize: 11, color: '#6b7280', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <span>📞 {lead.phone}</span>
+                        {lead.email && <span>✉️ {lead.email}</span>}
+                        <span>🔖 {lead.sourceLabel}</span>
+                        <span>📅 {new Date(lead.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{lead.query}</div>
+                    </div>
+                    <div style={{ whiteSpace: 'nowrap' }}>
+                      {isConverted ? (
+                        <span style={{ padding: '3px 8px', borderRadius: 8, background: '#dcfce7', color: '#166534', fontSize: 11, fontWeight: 500 }}>✓ In CRM</span>
+                      ) : (
+                        <button onClick={() => { addCustomer(convertToCrmCustomer(lead)); setRefreshLeads(n => n + 1); }} style={{ padding: '5px 12px', borderRadius: 6, background: '#6366f1', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500 }}>
+                          + Convert to Customer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              {filtered.length === 0 && <div style={{ textAlign: 'center', color: '#9ca3af', padding: 40 }}>No leads from this source.</div>}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ===== TASKS TAB ===== */}
       {tab === 'tasks' && (

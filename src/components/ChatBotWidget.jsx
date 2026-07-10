@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useT } from '../i18n/LanguageProvider';
 import { trackLead } from '../lib/analytics';
+import useCrmStore from '../stores/crmStore';
 
 const WA_NUMBER = '919700104108';
 const LEADS_KEY = 'jh_website_leads';
@@ -141,6 +142,7 @@ export default function ChatBotWidget() {
     if (clean.length < 10) return;
     const leadData = { name: name.trim(), phone: clean, service: service?.id || 'other', query: query || 'General query', source: 'chatbot' };
     saveLead(leadData);
+    try { useCrmStore.getState().addCustomer({ name: name.trim(), phone: clean, email: '', source: 'whatsapp', tags: ['chatbot', service?.id || 'other'], city: '', notes: `Chatbot query: ${query || 'General enquiry'}` }); } catch {}
     trackLead('chatbot');
     setSubmitted(true);
     setStep('done');

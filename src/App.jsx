@@ -245,9 +245,9 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <AnalyticsTracker />
+      <LanguageProvider>
       <ChatBotWidget />
       <LeadCapturePopup />
-      <LanguageProvider>
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route element={<Layout />}>

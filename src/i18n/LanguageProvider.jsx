@@ -2,7 +2,11 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import translations from './translations';
 
 export const LanguageContext = createContext();
-export const useT = () => useContext(LanguageContext).t;
+export const useT = () => {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) return (key, fallback) => fallback ?? key;
+  return ctx.t;
+};
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {

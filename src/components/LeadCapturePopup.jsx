@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useT } from '../i18n/LanguageProvider';
 import { trackLead } from '../lib/analytics';
+import useCrmStore from '../stores/crmStore';
 
 const LEADS_KEY = 'jh_website_leads';
 const DISMISS_KEY = 'jh_popup_dismissed';
@@ -76,6 +77,7 @@ export default function LeadCapturePopup() {
     if (!name.trim() || clean.length < 10) return;
     const leadData = { name: name.trim(), phone: clean, service, query: SERVICES.find(s => s.id === service)?.label || service, source: 'popup' };
     saveLead(leadData);
+    try { useCrmStore.getState().addCustomer({ name: name.trim(), phone: clean, email: '', source: 'website', tags: ['popup', service], city: '', notes: `Interested in ${SERVICES.find(s => s.id === service)?.label || service}` }); } catch {}
     trackLead('popup');
     setSubmitted(true);
   }
