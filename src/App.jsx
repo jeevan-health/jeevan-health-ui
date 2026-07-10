@@ -75,6 +75,8 @@ const PhysiotherapyAtHome = lazy(() => import('./pages/PhysiotherapyAtHome'));
 const PhysiotherapyBooking = lazy(() => import('./pages/PhysiotherapyBooking'));
 const PhysioTherapistDetail = lazy(() => import('./pages/PhysioTherapist'));
 const PhysioPatientDashboard = lazy(() => import('./pages/PhysioDashboard'));
+const PhysioCategoryPage = lazy(() => import('./pages/PhysioCategoryPage'));
+const PhysioConditionPage = lazy(() => import('./pages/PhysioConditionPage'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
@@ -238,6 +240,14 @@ export default function App() {
             <Route path="/physiotherapy/book" element={<PhysiotherapyBooking />} />
             <Route path="/physiotherapy/therapist/:id" element={<PhysioTherapistDetail />} />
             <Route path="/physiotherapy/my-sessions" element={<PhysioPatientDashboard />} />
+            <Route path="/physiotherapy/category/:slug" element={<PhysioCategoryPage />} />
+            <Route path="/physiotherapy-at-home" element={<PhysioConditionPage />} />
+            <Route path="/back-pain-treatment" element={<PhysioConditionPage />} />
+            <Route path="/knee-pain-physiotherapy" element={<PhysioConditionPage />} />
+            <Route path="/stroke-rehabilitation" element={<PhysioConditionPage />} />
+            <Route path="/post-surgery-physiotherapy" element={<PhysioConditionPage />} />
+            <Route path="/sports-physiotherapy" element={<PhysioConditionPage />} />
+            <Route path="/elderly-physiotherapy" element={<PhysioConditionPage />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
