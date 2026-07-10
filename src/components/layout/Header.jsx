@@ -19,7 +19,7 @@ export default function Header() {
         </Link>
 
         <div className="hdr-search-wrap">
-          <SmartSearch placeholder="Search tests, symptoms, diseases..." />
+          <SmartSearch placeholder="🔍 Search tests, packages, doctors, medicines..." />
         </div>
 
         <div className="hdr-right">
@@ -65,7 +65,7 @@ export default function Header() {
       </div>
 
       <div className="hdr-mobile-search">
-        <SmartSearch placeholder="Search tests, symptoms, diseases..." />
+        <SmartSearch placeholder="🔍 Search tests, packages, doctors, medicines..." />
       </div>
 
       <style>{`

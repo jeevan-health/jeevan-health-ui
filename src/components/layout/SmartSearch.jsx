@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
 import { searchTests, getPopularSearches, searchSymptoms, searchDiseases } from '../../utils/searchIntelligence';
 import { packageList } from '../../data/healthPackages';
+import { searchDoctors } from '../../services/doctorService';
+import { searchMedicines } from '../../services/pharmacyService';
 
 export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms, diseases...', onSearch, autoFocus, value: externalValue, onChange: externalOnChange, onSubmit: externalOnSubmit }) {
   const isControlled = externalValue !== undefined;
@@ -11,11 +13,16 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
   const [testResults, setTestResults] = useState([]);
   const [symptomResults, setSymptomResults] = useState([]);
   const [diseaseResults, setDiseaseResults] = useState([]);
+  const [doctorResults, setDoctorResults] = useState([]);
+  const [medicineResults, setMedicineResults] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+  const [loadingMedicines, setLoadingMedicines] = useState(false);
   const [popular, setPopular] = useState([]);
   const [focusIndex, setFocusIndex] = useState(-1);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('all');
   const ref = useRef();
+  const debounceRef = useRef();
   const navigate = useNavigate();
 
   const pkgResults = useMemo(() => {
@@ -30,13 +37,21 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
 
   useEffect(() => {
     const q = query.trim();
-    if (q.length < 1) { setTestResults([]); setSymptomResults([]); setDiseaseResults([]); setPopular([]); setOpen(false); return; }
+    if (q.length < 1) { setTestResults([]); setSymptomResults([]); setDiseaseResults([]); setDoctorResults([]); setMedicineResults([]); setPopular([]); setOpen(false); return; }
     setTestResults(searchTests(q));
     setSymptomResults(searchSymptoms(q));
     setDiseaseResults(searchDiseases(q));
     setPopular(getPopularSearches(q));
     setOpen(true);
     setFocusIndex(-1);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setLoadingDoctors(true);
+    setLoadingMedicines(true);
+    debounceRef.current = setTimeout(() => {
+      searchDoctors({ name: q }).then(r => { setDoctorResults(r.data?.doctors || r.data || []); }).catch(() => {}).finally(() => setLoadingDoctors(false));
+      searchMedicines({ name: q }).then(r => { setMedicineResults(r.data?.medicines || r.data || []); }).catch(() => {}).finally(() => setLoadingMedicines(false));
+    }, 400);
   }, [query]);
 
   useEffect(() => {
@@ -45,7 +60,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const totalResults = testResults.length + pkgResults.length + symptomResults.length + diseaseResults.length;
+  const totalResults = testResults.length + pkgResults.length + symptomResults.length + diseaseResults.length + doctorResults.length + medicineResults.length;
 
   const select = useCallback((slug) => {
     setOpen(false);
@@ -54,22 +69,25 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
     else navigate(`/test/${slug}`);
   }, [navigate, onSearch, isControlled]);
 
+  const flatItems = useMemo(() => [
+    ...testResults.map((r, i) => ({ type: 'test', idx: i })),
+    ...symptomResults.map((r, i) => ({ type: 'symptom', idx: i })),
+    ...diseaseResults.map((r, i) => ({ type: 'disease', idx: i })),
+    ...doctorResults.map((r, i) => ({ type: 'doctor', idx: i })),
+    ...medicineResults.map((r, i) => ({ type: 'medicine', idx: i })),
+  ], [testResults, symptomResults, diseaseResults, doctorResults, medicineResults]);
+
   const handleKey = (e) => {
-    const items = [
-      ...testResults.map((r, i) => ({ type: 'test', idx: i })),
-      ...symptomResults.map((r, i) => ({ type: 'symptom', idx: i })),
-      ...diseaseResults.map((r, i) => ({ type: 'disease', idx: i })),
-    ];
     if (e.key === 'Enter' && focusIndex < 0) {
       if (externalOnSubmit) externalOnSubmit(query);
       else if (query.trim()) navigate(`/diagnostics?q=${encodeURIComponent(query.trim())}`);
       return;
     }
-    if (!items.length) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusIndex(i => Math.min(i + 1, items.length - 1)); }
+    if (!flatItems.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusIndex(i => Math.min(i + 1, flatItems.length - 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusIndex(i => Math.max(i - 1, -1)); }
     else if (e.key === 'Enter' && focusIndex >= 0) {
-      const item = items[focusIndex];
+      const item = flatItems[focusIndex];
       if (item.type === 'test') {
         const r = testResults[item.idx];
         const slug = r.test?.slug || slugify(r.test?.name);
@@ -80,6 +98,13 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
         setOpen(false);
       } else if (item.type === 'disease') {
         navigate(`/diagnostics?q=${encodeURIComponent(diseaseResults[item.idx].disease)}`);
+        setOpen(false);
+      } else if (item.type === 'doctor') {
+        const doc = doctorResults[item.idx];
+        navigate(`/book-appointment/${doc._id || doc.id}`);
+        setOpen(false);
+      } else if (item.type === 'medicine') {
+        navigate(`/pharmacy?q=${encodeURIComponent(medicineResults[item.idx].name || '')}`);
         setOpen(false);
       }
     }
@@ -102,7 +127,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
         {query && <button onClick={() => { handleChange(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
       </div>
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #e8edf2', zIndex: 9999, maxHeight: 480, overflow: 'auto' }}>
+        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #e8edf2', zIndex: 9999, maxHeight: 520, overflow: 'auto' }}>
           {/* Filter tabs */}
           <div style={{ display: 'flex', borderBottom: '1px solid #e8edf2', padding: '6px 8px', gap: 4, background: '#fafafa', position: 'sticky', top: 0, zIndex: 1 }}>
             {[
@@ -111,7 +136,16 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
               { key: 'packages', label: `Packages (${pkgResults.length})` },
               { key: 'symptoms', label: `Symptoms (${symptomResults.length})` },
               { key: 'diseases', label: `Conditions (${diseaseResults.length})` },
-            ].filter(tab => tab.key === 'all' || (tab.key === 'tests' && testResults.length > 0) || (tab.key === 'packages' && pkgResults.length > 0) || (tab.key === 'symptoms' && symptomResults.length > 0) || (tab.key === 'diseases' && diseaseResults.length > 0)).map(tab => (
+              { key: 'doctors', label: `Doctors (${doctorResults.length})` },
+              { key: 'medicines', label: `Medicines (${medicineResults.length})` },
+            ].filter(tab => tab.key === 'all' || (tab.label.includes(`(0)`) ? false : (
+              (tab.key === 'tests' && testResults.length > 0) ||
+              (tab.key === 'packages' && pkgResults.length > 0) ||
+              (tab.key === 'symptoms' && symptomResults.length > 0) ||
+              (tab.key === 'diseases' && diseaseResults.length > 0) ||
+              (tab.key === 'doctors' && doctorResults.length > 0) ||
+              (tab.key === 'medicines' && medicineResults.length > 0)
+            ))).map(tab => (
               <button key={tab.key} onClick={() => setFilter(tab.key)}
                 style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: filter === tab.key ? '#1866C9' : 'transparent', color: filter === tab.key ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit', transition: 'all 0.15s' }}>
                 {tab.label}
@@ -119,7 +153,7 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
             ))}
           </div>
 
-          {totalResults === 0 && (
+          {totalResults === 0 && !loadingDoctors && !loadingMedicines && (
             <div style={{ padding: 20, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>No results found. Try a different search term.</div>
           )}
 
@@ -169,9 +203,10 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
                   );
                 }
                 const slug = r.test?.slug || slugify(r.test?.name);
+                const idx = testResults.indexOf(r);
                 return (
-                  <div key={r.test?.id || i} onClick={() => select(slug)} style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', background: i === focusIndex ? '#F5FAFF' : 'transparent' }}
-                    onMouseEnter={() => setFocusIndex(i)}>
+                  <div key={r.test?.id || i} onClick={() => select(slug)} style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', background: idx === focusIndex ? '#F5FAFF' : 'transparent' }}
+                    onMouseEnter={() => setFocusIndex(idx)}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                       <span style={{ fontSize: 16 }}>🩸</span>
                       <span style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a' }}>{r.test?.name}</span>
@@ -203,17 +238,21 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
           {(filter === 'all' || filter === 'symptoms') && symptomResults.length > 0 && (
             <div>
               {filter !== 'symptoms' && <SectionHeader label="Symptoms" />}
-              {symptomResults.map((s, i) => (
-                <div key={s.symptom} onClick={() => { navigate(`/diagnostics?symptom=${encodeURIComponent(s.symptom)}`); setOpen(false); }}
-                  style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 18 }}>🤒</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{s.symptom}</div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>{s.tests.length} recommended {s.tests.length === 1 ? 'test' : 'tests'}</div>
+              {symptomResults.map((s, i) => {
+                const idx = testResults.length + i;
+                return (
+                  <div key={s.symptom} onClick={() => { navigate(`/diagnostics?symptom=${encodeURIComponent(s.symptom)}`); setOpen(false); }}
+                    style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10, background: idx === focusIndex ? '#F5FAFF' : 'transparent' }}
+                    onMouseEnter={() => setFocusIndex(idx)}>
+                    <span style={{ fontSize: 18 }}>🤒</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', textTransform: 'capitalize' }}>{s.symptom}</div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{s.tests.length} recommended {s.tests.length === 1 ? 'test' : 'tests'}</div>
+                    </div>
+                    <span style={{ fontSize: 10, color: '#E65100', fontWeight: 600 }}>View Tests →</span>
                   </div>
-                  <span style={{ fontSize: 10, color: '#E65100', fontWeight: 600 }}>View Tests →</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -221,17 +260,79 @@ export default function SmartSearch({ placeholder = '🔍 Search tests, symptoms
           {(filter === 'all' || filter === 'diseases') && diseaseResults.length > 0 && (
             <div>
               {filter !== 'diseases' && <SectionHeader label="Conditions & Diseases" />}
-              {diseaseResults.map((d, i) => (
-                <div key={d.disease} onClick={() => { navigate(`/diagnostics?q=${encodeURIComponent(d.disease)}`); setOpen(false); }}
-                  style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 18 }}>🦠</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', textTransform: 'capitalize' }}>{d.disease}</div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>{d.tests.length} related {d.tests.length === 1 ? 'test' : 'tests'}</div>
+              {diseaseResults.map((d, i) => {
+                const idx = testResults.length + symptomResults.length + i;
+                return (
+                  <div key={d.disease} onClick={() => { navigate(`/diagnostics?q=${encodeURIComponent(d.disease)}`); setOpen(false); }}
+                    style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10, background: idx === focusIndex ? '#F5FAFF' : 'transparent' }}
+                    onMouseEnter={() => setFocusIndex(idx)}>
+                    <span style={{ fontSize: 18 }}>🦠</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', textTransform: 'capitalize' }}>{d.disease}</div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{d.tests.length} related {d.tests.length === 1 ? 'test' : 'tests'}</div>
+                    </div>
+                    <span style={{ fontSize: 10, color: '#dc2626', fontWeight: 600 }}>View Tests →</span>
                   </div>
-                  <span style={{ fontSize: 10, color: '#dc2626', fontWeight: 600 }}>View Tests →</span>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Doctors */}
+          {(filter === 'all' || filter === 'doctors') && (
+            <div>
+              {loadingDoctors && doctorResults.length === 0 && (
+                <div style={{ padding: '10px 14px', fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>Searching doctors...</div>
+              )}
+              {doctorResults.length > 0 && (
+                <div>
+                  {filter !== 'doctors' && <SectionHeader label="Doctors" />}
+                  {doctorResults.map((doc, i) => {
+                    const idx = testResults.length + symptomResults.length + diseaseResults.length + i;
+                    return (
+                      <div key={doc._id || doc.id || i} onClick={() => { navigate(`/book-appointment/${doc._id || doc.id}`); setOpen(false); }}
+                        style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10, background: idx === focusIndex ? '#F5FAFF' : 'transparent' }}
+                        onMouseEnter={() => setFocusIndex(idx)}>
+                        <span style={{ fontSize: 18 }}>🩺</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{doc.name}</div>
+                          <div style={{ fontSize: 10, color: '#64748b' }}>{doc.specialty || doc.specialization || 'Doctor'} · {doc.experience || ''} {doc.fee ? `· ₹${doc.fee}` : ''}</div>
+                        </div>
+                        <span style={{ fontSize: 10, color: '#1866C9', fontWeight: 600 }}>Book →</span>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
+            </div>
+          )}
+
+          {/* Medicines */}
+          {(filter === 'all' || filter === 'medicines') && (
+            <div>
+              {loadingMedicines && medicineResults.length === 0 && (
+                <div style={{ padding: '10px 14px', fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>Searching medicines...</div>
+              )}
+              {medicineResults.length > 0 && (
+                <div>
+                  {filter !== 'medicines' && <SectionHeader label="Medicines" />}
+                  {medicineResults.map((med, i) => {
+                    const idx = testResults.length + symptomResults.length + diseaseResults.length + doctorResults.length + i;
+                    return (
+                      <div key={med._id || med.id || i} onClick={() => { navigate(`/pharmacy?q=${encodeURIComponent(med.name)}`); setOpen(false); }}
+                        style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10, background: idx === focusIndex ? '#F5FAFF' : 'transparent' }}
+                        onMouseEnter={() => setFocusIndex(idx)}>
+                        <span style={{ fontSize: 18 }}>💊</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{med.name}</div>
+                          <div style={{ fontSize: 10, color: '#64748b' }}>{med.category || ''}{med.manufacturer ? ` · ${med.manufacturer}` : ''}{med.price ? ` · ₹${med.price}` : ''}</div>
+                        </div>
+                        <span style={{ fontSize: 10, color: '#059669', fontWeight: 600 }}>View →</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
