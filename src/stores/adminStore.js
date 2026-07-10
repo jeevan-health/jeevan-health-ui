@@ -10,6 +10,7 @@ const CATALOG_KEY = 'jh_catalog_overrides';
 
 const load = (key, def) => { try { return JSON.parse(localStorage.getItem(key) || def); } catch { return JSON.parse(def); } };
 const save = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+const loadArr = (key) => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } };
 
 const defaultCoupons = [
   { code: 'WELCOME10', discount: 10, minOrder: 0, maxUses: 1000, usedCount: 0, expiresAt: null, active: true },
@@ -19,7 +20,10 @@ const defaultCoupons = [
 
 const useAdminStore = create((set, get) => ({
   // Analytics
-  analytics: { usersCount: 0, ordersCount: 0, revenue: 0, testsCount: seedTests.length, pendingOrders: 0, cancelledOrders: 0, completedOrders: 0, ordersByStatus: {}, revenueToday: 0, revenueMonth: 0, topTests: [] },
+  analytics: { usersCount: 0, ordersCount: 0, revenue: 0, testsCount: seedTests.length, pendingOrders: 0, cancelledOrders: 0, completedOrders: 0, ordersByStatus: {}, revenueToday: 0, revenueMonth: 0, topTests: [],
+    physioBookings: 0, physioRevenue: 0, physioTopConditions: [], physioBookingsToday: 0, physioBookingsMonth: 0,
+    vaccBookings: 0, vaccRevenue: 0, vaccTopVaccines: [], vaccBookingsToday: 0, vaccBookingsMonth: 0,
+  },
 
   // Orders
   orders: [],
@@ -72,8 +76,39 @@ const useAdminStore = create((set, get) => ({
     orders.forEach(o => (o.tests || []).forEach(t => { const n = t.name || t; testSales[n] = (testSales[n] || 0) + 1; }));
     const topTests = Object.entries(testSales).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => ({ name, count }));
 
+    // Physiotherapy stats
+    const physioBookings = loadArr('jh_physio_bookings');
+    let physioRevenue = 0, physioBookingsToday = 0, physioBookingsMonth = 0;
+    const conditionSales = {};
+    physioBookings.forEach(b => {
+      const amt = b.totalAmount || 0;
+      physioRevenue += amt;
+      if (b.createdAt?.startsWith(today)) physioBookingsToday++;
+      if (b.createdAt?.startsWith(month)) physioBookingsMonth++;
+      const cond = b.condition || b.painArea || 'General';
+      conditionSales[cond] = (conditionSales[cond] || 0) + 1;
+    });
+    const physioTopConditions = Object.entries(conditionSales).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count }));
+
+    // Vaccination stats
+    const vaccBookings = loadArr('jh_vaccination_bookings');
+    let vaccRevenue = 0, vaccBookingsToday = 0, vaccBookingsMonth = 0;
+    const vaccineSales = {};
+    vaccBookings.forEach(b => {
+      const amt = b.vaccinePrice || b.totalAmount || 0;
+      vaccRevenue += amt;
+      if (b.createdAt?.startsWith(today)) vaccBookingsToday++;
+      if (b.createdAt?.startsWith(month)) vaccBookingsMonth++;
+      const vn = b.vaccineName || 'Unknown';
+      vaccineSales[vn] = (vaccineSales[vn] || 0) + 1;
+    });
+    const vaccTopVaccines = Object.entries(vaccineSales).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count }));
+
     set({
-      analytics: { usersCount: users.length, ordersCount: orders.length, revenue, testsCount: seedTests.length, pendingOrders: pending, cancelledOrders: cancelled, completedOrders: completed, ordersByStatus, revenueToday, revenueMonth, topTests },
+      analytics: { usersCount: users.length, ordersCount: orders.length, revenue, testsCount: seedTests.length, pendingOrders: pending, cancelledOrders: cancelled, completedOrders: completed, ordersByStatus, revenueToday, revenueMonth, topTests,
+        physioBookings: physioBookings.length, physioRevenue, physioTopConditions, physioBookingsToday, physioBookingsMonth,
+        vaccBookings: vaccBookings.length, vaccRevenue, vaccTopVaccines, vaccBookingsToday, vaccBookingsMonth,
+      },
       orders,
       usersList: users,
     });

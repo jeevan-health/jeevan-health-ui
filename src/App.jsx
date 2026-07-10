@@ -84,6 +84,12 @@ const PhysioSeoLanding = lazy(() => import('./pages/PhysioSeoLanding'));
 const PhysioWhatsAppMarketing = lazy(() => import('./pages/PhysioWhatsAppMarketing'));
 const PhysioTreatmentListing = lazy(() => import('./pages/PhysioTreatmentListing'));
 const PhysioTreatmentDetail = lazy(() => import('./pages/PhysioTreatmentDetail'));
+const NursingCare = lazy(() => import('./pages/NursingCare'));
+const NursingBooking = lazy(() => import('./pages/NursingBooking'));
+const NursingServiceListing = lazy(() => import('./pages/NursingServiceListing'));
+const NursingServiceDetail = lazy(() => import('./pages/NursingServiceDetail'));
+const NursingDashboard = lazy(() => import('./pages/NursingDashboard'));
+const AdminNursing = lazy(() => import('./pages/admin/AdminNursing'));
 const VaccineSeoLanding = lazy(() => import('./pages/VaccineSeoLanding'));
 const VaccineWhatsAppMarketing = lazy(() => import('./pages/VaccineWhatsAppMarketing'));
 
@@ -249,6 +255,7 @@ export default function App() {
             <Route path="/vaccination" element={<VaccinationAtHome />} />
             <Route path="/physiotherapy" element={<PhysiotherapyAtHome />} />
             <Route path="/services/physiotherapy" element={<Navigate to="/physiotherapy" replace />} />
+            <Route path="/services/nursing-care" element={<Navigate to="/nursing-care" replace />} />
             <Route path="/physiotherapy/book" element={<PhysiotherapyBooking />} />
             <Route path="/physiotherapy/therapist/:id" element={<PhysioTherapistDetail />} />
             <Route path="/physiotherapy/my-sessions" element={<PhysioPatientDashboard />} />
@@ -267,6 +274,11 @@ export default function App() {
             <Route path="/physiotherapy/whatsapp-marketing" element={<PhysioWhatsAppMarketing />} />
             <Route path="/physiotherapy/treatments" element={<PhysioTreatmentListing />} />
             <Route path="/physiotherapy/treatment/:slug" element={<PhysioTreatmentDetail />} />
+            <Route path="/nursing-care" element={<NursingCare />} />
+            <Route path="/nursing-care/book" element={<NursingBooking />} />
+            <Route path="/nursing-care/services" element={<NursingServiceListing />} />
+            <Route path="/nursing-care/service/:slug" element={<NursingServiceDetail />} />
+            <Route path="/nursing-care/my-visits" element={<NursingDashboard />} />
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
@@ -293,6 +305,7 @@ export default function App() {
             <Route path="health-packages" element={<AdminHealthPackages />} />
             <Route path="vaccination" element={<AdminVaccination />} />
             <Route path="physiotherapy" element={<AdminPhysiotherapy />} />
+            <Route path="nursing" element={<AdminNursing />} />
             <Route path="cms" element={<AdminCMS />} />
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />

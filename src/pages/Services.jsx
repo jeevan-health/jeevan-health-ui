@@ -34,6 +34,7 @@ const fallback = {
     { icon: 'Pill', label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },
     { icon: 'User', label: 'Nursing Care', desc: 'Trained nurses at home', path: '/book-appointment', color: '#0891b2', tag: 'New' },
     { icon: 'Heart', label: 'Physiotherapy', desc: 'Rehab & recovery at home', path: '/physiotherapy', color: '#059669', tag: 'Book' },
+    { icon: 'Users', label: 'Nursing at Home', desc: 'Nurses & caregivers at your doorstep', path: '/nursing-care', color: '#7C3AED', tag: 'New' },
     { icon: 'Syringe', label: 'Vaccination at Home', desc: 'All age groups & travel vaccines', path: '/vaccination', color: '#2563eb', tag: 'Home' },
     { icon: 'Monitor', label: 'Medical Equipment', desc: 'Rent or buy', path: '/book-appointment', color: '#e65100', tag: 'Rent' },
   ],
