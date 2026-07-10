@@ -1,11 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { nurses, nurseLevels, nursingCategories, nursingServices, nurseCRMStages } from '../data/nursingData';
 
 const C = { primary: '#7C3AED', accent: '#EC4899', bg: '#F5F3FF' };
 
-const REVIEWS = [
+const REVIEWS_KEY = 'jh_service_reviews';
+
+function loadReviews() {
+  try { return JSON.parse(localStorage.getItem(REVIEWS_KEY) || '[]'); } catch { return []; }
+}
+
+const SAMPLE_REVIEWS = [
   { id: 1, patient: 'Ramesh K.', rating: 5, text: 'Excellent care and very professional. Highly recommend!', date: '2 weeks ago' },
   { id: 2, patient: 'Srinivas R.', rating: 5, text: 'Very compassionate and skilled. Made my recovery much easier.', date: '1 month ago' },
   { id: 3, patient: 'Lakshmi P.', rating: 4, text: 'Good experience. Punctual and knowledgeable.', date: '2 months ago' },
@@ -39,6 +45,7 @@ export default function NurseProfile() {
 
   const hourlyRate = level?.hourlyRate || 599;
   const sessionRate = level ? level.hourlyRate + 200 : 799;
+  const allReviews = [...loadReviews(), ...SAMPLE_REVIEWS];
 
   return (
     <div className="page-section container" style={{ maxWidth: 720 }}>
@@ -162,7 +169,7 @@ export default function NurseProfile() {
       <div style={{ padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', marginBottom: 14 }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>⭐ {t('nurse.profile.reviews', 'Patient Reviews')}</h3>
         <div style={{ display: 'grid', gap: 10 }}>
-          {REVIEWS.map(r => (
+          {allReviews.map(r => (
             <div key={r.id} style={{ padding: 10, borderRadius: 8, background: '#f8fafc' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{r.patient}</span>

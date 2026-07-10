@@ -29,6 +29,7 @@ const NAV_ITEMS = [
   { path: '/admin/marketing', label: 'admin.layout.marketing', fallback: 'Marketing', icon: '📣' },
   { path: '/admin/crm', label: 'admin.layout.crm', fallback: 'CRM', icon: '🤝' },
   { path: '/admin/whatsapp', label: 'admin.layout.whatsapp', fallback: 'WhatsApp', icon: '💬' },
+  { path: '/admin/sales', label: 'admin.layout.sales', fallback: 'Sales Dashboard', icon: '📈' },
   { path: '/admin/export', label: 'admin.layout.data_export', fallback: 'Data Export', icon: '📤' },
 ];
 

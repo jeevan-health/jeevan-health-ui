@@ -52,11 +52,34 @@ const equipmentFAQs = {
   ],
 };
 
+const CART_KEY = 'jh_equipment_cart';
+
+function loadCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
+}
+
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
 export default function MedicalEquipmentDetail() {
   const t = useT();
   const { slug } = useParams();
   const [qty, setQty] = useState(1);
   const [rentalPeriod, setRentalPeriod] = useState('daily');
+  const [added, setAdded] = useState(false);
+
+  const addToCart = (item) => {
+    const cart = loadCart();
+    const existing = cart.find(c => c.id === item.id);
+    if (existing) {
+      saveCart(cart.map(c => c.id === item.id ? { ...c, qty: (c.qty || 1) + qty, days: c.days || 1 } : c));
+    } else {
+      saveCart([...cart, { ...item, qty, days: 1 }]);
+    }
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2500);
+  };
 
   const equip = useMemo(() => equipmentItems.find(e => e.slug === slug || e.name.toLowerCase().replace(/\s+/g, '-') === slug), [slug]);
   const specs = equip ? equipmentSpecs[equip.name] : null;
@@ -127,7 +150,10 @@ export default function MedicalEquipmentDetail() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Link to={`/nurse-at-home/book?equipment=${slug}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: 'none', fontSize: 13, fontWeight: 700, padding: '10px 24px', borderRadius: 10, color: C.primary, textDecoration: 'none' }}>
+            <button onClick={() => addToCart(equip)} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#fff', border: 'none', fontSize: 13, fontWeight: 700, padding: '10px 24px', borderRadius: 10, color: C.primary, cursor: 'pointer', fontFamily: 'inherit' }}>
+              🛒 {t('nurse.equipment.addToCart', 'Add to Cart')}
+            </button>
+            <Link to={`/nurse-at-home/book?equipment=${slug}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', fontSize: 12, fontWeight: 600, padding: '10px 20px', borderRadius: 10, color: '#fff', textDecoration: 'none' }}>
               📋 {t('nurse.equipment.rentNow', 'Rent Now')}
             </Link>
             <a href="tel:+919700104108" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '10px 20px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', textDecoration: 'none' }}>
@@ -242,6 +268,13 @@ export default function MedicalEquipmentDetail() {
           </a>
         </div>
 
+        {added && (
+          <div style={{ position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#065f46', color: '#fff', padding: '12px 24px', borderRadius: 12, fontSize: 13, fontWeight: 600, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            ✅ {t('nurse.equipment.addedToCart', 'Added to cart!')}
+            <Link to="/medical-equipment/cart" style={{ color: '#fff', fontWeight: 800, marginLeft: 8 }}>{t('equipment.cart.viewCart', 'View Cart')} →</Link>
+          </div>
+        )}
+
         <script type="application/ld+json" dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
@@ -261,6 +294,9 @@ export default function MedicalEquipmentDetail() {
             <span style={{ fontSize: 10, color: '#64748b' }}>{t('nurse.equipment.perDay', '/day')}</span>
           </div>
         </div>
+        <button onClick={() => addToCart(equip)} style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', color: C.primary, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+          🛒 {t('nurse.equipment.addToCart', 'Add to Cart')}
+        </button>
         <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, textDecoration: 'none', color: '#fff', fontSize: 18 }}>📞</a>
         <Link to={`/nurse-at-home/book?equipment=${slug}`} style={{ background: C.primary, border: 'none', fontSize: 12, fontWeight: 700, padding: '10px 20px', borderRadius: 10, color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
           📋 {t('nurse.equipment.rentNow', 'Rent Now')}

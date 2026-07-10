@@ -54,6 +54,16 @@ const normalizeBooking = (b, source) => {
   return { id: b.id, type, serviceName: 'Service', patientName: 'Unknown', date: '', time: '', amount: 0, status: 'pending', source };
 };
 
+const REVIEWS_KEY = 'jh_service_reviews';
+
+function loadReviews() {
+  try { return JSON.parse(localStorage.getItem(REVIEWS_KEY) || '[]'); } catch { return []; }
+}
+
+function saveReviews(r) {
+  localStorage.setItem(REVIEWS_KEY, JSON.stringify(r));
+}
+
 const RESCHEDULE_REASONS = [
   'Emergency at work',
   'Patient not feeling well',
@@ -74,6 +84,9 @@ export default function PatientBookings() {
   const [rescheduleReason, setRescheduleReason] = useState('');
   const [cancelId, setCancelId] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
+  const [reviewId, setReviewId] = useState(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
   const [toast, setToast] = useState(null);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
@@ -263,7 +276,13 @@ export default function PatientBookings() {
                   </div>
                 )}
                 {(b.status === 'completed' || b.status === 'cancelled') && (
-                  <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 8, display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    {b.status === 'completed' && (
+                      <button onClick={() => { setReviewId(b.id); setReviewRating(5); setReviewText('') }}
+                        style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #f59e0b', background: '#fffbeb', color: '#92400e', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
+                        ⭐ {t('patient.leave.review', 'Leave Review')}
+                      </button>
+                    )}
                     <button onClick={() => {
                       const msg = `Hi Jeevan Health! I want to re-book ${b.serviceName}. My previous booking ID was ${b.id}.`;
                       window.open(`https://wa.me/919700104108?text=${encodeURIComponent(msg)}`, '_blank');
@@ -345,6 +364,61 @@ export default function PatientBookings() {
               <button onClick={() => setCancelId(null)}
                 style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>
                 {t('keep', 'Keep')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {reviewId && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 14, padding: 24, minWidth: 360, maxWidth: 420, boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>⭐ {t('patient.review.title', 'Rate Your Experience')}</h3>
+            <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 14px' }}>{t('patient.review.desc', 'How was your service? Your feedback helps us improve.')}</p>
+            <div style={{ display: 'grid', gap: 12 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 6 }}>{t('patient.review.rating', 'Rating')}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                  {[1, 2, 3, 4, 5].map(r => (
+                    <button key={r} onClick={() => setReviewRating(r)}
+                      style={{ width: 40, height: 40, borderRadius: '50%', border: r <= reviewRating ? 'none' : '1px solid #e2e8f0', background: r <= reviewRating ? '#f59e0b' : '#fff', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>
+                      {r <= reviewRating ? '⭐' : '☆'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>{t('patient.review.comment', 'Your Review')}</label>
+                <textarea value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder={t('patient.review.placeholder', 'Share your experience...')} maxLength={500}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 13, fontFamily: 'inherit', outline: 'none', minHeight: 80, resize: 'vertical', boxSizing: 'border-box' }} />
+                <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'right', marginTop: 2 }}>{reviewText.length}/500</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+              <button onClick={() => {
+                const reviews = loadReviews();
+                const booking = allBookings.find(b => b.id === reviewId);
+                reviews.push({
+                  id: Date.now(),
+                  bookingId: reviewId,
+                  serviceName: booking?.serviceName || 'Service',
+                  type: booking?.type || 'nursing',
+                  patient: booking?.patientName || 'Anonymous',
+                  rating: reviewRating,
+                  text: reviewText,
+                  date: new Date().toISOString().slice(0, 10),
+                });
+                saveReviews(reviews);
+                setReviewId(null);
+                showToast(t('patient.review.submitted', 'Review submitted! Thank you.'));
+              }} disabled={reviewRating === 0}
+                style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', background: reviewRating === 0 ? '#94a3b8' : '#f59e0b', color: '#fff', cursor: reviewRating === 0 ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 700, fontFamily: 'inherit' }}>
+                {t('patient.review.submit', 'Submit Review')}
+              </button>
+              <button onClick={() => setReviewId(null)}
+                style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>
+                {t('cancel', 'Cancel')}
               </button>
             </div>
           </div>

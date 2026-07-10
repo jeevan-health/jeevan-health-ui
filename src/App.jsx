@@ -71,6 +71,7 @@ const AdminWhatsApp = lazy(() => import('./pages/admin/AdminWhatsApp'));
 const AdminContacts = lazy(() => import('./pages/admin/AdminContacts'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminPhysiotherapy = lazy(() => import('./pages/admin/AdminPhysiotherapy'));
+const AdminSalesDashboard = lazy(() => import('./pages/admin/AdminSalesDashboard'));
 
 const PhysiotherapyAtHome = lazy(() => import('./pages/PhysiotherapyAtHome'));
 const PhysiotherapyBooking = lazy(() => import('./pages/PhysiotherapyBooking'));
@@ -353,6 +354,7 @@ export default function App() {
             <Route path="crm" element={<AdminCrm />} />
             <Route path="whatsapp" element={<AdminWhatsApp />} />
             <Route path="export" element={<AdminExport />} />
+            <Route path="sales" element={<AdminSalesDashboard />} />
           </Route>
           {/* Phlebotomist Portal */}
           <Route path="/phlebotomist" element={<Protected><RoleLayout role="phlebotomist" /></Protected>}>
