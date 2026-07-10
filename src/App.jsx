@@ -9,6 +9,9 @@ import useAuthStore from './stores/authStore';
 import AdminLayout from './components/admin/AdminLayout';
 import RoleLayout from './components/role/RoleLayout';
 import { LanguageProvider } from './i18n/LanguageProvider';
+import { ToastProvider } from './components/Toast';
+import LoadingSpinner from './components/LoadingSpinner';
+import PageTransition from './components/PageTransition';
 
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
@@ -219,7 +222,7 @@ function AdminGuard({ children }) {
 }
 
 function Loading() {
-  return <div className="page-section container text-center" style={{ padding: '80px 16px' }}>Loading...</div>;
+  return <LoadingSpinner text="Loading..." />;
 }
 
 function NotFound() {
@@ -245,10 +248,12 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <AnalyticsTracker />
+      <ToastProvider>
       <LanguageProvider>
       <ChatBotWidget />
       <LeadCapturePopup />
       <Suspense fallback={<Loading />}>
+        <PageTransition>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
@@ -501,8 +506,10 @@ export default function App() {
             <Route path="staff" element={<EmergCoordStaff />} />
           </Route>
         </Routes>
+        </PageTransition>
       </Suspense>
       </LanguageProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 }
