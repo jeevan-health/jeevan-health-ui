@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import ScrollToTop from './components/layout/ScrollToTop';
+import AnalyticsTracker from './components/AnalyticsTracker';
 import useAuthStore from './stores/authStore';
 import AdminLayout from './components/admin/AdminLayout';
 import RoleLayout from './components/role/RoleLayout';
@@ -237,6 +238,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <AnalyticsTracker />
       <LanguageProvider>
       <Suspense fallback={<Loading />}>
         <Routes>
