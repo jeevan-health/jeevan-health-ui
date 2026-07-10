@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { vaccineCategories } from '../data/vaccinationData';
 
 const BADGES = ['Most Booked', 'Recommended', 'Trending'];
@@ -9,6 +10,7 @@ const BADGE_STYLES = {
 };
 
 export default function VaccineCard({ vaccine, badge, showActions = true }) {
+  const t = useT();
   const catMeta = vaccineCategories.find(c => c.id === vaccine.category) || {};
   const icon = catMeta.icon || '💉';
   const color = catMeta.color || '#0891b2';
@@ -40,7 +42,7 @@ export default function VaccineCard({ vaccine, badge, showActions = true }) {
           <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>{vaccine.disease}</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
             <span style={{ fontSize: 20, fontWeight: 800, color: '#1866C9' }}>₹{vaccine.price}</span>
-            <span style={{ fontSize: 11, color: '#64748b' }}>/ dose</span>
+            <span style={{ fontSize: 11, color: '#64748b' }}>{t('per.dose', '/ dose')}</span>
           </div>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
             <span style={{ background: '#f0f9ff', color: '#0369a1', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>{vaccine.ageGroup}</span>
@@ -50,8 +52,8 @@ export default function VaccineCard({ vaccine, badge, showActions = true }) {
           <p style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{vaccine.description}</p>
           {showActions && (
             <div style={{ display: 'flex', gap: 6, marginTop: 10 }} onClick={e => e.stopPropagation()}>
-              <div style={{ flex: 1, padding: '8px 0', background: '#1866C9', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, textAlign: 'center', textDecoration: 'none' }}>View Details</div>
-              <div style={{ padding: '8px 12px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>Book</div>
+              <div style={{ flex: 1, padding: '8px 0', background: '#1866C9', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, textAlign: 'center', textDecoration: 'none' }}>{t('view.details')}</div>
+              <div style={{ padding: '8px 12px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 11, fontWeight: 600, textAlign: 'center' }}>{t('book.now')}</div>
             </div>
           )}
         </div>

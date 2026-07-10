@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { getVaccineBySlug, getCategoryById } from '../data/vaccinationData';
 
 export default function VaccineDetail() {
+  const t = useT();
   const { slug } = useParams();
   const vaccine = getVaccineBySlug(slug);
   const [activeSection, setActiveSection] = useState('overview');
@@ -11,28 +13,28 @@ export default function VaccineDetail() {
     return (
       <div className="page-section container" style={{ textAlign: 'center', padding: 60 }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>💉</div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Vaccine Not Found</h2>
-        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>The vaccine you are looking for does not exist.</p>
-        <Link to="/vaccination/all-vaccines" className="btn btn-primary" style={{ textDecoration: 'none' }}>View All Vaccines</Link>
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('vaccine.not.found')}</h2>
+        <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>{t('vaccine.not.found.desc', 'The vaccine you are looking for does not exist.')}</p>
+        <Link to="/vaccination/all-vaccines" className="btn btn-primary" style={{ textDecoration: 'none' }}>{t('all.vaccines')}</Link>
       </div>
     );
   }
 
   const category = getCategoryById(vaccine.category);
   const sections = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'benefits', label: 'Benefits' },
-    { id: 'schedule', label: 'Dose Schedule' },
-    { id: 'side-effects', label: 'Side Effects' },
-    { id: 'faqs', label: 'FAQs' },
+    { id: 'overview', label: t('overview') },
+    { id: 'benefits', label: t('benefits') },
+    { id: 'schedule', label: t('dose.schedule') },
+    { id: 'side-effects', label: t('side.effects') },
+    { id: 'faqs', label: t('faqs') },
   ];
 
   return (
     <div className="page-section container">
-      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
+      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>{t('back.to.vaccination')}</Link>
       {/* Breadcrumb */}
       <div style={{ display: 'flex', gap: 6, fontSize: 11, color: '#94a3b8', marginBottom: 16, flexWrap: 'wrap' }}>
-        <Link to="/vaccination" style={{ color: '#2563eb', textDecoration: 'none' }}>Vaccination</Link>
+        <Link to="/vaccination" style={{ color: '#2563eb', textDecoration: 'none' }}>{t('vaccination.footer')}</Link>
         <span>/</span>
         {category && <><Link to={`/vaccination/category/${category.slug}`} style={{ color: '#2563eb', textDecoration: 'none' }}>{category.name}</Link><span>/</span></>}
         <span style={{ color: '#0f172a', fontWeight: 600 }}>{vaccine.name}</span>
@@ -47,13 +49,13 @@ export default function VaccineDetail() {
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>{vaccine.name}</h2>
             <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px', lineHeight: 1.4 }}>{vaccine.disease}</p>
             <div style={{ fontSize: 32, fontWeight: 800, color: '#059669', marginBottom: 2 }}>₹{vaccine.price}</div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>per dose + GST {vaccine.gst}%</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>{t('per.dose.gst', 'per dose + GST')} {vaccine.gst}%</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
               <span style={{ fontSize: 12, padding: '4px 10px', borderRadius: 6, background: '#EFF6FF', color: '#2563eb', fontWeight: 600 }}>Age: {vaccine.ageGroup}</span>
               <span style={{ fontSize: 12, padding: '4px 10px', borderRadius: 6, background: '#F0FDF4', color: '#16a34a', fontWeight: 600 }}>{vaccine.doseCount} Dose{vaccine.doseCount > 1 ? 's' : ''}</span>
               <span style={{ fontSize: 12, padding: '4px 10px', borderRadius: 6, background: '#FFF7ED', color: '#ea580c', fontWeight: 600 }}>{vaccine.availability}</span>
             </div>
-            <Link to={`/vaccination/book?vaccine=${vaccine.slug}`} style={{ display: 'block', height: 48, lineHeight: '48px', borderRadius: 8, background: '#FF3B30', color: '#fff', textDecoration: 'none', fontSize: 16, fontWeight: 700 }}>Book {vaccine.name}</Link>
+            <Link to={`/vaccination/book?vaccine=${vaccine.slug}`} style={{ display: 'block', height: 48, lineHeight: '48px', borderRadius: 8, background: '#FF3B30', color: '#fff', textDecoration: 'none', fontSize: 16, fontWeight: 700 }}>{t('book.now')} {vaccine.name}</Link>
           </div>
         </div>
 
@@ -75,15 +77,15 @@ export default function VaccineDetail() {
           {activeSection === 'overview' && (
             <div>
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>What is {vaccine.name}?</h3>
+                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>{t('what.is', 'What is')} {vaccine.name}?</h3>
                 <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7 }}>{vaccine.fullDescription}</p>
               </div>
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Who Should Take?</h3>
+                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>{t('who.should.take', 'Who Should Take?')}</h3>
                 <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7 }}>{vaccine.ageRecommendation}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Disease Prevented</h3>
+                <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>{t('disease')}</h3>
                 <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7 }}>{vaccine.disease}</p>
               </div>
             </div>
@@ -91,7 +93,7 @@ export default function VaccineDetail() {
 
           {activeSection === 'benefits' && (
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>Why {vaccine.name} is Required?</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>{t('why.required', 'Why')} {vaccine.name} {t('is.required', 'is Required?')}</h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {vaccine.benefits.map(b => (
                   <li key={b} style={{ padding: '10px 14px', marginBottom: 8, borderRadius: 8, background: '#F0FDF4', border: '1px solid #dcfce7', fontSize: 13, color: '#166534', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -99,25 +101,25 @@ export default function VaccineDetail() {
                   </li>
                 ))}
               </ul>
-              <h3 style={{ fontSize: 18, fontWeight: 700, margin: '24px 0 8px', color: '#0f172a' }}>Who Should Avoid?</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 700, margin: '24px 0 8px', color: '#0f172a' }}>{t('who.should.avoid', 'Who Should Avoid?')}</h3>
               {vaccine.whoShouldAvoid.length > 0 ? (
                 <ul style={{ padding: '0 0 0 20px' }}>
                   {vaccine.whoShouldAvoid.map((w, i) => <li key={i} style={{ fontSize: 13, color: '#475569', marginBottom: 4 }}>{w}</li>)}
                 </ul>
-              ) : <p style={{ fontSize: 13, color: '#64748b' }}>No specific contraindications for most individuals.</p>}
+              ) : <p style={{ fontSize: 13, color: '#64748b' }}>{t('no.contraindications', 'No specific contraindications for most individuals.')}</p>}
             </div>
           )}
 
           {activeSection === 'schedule' && (
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>Dose Schedule</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>{t('dose.schedule')}</h3>
               <div style={{ display: 'grid', gap: 10 }}>
                 {vaccine.schedule.map((d, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>{d.dose}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Dose {d.dose}</div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>Route: {d.route}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{t('dose')} {d.dose}</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>{t('route', 'Route')}: {d.route}</div>
                     </div>
                     <div style={{ fontSize: 13, color: '#2563eb', fontWeight: 600, textAlign: 'right' }}>{d.timing}</div>
                   </div>
@@ -125,7 +127,7 @@ export default function VaccineDetail() {
               </div>
               {vaccine.doseInterval && (
                 <p style={{ fontSize: 13, color: '#64748b', marginTop: 12 }}>
-                  <strong>Interval:</strong> {vaccine.doseInterval}
+                  <strong>{t('interval', 'Interval')}:</strong> {vaccine.doseInterval}
                 </p>
               )}
             </div>
@@ -133,8 +135,8 @@ export default function VaccineDetail() {
 
           {activeSection === 'side-effects' && (
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>Possible Side Effects</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>Most side effects are mild and resolve on their own within 1-2 days.</p>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>{t('possible.side.effects', 'Possible Side Effects')}</h3>
+              <p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>{t('side.effects.note', 'Most side effects are mild and resolve on their own within 1-2 days.')}</p>
               <ul style={{ padding: '0 0 0 20px' }}>
                 {vaccine.sideEffects.map((s, i) => (
                   <li key={i} style={{ fontSize: 13, color: '#475569', marginBottom: 6 }}>{s}</li>
@@ -145,11 +147,11 @@ export default function VaccineDetail() {
 
           {activeSection === 'faqs' && (
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>Frequently Asked Questions</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>{t('faq.heading', 'Frequently Asked Questions')}</h3>
               <div style={{ display: 'grid', gap: 8 }}>
                 {vaccine.faqs.map((f, i) => (
                   <div key={i} style={{ padding: '14px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: '0 0 6px' }}>Q: {f.q}</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: '0 0 6px' }}>{t('q', 'Q')}: {f.q}</p>
                     <p style={{ fontSize: 12, color: '#475569', margin: 0, lineHeight: 1.6 }}>{f.a}</p>
                   </div>
                 ))}
@@ -169,3 +171,4 @@ export default function VaccineDetail() {
     </div>
   );
 }
+

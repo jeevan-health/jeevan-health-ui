@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useT } from '../../i18n/LanguageProvider';
 import { vaccineCategories as defaultCategories, vaccines as defaultVaccines } from '../../data/vaccinationData';
 
 const STORAGE_KEY = 'jeevan_vaccinationAdmin';
@@ -50,6 +51,7 @@ const ActionBtn = ({ label, onClick, color }) => (
 );
 
 export default function AdminVaccination() {
+  const t = useT();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [data, setData] = useState({ vaccines: [], categories: [], bookings: [] });
   const [vaccineForm, setVaccineForm] = useState(emptyVaccine);
@@ -175,14 +177,14 @@ export default function AdminVaccination() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>💉 Vaccination Management</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>💉 {t('vaccination.management', 'Vaccination Management')}</h2>
         <div style={{ display: 'flex', gap: 6 }}>
           {[
-            { id: 'dashboard', label: 'Dashboard' },
-            { id: 'analytics', label: 'Analytics' },
-            { id: 'vaccines', label: 'Vaccine Master' },
-            { id: 'categories', label: 'Categories' },
-            { id: 'bookings', label: 'Bookings' },
+            { id: 'dashboard', label: t('dashboard') },
+            { id: 'analytics', label: t('analytics') },
+            { id: 'vaccines', label: t('vaccine.master') },
+            { id: 'categories', label: t('categories') },
+            { id: 'bookings', label: t('bookings') },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: activeTab === tab.id ? '#1866C9' : '#e8edf2', color: activeTab === tab.id ? '#fff' : '#475569', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
@@ -197,12 +199,12 @@ export default function AdminVaccination() {
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
             {[
-              { label: 'Total Vaccines', value: data.vaccines.length, color: '#1866C9', icon: '💉' },
-              { label: 'Total Bookings', value: totalBookings, color: '#059669', icon: '📋' },
-              { label: 'Confirmed', value: confirmedBookings, color: '#16a34a', icon: '✅' },
-              { label: 'Revenue', value: `₹${totalRevenue.toLocaleString()}`, color: '#7c3aed', icon: '💰' },
-              { label: 'Categories', value: data.categories.length, color: '#d97706', icon: '📂' },
-              { label: 'Low Stock Alerts', value: lowStockVaccines, color: '#dc2626', icon: '⚠️' },
+              { label: t('total.vaccines'), value: data.vaccines.length, color: '#1866C9', icon: '💉' },
+              { label: t('total.bookings'), value: totalBookings, color: '#059669', icon: '📋' },
+              { label: t('confirmed'), value: confirmedBookings, color: '#16a34a', icon: '✅' },
+              { label: t('total.revenue'), value: `₹${totalRevenue.toLocaleString()}`, color: '#7c3aed', icon: '💰' },
+              { label: t('categories'), value: data.categories.length, color: '#d97706', icon: '📂' },
+              { label: t('low.stock', 'Low Stock Alerts'), value: lowStockVaccines, color: '#dc2626', icon: '⚠️' },
             ].map(s => (
               <div key={s.label} style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
                 <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
@@ -230,10 +232,10 @@ export default function AdminVaccination() {
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
             {[
-              { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, color: '#059669', icon: '💰' },
-              { label: 'Avg Revenue/Booking', value: `₹${bookings.length ? Math.round(totalRevenue / bookings.length) : 0}`, color: '#7c3aed', icon: '📊' },
-              { label: 'Conversion Rate', value: bookings.length ? `${Math.round(confirmedBookings / totalBookings * 100)}%` : '0%', color: '#2563eb', icon: '📈' },
-              { label: 'Most Booked Category', value: (() => {
+              { label: t('total.revenue'), value: `₹${totalRevenue.toLocaleString()}`, color: '#059669', icon: '💰' },
+              { label: t('avg.revenue', 'Avg Revenue/Booking'), value: `₹${bookings.length ? Math.round(totalRevenue / bookings.length) : 0}`, color: '#7c3aed', icon: '📊' },
+              { label: t('conversion.rate', 'Conversion Rate'), value: bookings.length ? `${Math.round(confirmedBookings / totalBookings * 100)}%` : '0%', color: '#2563eb', icon: '📈' },
+              { label: t('most.booked', 'Most Booked Category'), value: (() => {
                 const catCounts = {};
                 bookings.forEach(b => { const v = data.vaccines.find(x => x.name === (b.vaccineName || b.vaccine)); if (v) catCounts[v.category] = (catCounts[v.category] || 0) + 1; });
                 const top = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0];
@@ -254,9 +256,9 @@ export default function AdminVaccination() {
               <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>📊 Booking Status</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
-                  { label: 'Confirmed', count: confirmedBookings, color: '#16a34a' },
-                  { label: 'Quick Request', count: bookings.filter(b => b.status === 'Quick Request').length, color: '#d97706' },
-                  { label: 'Pending', count: bookings.filter(b => b.status === 'Pending').length, color: '#6b7280' },
+                   { label: t('confirmed'), count: confirmedBookings, color: '#16a34a' },
+                  { label: t('quick.request', 'Quick Request'), count: bookings.filter(b => b.status === 'Quick Request').length, color: '#d97706' },
+                  { label: t('pending', 'Pending'), count: bookings.filter(b => b.status === 'Pending').length, color: '#6b7280' },
                 ].map(s => {
                   const pct = totalBookings ? Math.round(s.count / totalBookings * 100) : 0;
                   return (
@@ -333,22 +335,22 @@ export default function AdminVaccination() {
       {activeTab === 'vaccines' && !showVaccineForm && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, gap: 8, flexWrap: 'wrap' }}>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vaccines by name, disease, manufacturer..."
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search.vaccines.admin', 'Search vaccines by name, disease, manufacturer...')}
               style={{ flex: 1, minWidth: 200, padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none' }} />
             <button onClick={() => { resetVaccineForm(); setShowVaccineForm(true); }}
-              style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1866C9', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ Add Vaccine</button>
+              style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1866C9', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ {t('add.vaccine', 'Add Vaccine')}</button>
           </div>
           <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e2e8f0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 700 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Name</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Disease</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Category</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Age Group</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#475569' }}>Price</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Doses</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Actions</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('name', 'Name')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('disease')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('category', 'Category')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('age.group')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#475569' }}>{t('price')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('doses')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('actions', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -362,16 +364,16 @@ export default function AdminVaccination() {
                     <td style={{ padding: '8px 10px', textAlign: 'center' }}>{v.doseCount}</td>
                     <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
-                        <ActionBtn label="Edit" onClick={() => editVaccine(v)} />
-                        <ActionBtn label="Copy" onClick={() => duplicateVaccine(v)} color="#d97706" />
-                        <ActionBtn label="Del" onClick={() => deleteVaccine(v.id)} color="#dc2626" />
+                        <ActionBtn label={t('edit', 'Edit')} onClick={() => editVaccine(v)} />
+                        <ActionBtn label={t('copy', 'Copy')} onClick={() => duplicateVaccine(v)} color="#d97706" />
+                        <ActionBtn label={t('delete', 'Del')} onClick={() => deleteVaccine(v.id)} color="#dc2626" />
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {filteredVaccines.length === 0 && <p style={{ padding: 16, textAlign: 'center', fontSize: 11, color: '#94a3b8' }}>No vaccines found.</p>}
+            {filteredVaccines.length === 0 && <p style={{ padding: 16, textAlign: 'center', fontSize: 11, color: '#94a3b8' }}>{t('no.vaccines.found.admin', 'No vaccines found.')}</p>}
           </div>
         </div>
       )}
@@ -380,9 +382,9 @@ export default function AdminVaccination() {
       {activeTab === 'vaccines' && showVaccineForm && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{editingId ? 'Edit' : 'Add'} Vaccine</h3>
-            <button onClick={() => { setShowVaccineForm(false); resetVaccineForm(); }}
-              style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}>← Back to List</button>
+              <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{editingId ? t('edit', 'Edit') : t('add', 'Add')} {t('vaccine')}</h3>
+              <button onClick={() => { setShowVaccineForm(false); resetVaccineForm(); }}
+              style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit' }}>← {t('back.to.list', 'Back to List')}</button>
           </div>
           <div style={{ display: 'flex', gap: 4, marginBottom: 14, flexWrap: 'wrap' }}>
             {vaccineFormSections.map(s => (
@@ -519,10 +521,10 @@ export default function AdminVaccination() {
       {activeTab === 'categories' && !showCategoryForm && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, gap: 8, flexWrap: 'wrap' }}>
-            <input value={catSearch} onChange={e => setCatSearch(e.target.value)} placeholder="Search categories..."
+            <input value={catSearch} onChange={e => setCatSearch(e.target.value)} placeholder={t('search.categories', 'Search categories...')}
               style={{ flex: 1, minWidth: 200, padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none' }} />
             <button onClick={() => { setCategoryForm(emptyCategory); setEditingId(null); setShowCategoryForm(true); }}
-              style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1866C9', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ Add Category</button>
+              style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1866C9', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ {t('add.category', 'Add Category')}</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
             {filteredCategories.map(c => (
@@ -533,8 +535,8 @@ export default function AdminVaccination() {
                 <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 8px', lineHeight: 1.4 }}>{c.description}</p>
                 <p style={{ fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>Slug: {c.slug}</p>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <ActionBtn label="Edit" onClick={() => { setCategoryForm(c); setEditingId(c.id); setShowCategoryForm(true); }} />
-                  <ActionBtn label="Del" onClick={() => deleteCategory(c.id)} color="#dc2626" />
+                  <ActionBtn label={t('edit', 'Edit')} onClick={() => { setCategoryForm(c); setEditingId(c.id); setShowCategoryForm(true); }} />
+                  <ActionBtn label={t('delete', 'Del')} onClick={() => deleteCategory(c.id)} color="#dc2626" />
                 </div>
               </div>
             ))}
@@ -567,17 +569,17 @@ export default function AdminVaccination() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 700 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Booking ID</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Patient</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>Vaccine</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Date</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Amount</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>Status</th>
+                   <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('booking.id', 'Booking ID')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('patient', 'Patient')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('vaccine')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('date', 'Date')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('amount', 'Amount')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('status', 'Status')}</th>
                 </tr>
               </thead>
               <tbody>
                 {bookings.length === 0 && (
-                  <tr><td colSpan={6} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>No bookings yet.</td></tr>
+                  <tr><td colSpan={6} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('no.bookings', 'No bookings yet.')}</td></tr>
                 )}
                 {bookings.slice().reverse().map(b => (
                   <tr key={b.id} style={{ borderBottom: '1px solid #f0f0f0' }}>

@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { vaccines, vaccineCategories } from '../data/vaccinationData';
 
 export default function VaccineListing() {
+  const t = useT();
   const [filters, setFilters] = useState({ category: '', ageGroup: '', search: '' });
 
   const filtered = useMemo(() => {
@@ -19,16 +21,16 @@ export default function VaccineListing() {
 
   return (
     <div className="page-section container">
-      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
-      <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>All Vaccines</h1>
-      <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Comprehensive vaccination list — find the right vaccine for you and your family</p>
+      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>{t('back.to.vaccination')}</Link>
+      <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{t('all.vaccines')}</h1>
+      <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>{t('comprehensive.list', 'Comprehensive vaccination list — find the right vaccine for you and your family')}</p>
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center' }}>
-        <input type="text" placeholder="Search vaccines..." value={filters.search} onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+        <input type="text" placeholder={t('search.vaccines.placeholder', 'Search vaccines...')} value={filters.search} onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
           style={{ flex: 1, minWidth: 200, padding: '8px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none' }} />
         <select value={filters.category} onChange={e => setFilters(f => ({ ...f, category: e.target.value }))}
           style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
-          <option value="">All Categories</option>
+          <option value="">{t('all.categories')}</option>
           {vaccineCategories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
         </select>
       </div>
@@ -51,16 +53,17 @@ export default function VaccineListing() {
               </div>
               <p style={{ fontSize: 12, color: '#64748b', marginBottom: 8, lineHeight: 1.4, flex: 1 }}>{v.description}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f0f0f0', paddingTop: 8 }}>
-                <span style={{ fontWeight: 700, color: '#059669', fontSize: 16 }}>₹{v.price}<span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}> /dose</span></span>
-                <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 600 }}>View Details →</span>
+                <span style={{ fontWeight: 700, color: '#059669', fontSize: 16 }}>₹{v.price}                <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}> {t('per.dose', '/ dose')}</span></span>
+                <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 600 }}>{t('view.details')} →</span>
               </div>
             </div>
           </Link>
         ))}
       </div>
       {filtered.length === 0 && (
-        <p style={{ textAlign: 'center', fontSize: 13, color: '#94a3b8', padding: 32 }}>No vaccines match your filters. Try a different search.</p>
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#94a3b8', padding: 32 }}>{t('no.vaccines.found')}</p>
       )}
     </div>
   );
 }
+

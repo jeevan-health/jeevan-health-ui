@@ -1,14 +1,16 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { vaccines, vaccineCategories, getCategoryBySlug } from '../data/vaccinationData';
 import VaccineCard from '../components/VaccineCard';
 
 const ageSubcategories = ['Birth', '0-5 Years', '5-18 Years', '18+ Years', '60+ Years', 'Pregnancy'];
 
 export default function VaccineCategoryPage() {
+  const t = useT();
   const { slug } = useParams();
   const catMeta = getCategoryBySlug(slug);
-  const displayName = slug === 'all' ? 'All Vaccines' : (catMeta ? catMeta.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+  const displayName = slug === 'all' ? t('all.vaccines') : (catMeta ? catMeta.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
 
   const fullList = slug === 'all' ? vaccines : (catMeta ? vaccines.filter(v => v.category === catMeta.id) : vaccines);
 
@@ -46,7 +48,7 @@ export default function VaccineCategoryPage() {
     <div>
       <div style={{ background: `linear-gradient(135deg, ${catColor} 0%, ${catColor}cc 100%)`, padding: '28px 0 32px' }}>
         <div className="container">
-          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>← Back to Vaccination</Link>
+          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>{t('back.to.vaccination')}</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
             <span style={{ fontSize: 32 }}>{catIcon}</span>
             <div>
@@ -57,11 +59,11 @@ export default function VaccineCategoryPage() {
           <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
               <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{fullList.length}</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Vaccines</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('vaccines')}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
               <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>{subcategories.length}</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Age Groups</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('age.groups', 'Age Groups')}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
               <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>💉</div>
@@ -69,7 +71,7 @@ export default function VaccineCategoryPage() {
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
               <div style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>✓ Home</div>
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>Available</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>{t('available', 'Available')}</div>
             </div>
           </div>
         </div>
@@ -78,25 +80,25 @@ export default function VaccineCategoryPage() {
       <div className="page-section container" style={{ paddingTop: 20 }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: 180, position: 'relative' }}>
-            <input type="text" placeholder={`Search ${displayName}...`} value={search}
+            <input type="text" placeholder={t('search.vaccines.placeholder', 'Search vaccines...')} value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ width: '100%', padding: '8px 12px 8px 32px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             <span style={{ position: 'absolute', left: 10, top: 8, fontSize: 13, color: 'var(--text-secondary)' }}>🔍</span>
           </div>
           <select value={availabilityFilter} onChange={e => setAvailabilityFilter(e.target.value)}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 12, background: '#fff' }}>
-            <option value="">All Availability</option>
-            <option value="Home & Clinic">Home & Clinic</option>
-            <option value="Clinic Only">Clinic Only</option>
-            <option value="Home Only">Home Only</option>
+            <option value="">{t('all.availability')}</option>
+            <option value="Home & Clinic">{t('home.and.clinic')}</option>
+            <option value="Clinic Only">{t('clinic.only')}</option>
+            <option value="Home Only">{t('home.only')}</option>
           </select>
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', fontSize: 12, background: '#fff' }}>
-            <option value="popularity">Popularity</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name">Name: A-Z</option>
-            <option value="doses">Dose Count</option>
+            <option value="popularity">{t('sort.popularity', 'Popularity')}</option>
+            <option value="price-low">{t('sort.price.low', 'Price: Low to High')}</option>
+            <option value="price-high">{t('sort.price.high', 'Price: High to Low')}</option>
+            <option value="name">{t('sort.name', 'Name: A-Z')}</option>
+            <option value="doses">{t('sort.doses', 'Dose Count')}</option>
           </select>
         </div>
 
@@ -104,7 +106,7 @@ export default function VaccineCategoryPage() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
             <button onClick={() => setActiveSubcat('')}
               style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${activeSubcat === '' ? catColor : 'var(--border)'}`, background: activeSubcat === '' ? `${catColor}15` : '#fff', color: activeSubcat === '' ? catColor : 'var(--text-secondary)', fontSize: 11, cursor: 'pointer', fontWeight: activeSubcat === '' ? 600 : 400 }}>
-              All Ages
+              {t('all.ages')}
             </button>
             {popularSubs.map(sub => (
               <button key={sub} onClick={() => setActiveSubcat(sub)}
@@ -115,7 +117,7 @@ export default function VaccineCategoryPage() {
           </div>
         )}
 
-        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} vaccine{results.length !== 1 ? 's' : ''} found</p>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{results.length} {t('vaccines').toLowerCase()} {t('found', 'found')}</p>
 
         {results.length > 0 ? (
           <div className="grid-3">
@@ -125,8 +127,8 @@ export default function VaccineCategoryPage() {
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>No vaccines found matching your criteria</p>
-            <button onClick={() => { setSearch(''); setActiveSubcat(''); setAvailabilityFilter(''); }} className="btn btn-outline" style={{ marginTop: 8 }}>Clear Filters</button>
+            <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>{t('no.vaccines.found')}</p>
+            <button onClick={() => { setSearch(''); setActiveSubcat(''); setAvailabilityFilter(''); }} className="btn btn-outline" style={{ marginTop: 8 }}>{t('clear.filters')}</button>
           </div>
         )}
       </div>
@@ -134,7 +136,7 @@ export default function VaccineCategoryPage() {
       {slug !== 'all' && vaccineCategories.length > 1 && (
         <div className="page-section" style={{ background: 'var(--bg-light)', paddingTop: 24, paddingBottom: 24 }}>
           <div className="container">
-            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Browse Other Vaccine Categories</h2>
+            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>{t('browse.other', 'Browse Other Vaccine Categories')}</h2>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {vaccineCategories.filter(c => slug !== c.slug).slice(0, 10).map(cat => (
                 <Link key={cat.id} to={`/vaccination/category/${cat.slug}`}
@@ -155,3 +157,4 @@ export default function VaccineCategoryPage() {
     </div>
   );
 }
+

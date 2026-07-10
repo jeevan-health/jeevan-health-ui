@@ -5,6 +5,7 @@ import ScrollToTop from './components/layout/ScrollToTop';
 import useAuthStore from './stores/authStore';
 import AdminLayout from './components/admin/AdminLayout';
 import RoleLayout from './components/role/RoleLayout';
+import { LanguageProvider } from './i18n/LanguageProvider';
 
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
@@ -198,6 +199,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <LanguageProvider>
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route element={<Layout />}>
@@ -400,6 +402,7 @@ export default function App() {
           </Route>
         </Routes>
       </Suspense>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

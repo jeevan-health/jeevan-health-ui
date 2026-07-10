@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { vaccineFinderQuestions, vaccines } from '../data/vaccinationData';
 
 export default function VaccineFinder() {
+  const t = useT();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
@@ -71,8 +73,8 @@ export default function VaccineFinder() {
       <div className="page-section container" style={{ maxWidth: 640 }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <span style={{ fontSize: 40, display: 'block', marginBottom: 8 }}>✅</span>
-          <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>Recommended Vaccines</h2>
-          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Based on the information you provided</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{t('recommended.vaccines', 'Recommended Vaccines')}</h2>
+          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('based.on.info', 'Based on the information you provided')}</p>
         </div>
         <div style={{ display: 'grid', gap: 10, marginBottom: 20 }}>
           {results.map(v => (
@@ -83,14 +85,14 @@ export default function VaccineFinder() {
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{v.name}</div>
                   <div style={{ fontSize: 11, color: '#64748b' }}>{v.disease} · {v.doseCount} dose{v.doseCount > 1 ? 's' : ''} · ₹{v.price}/dose</div>
                 </div>
-                <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 600 }}>View →</span>
+                <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 600 }}>{t('view')} →</span>
               </div>
             </Link>
           ))}
         </div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={reset} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>Start Over</button>
-          <Link to="/vaccination/all-vaccines" style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600, textDecoration: 'none' }}>View All Vaccines</Link>
+          <button onClick={reset} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>{t('start.over', 'Start Over')}</button>
+          <Link to="/vaccination/all-vaccines" style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600, textDecoration: 'none' }}>{t('all.vaccines')}</Link>
         </div>
       </div>
     );
@@ -98,11 +100,11 @@ export default function VaccineFinder() {
 
   return (
     <div className="page-section container" style={{ maxWidth: 560 }}>
-      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>← Back to Vaccination</Link>
+      <Link to="/vaccination" style={{ color: '#64748b', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 8 }}>{t('back.to.vaccination')}</Link>
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <span style={{ fontSize: 36, display: 'block', marginBottom: 8 }}>🔍</span>
-        <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>Find My Vaccine</h2>
-        <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Answer a few questions to find the right vaccine for you</p>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>{t('find.my.vaccine')}</h2>
+        <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('finder.subtitle', 'Answer a few questions to find the right vaccine for you')}</p>
       </div>
 
       {/* Progress Bar */}
@@ -111,7 +113,7 @@ export default function VaccineFinder() {
           <div key={i} style={{ width: 40, height: 4, borderRadius: 2, background: i <= step ? '#2563eb' : '#e2e8f0' }} />
         ))}
       </div>
-      <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginBottom: 16 }}>Step {step + 1} of {vaccineFinderQuestions.length}</p>
+      <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginBottom: 16 }}>{t('step', 'Step')} {step + 1} {t('of', 'of')} {vaccineFinderQuestions.length}</p>
 
       {/* Question */}
       <div style={{ padding: 24, borderRadius: 14, border: '1px solid #e2e8f0', background: '#fff' }}>
@@ -132,7 +134,7 @@ export default function VaccineFinder() {
         {currentQ.multiple && (
           <button onClick={() => handleAnswer(answers[currentQ.key] || [])} disabled={!answers[currentQ.key]?.length}
             style={{ marginTop: 12, padding: '10px 24px', borderRadius: 8, border: 'none', background: answers[currentQ.key]?.length ? '#2563eb' : '#94a3b8', color: '#fff', cursor: answers[currentQ.key]?.length ? 'pointer' : 'not-allowed', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', width: '100%' }}>
-            Continue →
+            {t('continue', 'Continue')} →
           </button>
         )}
       </div>
@@ -140,9 +142,10 @@ export default function VaccineFinder() {
       <div style={{ textAlign: 'center', marginTop: 12 }}>
         <button onClick={() => step > 0 ? setStep(step - 1) : null} disabled={step === 0}
           style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: 'none', cursor: step > 0 ? 'pointer' : 'default', fontSize: 12, color: step > 0 ? '#2563eb' : '#ccc', fontFamily: 'inherit' }}>
-          ← Back
+          ← {t('back', 'Back')}
         </button>
       </div>
     </div>
   );
 }
+

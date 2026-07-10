@@ -1,21 +1,23 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { vaccines, vaccineCategories } from '../data/vaccinationData';
 
 const fields = [
-  { key: 'name', label: 'Vaccine Name', emoji: '💉' },
-  { key: 'brand', label: 'Brand', emoji: '🏷️' },
-  { key: 'manufacturer', label: 'Manufacturer', emoji: '🏭' },
-  { key: 'disease', label: 'Disease Prevented', emoji: '🦠' },
-  { key: 'ageGroup', label: 'Age Group', emoji: '👤' },
-  { key: 'doseCount', label: 'Doses', emoji: '💊' },
-  { key: 'doseInterval', label: 'Dose Interval', emoji: '📅' },
-  { key: 'price', label: 'Price (per dose)', emoji: '💰' },
-  { key: 'availability', label: 'Availability', emoji: '🏠' },
-  { key: 'ageRecommendation', label: 'Recommendation', emoji: '📋' },
+  { key: 'name', label: t('vaccine.name', 'Vaccine Name'), emoji: '💉' },
+  { key: 'brand', label: t('brand.label', 'Brand'), emoji: '🏷️' },
+  { key: 'manufacturer', label: t('manufacturer.label', 'Manufacturer'), emoji: '🏭' },
+  { key: 'disease', label: t('disease.prevented', 'Disease Prevented'), emoji: '🦠' },
+  { key: 'ageGroup', label: t('age.group'), emoji: '👤' },
+  { key: 'doseCount', label: t('doses'), emoji: '💊' },
+  { key: 'doseInterval', label: t('dose.interval', 'Dose Interval'), emoji: '📅' },
+  { key: 'price', label: t('price.per.dose', 'Price (per dose)'), emoji: '💰' },
+  { key: 'availability', label: t('availability'), emoji: '🏠' },
+  { key: 'ageRecommendation', label: t('recommendation', 'Recommendation'), emoji: '📋' },
 ];
 
 export default function VaccineCompare() {
+  const t = useT();
   const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
@@ -53,12 +55,12 @@ export default function VaccineCompare() {
     <div>
       <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #7c3aedcc 100%)', padding: '28px 0 32px' }}>
         <div className="container">
-          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>← Back to Vaccination</Link>
+          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>{t('back.to.vaccination')}</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
             <span style={{ fontSize: 32 }}>📊</span>
             <div>
-              <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: 0 }}>Compare Vaccines</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '2px 0 0' }}>Select 2-4 vaccines to compare side-by-side</p>
+              <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: 0 }}>{t('compare.vaccines')}</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '2px 0 0' }}>{t('select.to.compare')}</p>
             </div>
           </div>
         </div>
@@ -69,7 +71,7 @@ export default function VaccineCompare() {
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', minHeight: 80 }}>
           {selected.length === 0 ? (
             <div style={{ flex: 1, padding: 20, borderRadius: 10, border: '2px dashed #d0d5dd', textAlign: 'center', background: '#f8fafc' }}>
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>Search and select 2-4 vaccines below to compare</span>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('select.to.compare')}</span>
             </div>
           ) : (
             selected.map(v => (
@@ -88,16 +90,16 @@ export default function VaccineCompare() {
         {/* Search & add */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: 200, position: 'relative' }}>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vaccines to add..."
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search.vaccines')}
               style={{ width: '100%', padding: '8px 12px 8px 32px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} disabled={selected.length >= 4} />
             <span style={{ position: 'absolute', left: 10, top: 8, fontSize: 12, color: '#94a3b8' }}>🔍</span>
           </div>
           <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
             style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
-            <option value="">All Categories</option>
+            <option value="">{t('all.categories')}</option>
             {vaccineCategories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
           </select>
-          {selected.length >= 4 && <span style={{ fontSize: 11, color: '#dc2626', fontWeight: 600 }}>Max 4 vaccines</span>}
+          {selected.length >= 4 && <span style={{ fontSize: 11, color: '#dc2626', fontWeight: 600 }}>{t('max.vaccines')}</span>}
         </div>
 
         {/* Search results dropdown */}
@@ -127,7 +129,7 @@ export default function VaccineCompare() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 600 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', minWidth: 140 }}>Details</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', minWidth: 140 }}>{t('details', 'Details')}</th>
                   {selected.map(v => (
                     <th key={v.id} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', borderLeft: '1px solid #e2e8f0' }}>
                       <div style={{ fontSize: 22, marginBottom: 2 }}>💉</div>
@@ -152,8 +154,8 @@ export default function VaccineCompare() {
                           fontWeight: f.key === 'price' && v.price === Math.min(...selected.map(s => s.price)) ? 700 : 400,
                         }}>
                           {val}
-                          {f.key === 'price' && v.price === Math.min(...selected.map(s => s.price)) && <span style={{ fontSize: 9, color: '#16a34a', display: 'block', marginTop: 2 }}>✓ Lowest Price</span>}
-                          {f.key === 'doseCount' && v.doseCount === Math.min(...selected.map(s => s.doseCount)) && <span style={{ fontSize: 9, color: '#16a34a', display: 'block', marginTop: 2 }}>✓ Fewer doses</span>}
+                          {f.key === 'price' && v.price === Math.min(...selected.map(s => s.price)) && <span style={{ fontSize: 9, color: '#16a34a', display: 'block', marginTop: 2 }}>{t('lowest.price')}</span>}
+                          {f.key === 'doseCount' && v.doseCount === Math.min(...selected.map(s => s.doseCount)) && <span style={{ fontSize: 9, color: '#16a34a', display: 'block', marginTop: 2 }}>{t('fewer.doses')}</span>}
                         </td>
                       );
                     })}
@@ -165,10 +167,11 @@ export default function VaccineCompare() {
         )}
         {selected.length > 0 && selected.length < 2 && (
           <div style={{ textAlign: 'center', padding: 30, borderRadius: 10, border: '1px solid #fef3c7', background: '#fffbeb' }}>
-            <p style={{ fontSize: 12, color: '#92400e', margin: 0 }}>Add at least 1 more vaccine to see comparison</p>
+            <p style={{ fontSize: 12, color: '#92400e', margin: 0 }}>{t('add.more.compare', 'Add at least 1 more vaccine to see comparison')}</p>
           </div>
         )}
       </div>
     </div>
   );
 }
+

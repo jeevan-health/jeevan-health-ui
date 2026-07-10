@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import useUploadModal from '../../stores/uploadModalStore';
 import { vaccineCategories } from '../../data/vaccinationData';
+import { LanguageContext } from '../../i18n/LanguageProvider';
 
 const socialLinks = [
   { label: 'Facebook', url: 'https://facebook.com/jeevanhealthcare', icon: 'f' },
@@ -74,6 +75,9 @@ const sections = [
     { label: '🫘 Kidney Care', path: '/package/kidney-care' },
     { label: '🫁 Liver Care', path: '/package/liver-care' },
   ]},
+];
+
+const resourceSections = [
   { key: 'company', label: 'Company', links: [
     { label: 'About Us', path: '/about' },
     { label: 'Careers', path: '/contact' },
@@ -146,6 +150,19 @@ function CollapsibleSection({ section, defaultOpen }) {
   );
 }
 
+function LanguageSelect() {
+  const { lang, setLang, t } = useContext(LanguageContext);
+  return (
+    <select value={lang} onChange={e => setLang(e.target.value)} style={{ padding: '6px 10px', borderRadius: 6, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}>
+      <option value="en" style={{ color: '#000' }}>English</option>
+      <option value="hi" style={{ color: '#000' }}>हिन्दी</option>
+      <option value="te" style={{ color: '#000' }}>తెలుగు</option>
+      <option value="kn" style={{ color: '#000' }}>ಕನ್ನಡ</option>
+      <option value="ta" style={{ color: '#000' }}>தமிழ்</option>
+    </select>
+  );
+}
+
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
@@ -207,6 +224,18 @@ export default function Footer() {
               </div>
             ))}
           </div>
+
+          {/* Resources Section — Company, Legal, Health Tools */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 20, paddingTop: 14 }}>
+            <h4 style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Resources</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px 24px' }}>
+              {resourceSections.map(s => (
+                <div key={s.key} className="ft-collapse">
+                  <CollapsibleSection section={s} defaultOpen={true} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -257,13 +286,7 @@ export default function Footer() {
                 ))}
               </div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '10px 0 6px', letterSpacing: 0.3 }}>Language</h4>
-              <select style={{ padding: '6px 10px', borderRadius: 6, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}>
-                <option value="en" style={{ color: '#000' }}>English</option>
-                <option value="hi" style={{ color: '#000' }}>हिन्दी</option>
-                <option value="te" style={{ color: '#000' }}>తెలుగు</option>
-                <option value="kn" style={{ color: '#000' }}>ಕನ್ನಡ</option>
-                <option value="ta" style={{ color: '#000' }}>தமிழ்</option>
-              </select>
+              <LanguageSelect />
             </div>
           </div>
         </div>

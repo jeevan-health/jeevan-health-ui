@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 import { vaccines, vaccineCategories } from '../data/vaccinationData';
 
 const ageOrder = ['Birth', '0-6 Weeks', '6 Weeks', '6 Weeks - 24 Months', '6 Weeks - 14 Weeks', '6 Months - 5 Years', '0-5 Years', '5-18 Years', '5-11 Years', '4-6 Years', '5-6 Years', '9-45 Years', '10-16 Years', '10+', '11+ Years', '15+', '18+', '18+ Years', '11+ Years', '18+ (High Risk)', '18+ (Healthcare)', '27-45 Years', '60+ Years', '65+ Years', 'All Ages'];
 
 export default function VaccineSchedule() {
+  const t = useT();
   const [expandedCat, setExpandedCat] = useState(null);
 
   const grouped = useMemo(() => {
@@ -22,23 +24,23 @@ export default function VaccineSchedule() {
     <div>
       <div style={{ background: 'linear-gradient(135deg, #0891b2 0%, #0891b2cc 100%)', padding: '28px 0 32px' }}>
         <div className="container">
-          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>← Back to Vaccination</Link>
+          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>{t('back.to.vaccination')}</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
             <span style={{ fontSize: 32 }}>📋</span>
             <div>
-              <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: 0 }}>Vaccination Schedule</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '2px 0 0' }}>Complete immunization schedule across all age groups — printable</p>
+              <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: 0 }}>{t('vaccination.schedule')}</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '2px 0 0' }}>{t('complete.schedule')}</p>
             </div>
           </div>
           <button onClick={handlePrint}
             style={{ marginTop: 12, padding: '10px 24px', borderRadius: 8, border: 'none', background: '#fff', color: '#0891b2', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            🖨️ Print / Save as PDF
+            {t('print.save')}
           </button>
         </div>
       </div>
 
       <div className="page-section container" style={{ paddingTop: 20 }}>
-        <p style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>Showing {vaccines.length} vaccines across {vaccineCategories.length} categories. Click a category to expand.</p>
+        <p style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>{t('showing.vaccines')}</p>
 
         {grouped.map(group => {
           const isExpanded = expandedCat === group.id;
@@ -61,14 +63,14 @@ export default function VaccineSchedule() {
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                     <thead>
                       <tr style={{ background: '#f8fafc' }}>
-                        <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Vaccine</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Disease</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Age</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Doses</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Schedule</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Price</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Availability</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Action</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('vaccine')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('disease')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('age.group')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('doses')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('schedule')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('price')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('availability')}</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{t('action')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -86,7 +88,7 @@ export default function VaccineSchedule() {
                             <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: v.availability === 'Home & Clinic' ? '#f0fdf4' : '#fef2f2', color: v.availability === 'Home & Clinic' ? '#15803d' : '#b91c1c', fontWeight: 600 }}>{v.availability === 'Home & Clinic' ? '🏠 Home' : '🏥 Clinic'}</span>
                           </td>
                           <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                            <Link to={`/vaccination/${v.slug}`} style={{ padding: '4px 10px', borderRadius: 4, background: group.color, color: '#fff', textDecoration: 'none', fontSize: 10, fontWeight: 600, display: 'inline-block' }}>View</Link>
+                            <Link to={`/vaccination/${v.slug}`} style={{ padding: '4px 10px', borderRadius: 4, background: group.color, color: '#fff', textDecoration: 'none', fontSize: 10, fontWeight: 600, display: 'inline-block' }}>{t('view')}</Link>
                           </td>
                         </tr>
                       ))}
@@ -113,3 +115,4 @@ export default function VaccineSchedule() {
     </div>
   );
 }
+

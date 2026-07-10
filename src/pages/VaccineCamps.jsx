@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n/LanguageProvider';
 
 const CAMP_KEY = 'jh_vaccination_camps';
 
 export default function VaccineCamps() {
+  const t = useT();
   const [camps, setCamps] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -49,44 +51,44 @@ export default function VaccineCamps() {
     <div>
       <div style={{ background: 'linear-gradient(135deg, #dc2626 0%, #dc2626cc 100%)', padding: '28px 0 32px' }}>
         <div className="container">
-          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>← Back to Vaccination</Link>
+          <Link to="/vaccination" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textDecoration: 'none', display: 'inline-block', marginBottom: 10 }}>{t('back.to.vaccination')}</Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
             <span style={{ fontSize: 32 }}>📍</span>
             <div>
-              <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: 0 }}>Vaccination Camps</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '2px 0 0' }}>Organize and register for vaccination camps in your area</p>
+              <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: 0 }}>{t('vaccination.camps')}</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '2px 0 0' }}>{t('organize.camp')}</p>
             </div>
           </div>
           <button onClick={() => setShowForm(true)}
-            style={{ marginTop: 12, padding: '10px 24px', borderRadius: 8, border: 'none', background: '#fff', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ Organize Camp</button>
+            style={{ marginTop: 12, padding: '10px 24px', borderRadius: 8, border: 'none', background: '#fff', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ {t('organize.camp.short', 'Organize Camp')}</button>
         </div>
       </div>
 
       <div className="page-section container" style={{ paddingTop: 20 }}>
         {showForm && (
           <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', marginBottom: 16, maxWidth: 600 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', color: '#0f172a' }}>Register a Vaccination Camp</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', color: '#0f172a' }}>{t('register.camp')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 14px' }}>
-              <Field label="Camp Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
-              <Field label="Organizer" value={form.organizer} onChange={v => setForm(f => ({ ...f, organizer: v }))} />
-              <Field label="Date *" type="date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} />
-              <Field label="Time" type="time" value={form.time} onChange={v => setForm(f => ({ ...f, time: v }))} />
-              <Field label="Venue *" value={form.venue} onChange={v => setForm(f => ({ ...f, venue: v }))} placeholder="Auditorium, school, etc." />
-              <Field label="City" value={form.city} onChange={v => setForm(f => ({ ...f, city: v }))} />
-              <Field label="Vaccines Offered" value={form.vaccines} onChange={v => setForm(f => ({ ...f, vaccines: v }))} placeholder="e.g. Flu, COVID, Typhoid" />
-              <Field label="Capacity" type="number" value={form.capacity} onChange={v => setForm(f => ({ ...f, capacity: Number(v) }))} />
+              <Field label={t('camp.name', 'Camp Name') + ' *'} value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
+              <Field label={t('organizer', 'Organizer')} value={form.organizer} onChange={v => setForm(f => ({ ...f, organizer: v }))} />
+              <Field label={t('date', 'Date') + ' *'} type="date" value={form.date} onChange={v => setForm(f => ({ ...f, date: v }))} />
+              <Field label={t('time', 'Time')} type="time" value={form.time} onChange={v => setForm(f => ({ ...f, time: v }))} />
+              <Field label={t('venue', 'Venue') + ' *'} value={form.venue} onChange={v => setForm(f => ({ ...f, venue: v }))} placeholder={t('venue.placeholder', 'Auditorium, school, etc.')} />
+              <Field label={t('city', 'City')} value={form.city} onChange={v => setForm(f => ({ ...f, city: v }))} />
+              <Field label={t('vaccines.offered', 'Vaccines Offered')} value={form.vaccines} onChange={v => setForm(f => ({ ...f, vaccines: v }))} placeholder={t('vaccines.offered.placeholder', 'e.g. Flu, COVID, Typhoid')} />
+              <Field label={t('capacity', 'Capacity')} type="number" value={form.capacity} onChange={v => setForm(f => ({ ...f, capacity: Number(v) }))} />
               <div style={{ gridColumn: '1 / -1' }}>
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>Description</label>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>{t('description', 'Description')}</label>
                   <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} placeholder="Additional details..."
                     style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
                 </div>
               </div>
-              <Field label="Contact Number" value={form.contact} onChange={v => setForm(f => ({ ...f, contact: v }))} placeholder="Phone number" />
+              <Field label={t('contact.number', 'Contact Number')} value={form.contact} onChange={v => setForm(f => ({ ...f, contact: v }))} placeholder={t('phone.number', 'Phone number')} />
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-              <button onClick={registerCamp} style={{ padding: '8px 24px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Register Camp</button>
-              <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>Cancel</button>
+              <button onClick={registerCamp} style={{ padding: '8px 24px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{t('register.camp')}</button>
+              <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>{t('cancel', 'Cancel')}</button>
             </div>
           </div>
         )}
@@ -94,8 +96,8 @@ export default function VaccineCamps() {
         {camps.length === 0 && !showForm ? (
           <div style={{ textAlign: 'center', padding: 40, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff' }}>
             <div style={{ fontSize: 48, marginBottom: 8 }}>📍</div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 6px', color: '#0f172a' }}>No Vaccination Camps</h3>
-            <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Organize a camp or check back later for camps in your area.</p>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 6px', color: '#0f172a' }}>{t('no.camps')}</h3>
+            <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('no.camps.desc', 'Organize a camp or check back later for camps in your area.')}</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gap: 12 }}>
@@ -123,7 +125,7 @@ export default function VaccineCamps() {
                       Mark {camp.status === 'Upcoming' ? 'Ongoing' : camp.status === 'Ongoing' ? 'Completed' : 'Upcoming'}
                     </button>
                     <button onClick={() => deleteCamp(camp.id)}
-                      style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#fee2e2', color: '#dc2626', cursor: 'pointer', fontSize: 10, fontWeight: 600, fontFamily: 'inherit' }}>Delete</button>
+                      style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#fee2e2', color: '#dc2626', cursor: 'pointer', fontSize: 10, fontWeight: 600, fontFamily: 'inherit' }}>{t('delete', 'Delete')}</button>
                   </div>
                 </div>
               </div>
@@ -134,3 +136,4 @@ export default function VaccineCamps() {
     </div>
   );
 }
+
