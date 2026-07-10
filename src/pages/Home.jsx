@@ -6,6 +6,7 @@ import { seedTests } from '../data/seedData';
 import { packageList } from '../data/healthPackages';
 import SmartSearch from '../components/layout/SmartSearch';
 import useCmsStore from '../stores/cmsStore';
+import { nursingCategories, nurses, nursingServices } from '../data/nursingData';
 
 export default function Home() {
   const t = useT();
@@ -22,6 +23,7 @@ export default function Home() {
       <PopularTests popular={popular} />
       <CategoriesSection />
       <PackagesSection pkgs={pkgs} featured={featured} />
+      <NurseAtHomeSection />
       <WhyChooseJeevan />
       <HowItWorks />
       <StatsSection />
@@ -776,6 +778,62 @@ function FaqSection() {
               <p style={{ padding: '0 16px 12px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{faq.answer || faq.a}</p>
             </details>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NurseAtHomeSection() {
+  const t = useT();
+  const cats = nursingCategories.filter(c => ['wound-care', 'injections', 'elderly-care', 'bedside', 'mother-baby'].includes(c.id));
+  const nCount = nurses.length;
+  const sCount = nursingServices.length;
+  return (
+    <div className="page-section" style={{ background: 'linear-gradient(180deg, #EBF5F0 0%, #ffffff 100%)', overflow: 'hidden' }}>
+      <div className="container">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 4 }}>
+          <span style={{ fontSize: 26 }}>👩‍⚕️</span>
+          <h2 className="section-title" style={{ margin: 0, fontSize: 22 }}>{t('home.nurseAtHome.title', 'Nurse at Home — Professional Care at Your Doorstep')}</h2>
+        </div>
+        <p className="section-subtitle text-center">{t('home.nurseAtHome.subtitle', 'Skilled nurses for wound care, injections, elderly support, ICU at home & more. Same-day service across Hyderabad.')}</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+          {[
+            { icon: '👩‍⚕️', label: nCount + '+ Nurses' },
+            { icon: '🩺', label: sCount + '+ Services' },
+            { icon: '🏠', label: 'Same-day Availability' },
+            { icon: '⭐', label: '4.8\u2605 Rating' },
+          ].map(s => (
+            <span key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#0D9488', background: 'rgba(13,148,136,0.08)', padding: '5px 12px', borderRadius: 20 }}>
+              {s.icon} {s.label}
+            </span>
+          ))}
+        </div>
+        <div className="nh-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+          {cats.map(c => (
+            <Link key={c.id} to={`/nurse-at-home/book?cat=${c.slug}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: '#fff', borderRadius: 16, padding: '18px 12px', textAlign: 'center', border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                className="nh-cat-card">
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{c.icon}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>{t(`nurse.cat.${c.id}`, c.name)}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.3 }}>{c.services.slice(0, 3).join(' · ')}</div>
+              </div>
+            </Link>
+          ))}
+          <Link to="/nurse-at-home" style={{ textDecoration: 'none' }}>
+            <div style={{ background: 'linear-gradient(135deg, #0D9488, #14B8A6)', borderRadius: 16, padding: '18px 12px', textAlign: 'center', boxShadow: '0 4px 16px rgba(13,148,136,0.2)', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span style={{ fontSize: 28 }}>📋</span>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{t('home.nurseAtHome.viewAll', 'View All Services')}</div>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>→</span>
+            </div>
+          </Link>
+        </div>
+        <div className="nh-cta" style={{ textAlign: 'center', marginTop: 24, padding: '22px', background: 'linear-gradient(135deg, #0D9488, #0F766E)', borderRadius: 16, color: '#fff' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>{t('home.nurseAtHome.cta.title', 'Need a Nurse at Home? Book in 2 Minutes')}</h3>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/nurse-at-home/book" className="btn btn-lg" style={{ background: '#F59E0B', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13, fontWeight: 700, borderRadius: 10 }}>{t('home.nurseAtHome.cta.book', '📅 Book a Nurse')}</Link>
+            <a href="tel:+919700104108" className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, fontWeight: 600, borderRadius: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>📞 {t('home.nurseAtHome.cta.call', 'Call Care Manager')}</a>
+          </div>
         </div>
       </div>
     </div>
