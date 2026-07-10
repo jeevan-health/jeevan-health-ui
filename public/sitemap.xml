@@ -46,6 +46,11 @@
   <url><loc>https://jeevanhealthcare.com/service/physiotherapy/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/service/vaccination/in/hyderabad</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/service/medical-equipment/in/hyderabad</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/begumpet</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/attapur</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/kompally</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/nallagandla</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/service/blood-test/in/chanda-nagar</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/disease/diabetes</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/disease/thyroid</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/disease/hypertension</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
@@ -64,4 +69,13 @@
   <url><loc>https://jeevanhealthcare.com/test-info/vitamin-b12-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/test-info/iron-studies-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://jeevanhealthcare.com/test-info/allergy-panel-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/crp-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/esr-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/prolactin-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/d-dimer-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/test-info/psa-test</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/asthma</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/pcos</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/gout</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://jeevanhealthcare.com/disease/osteoporosis</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 </urlset>
