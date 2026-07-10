@@ -460,7 +460,11 @@ export default {
 
     try {
       if (isStaticAsset(pathname) || pathname === '/robots.txt' || pathname === '/sitemap.xml') {
-        return env.ASSETS.fetch(request);
+        const assetResp = await env.ASSETS.fetch(request);
+        if (assetResp.status === 404) {
+          return new Response('Not Found', { status: 404, headers: { 'content-type': 'text/plain' } });
+        }
+        return assetResp;
       }
 
       const indexResp = await env.ASSETS.fetch(new URL('/index.html', url));
