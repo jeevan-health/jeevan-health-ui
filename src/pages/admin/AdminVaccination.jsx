@@ -1,8 +1,23 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import { vaccineCategories as defaultCategories, vaccines as defaultVaccines } from '../../data/vaccinationData';
 
-const STORAGE_KEY = 'jeevan_vaccinationAdmin';
+const BOOKINGS_KEY = 'jh_vaccination_bookings';
+const CAMPAIGNS_KEY = 'jh_vaccine_marketing_campaigns';
+const LEADS_KEY = 'jh_vaccination_leads';
+
+const BOOKING_STATUSES = ['Confirmed', 'Pending', 'Quick Request', 'Completed', 'Cancelled', 'Rescheduled'];
+const LEAD_STAGES = ['new', 'contacted', 'qualified', 'converted', 'lost'];
+
+const CAMPAIGN_TEMPLATES = [
+  { id: 'new-parents', icon: '👶', label: 'New Parents', message: 'Protect your baby with our at-home vaccination service. Complete immunization schedule from the comfort of your home. Book now!' },
+  { id: 'seniors', icon: '👴', label: 'Senior Citizens', message: 'Stay protected this season. Flu, Pneumonia & Shingles vaccines at home. Specially priced packages for senior citizens.' },
+  { id: 'travellers', icon: '✈️', label: 'Travellers', message: 'Planning travel? Get all required vaccines at home — Haji/Umrah, International travel, and more. Book your travel vaccination package.' },
+  { id: 'corporate', icon: '🏢', label: 'Corporate', message: 'On-site vaccination camp for your employees. Boost immunity, reduce absenteeism. Corporate packages starting at ₹299/person.' },
+  { id: 'general', icon: '📱', label: 'General', message: 'Vaccination at home. Certified nurses, safe storage, digital records. Book your appointment today!' },
+];
+
+const WA_PHONE = '919700104108';
 
 const emptyVaccine = {
   id: 0, slug: '', category: 'baby', name: '', brand: '', manufacturer: '', disease: '',
@@ -62,17 +77,72 @@ export default function AdminVaccination() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [search, setSearch] = useState('');
   const [catSearch, setCatSearch] = useState('');
+  const [campaigns, setCampaigns] = useState([]);
+  const [leads, setLeads] = useState([]);
+  const [leadFilter, setLeadFilter] = useState('all');
+  const [leadSearch, setLeadSearch] = useState('');
+  const [campaignSearch, setCampaignSearch] = useState('');
+  const [campaignForm, setCampaignForm] = useState({ name: '', segment: 'general', message: '' });
+  const [showCampaignForm, setShowCampaignForm] = useState(false);
+  const [editingCampaignId, setEditingCampaignId] = useState(null);
 
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const savedCampaigns = JSON.parse(localStorage.getItem(CAMPAIGNS_KEY) || '[]');
+      setCampaigns(savedCampaigns);
+      const savedBookings = JSON.parse(localStorage.getItem(BOOKINGS_KEY) || '[]');
       setData({
         vaccines: saved.vaccines || defaultVaccines,
         categories: saved.categories || defaultCategories,
-        bookings: saved.bookings || [],
+        bookings: savedBookings,
       });
+      setLeads(JSON.parse(localStorage.getItem(LEADS_KEY) || '[]'));
     } catch { setData({ vaccines: defaultVaccines, categories: defaultCategories, bookings: [] }); }
   }, []);
+
+  const saveCampaigns = (updated) => {
+    setCampaigns(updated);
+    localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(updated));
+  };
+
+  const saveLeads = (updated) => {
+    setLeads(updated);
+    localStorage.setItem(LEADS_KEY, JSON.stringify(updated));
+  };
+
+  const saveBookings = (updated) => {
+    setData(d => ({ ...d, bookings: updated }));
+    localStorage.setItem(BOOKINGS_KEY, JSON.stringify(updated));
+  };
+
+  const updateBookingStatus = (id, newStatus) => {
+    const updated = data.bookings.map(b => b.id === id ? { ...b, status: newStatus } : b);
+    saveBookings(updated);
+  };
+
+  const updateLeadStage = (id, stage) => {
+    saveLeads(leads.map(l => l.id === id ? { ...l, stage, updatedAt: new Date().toISOString() } : l));
+  };
+
+  const deleteLead = (id) => {
+    if (!confirm('Delete this lead?')) return;
+    saveLeads(leads.filter(l => l.id !== id));
+  };
+
+  const filteredLeads = useMemo(() => {
+    const q = leadSearch.toLowerCase();
+    return leads.filter(l => {
+      const matchesSearch = l.name?.toLowerCase().includes(q) || l.phone?.includes(q) || l.email?.toLowerCase().includes(q);
+      const matchesStage = leadFilter === 'all' || l.stage === leadFilter;
+      return matchesSearch && matchesStage;
+    }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  }, [leads, leadSearch, leadFilter]);
+
+  const filteredCampaigns = useMemo(() => {
+    const q = campaignSearch.toLowerCase();
+    return campaigns.filter(c => c.name?.toLowerCase().includes(q));
+  }, [campaigns, campaignSearch]);
 
   const persist = (key, val) => {
     const next = { ...data, [key]: val };
@@ -174,6 +244,47 @@ export default function AdminVaccination() {
     persist('categories', data.categories.filter(c => c.id !== id));
   };
 
+  const resetCampaignForm = () => {
+    setCampaignForm({ name: '', segment: 'general', message: '' });
+    setEditingCampaignId(null);
+  };
+
+  const saveCampaign = () => {
+    if (!campaignForm.name.trim()) return;
+    const now = new Date().toISOString();
+    const template = CAMPAIGN_TEMPLATES.find(t => t.id === campaignForm.segment) || CAMPAIGN_TEMPLATES[4];
+    if (editingCampaignId) {
+      saveCampaigns(campaigns.map(c => c.id === editingCampaignId ? { ...c, ...campaignForm, message: campaignForm.message || template.message, updatedAt: now } : c));
+    } else {
+      saveCampaigns([...campaigns, {
+        id: 'v_' + Date.now(),
+        name: campaignForm.name,
+        targetSegment: campaignForm.segment,
+        message: campaignForm.message || template.message,
+        status: 'draft',
+        sentCount: 0, openedCount: 0, convertedCount: 0,
+        createdAt: now,
+      }]);
+    }
+    setShowCampaignForm(false);
+    resetCampaignForm();
+  };
+
+  const deleteCampaign = (id) => {
+    if (!confirm('Delete this campaign?')) return;
+    saveCampaigns(campaigns.filter(c => c.id !== id));
+  };
+
+  const launchCampaign = (camp) => {
+    const updated = campaigns.map(c => c.id === camp.id ? { ...c, sentCount: c.sentCount + 1, status: c.status === 'draft' ? 'active' : c.status } : c);
+    saveCampaigns(updated);
+    window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(camp.message)}`, '_blank');
+  };
+
+  const markCampaignComplete = (id) => {
+    saveCampaigns(campaigns.map(c => c.id === id ? { ...c, status: 'completed' } : c));
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
@@ -184,7 +295,9 @@ export default function AdminVaccination() {
             { id: 'analytics', label: t('analytics') },
             { id: 'vaccines', label: t('vaccine.master') },
             { id: 'categories', label: t('categories') },
-            { id: 'bookings', label: t('bookings') },
+            { id: 'bookings', label: `${t('bookings')} (${data.bookings.length})` },
+            { id: 'leads', label: `${t('leads', 'Leads')} (${leads.length})` },
+            { id: 'campaigns', label: `${t('campaigns', 'Campaigns')} (${campaigns.length})` },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: activeTab === tab.id ? '#1866C9' : '#e8edf2', color: activeTab === tab.id ? '#fff' : '#475569', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
@@ -562,19 +675,174 @@ export default function AdminVaccination() {
         </div>
       )}
 
-      {/* BOOKINGS */}
-      {activeTab === 'bookings' && (
+      {/* LEADS */}
+      {activeTab === 'leads' && (
         <div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input value={leadSearch} onChange={e => setLeadSearch(e.target.value)} placeholder={t('search.leads', 'Search by name, phone, email...')}
+              style={{ flex: 1, minWidth: 200, padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none' }} />
+            {['all', ...LEAD_STAGES].map(stage => (
+              <button key={stage} onClick={() => setLeadFilter(stage)}
+                style={{ padding: '5px 12px', borderRadius: 12, border: 'none', background: leadFilter === stage ? '#1866C9' : '#f1f5f9', color: leadFilter === stage ? '#fff' : '#475569', cursor: 'pointer', fontSize: 10, fontWeight: 600, fontFamily: 'inherit' }}>
+                {stage === 'all' ? t('all', 'All') : stage}
+              </button>
+            ))}
+            <span style={{ fontSize: 11, color: '#64748b', marginLeft: 'auto' }}>{t('total', 'Total')}: {leads.length}</span>
+          </div>
           <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e2e8f0' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 700 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                   <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('booking.id', 'Booking ID')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('name', 'Name')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('contact', 'Contact')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('interest', 'Interest')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('date', 'Date')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('stage', 'Stage')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('actions', 'Actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLeads.length === 0 && (
+                  <tr><td colSpan={6} style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('no.leads', 'No leads yet.')}</td></tr>
+                )}
+                {filteredLeads.map(l => (
+                  <tr key={l.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '8px 10px', fontWeight: 600, color: '#0f172a' }}>{l.name}</td>
+                    <td style={{ padding: '8px 10px', color: '#475569' }}>
+                      <div>{l.phone}</div>
+                      {l.email && <div style={{ fontSize: 9, color: '#94a3b8' }}>{l.email}</div>}
+                    </td>
+                    <td style={{ padding: '8px 10px', color: '#64748b' }}>{l.interest || l.vaccineName || '-'}</td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b', fontSize: 10 }}>
+                      {l.createdAt ? new Date(l.createdAt).toLocaleDateString() : '-'}
+                    </td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      <select value={l.stage || 'new'} onChange={e => updateLeadStage(l.id, e.target.value)}
+                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #d0d5dd', fontSize: 10, fontFamily: 'inherit', background: '#fff', outline: 'none', fontWeight: 600,
+                          color: l.stage === 'converted' ? '#166534' : l.stage === 'lost' ? '#dc2626' : l.stage === 'contacted' ? '#d97706' : '#475569' }}>
+                        {LEAD_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </td>
+                    <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                      <button onClick={() => { const msg = `Hi ${l.name}, this is Jeevan Health. You had shown interest in ${l.interest || 'vaccination'}. Can we help you book?`; window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`, '_blank') }}
+                        style={{ padding: '4px 10px', borderRadius: 4, border: 'none', background: '#25d366', color: '#fff', fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', marginRight: 4 }}>
+                        💬 WA
+                      </button>
+                      <ActionBtn label={t('delete', 'Del')} onClick={() => deleteLead(l.id)} color="#dc2626" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* CAMPAIGNS */}
+      {activeTab === 'campaigns' && !showCampaignForm && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, gap: 8, flexWrap: 'wrap' }}>
+            <input value={campaignSearch} onChange={e => setCampaignSearch(e.target.value)} placeholder={t('search.campaigns', 'Search campaigns...')}
+              style={{ flex: 1, minWidth: 200, padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none' }} />
+            <button onClick={() => { resetCampaignForm(); setShowCampaignForm(true); }}
+              style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1866C9', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ {t('add.campaign', 'Add Campaign')}</button>
+          </div>
+          {campaigns.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }}>
+              {[
+                { label: t('total', 'Total'), value: campaigns.length, color: '#1866C9' },
+                { label: t('active', 'Active'), value: campaigns.filter(c => c.status === 'active').length, color: '#059669' },
+                { label: t('sent', 'Sent'), value: campaigns.reduce((a, c) => a + c.sentCount, 0), color: '#0D9488' },
+                { label: t('converted', 'Converted'), value: campaigns.reduce((a, c) => a + c.convertedCount, 0), color: '#7C3AED' },
+              ].map(s => (
+                <div key={s.label} style={{ padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', textAlign: 'center' }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'grid', gap: 10 }}>
+            {filteredCampaigns.length === 0 && (
+              <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', padding: 24 }}>{t('no.campaigns', 'No campaigns yet.')}</p>
+            )}
+            {filteredCampaigns.map(c => {
+              const tmpl = CAMPAIGN_TEMPLATES.find(t => t.id === c.targetSegment) || CAMPAIGN_TEMPLATES[4];
+              const badge = c.status === 'active' ? { bg: '#dcfce7', text: '#166534' } : c.status === 'completed' ? { bg: '#dbeafe', text: '#1e40af' } : { bg: '#f1f5f9', text: '#475569' };
+              return (
+                <div key={c.id} style={{ padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                    <div>
+                      <span style={{ fontSize: 18, marginRight: 6 }}>{tmpl.icon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{c.name}</span>
+                    </div>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: badge.bg, color: badge.text }}>{c.status}</span>
+                  </div>
+                  <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 6px', lineHeight: 1.4 }}>{c.message}</p>
+                  <div style={{ display: 'flex', gap: 12, fontSize: 10, color: '#94a3b8', marginBottom: 8 }}>
+                    <span>📤 {c.sentCount} sent</span>
+                    <span>📊 {c.openedCount || 0} opened</span>
+                    <span>✅ {c.convertedCount || 0} converted</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <ActionBtn label="🚀 Launch" onClick={() => launchCampaign(c)} color="#059669" />
+                    {c.status !== 'completed' && <ActionBtn label={t('complete')} onClick={() => markCampaignComplete(c.id)} color="#2563eb" />}
+                    <ActionBtn label={t('edit')} onClick={() => { setCampaignForm({ name: c.name, segment: c.targetSegment, message: c.message }); setEditingCampaignId(c.id); setShowCampaignForm(true); }} />
+                    <ActionBtn label={t('delete')} onClick={() => deleteCampaign(c.id)} color="#dc2626" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* CAMPAIGN FORM */}
+      {activeTab === 'campaigns' && showCampaignForm && (
+        <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', maxWidth: 500 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px' }}>{editingCampaignId ? t('edit') : t('add')} {t('campaign')}</h3>
+          <Field label={t('campaign.name', 'Campaign Name')} value={campaignForm.name} onChange={v => setCampaignForm(f => ({ ...f, name: v }))} />
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>{t('target.segment', 'Target Segment')}</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {CAMPAIGN_TEMPLATES.map(t => (
+                <button key={t.id} onClick={() => setCampaignForm(f => ({ ...f, segment: t.id, message: t.message }))}
+                  style={{ padding: '6px 12px', borderRadius: 8, border: campaignForm.segment === t.id ? '2px solid #1866C9' : '1px solid #e2e8f0', background: campaignForm.segment === t.id ? '#eff6ff' : '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11 }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 3 }}>{t('message', 'Message')}</label>
+            <textarea value={campaignForm.message} onChange={e => setCampaignForm(f => ({ ...f, message: e.target.value }))} rows={4}
+              style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 12, fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={saveCampaign}
+              style={{ padding: '8px 24px', borderRadius: 6, border: 'none', background: '#1866C9', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{editingCampaignId ? t('update') : t('save')}</button>
+            <button onClick={() => { setShowCampaignForm(false); resetCampaignForm(); }}
+              style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #d0d5dd', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>{t('cancel')}</button>
+          </div>
+        </div>
+      )}
+
+      {/* BOOKINGS */}
+      {activeTab === 'bookings' && (
+        <div>
+          <div style={{ marginBottom: 12, fontSize: 12, color: '#64748b' }}>
+            {t('total.bookings', 'Total')}: {bookings.length} | {t('confirmed', 'Confirmed')}: {bookings.filter(b => b.status === 'Confirmed').length} | {t('pending', 'Pending')}: {bookings.filter(b => b.status === 'Pending').length}
+          </div>
+          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 750 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('booking.id', 'ID')}</th>
                   <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('patient', 'Patient')}</th>
                   <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569' }}>{t('vaccine')}</th>
                   <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('date', 'Date')}</th>
                   <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('amount', 'Amount')}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('status', 'Status')}</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 600, color: '#475569' }}>{t('status', 'Status')} *</th>
                 </tr>
               </thead>
               <tbody>
@@ -584,14 +852,19 @@ export default function AdminVaccination() {
                 {bookings.slice().reverse().map(b => (
                   <tr key={b.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                     <td style={{ padding: '8px 10px', fontWeight: 600, fontSize: 10, color: '#1866C9' }}>{b.id}</td>
-                    <td style={{ padding: '8px 10px', fontWeight: 600, color: '#0f172a' }}>{b.patientName || b.name || '-'}</td>
+                    <td style={{ padding: '8px 10px', fontWeight: 600, color: '#0f172a' }}>
+                      {b.patientName || b.name || '-'}
+                      <div style={{ fontSize: 9, color: '#94a3b8' }}>{b.patientMobile || ''}</div>
+                    </td>
                     <td style={{ padding: '8px 10px', color: '#475569' }}>{b.vaccineName || b.vaccine || '-'}</td>
                     <td style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b' }}>{b.appointmentDate || b.date || '-'}</td>
                     <td style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: '#059669' }}>₹{b.vaccinePrice || 0}</td>
                     <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                        background: b.status === 'Confirmed' ? '#dcfce7' : b.status === 'Quick Request' ? '#fef3c7' : '#f1f5f9',
-                        color: b.status === 'Confirmed' ? '#166534' : b.status === 'Quick Request' ? '#92400e' : '#475569' }}>{b.status}</span>
+                      <select value={b.status || 'Pending'} onChange={e => updateBookingStatus(b.id, e.target.value)}
+                        style={{ padding: '4px 6px', borderRadius: 4, border: '1px solid #d0d5dd', fontSize: 10, fontFamily: 'inherit', background: '#fff', outline: 'none', fontWeight: 600,
+                          color: b.status === 'Confirmed' ? '#166534' : b.status === 'Quick Request' ? '#92400e' : b.status === 'Completed' ? '#1e40af' : b.status === 'Cancelled' ? '#dc2626' : '#475569' }}>
+                        {BOOKING_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
                     </td>
                   </tr>
                 ))}
