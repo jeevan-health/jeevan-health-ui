@@ -11,6 +11,7 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const isDiagnostics = location.pathname === '/diagnostics' || location.pathname.startsWith('/test/') || location.pathname.startsWith('/tests/') || location.pathname.startsWith('/health-packages') || location.pathname.startsWith('/package/');
   const count = useCartStore(s => s.getCount());
   const setCartOpen = useCartStore(s => s.setCartOpen);
 
@@ -24,9 +25,9 @@ export default function Header() {
           <img src="/logo.png" alt={t('header.logoAlt', 'Jeevan HealthCare at Home')} />
         </Link>
 
-        <div className="hdr-search-wrap">
+        {!isDiagnostics && <div className="hdr-search-wrap">
           <SmartSearch placeholder={t('header.searchPlaceholder', '🔍 Search tests, packages, doctors, medicines...')} />
-        </div>
+        </div>}
 
         <div className="hdr-right">
           <a href="tel:+919700104108" className="hdr-btn hdr-call" title={t('header.callTitle', 'Call us')}>
@@ -70,9 +71,9 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="hdr-mobile-search">
+      {!isDiagnostics && <div className="hdr-mobile-search">
         <SmartSearch placeholder={t('header.searchPlaceholder', '🔍 Search tests, packages, doctors, medicines...')} />
-      </div>
+      </div>}
 
       <style>{`
         .site-header {
