@@ -318,9 +318,9 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         )}
 
         {/* When to Consult Doctor */}
-        <Section title="WHEN TO CONSULT DOCTOR" icon={Phone} color="#c62828">
+        <Section title={t('tdm.whenConsultDoctor', 'WHEN TO CONSULT DOCTOR')} icon={Phone} color="#c62828">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
-            {['Test result is above or below normal range', 'Symptoms of the condition are present', 'Sudden fatigue or unexplained weight changes', 'Need help interpreting your report'].map((item, i) => (
+            {[t('tdm.consult1', 'Test result is above or below normal range'), t('tdm.consult2', 'Symptoms of the condition are present'), t('tdm.consult3', 'Sudden fatigue or unexplained weight changes'), t('tdm.consult4', 'Need help interpreting your report')].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                 <span style={{ color: '#c62828', fontWeight: 700, flexShrink: 0 }}>→</span>
                 <span style={{ color: 'var(--text-body)' }}>{item}</span>
@@ -330,9 +330,9 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         </Section>
 
         {/* Safety & Risks */}
-        <Section title="SAFETY & RISKS" icon={Shield} color="#1866C9">
+        <Section title={t('tdm.safetyRisks', 'SAFETY & RISKS')} icon={Shield} color="#1866C9">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
-            {['Minimal pain during blood draw', 'Rare bruising at puncture site', 'Extremely safe procedure'].map((item, i) => (
+            {[t('tdm.safety1', 'Minimal pain during blood draw'), t('tdm.safety2', 'Rare bruising at puncture site'), t('tdm.safety3', 'Extremely safe procedure')].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ color: '#1866C9', fontWeight: 700 }}>✓</span>
                 <span style={{ color: 'var(--text-body)' }}>{item}</span>
@@ -342,9 +342,9 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
         </Section>
 
         {/* Lifestyle Guidance (generic) */}
-        <Section title="LIFESTYLE GUIDANCE" icon={Heart} color="#2e7d32">
+        <Section title={t('tdm.lifestyleGuidance', 'LIFESTYLE GUIDANCE')} icon={Heart} color="#2e7d32">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 13 }}>
-            {['Balanced low-sugar diet', 'Regular exercise (30 min daily)', 'Stress control and meditation', 'Proper sleep cycle (7-8 hours)', 'Regular health checkups', 'Stay hydrated'].map((item, i) => (
+            {[t('tdm.lifestyle1', 'Balanced low-sugar diet'), t('tdm.lifestyle2', 'Regular exercise (30 min daily)'), t('tdm.lifestyle3', 'Stress control and meditation'), t('tdm.lifestyle4', 'Proper sleep cycle (7-8 hours)'), t('tdm.lifestyle5', 'Regular health checkups'), t('tdm.lifestyle6', 'Stay hydrated')].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2e7d32', flexShrink: 0 }} />
                 <span style={{ color: 'var(--text-body)' }}>{item}</span>
@@ -355,7 +355,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
 
         {/* FAQ Accordion */}
         {education.length > 0 && (
-          <Section title={isPackage ? "HEALTH PACKAGE FAQ" : "FREQUENTLY ASKED QUESTIONS"} icon={FileText} color={isPackage ? "#1866C9" : "#7b1fa2"}>
+          <Section title={isPackage ? t('tdm.healthPackageFaq', 'HEALTH PACKAGE FAQ') : t('tdm.faq', 'FREQUENTLY ASKED QUESTIONS')} icon={FileText} color={isPackage ? "#1866C9" : "#7b1fa2"}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {education.map((section, si) => {
                 const Icon = iconMap[section.icon] || Info;
@@ -374,7 +374,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
                       <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Icon size={16} weight="fill" color={section.color} />
                         {section.title}
-                        <span style={{ fontSize: 10, color: 'var(--text-light)', fontWeight: 400 }}>({section.items.length} questions)</span>
+                        <span style={{ fontSize: 10, color: 'var(--text-light)', fontWeight: 400 }}>({section.items.length} {t('tdm.questions', 'questions')})</span>
                       </span>
                       <CaretDown size={14} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
                     </button>
@@ -403,7 +403,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
               background: 'linear-gradient(135deg, #FF8A00, #FF4D6D)', color: '#fff',
               border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             }}>
-            {isPackage ? 'Book This Package' : 'Book This Test'} — ₹{test.offerPrice || test.price}
+            {isPackage ? t('tdm.bookPackage', 'Book This Package') : t('tdm.bookTest', 'Book This Test')} — ₹{test.offerPrice || test.price}
           </button>
           <button onClick={onClose}
             style={{
@@ -411,7 +411,7 @@ const TestDetailModal = ({ test, onClose, combo, addComboToCart, alsoBooked = []
               background: '#fff', color: '#1866C9', border: '1px solid #1866C9',
               cursor: 'pointer', fontFamily: 'inherit',
             }}>
-            Talk to a Doctor
+            {t('tdm.talkToDoctor', 'Talk to a Doctor')}
           </button>
         </div>
       </div>

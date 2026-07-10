@@ -105,8 +105,8 @@ export default function AdminLayout() {
             </div>
             {!collapsed && (
               <div style={{ fontSize: 12, overflow: 'hidden' }}>
-                <div style={{ fontWeight: 600, color: '#1e293b' }}>{user?.name || 'Admin'}</div>
-                <div style={{ color: '#94a3b8', fontSize: 10, textTransform: 'capitalize' }}>{user?.role || 'admin'}</div>
+                <div style={{ fontWeight: 600, color: '#1e293b' }}>{user?.name || t('admin.layout.adminName', 'Admin')}</div>
+                <div style={{ color: '#94a3b8', fontSize: 10, textTransform: 'capitalize' }}>{user?.role || t('admin.layout.adminRole', 'admin')}</div>
               </div>
             )}
           </div>
@@ -134,7 +134,7 @@ export default function AdminLayout() {
           justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10,
         }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>
-            {getLabel(NAV_ITEMS.find(i => isActive(i)) || NAV_ITEMS[0]) || 'Admin'}
+            {getLabel(NAV_ITEMS.find(i => isActive(i)) || NAV_ITEMS[0]) || t('admin.layout.adminTitle', 'Admin')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: '#64748b' }}>
             <Link to="/" style={{ color: '#1866C9', textDecoration: 'none' }}>{t('admin.layout.back_to_site', '← Back to Site')}</Link>

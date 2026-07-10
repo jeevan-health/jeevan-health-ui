@@ -138,7 +138,7 @@ export default function AdminTestMaster() {
     data.preparation_instructions = data.preparation;
     data.fasting_required = data.fastingRequired;
     data.report_time = data.reportTime;
-    if (!data.name) { alert('${t('admin.test_master.name_required', 'Test name is required')}'); return; }
+    if (!data.name) { alert(t('admin.test_master.name_required', 'Test name is required')); return; }
     persist(id, data);
     setShowForm(false);
     setEditingId(null);
@@ -152,7 +152,7 @@ export default function AdminTestMaster() {
   };
 
   const handleDelete = (id) => {
-    if (!confirm('${t('admin.test_master.delete_confirm', 'Delete this test?')}')) return;
+    if (!confirm(t('admin.test_master.delete_confirm', 'Delete this test?'))) return;
     const next = { ...extendedData };
     delete next[id];
     setExtendedData(next);

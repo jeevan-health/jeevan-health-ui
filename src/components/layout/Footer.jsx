@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useContext } from 'react';
 import useUploadModal from '../../stores/uploadModalStore';
 import { vaccineCategories } from '../../data/vaccinationData';
-import { LanguageContext } from '../../i18n/LanguageProvider';
+import { LanguageContext, useT } from '../../i18n/LanguageProvider';
 
 const socialLinks = [
   { label: 'Facebook', url: 'https://facebook.com/jeevanhealthcare', icon: 'f' },
@@ -164,6 +164,7 @@ function LanguageSelect() {
 }
 
 export default function Footer() {
+  const t = useT();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -172,16 +173,16 @@ export default function Footer() {
       {/* ===== PRE-FOOTER CTA ===== */}
       <div style={{ background: 'linear-gradient(135deg, #1866C9 0%, #00D9FF 100%)', padding: '40px 16px', textAlign: 'center' }}>
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Ready to Book Your Health Checkup?</h2>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', marginBottom: 6 }}>{t('footer.ctaHeading', 'Ready to Book Your Health Checkup?')}</h2>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 16 }}>
-            Book Lab Tests · Home Collection · Doctor Consultation · Digital Reports
+            {t('footer.ctaSubtitle', 'Book Lab Tests · Home Collection · Doctor Consultation · Digital Reports')}
           </p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" style={{ background: '#fff', color: '#1866C9', fontWeight: 700, padding: '12px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 14 }}>
-              Book Lab Test
+              {t('footer.bookLabTest', 'Book Lab Test')}
             </Link>
             <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', fontWeight: 700, padding: '12px 28px', borderRadius: 10, border: '2px solid rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>
-              Upload Prescription
+              {t('footer.uploadPrescription', 'Upload Prescription')}
             </button>
           </div>
         </div>
@@ -193,8 +194,8 @@ export default function Footer() {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 16px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
             <div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>Jeevan HealthCare at Home</h3>
-              <p style={{ fontSize: 12, margin: '4px 0 0', color: 'rgba(255,255,255,0.65)' }}>Your trusted healthcare partner since 2010</p>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>{t('footer.brandName', 'Jeevan HealthCare at Home')}</h3>
+              <p style={{ fontSize: 12, margin: '4px 0 0', color: 'rgba(255,255,255,0.65)' }}>{t('footer.tagline', 'Your trusted healthcare partner since 2010')}</p>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               {socialLinks.map(s => (
@@ -209,11 +210,11 @@ export default function Footer() {
           {/* Trust badges + rating */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
             <span style={{ fontSize: 12, color: '#FFD54F' }}>★★★★★</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Google Rating</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{t('footer.googleRating', 'Google Rating')}</span>
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>|</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>👥 100000+ Patients</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>👥 {t('footer.patients', '100000+ Patients')}</span>
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>|</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>⭐ 15+ Years</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>⭐ {t('footer.years', '15+ Years')}</span>
           </div>
 
           {/* Collapsible link sections — 3-column on desktop */}
@@ -227,7 +228,7 @@ export default function Footer() {
 
           {/* Resources Section — Company, Legal, Health Tools */}
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 20, paddingTop: 14 }}>
-            <h4 style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Resources</h4>
+            <h4 style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{t('footer.resources', 'Resources')}</h4>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px 24px' }}>
               {resourceSections.map(s => (
                 <div key={s.key} className="ft-collapse">
@@ -245,24 +246,24 @@ export default function Footer() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24 }}>
             {/* Contact */}
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: 0.3 }}>Contact Us</h4>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: 0.3 }}>{t('footer.contactUs', 'Contact Us')}</h4>
               <div style={{ fontSize: 12, lineHeight: 1.8 }}>
-                <div><strong style={{ color: '#fff' }}>24×7 Customer Care</strong><br /><a href="tel:+919700104108" style={{ color: '#FFD54F', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>+91 97001 04108</a></div>
-                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>Email</strong><br /><a href="mailto:care@jeevanhealthcare.com" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>care@jeevanhealthcare.com</a></div>
-                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>WhatsApp</strong><br /><a href="https://wa.me/919700104108" target="_blank" rel="noopener" style={{ color: '#25d366', textDecoration: 'none' }}>Chat with Executive</a></div>
-                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>Corporate Office</strong><br /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Jeevan HealthCare at Home Solutions Pvt. Ltd., Hyderabad</span></div>
+                <div><strong style={{ color: '#fff' }}>{t('footer.customerCare', '24×7 Customer Care')}</strong><br /><a href="tel:+919700104108" style={{ color: '#FFD54F', textDecoration: 'none', fontWeight: 700, fontSize: 16 }}>+91 97001 04108</a></div>
+                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>{t('footer.email', 'Email')}</strong><br /><a href="mailto:care@jeevanhealthcare.com" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>care@jeevanhealthcare.com</a></div>
+                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>{t('footer.whatsapp', 'WhatsApp')}</strong><br /><a href="https://wa.me/919700104108" target="_blank" rel="noopener" style={{ color: '#25d366', textDecoration: 'none' }}>{t('footer.chatWithExecutive', 'Chat with Executive')}</a></div>
+                <div style={{ marginTop: 6 }}><strong style={{ color: '#fff' }}>{t('footer.corporateOffice', 'Corporate Office')}</strong><br /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{t('footer.corporateAddress', 'Jeevan HealthCare at Home Solutions Pvt. Ltd., Hyderabad')}</span></div>
               </div>
             </div>
 
             {/* Download App */}
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: 0.3 }}>Download App</h4>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 10 }}>Book Tests · View Reports · Track Orders · Health Wallet</p>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: 0.3 }}>{t('footer.downloadApp', 'Download App')}</h4>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 10 }}>{t('footer.appDesc', 'Book Tests · View Reports · Track Orders · Health Wallet')}</p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <a href="#" style={{ padding: '8px 14px', background: '#000', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>▶ Google Play</a>
-                <a href="#" style={{ padding: '8px 14px', background: '#000', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>🍎 App Store</a>
+                <a href="#" style={{ padding: '8px 14px', background: '#000', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>▶ {t('footer.googlePlay', 'Google Play')}</a>
+                <a href="#" style={{ padding: '8px 14px', background: '#000', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>🍎 {t('footer.appStore', 'App Store')}</a>
               </div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '16px 0 8px', letterSpacing: 0.3 }}>Trust Badges</h4>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '16px 0 8px', letterSpacing: 0.3 }}>{t('footer.trustBadges', 'Trust Badges')}</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {trustBadges.map(b => (
                   <span key={b} style={{ fontSize: 10, background: 'rgba(255,255,255,0.08)', padding: '3px 8px', borderRadius: 6, color: 'rgba(255,255,255,0.75)' }}>✓ {b}</span>
@@ -272,20 +273,20 @@ export default function Footer() {
 
             {/* Newsletter + Payment + Language */}
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: 0.3 }}>Stay Updated</h4>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 10 }}>Health tips, offers & wellness updates</p>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: 0.3 }}>{t('footer.stayUpdated', 'Stay Updated')}</h4>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 10 }}>{t('footer.newsletterDesc', 'Health tips, offers & wellness updates')}</p>
               <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
-                <button onClick={() => { if (email) { setSubscribed(true); setEmail(''); setTimeout(() => setSubscribed(false), 3000); } }} style={{ padding: '8px 16px', background: 'linear-gradient(135deg, #00D9FF, #00B8D6)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>Subscribe</button>
+                <input value={email} onChange={e => setEmail(e.target.value)} placeholder={t('footer.yourEmail', 'Your email')} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
+                <button onClick={() => { if (email) { setSubscribed(true); setEmail(''); setTimeout(() => setSubscribed(false), 3000); } }} style={{ padding: '8px 16px', background: 'linear-gradient(135deg, #00D9FF, #00B8D6)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>{t('footer.subscribe', 'Subscribe')}</button>
               </div>
-              {subscribed && <div style={{ fontSize: 12, color: '#22C55E', marginBottom: 10 }}>✓ Subscribed successfully!</div>}
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '10px 0 6px', letterSpacing: 0.3 }}>Payment Methods</h4>
+              {subscribed && <div style={{ fontSize: 12, color: '#22C55E', marginBottom: 10 }}>✓ {t('footer.subscribed', 'Subscribed successfully!')}</div>}
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '10px 0 6px', letterSpacing: 0.3 }}>{t('footer.paymentMethods', 'Payment Methods')}</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {paymentMethods.map(m => (
                   <span key={m} style={{ fontSize: 10, background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 4, color: 'rgba(255,255,255,0.7)' }}>{m}</span>
                 ))}
               </div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '10px 0 6px', letterSpacing: 0.3 }}>Language</h4>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '10px 0 6px', letterSpacing: 0.3 }}>{t('footer.language', 'Language')}</h4>
               <LanguageSelect />
             </div>
           </div>
@@ -295,12 +296,12 @@ export default function Footer() {
       {/* ===== CITIES ===== */}
       <div style={{ background: '#0A3D7A', borderTop: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 16px' }}>
-          <h4 style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 8, letterSpacing: 0.3 }}>Cities We Serve</h4>
+          <h4 style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 8, letterSpacing: 0.3 }}>{t('footer.citiesWeServe', 'Cities We Serve')}</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {cities.map(c => (
               <Link key={c} to={`/diagnostics?city=${encodeURIComponent(c)}`} style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', padding: '1px 6px', whiteSpace: 'nowrap' }}>{c}</Link>
             ))}
-            <span style={{ fontSize: 11, color: '#00D9FF' }}>And more...</span>
+            <span style={{ fontSize: 11, color: '#00D9FF' }}>{t('footer.andMore', 'And more...')}</span>
           </div>
         </div>
       </div>
@@ -317,13 +318,13 @@ export default function Footer() {
             <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
             <Link to="/policy/privacy-policy" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Sitemap</Link>
           </div>
-          <div>© {new Date().getFullYear()} Jeevan HealthCare at Home Solutions Pvt. Ltd. All Rights Reserved.</div>
-          <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.3)' }}>Made with ❤️ for Better Healthcare</div>
+          <div>{t('footer.copyright', '© {year} Jeevan HealthCare at Home Solutions Pvt. Ltd. All Rights Reserved.').replace('{year}', new Date().getFullYear())}</div>
+          <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.3)' }}>{t('footer.madeWith', 'Made with ❤️ for Better Healthcare')}</div>
         </div>
       </div>
 
       {/* Back to Top */}
-      <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: 80, right: 16, width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', border: 'none', fontSize: 18, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Back to top">↑</button>
+      <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ position: 'fixed', bottom: 80, right: 16, width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', border: 'none', fontSize: 18, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} title={t('footer.backToTop', 'Back to top')}>↑</button>
 
       <style>{`
         .ft-col-links a:hover, .ft-collapse a:hover {

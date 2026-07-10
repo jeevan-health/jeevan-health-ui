@@ -59,7 +59,7 @@ export default function AdminReports() {
   };
 
   const handleMarkDelivered = (id, via) => {
-    const all = loadReports().map(r => r.id === id ? { ...r, status: 'delivered', deliveredAt: new Date().toISOString(), deliveredVia: {t('admin.reports.via', 'via')} } : r);
+    const all = loadReports().map(r => r.id === id ? { ...r, status: 'delivered', deliveredAt: new Date().toISOString(), deliveredVia: t('admin.reports.via', 'via') } : r);
     saveReports(all);
     setReports(all);
   };
@@ -71,7 +71,7 @@ export default function AdminReports() {
     setReports(all);
   };
 
-  const statusColors = { pending: '#f59e0b', approved: '#22c55e', {t('admin.reports.delivered_label', 'Delivered:')} '#3b82f6' };
+  const statusColors = { pending: '#f59e0b', approved: '#22c55e', delivered: '#3b82f6' };
 
   const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 

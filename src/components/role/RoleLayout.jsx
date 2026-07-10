@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import usePermissionsStore from '../../stores/permissionsStore';
+import { useT } from '../../i18n/LanguageProvider';
 
 const ROLE_META = {
   phlebotomist: { icon: '🧪', title: 'Phlebotomist Portal', color: '#059669', nav: [
@@ -115,12 +116,14 @@ const ROLE_META = {
 };
 
 export default function RoleLayout({ role }) {
+  const t = useT();
   const location = useLocation();
   const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
   const roles = usePermissionsStore(s => s.roles);
-  const meta = ROLE_META[role] || { icon: '🔧', title: 'Portal', color: '#64748b', nav: [] };
+  const meta = ROLE_META[role] || { icon: '🔧', title: t('role.portal', 'Portal'), color: '#64748b', nav: [] };
+  const metaTitle = meta.title ? t(`role.${role}Title`, meta.title) : '';
   const roleConfig = roles[role] || {};
 
   const isActive = (item) => item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path);
@@ -130,10 +133,12 @@ export default function RoleLayout({ role }) {
       <div style={{ width: 220, background: '#fff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 20 }}>{meta.icon}</span>
-          <span style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{meta.title}</span>
+          <span style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{metaTitle}</span>
         </div>
         <nav style={{ flex: 1, padding: '8px 0' }}>
-          {meta.nav.map(item => (
+          {meta.nav.map(item => {
+            const navKey = item.label.toLowerCase().replace(/\s+/g, '');
+            return (
             <Link key={item.path} to={item.path} style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px',
               color: isActive(item) ? meta.color : '#475569',
@@ -143,19 +148,20 @@ export default function RoleLayout({ role }) {
               fontWeight: isActive(item) ? 600 : 400,
             }}>
               <span>{item.icon}</span>
-              <span>{item.label}</span>
+              <span>{t(`role.nav.${role}.${navKey}`, item.label)}</span>
             </Link>
-          ))}
+            );
+          })}
         </nav>
         <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', background: '#fafbfc' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <span style={{ fontSize: 14 }}>{meta.icon}</span>
             <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.3 }}>
               <strong style={{ color: '#0f172a', display: 'block' }}>{user?.name}</strong>
-              {roleConfig.label || role}
+              {roleConfig.label || t(`role.label.${role}`, role)}
             </div>
           </div>
-          <button onClick={() => { logout(); navigate('/'); }} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444', width: '100%' }}>Logout</button>
+          <button onClick={() => { logout(); navigate('/'); }} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444', width: '100%' }}>{t('role.logout', 'Logout')}</button>
         </div>
       </div>
       <div style={{ flex: 1, padding: 24, overflow: 'auto' }}>
