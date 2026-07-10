@@ -142,7 +142,7 @@ export default function VaccinationAtHome() {
           {vaccineCategories.map(c => {
             const count = getVaccinesByCategory(c.id).length;
             return (
-              <Link key={c.id} to={`/vaccination?category=${c.id}`} style={{ textDecoration: 'none' }}>
+              <Link key={c.id} to={`/vaccination/category/${c.slug}`} style={{ textDecoration: 'none' }}>
                 <div style={{ padding: 18, borderRadius: 14, border: `1px solid ${c.color}20`, background: `${c.color}06`, borderTop: `3px solid ${c.color}`, height: '100%' }}>
                   <div style={{ fontSize: 28, marginBottom: 6 }}>{c.icon}</div>
                   <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{c.name}</h3>
@@ -158,7 +158,7 @@ export default function VaccinationAtHome() {
           {vaccineCategories.map(c => {
             const count = getVaccinesByCategory(c.id).length;
             return (
-              <Link key={c.id} to={`/vaccination?category=${c.id}`} style={{ textDecoration: 'none', flex: '0 0 160px' }}>
+              <Link key={c.id} to={`/vaccination/category/${c.slug}`} style={{ textDecoration: 'none', flex: '0 0 160px' }}>
                 <div style={{ padding: 14, borderRadius: 12, border: `1px solid ${c.color}20`, background: `${c.color}06`, borderTop: `3px solid ${c.color}`, textAlign: 'center' }}>
                   <div style={{ fontSize: 24, marginBottom: 4 }}>{c.icon}</div>
                   <h3 style={{ fontSize: 12, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{c.name}</h3>
