@@ -224,17 +224,17 @@ export default function Footer() {
 
       {/* ===== MAIN FOOTER — brand color combo sections ===== */}
       {/* Top band — brand identity */}
-      <div style={{ background: '#F8FAFC', color: '#1E293B' }}>
+      <div style={{ background: 'linear-gradient(135deg, #0F4A96 0%, #1866C9 100%)', color: 'rgba(255,255,255,0.85)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 16px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
             <div>
-              <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0F5DA8', margin: 0 }}>{t('footer.brandName', 'Jeevan HealthCare at Home')}</h3>
-              <p style={{ fontSize: 12, margin: '4px 0 0', color: '#64748B' }}>{t('footer.tagline', 'Your trusted healthcare partner since 2010')}</p>
+              <h3 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>{t('footer.brandName', 'Jeevan HealthCare at Home')}</h3>
+              <p style={{ fontSize: 12, margin: '4px 0 0', color: 'rgba(255,255,255,0.65)' }}>{t('footer.tagline', 'Your trusted healthcare partner since 2010')}</p>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               {socialLinks.map(s => (
                 <a key={s.label} href={s.url} target="_blank" rel="noopener" title={s.label}
-                  style={{ width: 34, height: 34, borderRadius: '50%', background: '#0F5DA8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#fff', textDecoration: 'none', transition: 'background 0.2s' }}>
+                  style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#fff', textDecoration: 'none', transition: 'background 0.2s' }}>
                   {s.icon === 'f' ? <span style={{ fontWeight: 700 }}>f</span> : s.icon === 'in' ? <span style={{ fontWeight: 700 }}>in</span> : <span>{s.icon}</span>}
                 </a>
               ))}
@@ -243,16 +243,16 @@ export default function Footer() {
 
           {/* Trust badges + rating */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
-            <span style={{ fontSize: 12, color: '#F59E0B' }}>★★★★★</span>
-            <span style={{ fontSize: 11, color: '#64748B' }}>{t('footer.googleRating', 'Google Rating')}</span>
-            <span style={{ fontSize: 11, color: '#CBD5E1' }}>|</span>
-            <span style={{ fontSize: 11, color: '#64748B' }}>👥 {t('footer.patients', '100000+ Patients')}</span>
-            <span style={{ fontSize: 11, color: '#CBD5E1' }}>|</span>
-            <span style={{ fontSize: 11, color: '#64748B' }}>⭐ {t('footer.years', '15+ Years')}</span>
+            <span style={{ fontSize: 12, color: '#FFD54F' }}>★★★★★</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{t('footer.googleRating', 'Google Rating')}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>|</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>👥 {t('footer.patients', '100000+ Patients')}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>|</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>⭐ {t('footer.years', '15+ Years')}</span>
           </div>
 
           {/* Collapsible link sections — 3-column on desktop */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px 24px', borderTop: '1px solid #E2E8F0', paddingTop: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px 24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
             {sections.map(s => (
               <div key={s.key} className="ft-collapse">
                 <CollapsibleSection section={s} defaultOpen={true} />
