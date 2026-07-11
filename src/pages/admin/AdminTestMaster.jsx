@@ -3,6 +3,7 @@ import { seedTests, ensureLoaded, subscribe } from '../../data/seedData';
 import useAdminStore from '../../stores/adminStore';
 import { generateAllTestsData } from '../../utils/generateTestData';
 import { useT } from '../../i18n/LanguageProvider';
+import api from '../../services/api';
 
 const STORAGE_KEY = 'jeevan_testMaster';
 const CATEGORIES = ['Hematology', 'Diabetes', 'Thyroid', 'Cardiac', 'Vitamins', 'Full Body', 'Anemia', 'Fever', 'Cancer', 'Hormones', 'Allergy', 'Arthritis', 'Pregnancy', 'Liver', 'STD', 'Kidney'];
@@ -541,6 +542,16 @@ export default function AdminTestMaster() {
             setExtendedData(data);
             alert(`Generated complete data for ${Object.keys(data).length} tests!`);
           }} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>⚡ Generate All</button>
+          <button onClick={async () => {
+            if (!confirm('⚠️ This will DELETE ALL existing diagnostic data and re-insert all tests from the seed catalog. Orders, results, and any custom edits will be lost. Continue?')) return;
+            try {
+              await api.post('/admin/tests/reseed');
+              alert('Tests reseeded successfully! Refreshing data...');
+              window.location.reload();
+            } catch (e) {
+              alert('Reseed failed: ' + (e.response?.data?.error || e.message));
+            }
+          }} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>🔄 Reseed from DB</button>
         </div>
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 700 }}>
