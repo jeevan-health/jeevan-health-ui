@@ -78,7 +78,7 @@ function HeroSection() {
     { icon: '💉', label: t('home.hero.features.vaccination', 'Vaccination at Home'), desc: t('home.hero.features.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
   return (
-    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #0F2B3D 0%, #1A4A5A 50%, #0D9488 100%)', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : '#0F5DA8', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -147,7 +147,7 @@ function TrustStrip() {
   ];
   if (trustStrip?.active === false) return null;
   return (
-    <div style={{ background: '#fff', borderBottom: '1px solid var(--border)', padding: '12px 0' }}>
+    <div style={{ background: 'linear-gradient(90deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%)', borderBottom: '1px solid var(--border)', padding: '12px 0' }}>
       <div className="container" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
         {items.map(item => (
           <span key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', padding: '4px 10px', background: '#f0fdf4', borderRadius: 6 }}>
@@ -175,7 +175,7 @@ function QuickActions() {
     { icon: '💉', label: t('home.quickActions.vaccination', 'Vaccination at Home'), desc: t('home.quickActions.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
   return (
-    <div className="page-section" style={{ background: '#f8f9fa' }}>
+    <div className="page-section" style={{ background: '#F8FAFC' }}>
       {/* Mobile Quick Actions Grid — 2x2 */}
       <div className="home-qa-mobile" style={{ display: 'none', marginBottom: 10 }}>
         {/* Today's Health Mini Card */}
@@ -277,7 +277,7 @@ function PopularTests({ popular }) {
   const badges = [tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked')];
   const badgeColors = { Trending: '#dc2626', 'Most Booked': '#16a34a', Recommended: '#7c3aed' };
   return (
-    <div className="page-section" style={{ background: '#f8f9fa' }}>
+    <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
           <div>
@@ -352,7 +352,8 @@ function CategoriesSection() {
     { icon: '🧬', label: t('home.categories.fullBody', 'Full Body'), cat: 'Full Body' },
   ];
   return (
-    <div className="page-section container">
+    <div className="page-section" style={{ background: '#00D9FF' }}>
+      <div className="container">
       <h2 className="section-title">{t('home.categories.title', 'Browse by Category')}</h2>
       <p className="section-subtitle">{t('home.categories.subtitle', 'Find the right test by health concern')}</p>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
@@ -372,13 +373,14 @@ function CategoriesSection() {
         ))}
       </div>
     </div>
+    </div>
   );
 }
 
 function PackagesSection({ pkgs, featured }) {
   const t = useT();
   return (
-    <div className="page-section" style={{ background: '#f8f9fa' }}>
+    <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
           <div>
@@ -440,7 +442,7 @@ function HowItWorks() {
     { icon: '👨‍⚕️', title: t('home.howItWorks.step6.title', 'Doctor Consultation'), desc: t('home.howItWorks.step6.desc', 'Understand your results with expert medical guidance and follow-up recommendations.'), badge: t('home.howItWorks.step6.badge', 'Expert Consultation'), badge2: t('home.howItWorks.step6.badge2', 'Health Guidance') },
   ];
   return (
-    <div className="page-section" style={{ background: 'linear-gradient(180deg, #F5FAFF 0%, #ffffff 100%)', position: 'relative', overflow: 'hidden' }}>
+    <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="how-bg-decoration" />
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 6 }}>
@@ -477,7 +479,7 @@ function HowItWorks() {
             ))}
           </div>
         </div>
-        <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
+        <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', borderRadius: 16, color: '#fff' }}>
           <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>{t('home.howItWorks.cta.title', 'Ready to Start Your Health Check?')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.howItWorks.cta.bookTest', '🔵 Book Test Now')}</Link>
@@ -524,7 +526,7 @@ function Testimonials() {
   useEffect(() => { const t = setInterval(next, 4000); return () => clearInterval(t); }, [next]);
 
   return (
-    <div className="page-section" style={{ background: '#F5FAFF' }}>
+    <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
         <h2 className="section-title text-center">{t('home.testimonials.sectionTitle', '❤️ Loved by Thousands of Happy Patients')}</h2>
         <p className="section-subtitle text-center">{t('home.testimonials.sectionSubtitle', 'Real experiences from patients who trusted Jeevan for their healthcare journey.')}</p>
@@ -614,7 +616,7 @@ function Testimonials() {
           ))}
         </div>
 
-        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 16, color: '#fff' }}>
+        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #00D9FF)', borderRadius: 16, color: '#fff' }}>
           <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>{t('home.testimonials.cta.title', 'Join Thousands of Families Who Trust Jeevan HealthCare at Home')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.testimonials.cta.bookTest', '🔵 Book Health Test')}</Link>
@@ -674,7 +676,7 @@ function StatsSection() {
   }, [visible]);
 
   return (
-    <div className="page-section" style={{ background: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)', position: 'relative', overflow: 'hidden' }}>
+    <div className="page-section" style={{ background: 'linear-gradient(135deg, #0F5DA8 0%, #20B7F5 50%, #00D9FF 100%)', position: 'relative', overflow: 'hidden' }}>
       <div ref={ref} className="container" style={{ position: 'relative', zIndex: 1 }}>
         <h2 className="section-title text-center" style={{ color: '#fff' }}>{t('home.stats.sectionTitle', 'Trusted Healthcare Partner for Thousands of Families')}</h2>
         <p className="section-subtitle text-center" style={{ color: 'rgba(255,255,255,0.8)' }}>{t('home.stats.sectionSubtitle', 'Delivering reliable diagnostics and healthcare services with quality, convenience, and compassion.')}</p>
@@ -723,7 +725,7 @@ function HealthLibrarySection() {
     { icon: '📊', label: t('home.healthLibrary.normalValues', 'Normal Values'), desc: t('home.healthLibrary.normalValuesDesc', 'Reference ranges for all lab tests by age & gender'), color: '#0891b2' },
   ];
   return (
-    <div className="page-section" style={{ background: '#fff', borderBottom: '1px solid var(--border)' }}>
+    <div className="page-section" style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 22 }}>🩺</span>
@@ -769,7 +771,7 @@ function FaqSection() {
     { question: t('home.faq.q5', 'Can I cancel or reschedule?'), answer: t('home.faq.a5', 'Yes, you can cancel or reschedule your booking up to 2 hours before the scheduled collection time.') },
   ];
   return (
-    <div className="page-section" style={{ background: 'var(--bg-light)' }}>
+    <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="container" style={{ maxWidth: 700, margin: '0 auto' }}>
         <h2 className="section-title text-center">{t('home.faq.title', 'Frequently Asked Questions')}</h2>
         <p className="section-subtitle text-center">{t('home.faq.subtitle', 'Everything you need to know')}</p>
@@ -792,7 +794,7 @@ function NurseAtHomeSection() {
   const nCount = nurses.length;
   const sCount = nursingServices.length;
   return (
-    <div className="page-section" style={{ background: 'linear-gradient(180deg, #EBF5F0 0%, #ffffff 100%)', overflow: 'hidden' }}>
+    <div className="page-section" style={{ background: 'linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%)', overflow: 'hidden' }}>
       <div className="container">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 4 }}>
           <span style={{ fontSize: 26 }}>👩‍⚕️</span>
@@ -855,7 +857,7 @@ function WhyChooseJeevan() {
     { icon: '🛡️', title: t('home.whyChoose.feature.safety.title', 'Safe & Hygienic Collection'), desc: t('home.whyChoose.feature.safety.desc', 'Strict safety protocols with sterile equipment and infection control practices.'), badge: t('home.whyChoose.feature.safety.badge', 'Safety First') },
   ];
   return (
-    <div className="page-section" style={{ background: '#F5FAFF' }}>
+    <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
         <div className="grid-4" style={{ gap: 12, marginBottom: 20 }}>
           {[
@@ -888,7 +890,7 @@ function WhyChooseJeevan() {
             </div>
           ))}
         </div>
-          <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #1866C9, #00D9FF)', borderRadius: 20, color: '#fff' }}>
+          <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', borderRadius: 20, color: '#fff' }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{t('home.whyChoose.cta.title', 'Experience Trusted Healthcare at Your Doorstep')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 28px', fontSize: 14 }}>{t('home.whyChoose.cta.bookTest', '🔵 Book Health Test Now')}</Link>
