@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import useAuditStore from './auditStore';
+import api from '../services/api';
 
 const ADMINS = { '9999999999': 'super_admin' };
 
@@ -54,21 +55,20 @@ const useAuthStore = create((set, get) => ({
 
   googleLogin: async () => {
     set({ isLoading: true });
-    await new Promise(r => setTimeout(r, 1200));
-    const user = {
-      id: 'google_' + Date.now(),
-      name: 'Ashwin Kumar',
-      email: 'ashwin.kumar@gmail.com',
-      phone: '+91 98765 43210',
-      avatar: null,
-      provider: 'google',
-      role: 'user',
-    };
-    localStorage.setItem('jh_token', 'mock-token-google');
-    localStorage.setItem('jh_user', JSON.stringify(user));
-    set({ user, isAuthenticated: true, isLoading: false });
-    registerUser(user);
-    return true;
+    try {
+      const { data } = await api.post('/auth/google', { credential: '' });
+      const { user, accessToken, refreshToken } = data;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('jh_user', JSON.stringify(user));
+      set({ user, isAuthenticated: true, isLoading: false });
+      registerUser(user);
+      useAuditStore.getState().log('login', `User logged in via Google: ${user.name} (${user.email})`, 'auth');
+      return true;
+    } catch (err) {
+      set({ isLoading: false });
+      return false;
+    }
   },
 
   fetchProfile: async () => {

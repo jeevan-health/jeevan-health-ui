@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { useT } from '../i18n/LanguageProvider';
+import api from '../services/api';
 
-const CLIENT_ID = '9700104108-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com';
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function GoogleSignIn({ onError }) {
   const t = useT();
@@ -13,6 +14,7 @@ export default function GoogleSignIn({ onError }) {
   const setUser = useAuthStore(s => s.setUser);
 
   useEffect(() => {
+    if (!CLIENT_ID) return;
     if (initialized.current) return;
     if (typeof window.google?.accounts?.id === 'undefined') {
       const s = document.createElement('script');
@@ -51,17 +53,16 @@ export default function GoogleSignIn({ onError }) {
 
   async function handleCredentialResponse(response) {
     try {
-      const payload = parseJwt(response.credential);
-      const user = {
-        id: payload.sub,
-        name: payload.name,
-        email: payload.email,
-        phone: '',
-        avatar: payload.picture,
-        provider: 'google',
-      };
-      localStorage.setItem('jh_token', response.credential);
+      const { data } = await api.post('/auth/google', {
+        credential: response.credential,
+      });
+
+      const { user, accessToken, refreshToken } = data;
+
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('jh_user', JSON.stringify(user));
+
       setUser(user);
       navigate('/dashboard');
     } catch (err) {
@@ -69,16 +70,9 @@ export default function GoogleSignIn({ onError }) {
     }
   }
 
+  if (!CLIENT_ID) return null;
+
   return (
     <div ref={btnRef} style={{ width: '100%', minHeight: 44, display: 'flex', justifyContent: 'center' }} />
   );
-}
-
-function parseJwt(token) {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-  ).join(''));
-  return JSON.parse(jsonPayload);
 }
