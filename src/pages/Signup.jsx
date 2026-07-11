@@ -27,7 +27,7 @@ export default function Signup() {
     setLoading(true);
     try {
       const { data } = await sendOtpApi(phone, 'phone');
-      if (data.dev) setDevOtp(data.dev);
+      if (data.code) { console.log('%c🔑 OTP: ' + data.code, 'background:#0f172a;color:#fbbf24;font-size:14px;padding:4px 8px;border-radius:4px;'); setDevOtp(data.code); }
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.error || t('signup.error.sendOtpFailed', 'Failed to send OTP. Try again.'));
