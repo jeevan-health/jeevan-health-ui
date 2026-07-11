@@ -1,6 +1,6 @@
-import { seedTests, applyPricing } from '../data/seedData';
+import { seedTests } from '../data/seedData';
 
-const tests = applyPricing(seedTests);
+const tests = seedTests;
 
 const aliasMap = {
   'cbc': { id: 1, aliases: ['complete blood count', 'complete blood picture', 'cbp', 'hemogram', 'full blood count', 'fbc', 'blood routine', 'hematology profile', 'blood count test', 'complete blood cell count'], misspellings: ['cbcc', 'c b c', 'hemogramm', 'blooc count'], related: ['esr', 'cbc with differential', 'peripheral smear', 'platelet count'], diseases: ['Anemia', 'Infection', 'Inflammation', 'Blood Disorders', 'Nutritional Deficiencies'], symptoms: ['Fatigue', 'Fever', 'Weakness', 'Pale skin', 'Easy bruising'] },
