@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { seedTests } from '../../data/seedData';
+import { seedTests, ensureLoaded, subscribe } from '../../data/seedData';
 import useAdminStore from '../../stores/adminStore';
 import { generateAllTestsData } from '../../utils/generateTestData';
 import { useT } from '../../i18n/LanguageProvider';
@@ -47,7 +47,6 @@ const saveData = (data) => localStorage.setItem(STORAGE_KEY, JSON.stringify(data
 export default function AdminTestMaster() {
   const t = useT();
   const getCatalog = useAdminStore(s => s.getCatalog);
-  const catalog = useMemo(() => getCatalog(), []);
   const [extendedData, setExtendedData] = useState({});
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ category: 'all', status: 'all', dept: 'all', sampleType: 'all' });
@@ -55,9 +54,12 @@ export default function AdminTestMaster() {
   const [form, setForm] = useState(emptyTest());
   const [activeSection, setActiveSection] = useState('identity');
   const [showForm, setShowForm] = useState(false);
+  const [, forceUpdate] = useState(0);
 
+  useEffect(() => { ensureLoaded(); return subscribe(() => forceUpdate(n => n + 1)); }, []);
   useEffect(() => { setExtendedData(loadData()); }, []);
 
+  const catalog = getCatalog();
   const allTests = useMemo(() => {
     const seedMap = {};
     catalog.forEach(t => { seedMap[t.id] = t; });
