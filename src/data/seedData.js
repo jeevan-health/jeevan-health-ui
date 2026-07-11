@@ -29,7 +29,7 @@ export async function ensureLoaded() {
   loading = true;
   try {
     const [testsRes, catsRes] = await Promise.all([
-      api.get('/diagnostics/tests/search'),
+      api.get('/diagnostics/tests/search', { params: { limit: 1000 } }),
       api.get('/diagnostics/tests/categories'),
     ]);
     const rawTests = testsRes.data.tests || testsRes.data || [];
