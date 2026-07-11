@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import { useT } from '../../i18n/LanguageProvider';
+import { sendOtp as sendOtpApi, login as emailLoginApi } from '../../services/authService';
 
 export default function AdminLogin() {
   const t = useT();
@@ -21,6 +22,7 @@ export default function AdminLogin() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [devOtp, setDevOtp] = useState('');
   const [showForgot, setShowForgot] = useState(false);
   const [forgotStep, setForgotStep] = useState(1);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -54,28 +56,27 @@ export default function AdminLogin() {
     if (!password) { setError(t('admin.login.err_no_password', 'Please enter your password')); return; }
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setLoading(false);
-    const users = JSON.parse(localStorage.getItem('jh_users') || '[]');
-    const found = users.find(u => u.email?.toLowerCase() === email.toLowerCase() && !u.phone);
-    if (found && found.role !== 'user') {
-      const user = { ...found, id: found.id || Date.now().toString() };
-      localStorage.setItem('jh_token', 'mock-token-email');
+    try {
+      const { data } = await emailLoginApi(email, password);
+      const { user, accessToken, refreshToken } = data;
+      const role = user?.role || 'user';
+      if (role === 'user') {
+        setLoading(false);
+        setError(t('admin.login.err_no_admin_access', 'This account does not have admin access.'));
+        return;
+      }
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('jh_token', accessToken);
       localStorage.setItem('jh_user', JSON.stringify(user));
       setUser(user);
       trackLogin(user);
       setShowWelcome(true);
       setTimeout(() => navigate('/admin', { replace: true }), 2000);
-    } else if (email === 'admin@jeevanhealthcare.com') {
-      const user = { id: Date.now().toString(), name: 'Admin', email, phone: '', role: 'admin' };
-      localStorage.setItem('jh_token', 'mock-token-email');
-      localStorage.setItem('jh_user', JSON.stringify(user));
-      setUser(user);
-      trackLogin(user);
-      setShowWelcome(true);
-      setTimeout(() => navigate('/admin', { replace: true }), 2000);
-    } else {
+    } catch {
       setError(t('admin.login.err_invalid_credentials', 'Unable to sign in. Please check your credentials and try again.'));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -84,9 +85,15 @@ export default function AdminLogin() {
     if (phone.length !== 10) { setError(t('admin.login.err_invalid_phone', 'Enter a valid 10-digit phone number')); return; }
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    setLoading(false);
-    setStep(2);
+    try {
+      const { data } = await sendOtpApi(phone, 'phone');
+      if (data.dev) setDevOtp(data.dev);
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.error || t('admin.login.err_send_otp', 'Failed to send OTP. Try again.'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleVerify(e) {
@@ -292,6 +299,7 @@ export default function AdminLogin() {
               <form onSubmit={handleVerify}>
                 <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block', color: '#334155' }}>{t('admin.login.enter_otp', 'Enter OTP')}</label>
                 <p style={{ fontSize: 12, color: '#64748B', marginBottom: 8 }}>{t('admin.login.otp_sent_to', 'OTP sent to')} +91 {phone}</p>
+                {devOtp && <p style={{ fontSize: 11, color: '#f59e0b', marginBottom: 8, background: '#fffbeb', padding: '4px 8px', borderRadius: 4 }}>Dev OTP: <strong>{devOtp}</strong></p>}
                 <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder={t('admin.login.enter_6_digit_otp', 'Enter 6-digit OTP')}
                   style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 20, textAlign: 'center', letterSpacing: 8, transition: 'all 0.15s' }}

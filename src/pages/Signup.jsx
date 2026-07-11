@@ -15,6 +15,7 @@ export default function Signup() {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [devOtp, setDevOtp] = useState('');
   const [error, setError] = useState('');
   const { verifyOtp } = useAuthStore();
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ export default function Signup() {
     setError('');
     setLoading(true);
     try {
-      await sendOtpApi(phone, 'phone');
+      const { data } = await sendOtpApi(phone, 'phone');
+      if (data.dev) setDevOtp(data.dev);
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.error || t('signup.error.sendOtpFailed', 'Failed to send OTP. Try again.'));
@@ -85,6 +87,7 @@ export default function Signup() {
           <form onSubmit={handleVerify}>
             <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block' }}>{t('signup.otp.label', 'Enter OTP')}</label>
             <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('signup.otp.sentTo', 'OTP sent to +91')} {phone}</p>
+            {devOtp && <p style={{ fontSize: 11, color: '#f59e0b', marginBottom: 8, background: '#fffbeb', padding: '4px 8px', borderRadius: 4 }}>Dev OTP: <strong>{devOtp}</strong> (check server logs in production)</p>}
             <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder={t('signup.otp.placeholder', 'Enter OTP')} className="input" required />
             <button type="submit" className="btn btn-primary btn-block btn-lg mt-4" disabled={loading}>
