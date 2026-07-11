@@ -5,6 +5,7 @@ let loading = false;
 let waiters = [];
 let subscribers = new Set();
 let ready = false;
+const _catItems = [];
 
 function notifyAll() {
   ready = true;
@@ -32,14 +33,24 @@ export async function ensureLoaded() {
       api.get('/diagnostics/tests/categories'),
     ]);
     const rawTests = testsRes.data.tests || testsRes.data || [];
-    cached.tests = (Array.isArray(rawTests) ? rawTests : []).map(t => ({
+    const tests = (Array.isArray(rawTests) ? rawTests : []).map(t => ({
       ...t,
       price: Number(t.price) || 0,
       mrp: Number(t.mrp) || Number(t.price) * 2 || 0,
       offerPrice: Number(t.offerPrice) || Number(t.price) || 0,
     }));
+    cached.tests = tests;
+    seedTests.splice(0, seedTests.length, ...tests);
+
     const rawCats = catsRes.data.categories || catsRes.data || [];
-    cached.categories = Array.isArray(rawCats) ? rawCats.map(c => typeof c === 'string' ? { name: c, category: c, id: makeSlug(c), slug: makeSlug(c) } : c) : [];
+    const cats = Array.isArray(rawCats) ? rawCats.map(c => {
+      const n = typeof c === 'string' ? c : (c.name || c.category || '');
+      const style = CATEGORY_STYLES[n] || CATEGORY_STYLES[c?.id] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
+      const id = typeof c === 'string' ? makeSlug(c) : (c.id || c.slug || makeSlug(n));
+      return { name: n, id, slug: id, tests: tests.filter(t => t.category === n), description: (typeof c === 'string' ? '' : (c.description || '')), ...style };
+    }) : [];
+    cached.categories = cats;
+    _catItems.splice(0, _catItems.length, ...cats);
   } catch {
     cached.tests = [];
     cached.categories = [];
@@ -47,14 +58,6 @@ export async function ensureLoaded() {
     loading = false;
     notifyAll();
   }
-}
-
-
-
-export function categoryMeta(slug) {
-  if (!slug) return null;
-  const list = getCategories();
-  return list.find(c => c.id === slug || c.name === slug || c.slug === slug) || null;
 }
 
 const CATEGORY_STYLES = {
@@ -74,41 +77,16 @@ const CATEGORY_STYLES = {
   'Liver': { icon: '🫁', color: '#16a34a', bg: '#bbf7d0' },
 };
 
-export function getCategories() {
-  if (!cached.categories || cached.categories.length === 0) {
-    const cats = cached.tests ? [...new Set(cached.tests.map(t => t.category).filter(Boolean))] : [];
-    return cats.map(name => {
-      const style = CATEGORY_STYLES[name] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
-      return { name, id: makeSlug(name), slug: makeSlug(name), tests: cached.tests?.filter(t => t.category === name) || [], description: '', ...style };
-    });
-  }
-  return cached.categories.map(c => {
-    const n = c.name || c.category || '';
-    const style = CATEGORY_STYLES[n] || CATEGORY_STYLES[c.id] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
-    return {
-      ...c, ...style,
-      name: n,
-      id: c.id || c.slug || makeSlug(n),
-      slug: c.slug || c.id || makeSlug(n),
-      tests: cached.tests?.filter(t => (t.category === n)) || [],
-      description: c.description || '',
-    };
-  });
+export function categoryMeta(slug) {
+  if (!slug) return null;
+  return categoryList.find(c => c.id === slug || c.name === slug || c.slug === slug) || null;
 }
 
-export const categoryList = new Proxy([], {
-  get(_, prop) {
-    if (prop === 'length') return getCategories().length;
-    if (prop === 'slice') return (...args) => getCategories().slice(...args);
-    if (prop === 'map') return (...args) => getCategories().map(...args);
-    if (prop === 'filter') return (...args) => getCategories().filter(...args);
-    if (prop === 'find') return (...args) => getCategories().find(...args);
-    if (prop === 'forEach') return (...args) => getCategories().forEach(...args);
-    if (prop === Symbol.iterator) return getCategories()[Symbol.iterator];
-    if (typeof prop === 'number') return getCategories()[prop];
-    return undefined;
-  }
-});
+export function getCategories() {
+  return cached.categories || [];
+}
+
+export const categoryList = _catItems;
 
 export function getCategoryBySlug(slug) {
   return categoryMeta(slug);
@@ -129,33 +107,10 @@ export function applyPricing(test) {
   };
 }
 
-// Get all tests
 export function getTests() {
   return cached.tests || [];
 }
 
-// Backward-compatible dynamic seedTests proxy
-export const seedTests = new Proxy([], {
-  get(_, prop) {
-    if (prop === 'then') return undefined; // not a promise
-    if (prop === 'length') return (cached.tests || []).length;
-    if (prop === 'slice') return (...args) => (cached.tests || []).slice(...args);
-    if (prop === 'filter') return (...args) => (cached.tests || []).filter(...args);
-    if (prop === 'map') return (...args) => (cached.tests || []).map(...args);
-    if (prop === 'find') return (...args) => (cached.tests || []).find(...args);
-    if (prop === 'forEach') return (...args) => (cached.tests || []).forEach(...args);
-    if (prop === 'includes') return (...args) => (cached.tests || []).includes(...args);
-    if (prop === 'indexOf') return (...args) => (cached.tests || []).indexOf(...args);
-    if (prop === Symbol.iterator) return (cached.tests || [])[Symbol.iterator];
-    if (typeof prop === 'number') return (cached.tests || [])[prop];
-    return undefined;
-  },
-  set(_, prop, value) {
-    if (!cached.tests) cached.tests = [];
-    cached.tests[prop] = value;
-    return true;
-  }
-});
+export const seedTests = [];
 
-// Auto-load tests on first import
 ensureLoaded();
