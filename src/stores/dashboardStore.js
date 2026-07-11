@@ -187,7 +187,7 @@ const useDashboardStore = create((set, get) => ({
   appointments: [],
   wallet: { balance: 0, coupons: [], rewardsPoints: 0 },
   abha: { connected: false, number: '' },
-  healthTrends: {},
+  healthTrends: { hba1c: [] },
   notifications: [],
   savedPrescriptions: [],
   activeOrders: 0,
