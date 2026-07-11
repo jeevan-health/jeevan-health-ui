@@ -167,6 +167,9 @@ export default function Dashboard() {
     else if (!tab && activeSection !== 'overview') setActiveSection('overview');
   }, [searchParams]);
   const [comingSoon, setComingSoon] = useState(null);
+  const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
+  useEffect(() => { fetchDashboard(); }, []);
+
   useEffect(() => { if (comingSoon) { const t = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(t); } }, [comingSoon]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   const [editingFamily, setEditingFamily] = useState(null);

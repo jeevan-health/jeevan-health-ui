@@ -17,7 +17,7 @@ function registerUser(user) {
 
 const useAuthStore = create((set, get) => ({
   user: null,
-  isAuthenticated: !!localStorage.getItem('jh_token'),
+  isAuthenticated: !!(localStorage.getItem('jh_token') || localStorage.getItem('accessToken')),
   isLoading: false,
   family: [],
   addresses: [],
@@ -60,6 +60,7 @@ const useAuthStore = create((set, get) => ({
       const { user, accessToken, refreshToken } = data;
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('jh_token', accessToken);
       localStorage.setItem('jh_user', JSON.stringify(user));
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
@@ -73,13 +74,22 @@ const useAuthStore = create((set, get) => ({
 
   fetchProfile: async () => {
     try {
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('jh_token');
+      if (!token) return;
+      const { data } = await api.get('/user/profile');
+      const enriched = { ...data, role: data.role || ADMINS[data.phone] || ADMINS[data.email] || 'user' };
+      localStorage.setItem('jh_user', JSON.stringify(enriched));
+      set({ user: enriched, isAuthenticated: true });
+    } catch {
       const stored = localStorage.getItem('jh_user');
       if (stored) {
-        const parsed = JSON.parse(stored);
-        const enriched = { ...parsed, role: parsed.role || ADMINS[parsed.phone] || 'user' };
-        set({ user: enriched, isAuthenticated: true });
+        try {
+          const parsed = JSON.parse(stored);
+          const enriched = { ...parsed, role: parsed.role || ADMINS[parsed.phone] || 'user' };
+          set({ user: enriched, isAuthenticated: true });
+        } catch { /* noop */ }
       }
-    } catch { /* noop */ }
+    }
   },
 
   addFamilyMember: (member) => {
@@ -100,6 +110,8 @@ const useAuthStore = create((set, get) => ({
     localStorage.removeItem('jh_token');
     localStorage.removeItem('jh_user');
     localStorage.removeItem('jh_user_phone');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     set({ user: null, isAuthenticated: false });
   },
 

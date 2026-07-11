@@ -61,6 +61,7 @@ export default function GoogleSignIn({ onError }) {
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('jh_token', accessToken);
       localStorage.setItem('jh_user', JSON.stringify(user));
 
       setUser(user);
