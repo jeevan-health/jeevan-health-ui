@@ -1,67 +1,77 @@
 import { useState, useEffect } from 'react';
-import useAdminStore from '../../stores/adminStore';
-import useAuthStore from '../../stores/authStore';
 import usePermissionsStore from '../../stores/permissionsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import * as adminService from '../../services/adminService';
 
-const ROLE_OPTIONS = ['user', 'staff', 'admin', 'super_admin'];
 const MODAL_OVERLAY = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
 
 export default function AdminUsers() {
   const t = useT();
-  const usersList = useAdminStore(s => s.usersList);
-  const refreshAnalytics = useAdminStore(s => s.refreshAnalytics);
-  const updateUserRole = useAuthStore(s => s.updateUserRole);
-  const deleteUser = useAuthStore(s => s.deleteUser);
-  const addUser = useAuthStore(s => s.addUser);
   const roles = usePermissionsStore(s => s.roles);
+  const [usersList, setUsersList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editingRole, setEditingRole] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', email: '', role: 'staff' });
 
-  useEffect(() => { refreshAnalytics(); }, []);
-
-  const filtered = usersList.filter(u =>
-    (u.name || '').toLowerCase().includes(search.toLowerCase()) ||
-    (u.phone || '').includes(search) ||
-    (u.email || '').toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleRoleChange = (userId, newRole) => {
-    updateUserRole(userId, newRole);
-    setEditingRole(null);
-    refreshAnalytics();
+  const fetchUsers = async () => {
+    try {
+      const { data } = await adminService.getUsers({ search, limit: 200 });
+      setUsersList(data.users || []);
+    } catch {
+      // fallback: keep old list
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (userId) => {
+  useEffect(() => { fetchUsers(); }, [search]);
+
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await adminService.updateUserRole(userId, newRole);
+      setEditingRole(null);
+      fetchUsers();
+    } catch { /* ignore */ }
+  };
+
+  const handleDelete = async (userId) => {
     if (!confirm(t('admin.users.delete_confirm', 'Delete this user? This cannot be undone.'))) return;
-    deleteUser(userId);
-    refreshAnalytics();
+    try {
+      await adminService.deleteUser(userId);
+      fetchUsers();
+    } catch { /* ignore */ }
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!form.name || !form.phone) return;
-    addUser(form);
-    setShowAdd(false);
-    setForm({ name: '', phone: '', email: '', role: 'staff' });
-    refreshAnalytics();
+    try {
+      await adminService.createUser(form);
+      setShowAdd(false);
+      setForm({ name: '', phone: '', email: '', role: 'staff' });
+      fetchUsers();
+    } catch { /* ignore */ }
   };
 
   const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>{t('admin.users.loading', 'Loading users...')}</div>;
+  }
 
   return (
     <div>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
         <input className="input" placeholder={t('admin.users.search_placeholder', 'Search by name, phone or email...')} value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, maxWidth: 400, fontSize: 13 }} />
-        <span style={{ fontSize: 12, color: '#64748b' }}>{filtered.length} {t('admin.users.of', 'of')} {usersList.length} {t('admin.users.users', 'users')}</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{usersList.length} {t('admin.users.users', 'users')}</span>
         <button onClick={() => setShowAdd(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 600, whiteSpace: 'nowrap' }}>
           + {t('admin.users.add_user', 'Add User')}
         </button>
       </div>
 
-      {filtered.length === 0 ? (
+      {usersList.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>{t('admin.users.no_users', 'No users found')}</div>
       ) : (
         <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
@@ -77,7 +87,7 @@ export default function AdminUsers() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(u => (
+              {usersList.map(u => (
                 <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '10px 14px', fontWeight: 600, color: '#0f172a' }}>{u.name || '—'}</td>
                   <td style={{ padding: '10px 14px', color: '#334155' }}>{u.phone || '—'}</td>

@@ -255,11 +255,15 @@ const useDashboardStore = create((set, get) => ({
         values: r.values || {},
       }));
 
+      const lastReportDate = reports.length > 0 ? reports[0].date : '';
+      const lastAppointmentDate = (appointments || []).filter(a => a.status === 'Completed').length > 0
+        ? appointments.filter(a => a.status === 'Completed')[0].date : '';
+
       set({
         profile: {
           name: profile?.name || '',
           greeting: '',
-          lastCheckup: null,
+          lastCheckup: lastReportDate || lastAppointmentDate || '',
           healthScore: null,
           phone: profile?.phone || '',
           email: profile?.email || '',

@@ -304,7 +304,7 @@ export default function Dashboard() {
               </div>
               <div style={{ minWidth: 0 }}>
                 <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{GREETING_ICON} {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)} {p.name.split(' ')[0]}</h1>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>{t('dashboard.lastCheck', 'Last Check:')} <strong>{p.lastCheckup}</strong></p>
+                {p.lastCheckup ? <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>{t('dashboard.lastCheck', 'Last Check:')} <strong>{p.lastCheckup}</strong></p> : null}
               </div>
             </div>
 

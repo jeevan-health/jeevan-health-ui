@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../stores/cartStore';
-import { seedTests, categoryList, getCategoryBySlug, makeSlug } from '../data/seedData';
+import { seedTests, categoryList, getCategoryBySlug, makeSlug, subscribe, ensureLoaded } from '../data/seedData';
 import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
 import { useT } from '../i18n/LanguageProvider';
 
 export default function TestCategory() {
   const t = useT();
+  const [, forceUpdate] = useState(0);
+  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
   const { category: slug } = useParams();
   const navigate = useNavigate();
   const addItem = useCartStore(s => s.addItem);

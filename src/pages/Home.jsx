@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
-import { seedTests } from '../data/seedData';
+import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
 import { packageList } from '../data/healthPackages';
 import SmartSearch from '../components/layout/SmartSearch';
 import useCmsStore from '../stores/cmsStore';
@@ -10,6 +10,8 @@ import { nursingCategories, nurses, nursingServices } from '../data/nursingData'
 
 export default function Home() {
   const t = useT();
+  const [, forceUpdate] = useState(0);
+  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
   const popular = seedTests.slice(0, 8);
   const pkgs = packageList.slice(0, 4);
   const cms = useCmsStore();

@@ -3,7 +3,7 @@ import { useT } from '../i18n/LanguageProvider';
 import { Link, useNavigate } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import useCartStore from '../stores/cartStore';
-import { seedTests, categoryList, makeSlug } from '../data/seedData';
+import { seedTests, categoryList, makeSlug, subscribe, ensureLoaded } from '../data/seedData';
 import SmartSearch from '../components/layout/SmartSearch';
 import TestCard from '../components/TestCard';
 import PhysioCrossSell from '../components/PhysioCrossSell';
@@ -18,6 +18,9 @@ export default function Diagnostics() {
   const diag = cmsContent.diagnostics || {};
   const [search, setSearch] = useState('');
   const [searched, setSearched] = useState(false);
+  const [, forceUpdate] = useState(0);
+
+  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
 
   const searchResults = useMemo(() => {
     if (!search) return [];

@@ -1,14 +1,52 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import useAdminStore from '../../stores/adminStore';
 import { useT } from '../../i18n/LanguageProvider';
+import * as adminService from '../../services/adminService';
+
+const DEFAULT_ANALYTICS = {
+  usersCount: 0, ordersCount: 0, revenue: 0, testsCount: 0,
+  pendingOrders: 0, cancelledOrders: 0, completedOrders: 0, ordersByStatus: {},
+  revenueToday: 0, revenueMonth: 0, topTests: [],
+  physioBookings: 0, physioRevenue: 0, physioTopConditions: [],
+  physioBookingsToday: 0, physioBookingsMonth: 0,
+  vaccBookings: 0, vaccRevenue: 0, vaccTopVaccines: [],
+  vaccBookingsToday: 0, vaccBookingsMonth: 0,
+};
 
 export default function AdminDashboard() {
   const t = useT();
-  const analytics = useAdminStore(s => s.analytics);
-  const refreshAnalytics = useAdminStore(s => s.refreshAnalytics);
+  const [analytics, setAnalytics] = useState(DEFAULT_ANALYTICS);
 
-  useEffect(() => { refreshAnalytics(); }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await adminService.getDashboardStats();
+        const ordersByStatus = {};
+        (data.ordersByStatus || []).forEach(o => {
+          ordersByStatus[o.status || 'unknown'] = (ordersByStatus[o.status] || 0) + o.count;
+        });
+        setAnalytics({
+          usersCount: data.totalUsers || 0,
+          ordersCount: (data.totalDiagnosticOrders || 0) + (data.totalPharmacyOrders || 0),
+          revenue: 0,
+          testsCount: 0,
+          pendingOrders: ordersByStatus['pending'] || 0,
+          cancelledOrders: ordersByStatus['cancelled'] || 0,
+          completedOrders: ordersByStatus['completed'] || 0,
+          ordersByStatus,
+          revenueToday: 0,
+          revenueMonth: 0,
+          topTests: [],
+          physioBookings: 0, physioRevenue: 0, physioTopConditions: [],
+          physioBookingsToday: 0, physioBookingsMonth: 0,
+          vaccBookings: 0, vaccRevenue: 0, vaccTopVaccines: [],
+          vaccBookingsToday: 0, vaccBookingsMonth: 0,
+        });
+      } catch {
+        // keep defaults
+      }
+    })();
+  }, []);
 
   const cards = [
     { label: t('admin.dashboard.total_users', 'Total Users'), value: analytics.usersCount, icon: '👥', color: '#3B82F6' },

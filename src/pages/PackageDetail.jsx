@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import useCartStore from '../stores/cartStore';
 import useUploadModal from '../stores/uploadModalStore';
 import { getPackageBySlug, packageList } from '../data/healthPackages';
-import { seedTests } from '../data/seedData';
+import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
 import { makeSlug } from '../data/seedData';
 import { useT } from '../i18n/LanguageProvider';
 
@@ -38,6 +38,8 @@ function Tag({ label, color, bg }) {
 
 export default function PackageDetail() {
   const t = useT();
+  const [, forceUpdate] = useState(0);
+  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
   const { slug } = useParams();
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);

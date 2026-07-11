@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
-import { seedTests } from '../data/seedData';
+import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
 import useCartStore from '../stores/cartStore';
 import useUploadModal from '../stores/uploadModalStore';
 import { useT } from '../i18n/LanguageProvider';
@@ -68,6 +68,8 @@ const slugify = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-
 
 export default function TestDetail() {
   const t = useT();
+  const [, forceUpdate] = useState(0);
+  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
   const { slug } = useParams();
   const navigate = useNavigate();
   const [test, setTest] = useState(null);

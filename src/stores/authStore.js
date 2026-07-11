@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import useAuditStore from './auditStore';
-import api from '../services/api';
+import * as authService from '../services/authService';
 
 const ADMINS = { '9999999999': 'super_admin' };
 
@@ -13,6 +13,18 @@ function registerUser(user) {
   if (idx >= 0) { users[idx] = { ...users[idx], ...user, updatedAt: new Date().toISOString() }; }
   else { users.unshift({ ...user, role: 'user', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }); }
   saveUsers(users);
+}
+
+function setTokens(accessToken, refreshToken) {
+  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+  localStorage.setItem('jh_token', accessToken);
+}
+
+function clearTokens() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('jh_token');
 }
 
 const useAuthStore = create((set, get) => ({
@@ -30,38 +42,42 @@ const useAuthStore = create((set, get) => ({
 
   login: async (phone) => {
     set({ isLoading: true });
-    await new Promise(r => setTimeout(r, 500));
-    const user = { id: Date.now().toString(), phone, name: phone === '9999999999' ? 'Super Admin' : 'User', email: '', role: ADMINS[phone] || 'user' };
-    localStorage.setItem('jh_token', 'mock-token');
-    localStorage.setItem('jh_user', JSON.stringify(user));
-    localStorage.setItem('jh_user_phone', phone);
-    set({ user, isAuthenticated: true, isLoading: false });
-    registerUser(user);
-    useAuditStore.getState().log('login', `User logged in: ${user.name} (${phone})`, 'auth');
+    try {
+      const { data } = await authService.sendOtp(phone, 'phone');
+      localStorage.setItem('jh_user_phone', phone);
+      set({ isLoading: false });
+      return true;
+    } catch {
+      set({ isLoading: false });
+      return false;
+    }
   },
 
   verifyOtp: async (phone, otp) => {
     set({ isLoading: true });
-    await new Promise(r => setTimeout(r, 500));
-    const user = { id: Date.now().toString(), phone, name: phone === '9999999999' ? 'Super Admin' : 'User', email: '', role: ADMINS[phone] || 'user' };
-    localStorage.setItem('jh_token', 'mock-token');
-    localStorage.setItem('jh_user', JSON.stringify(user));
-    localStorage.setItem('jh_user_phone', phone);
-    set({ user, isAuthenticated: true, isLoading: false });
-    registerUser(user);
-    useAuditStore.getState().log('login', `User verified OTP and logged in: ${user.name} (${phone})`, 'auth');
-    return true;
+    try {
+      const { data } = await authService.verifyOtp(phone, otp);
+      const { user, accessToken, refreshToken } = data;
+      localStorage.setItem('jh_user', JSON.stringify(user));
+      localStorage.setItem('jh_user_phone', phone);
+      setTokens(accessToken, refreshToken);
+      set({ user, isAuthenticated: true, isLoading: false });
+      registerUser(user);
+      useAuditStore.getState().log('login', `User verified OTP and logged in: ${user.name} (${phone})`, 'auth');
+      return true;
+    } catch {
+      set({ isLoading: false });
+      return false;
+    }
   },
 
-  googleLogin: async () => {
+  googleLogin: async (credential) => {
     set({ isLoading: true });
     try {
-      const { data } = await api.post('/auth/google', { credential: '' });
+      const { data } = await authService.googleLogin(credential);
       const { user, accessToken, refreshToken } = data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('jh_token', accessToken);
       localStorage.setItem('jh_user', JSON.stringify(user));
+      setTokens(accessToken, refreshToken);
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
       useAuditStore.getState().log('login', `User logged in via Google: ${user.name} (${user.email})`, 'auth');
@@ -76,7 +92,7 @@ const useAuthStore = create((set, get) => ({
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('jh_token');
       if (!token) return;
-      const { data } = await api.get('/user/profile');
+      const { data } = await authService.getProfile();
       const enriched = { ...data, role: data.role || ADMINS[data.phone] || ADMINS[data.email] || 'user' };
       localStorage.setItem('jh_user', JSON.stringify(enriched));
       set({ user: enriched, isAuthenticated: true });
@@ -107,11 +123,9 @@ const useAuthStore = create((set, get) => ({
   logout: () => {
     const u = get().user;
     useAuditStore.getState().log('logout', `User logged out: ${u?.name || u?.phone || 'unknown'}`, 'auth');
-    localStorage.removeItem('jh_token');
+    clearTokens();
     localStorage.removeItem('jh_user');
     localStorage.removeItem('jh_user_phone');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     set({ user: null, isAuthenticated: false });
   },
 

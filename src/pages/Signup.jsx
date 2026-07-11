@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 import GoogleSignIn from '../components/GoogleSignIn';
+import { sendOtp as sendOtpApi } from '../services/authService';
 
 function roleRedirect(role) {
   return role !== 'user' ? '/admin' : '/dashboard';
@@ -23,9 +24,14 @@ export default function Signup() {
     if (phone.length !== 10) { setError(t('signup.error.invalidPhone', 'Enter a valid 10-digit phone number')); return; }
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    setLoading(false);
-    setStep(2);
+    try {
+      await sendOtpApi(phone, 'phone');
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.error || t('signup.error.sendOtpFailed', 'Failed to send OTP. Try again.'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleVerify(e) {

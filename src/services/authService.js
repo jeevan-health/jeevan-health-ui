@@ -1,10 +1,19 @@
 import api from './api';
 
+export const sendOtp = (identifier, type = 'phone') =>
+  api.post('/auth/send-otp', { identifier, type });
+
+export const verifyOtp = (identifier, code) =>
+  api.post('/auth/verify-otp', { identifier, code });
+
 export const signup = (email, password) =>
   api.post('/auth/signup', { email, password });
 
 export const login = (email, password) =>
   api.post('/auth/login', { email, password });
+
+export const googleLogin = (credential) =>
+  api.post('/auth/google', { credential });
 
 export const getProfile = () =>
   api.get('/user/profile');

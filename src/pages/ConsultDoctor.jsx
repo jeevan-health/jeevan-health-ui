@@ -1,31 +1,63 @@
 import { useT } from '../i18n/LanguageProvider';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import useDoctorsStore from '../stores/doctorsStore';
+import * as doctorService from '../services/doctorService';
 
 const card = { background: '#fff', borderRadius: 16, padding: 24, border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'box-shadow 0.2s' };
 
+function mapDoctor(d) {
+  let avail = {};
+  try { avail = typeof d.availability === 'string' ? JSON.parse(d.availability) : (d.availability || {}); } catch { avail = {}; }
+  return {
+    id: d.id,
+    name: d.name,
+    specializations: [d.specialty || d.specializations?.[0] || 'General'].flat(),
+    qualifications: d.qualifications || [],
+    experience: d.experience || 0,
+    about: d.about || '',
+    rating: Number(d.rating) || 0,
+    reviewCount: Number(d.review_count || d.reviewCount) || 0,
+    fees: Number(d.fees) || 0,
+    consultationFee: Number(d.fees) || 0,
+    consultationModes: avail.modes || ['online'],
+    availableDays: avail.days || [],
+    image: d.image || '',
+    languages: d.languages || [],
+    isActive: d.isActive !== false,
+  };
+}
+
 export default function ConsultDoctor() {
   const t = useT();
-  const doctors = useDoctorsStore(s => s.doctors);
   const navigate = useNavigate();
+  const [doctors, setDoctors] = useState([]);
   const [search, setSearch] = useState('');
   const [specFilter, setSpecFilter] = useState('');
 
-  const activeDocs = useMemo(() => doctors.filter(d => d.isActive !== false), [doctors]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await doctorService.searchDoctors({ limit: 100 });
+        const list = (Array.isArray(data) ? data : data?.doctors || []).map(mapDoctor);
+        setDoctors(list);
+      } catch {
+        setDoctors([]);
+      }
+    })();
+  }, []);
 
   const allSpecs = useMemo(() => {
     const s = new Set();
-    activeDocs.forEach(d => (d.specializations || []).forEach(sp => s.add(sp)));
+    doctors.forEach(d => (d.specializations || []).forEach(sp => s.add(sp)));
     return [...s].sort();
-  }, [activeDocs]);
+  }, [doctors]);
 
   const filtered = useMemo(() => {
-    let d = activeDocs;
+    let d = doctors;
     if (search) { const q = search.toLowerCase(); d = d.filter(x => (x.name + (x.specializations || []).join(' ') + (x.qualifications || []).join(' ')).toLowerCase().includes(q)); }
     if (specFilter) d = d.filter(x => (x.specializations || []).includes(specFilter));
     return d;
-  }, [activeDocs, search, specFilter]);
+  }, [doctors, search, specFilter]);
 
   return (
     <div className="page-section">
