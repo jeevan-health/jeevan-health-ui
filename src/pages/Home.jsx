@@ -182,6 +182,7 @@ export default function Home() {
         .home-hero-feature-arrow { color: rgba(255,255,255,0.45); font-size: 16px; flex-shrink: 0; }
 
         /* ── Landing page sections ── */
+        .home-page-root { --home-bottom-bar: 64px; }
         .home-popular-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: stretch; }
         .home-cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
         .home-section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
@@ -190,18 +191,24 @@ export default function Home() {
         .home-page-section { scroll-margin-top: 72px; }
         .home-faq details { transition: border-color 0.15s; }
         .home-faq details[open] { border-color: #cbd5e1; box-shadow: 0 2px 10px rgba(15,23,42,0.04); }
-        .home-faq summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+        .home-faq summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; cursor: pointer; }
         .home-faq summary::-webkit-details-marker { display: none; }
         .home-faq summary::after { content: '+'; font-size: 18px; font-weight: 500; color: #1866C9; flex-shrink: 0; }
         .home-faq details[open] summary::after { content: '−'; }
         .home-services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        .home-timeline-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        /* 4 how-it-works steps — not 6 empty columns */
+        .home-timeline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         .home-nh-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
         .home-why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
         .home-trust-scroll { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .home-pkg-empty, .home-empty-soft {
+          text-align: center; padding: 36px 20px; border-radius: 14px; border: 1px dashed #cbd5e1;
+          background: #fafbfc; color: #64748b; font-size: 13px;
+        }
         .home-sticky-cta {
-          display: none; position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom, 0px));
-          z-index: 8990; padding: 8px 12px; background: rgba(255,255,255,0.96);
+          display: none; position: fixed; left: 0; right: 0;
+          bottom: calc(var(--home-bottom-bar) + env(safe-area-inset-bottom, 0px));
+          z-index: 8990; padding: 8px 12px; background: rgba(255,255,255,0.97);
           border-top: 1px solid #e8edf2; box-shadow: 0 -4px 16px rgba(15,23,42,0.06);
           backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
@@ -211,13 +218,18 @@ export default function Home() {
           display: flex; align-items: center; justify-content: center; font-family: inherit; cursor: pointer;
           text-decoration: none; border: none;
         }
+        .home-sticky-cta a:focus-visible, .home-sticky-cta button:focus-visible,
+        .home-hero-feature:focus-visible, .home-hero-cta-primary:focus-visible {
+          outline: 2px solid #FFD54F; outline-offset: 2px;
+        }
         body.mobile-nav-open .home-sticky-cta { display: none !important; }
         @media (max-width: 768px) {
-          .home-page-root { padding-bottom: 56px; }
+          /* room for sticky CTA (~60) + bottom bar (64) + safe area */
+          .home-page-root { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
         }
 
         @media (max-width: 1100px) {
-          .home-timeline-grid { grid-template-columns: repeat(3, 1fr); }
+          .home-timeline-grid { grid-template-columns: repeat(2, 1fr); }
           .home-nh-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 900px) {
@@ -244,7 +256,7 @@ export default function Home() {
           .home-hero-search .smart-search-root > div:first-child { border-radius: 12px !important; }
           .home-hero-proof { width: 100%; justify-content: center; border-radius: 12px; padding: 10px 12px; }
           .home-hero-side { grid-template-columns: 1fr 1fr; }
-          .home-hero-feature { padding: 12px; border-radius: 12px; }
+          .home-hero-feature { padding: 12px; border-radius: 12px; min-height: 56px; }
           .home-hero-feature-icon { width: 36px; height: 36px; border-radius: 10px; font-size: 16px; }
           .home-hero-feature-arrow { display: none; }
           .hero-search { border-radius: 12px !important; }
@@ -263,9 +275,19 @@ export default function Home() {
           .timeline-line { display: none !important; }
           .home-nh-grid { grid-template-columns: 1fr 1fr; }
           .home-section-head { flex-direction: column; align-items: flex-start !important; }
+          .home-section-head .btn { align-self: stretch; text-align: center; justify-content: center; }
           .page-section { padding: 28px 0 !important; }
           .section-title { font-size: 20px !important; }
           .section-subtitle { font-size: 13px !important; margin-bottom: 14px !important; }
+          /* packages: horizontal snap scroll for readable cards */
+          .home-pkg-scroll {
+            display: flex !important; gap: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory; padding-bottom: 6px; margin: 0 -4px;
+            scrollbar-width: none;
+          }
+          .home-pkg-scroll::-webkit-scrollbar { display: none; }
+          .home-pkg-scroll > * { flex: 0 0 min(78vw, 280px); scroll-snap-align: start; max-width: 300px; }
+          .home-popular-grid.home-pkg-scroll { grid-template-columns: none; }
         }
         @media (max-width: 600px) {
           .hero.home-hero { padding: 28px 12px 32px; }
@@ -290,13 +312,18 @@ export default function Home() {
           .home-hero-feature-desc { display: none; }
           .home-hero-feature { justify-content: flex-start; }
           .home-hero-feature-label { font-size: 12px; }
-          .home-popular-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
-          .home-timeline-grid { grid-template-columns: 1fr; }
+          /* keep 2-col for tests — 1-col was too long to scroll */
+          .home-popular-grid:not(.home-pkg-scroll) { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+          .home-timeline-grid { grid-template-columns: 1fr 1fr; }
           .home-cat-grid { grid-template-columns: repeat(2, 1fr); }
           .home-why-grid { grid-template-columns: 1fr; }
           .home-nh-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
           .how-cta .btn, .testimonials-cta .btn, .why-cta-section .btn, .nh-cta .btn { width: 100% !important; }
           .how-cta, .testimonials-cta, .nh-cta { padding: 18px 14px !important; }
+          .how-cta > div, .testimonials-cta > div { width: 100%; flex-direction: column; }
+        }
+        @media (hover: none) {
+          .home-hero-feature:hover { transform: none; }
         }
       `}</style>
       {/* Mobile sticky book CTA above bottom nav */}
@@ -501,7 +528,9 @@ function QuickActions() {
     { to: '/health-packages', icon: '📦', label: t('home.quickActions.mobile.packages', 'Packages'), sub: t('home.quickActions.mobile.packagesSub', 'Full body & more') },
     { to: '/consult-doctor', icon: '🩺', label: t('home.quickActions.mobile.doctor', 'Doctor'), sub: t('home.quickActions.mobile.doctorSub', 'Online consult') },
     { to: '/nurse-at-home', icon: '👩‍⚕️', label: t('home.quickActions.mobile.nursing', 'Nursing'), sub: t('home.quickActions.mobile.nursingSub', 'Care at home') },
+    { to: '/physiotherapy', icon: '💪', label: t('home.quickActions.mobile.physio', 'Physio'), sub: t('home.quickActions.mobile.physioSub', 'Home rehab') },
     { to: '/vaccination', icon: '💉', label: t('home.quickActions.mobile.vaccine', 'Vaccines'), sub: t('home.quickActions.mobile.vaccineSub', 'At home') },
+    { to: '/services', icon: '➕', label: t('home.quickActions.mobile.more', 'All services'), sub: t('home.quickActions.mobile.moreSub', 'Browse full list') },
   ];
 
   return (
@@ -694,11 +723,18 @@ function PackagesSection({ pkgs, featured }) {
           </div>
           <Link to="/health-packages" className="btn btn-outline" style={{ fontSize: 12 }}>{t('home.packages.viewAll', 'View All Packages →')}</Link>
         </div>
-        <div className="home-popular-grid">
+        {pkgs.filter(Boolean).length === 0 ? (
+          <div className="home-pkg-empty">
+            <div style={{ fontSize: 28, marginBottom: 8 }} aria-hidden>📦</div>
+            <p style={{ margin: '0 0 12px', fontWeight: 600, color: '#334155' }}>{t('home.packages.empty', 'Packages are loading or temporarily unavailable.')}</p>
+            <Link to="/health-packages" className="btn btn-primary btn-sm">{t('home.packages.browse', 'Browse packages')}</Link>
+          </div>
+        ) : (
+        <div className="home-popular-grid home-pkg-scroll">
           {pkgs.filter(Boolean).slice(0, 4).map((p) => {
             const discPct = p.discount || (p.mrp ? Math.round((1 - p.offerPrice / p.mrp) * 100) : 0);
             return (
-              <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', transition: 'box-shadow 0.2s, transform 0.2s' }}
+              <div key={p.slug || p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', transition: 'box-shadow 0.2s, transform 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(24,102,201,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
                 <div style={{ background: p.color || 'linear-gradient(135deg, #1866C9, #0F4A96)', padding: '16px 14px 18px', position: 'relative', minHeight: 120 }}>
@@ -735,6 +771,7 @@ function PackagesSection({ pkgs, featured }) {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );

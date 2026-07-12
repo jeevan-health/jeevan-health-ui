@@ -72,8 +72,8 @@ const navItems = [
   { key: 'logout', label: 'Logout', icon: '🚪' },
 ];
 
-/** Primary chips on mobile — rest live under Profile */
-const mobilePrimaryKeys = ['overview', 'bookings', 'reports', 'health', 'family', 'profile', 'logout'];
+/** Primary chips on mobile — secondary items under More / Profile */
+const mobilePrimaryKeys = ['overview', 'bookings', 'reports', 'appointments', 'health', 'family', 'profile'];
 
 function Section({ id, title, icon, children, active, action }) {
   // Only render the selected section — overview is its own layout (not a dump of every panel)
@@ -189,6 +189,7 @@ export default function Dashboard() {
 
   const goToSection = (key) => {
     if (key === 'logout') return;
+    setShowMoreNav(false);
     setActiveSection(key);
     if (key === 'overview') {
       setSearchParams({}, { replace: true });
@@ -204,6 +205,7 @@ export default function Dashboard() {
   };
 
   const [comingSoon, setComingSoon] = useState(null);
+  const [showMoreNav, setShowMoreNav] = useState(false);
   const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
   const dashLoading = useDashboardStore(s => s.loading);
   const fetchFamily = useAuthStore(s => s.fetchFamily);
@@ -311,31 +313,9 @@ export default function Dashboard() {
     setShowProfileModal(false);
   };
 
-  const renderNav = (vertical) => (
-    <nav style={vertical ? { display: 'flex', flexDirection: 'column', gap: 2 } : { display: 'flex', gap: 0, overflowX: 'auto' }} aria-label={t('dashboard.sidebar.navAria', 'Dashboard navigation')}>
-      {navItems.map(item => (
-        <button key={item.key} type="button" onClick={() => {
-          if (item.key === 'logout') { logout(); navigate('/', { replace: true }); }
-          else goToSection(item.key);
-        }}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10, padding: vertical ? '10px 20px' : '10px 14px',
-            fontSize: 13, fontWeight: item.key === 'logout' ? 600 : (activeSection === item.key ? 600 : 500),
-            color: item.key === 'logout' ? '#dc2626' : (activeSection === item.key ? '#1866C9' : 'var(--text-body)'),
-            background: item.key === 'logout' ? 'transparent' : (activeSection === item.key ? '#e8f0fe' : 'transparent'),
-            border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-            whiteSpace: 'nowrap', textAlign: 'left', width: vertical ? '100%' : 'auto',
-            borderRight: vertical && activeSection === item.key ? '3px solid #1866C9' : '3px solid transparent',
-            borderBottom: !vertical && activeSection === item.key ? '2px solid #1866C9' : '2px solid transparent',
-            WebkitTapHighlightColor: 'transparent',
-          }}>
-          <span aria-hidden>{item.icon}</span> <span style={{ whiteSpace: 'nowrap' }}>{t(`dashboard.nav.${item.key}`, item.label)}</span>
-        </button>
-      ))}
-    </nav>
-  );
-
   const firstName = displayName !== t('dashboard.userFallback', 'there') ? displayName.split(' ')[0] : '';
+
+  const isEmptyOverview = !dashLoading && upcoming.length === 0 && reports.length === 0 && upcomingAppts.length === 0;
 
   return (
     <div className="dash-layout">
@@ -345,26 +325,40 @@ export default function Dashboard() {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>{t('dashboard.sidebar.myHealth', 'My Health')}</div>
           {p.name ? <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div> : null}
         </div>
-        {renderNav(true)}
+        <div className="dash-sidebar-nav">
+          {navItems.filter(i => i.key !== 'logout').map(item => (
+            <button key={item.key} type="button" onClick={() => goToSection(item.key)}
+              className={`dash-side-link${activeSection === item.key ? ' active' : ''}`}>
+              <span aria-hidden>{item.icon}</span>
+              <span>{t(`dashboard.nav.${item.key}`, item.label)}</span>
+            </button>
+          ))}
+        </div>
+        <div className="dash-sidebar-foot">
+          <button type="button" className="dash-side-link dash-side-logout" onClick={() => { logout(); navigate('/', { replace: true }); }}>
+            <span aria-hidden>🚪</span>
+            <span>{t('dashboard.nav.logout', 'Logout')}</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main */}
       <main className="dash-main">
+        <div className="dash-main-inner">
 
         {/* ===== HEADER ===== */}
-        <div className="dash-header-wrap" style={{ marginBottom: activeSection === 'overview' ? 20 : 12 }}>
-          <div className="dash-header-top" style={{ display: 'flex', alignItems: 'stretch', gap: 14, marginBottom: activeSection === 'overview' ? 14 : 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
-                {nameInitial}
-              </div>
+        <div className="dash-header-wrap" style={{ marginBottom: activeSection === 'overview' ? 16 : 10 }}>
+          <div className="dash-header-top">
+            <div className="dash-header-identity">
+              <div className="dash-avatar" aria-hidden>{nameInitial}</div>
               <div style={{ minWidth: 0 }}>
-                <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <h1 className="dash-greeting">
+                  <span aria-hidden style={{ marginRight: 4 }}>{GREETING_ICON}</span>
                   {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)}{firstName ? `, ${firstName}` : ''}
                 </h1>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '3px 0 0' }}>
+                <p className="dash-greeting-sub">
                   {activeSection !== 'overview' ? (
-                    <button type="button" onClick={() => goToSection('overview')} style={{ background: 'none', border: 'none', padding: 0, color: '#1866C9', fontWeight: 600, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    <button type="button" onClick={() => goToSection('overview')} className="dash-back-link">
                       ← {t('dashboard.backToOverview', 'Back to overview')}
                     </button>
                   ) : p.lastCheckup ? (
@@ -377,8 +371,8 @@ export default function Dashboard() {
             </div>
 
             {activeSection === 'overview' && store.healthTrends.hba1c.length > 0 && (
-              <div className="dash-hdr-trend" style={{ flexShrink: 0, minWidth: 0, display: 'flex', alignItems: 'center' }}>
-                <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div className="dash-hdr-trend">
+                <div className="dash-trend-card">
                   <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)' }}>📈 HbA1c</div>
                   <TrendMiniBar values={store.healthTrends.hba1c} color="#1866C9" />
                   <TrendArrow value={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 1].value} prev={store.healthTrends.hba1c[store.healthTrends.hba1c.length - 2]?.value} />
@@ -386,24 +380,26 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div className="dash-hdr-score" style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+            <div className="dash-hdr-score">
               {store.healthData && healthScoreComputed ? (
-                <button type="button" onClick={() => goToSection('health')} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 14px 4px 10px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: healthScoreComputed.recommendation.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                <button type="button" onClick={() => goToSection('health')} className="dash-score-btn">
+                  <div className="dash-score-icon" style={{ background: healthScoreComputed.recommendation.color + '15' }}>
                     {healthScoreComputed.recommendation.icon}
                   </div>
                   <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
-                    <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
-                    <div style={{ fontSize: 9, color: healthScoreComputed.recommendation.color, fontWeight: 600, lineHeight: 1.1 }}>{healthScoreComputed.recommendation.zone}</div>
+                    <div className="dash-score-label">{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
+                    <div className="dash-score-value" style={{ color: healthScoreComputed.recommendation.color }}>
+                      {healthScoreComputed.score}<span>/{healthScoreComputed.max}</span>
+                    </div>
+                    <div className="dash-score-zone" style={{ color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.recommendation.zone}</div>
                   </div>
                 </button>
               ) : (
-                <button type="button" style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>
-                  <div style={{ fontSize: 22 }}>🩺</div>
+                <button type="button" className="dash-score-btn" onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>
+                  <div className="dash-score-icon" style={{ background: '#eff6ff' }}>🩺</div>
                   <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#1866C9', lineHeight: 1.2 }}>--/100</div>
+                    <div className="dash-score-label">{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
+                    <div className="dash-score-value" style={{ color: '#1866C9', fontSize: 15 }}>--/100</div>
                   </div>
                 </button>
               )}
@@ -414,19 +410,19 @@ export default function Dashboard() {
           {activeSection === 'overview' && (
             <>
               {!store.healthData && (
-                <button type="button" onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 12, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 44, marginBottom: 10 }}>
+                <button type="button" onClick={() => { setHealthStep(1); setShowHealthModal(true); }} className="dash-assess-cta">
                   {t('dashboard.startAssessment', '🩺 Start Health Assessment')}
                 </button>
               )}
-              <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <button type="button" onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
+              <div className="dash-actions">
+                <button type="button" onClick={() => navigate('/diagnostics')} className="dash-action-primary">
                   <span style={{ fontSize: 22, flexShrink: 0 }} aria-hidden>🧪</span>
                   <div style={{ lineHeight: 1.3 }}>
                     <div style={{ fontWeight: 700 }}>{t('dashboard.bookTest', 'Book a Test')}</div>
-                    <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.homeCollection', 'Home Collection')}</div>
+                    <div style={{ fontSize: 11, opacity: 0.85 }}>{t('dashboard.homeCollection', 'Home Collection')}</div>
                   </div>
                 </button>
-                <button type="button" onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
+                <button type="button" onClick={() => navigate('/upload-prescription')} className="dash-action-secondary">
                   <span style={{ fontSize: 22, flexShrink: 0 }} aria-hidden>📄</span>
                   <div style={{ lineHeight: 1.3 }}>
                     <div style={{ fontWeight: 700 }}>{t('dashboard.uploadReport', 'Upload Report')}</div>
@@ -438,60 +434,77 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Mobile Tab Nav — primary chips only */}
-        <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 14 }}>
-          <nav
-            style={{
-              display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 2px 8px',
-              scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
-            }}
-          >
+        {/* Mobile Tab Nav — sticky chips */}
+        <div className="dash-mobile-nav">
+          <nav aria-label={t('dashboard.sidebar.navAria', 'Dashboard navigation')}>
             {navItems.filter(item => mobilePrimaryKeys.includes(item.key)).map(item => {
-              const isLogout = item.key === 'logout';
-              const active = !isLogout && activeSection === item.key;
+              const active = activeSection === item.key;
               return (
                 <button
                   key={item.key}
                   type="button"
-                  onClick={() => {
-                    if (isLogout) {
-                      logout();
-                      navigate('/', { replace: true });
-                      return;
-                    }
-                    goToSection(item.key);
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px',
-                    fontSize: 12, fontWeight: isLogout || active ? 700 : 500,
-                    color: isLogout ? '#dc2626' : (active ? '#1866C9' : '#6B7280'),
-                    background: isLogout ? '#FEF2F2' : (active ? '#E8F0FE' : '#F3F4F6'),
-                    border: isLogout
-                      ? '1px solid #fecaca'
-                      : (active ? '1px solid #CBD5E1' : '1px solid transparent'),
-                    cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 24,
-                    transition: 'all 0.15s', minHeight: 40, flexShrink: 0,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
+                  onClick={() => goToSection(item.key)}
+                  className={`dash-chip${active ? ' active' : ''}`}
                 >
                   <span aria-hidden>{item.icon}</span>
                   <span>{t(`dashboard.nav.${item.key}`, item.label)}</span>
                 </button>
               );
             })}
+            <button
+              type="button"
+              className={`dash-chip${showMoreNav ? ' active' : ''}`}
+              onClick={() => setShowMoreNav(v => !v)}
+              aria-expanded={showMoreNav}
+            >
+              <span aria-hidden>⋯</span>
+              <span>{t('dashboard.nav.more', 'More')}</span>
+            </button>
           </nav>
+          {showMoreNav && (
+            <div className="dash-more-panel">
+              {[
+                { key: 'wallet', icon: '💳', label: t('dashboard.nav.wallet', 'Wallet') },
+                { key: 'invoices', icon: '📄', label: t('dashboard.nav.invoices', 'Invoices') },
+                { key: 'abha', icon: '🆔', label: t('dashboard.nav.abha', 'ABHA') },
+                { key: 'settings', icon: '⚙️', label: t('dashboard.nav.settings', 'Settings') },
+              ].map(s => (
+                <button key={s.key} type="button" className="dash-more-item" onClick={() => { setShowMoreNav(false); goToSection(s.key); }}>
+                  <span aria-hidden>{s.icon}</span> {s.label}
+                </button>
+              ))}
+              <button type="button" className="dash-more-item dash-more-logout" onClick={() => { logout(); navigate('/', { replace: true }); }}>
+                <span aria-hidden>🚪</span> {t('dashboard.nav.logout', 'Logout')}
+              </button>
+            </div>
+          )}
         </div>
 
         {dashLoading && activeSection === 'overview' && (
-          <div style={{ padding: '10px 14px', marginBottom: 12, borderRadius: 10, background: '#F0F7FF', border: '1px solid #dbeafe', fontSize: 12, color: '#1866C9', fontWeight: 600 }}>
-            {t('dashboard.loading', 'Refreshing your health data…')}
+          <div className="dash-loading-block" aria-busy="true" aria-live="polite">
+            <div className="dash-skel-row">
+              {[1, 2, 3, 4].map(i => <div key={i} className="dash-skel-card" />)}
+            </div>
+            <p className="dash-loading-text">{t('dashboard.loading', 'Refreshing your health data…')}</p>
           </div>
         )}
 
         {/* ===== OVERVIEW ===== */}
         {activeSection === 'overview' && (
           <>
-          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 160px), 1fr))', gap: 12, marginBottom: 16 }}>
+          {isEmptyOverview && (
+            <div className="dash-welcome card">
+              <div className="dash-welcome-icon" aria-hidden>👋</div>
+              <h2>{t('dashboard.welcomeTitle', 'Welcome to your health hub')}</h2>
+              <p>{t('dashboard.welcomeBody', 'Book a lab test, upload a prescription, or add family members — your activity will show up here.')}</p>
+              <div className="dash-welcome-actions">
+                <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.bookTestBtn', 'Book a Test')}</button>
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => goToSection('family')}>{t('dashboard.addFamily', 'Add family')}</button>
+              </div>
+            </div>
+          )}
+
+          <div className="overview-grid">
             {[
               { key: 'bookings', icon: '📅', label: t('dashboard.overview.upcoming', 'Upcoming Bookings'), value: upcoming.length, color: '#2563eb', bg: '#eff6ff' },
               { key: 'reports', icon: '🧪', label: t('dashboard.overview.reports', 'Reports Available'), value: reports.length, color: '#16a34a', bg: '#f0fdf4' },
@@ -501,29 +514,23 @@ export default function Dashboard() {
               <button
                 key={`${card.key}-${idx}`}
                 type="button"
-                className="card"
+                className="card dash-stat-card"
                 onClick={() => goToSection(card.key)}
-                style={{
-                  textAlign: 'left', cursor: 'pointer', padding: '16px 14px', borderRadius: 14,
-                  border: '1px solid #e8edf2', background: '#fff', fontFamily: 'inherit',
-                  display: 'flex', flexDirection: 'column', gap: 10, transition: 'border-color 0.15s, box-shadow 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = card.color; e.currentTarget.style.boxShadow = `0 4px 14px ${card.color}18`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = 'none'; }}
+                style={{ '--stat-color': card.color, '--stat-bg': card.bg }}
               >
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }} aria-hidden>{card.icon}</div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: card.color, lineHeight: 1.1 }}>{card.value}</div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, lineHeight: 1.3 }}>{card.label}</div>
+                <div className="dash-stat-icon" aria-hidden>{card.icon}</div>
+                <div className="dash-stat-value">{card.value}</div>
+                <div className="dash-stat-label">{card.label}</div>
               </button>
             ))}
           </div>
 
           {/* Compact previews */}
-          <div className="dash-section-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 16 }}>
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{t('dashboard.overview.nextBooking', '📅 Next booking')}</h3>
-                <button type="button" onClick={() => goToSection('bookings')} style={{ background: 'none', border: 'none', color: '#1866C9', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('dashboard.viewAll', 'View all')}</button>
+          <div className="dash-section-grid-2">
+            <div className="card dash-preview-card">
+              <div className="dash-preview-head">
+                <h3>{t('dashboard.overview.nextBooking', '📅 Next booking')}</h3>
+                <button type="button" onClick={() => goToSection('bookings')} className="dash-link-btn">{t('dashboard.viewAll', 'View all')}</button>
               </div>
               {upcoming[0] ? (
                 <div>
@@ -538,10 +545,10 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{t('dashboard.overview.latestReport', '🧪 Latest report')}</h3>
-                <button type="button" onClick={() => goToSection('reports')} style={{ background: 'none', border: 'none', color: '#1866C9', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('dashboard.viewAll', 'View all')}</button>
+            <div className="card dash-preview-card">
+              <div className="dash-preview-head">
+                <h3>{t('dashboard.overview.latestReport', '🧪 Latest report')}</h3>
+                <button type="button" onClick={() => goToSection('reports')} className="dash-link-btn">{t('dashboard.viewAll', 'View all')}</button>
               </div>
               {reports[0] ? (
                 <div>
@@ -558,8 +565,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Secondary shortcuts */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 8, marginBottom: 20 }}>
+          {/* Secondary shortcuts — desktop/tablet; mobile uses More chip */}
+          <div className="dash-secondary-grid">
             {[
               { key: 'appointments', icon: '👨‍⚕️', label: t('dashboard.nav.appointments', 'Appointments') },
               { key: 'wallet', icon: '💳', label: t('dashboard.nav.wallet', 'Wallet') },
@@ -572,12 +579,7 @@ export default function Dashboard() {
                 key={s.key}
                 type="button"
                 onClick={() => goToSection(s.key)}
-                style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '12px 8px',
-                  borderRadius: 12, border: '1px solid #e8edf2', background: '#fff', cursor: 'pointer',
-                  fontFamily: 'inherit', fontSize: 11, fontWeight: 600, color: '#334155', minHeight: 72,
-                  WebkitTapHighlightColor: 'transparent',
-                }}
+                className="dash-secondary-tile"
               >
                 <span style={{ fontSize: 20 }} aria-hidden>{s.icon}</span>
                 {s.label}
@@ -1578,6 +1580,7 @@ export default function Dashboard() {
           </div>
         )}
 
+        </div>{/* .dash-main-inner */}
       </main>
 
       {/* Prescription View Modal */}
@@ -1874,62 +1877,227 @@ export default function Dashboard() {
 
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes dashShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .dash-main-inner { max-width: 1080px; margin: 0 auto; width: 100%; }
+        .dash-sidebar { display: flex; flex-direction: column; }
+        .dash-sidebar-nav { flex: 1; overflow-y: auto; padding-bottom: 8px; }
+        .dash-sidebar-foot { border-top: 1px solid var(--border); padding: 8px 0 12px; margin-top: auto; }
+        .dash-side-link {
+          display: flex; align-items: center; gap: 10px; padding: 10px 20px; width: 100%;
+          font-size: 13px; font-weight: 500; color: var(--text-body); background: transparent;
+          border: none; border-right: 3px solid transparent; cursor: pointer; font-family: inherit;
+          text-align: left; transition: background 0.12s, color 0.12s;
+        }
+        .dash-side-link:hover { background: #f0f7ff; color: #1866C9; }
+        .dash-side-link.active { background: #e8f0fe; color: #1866C9; font-weight: 600; border-right-color: #1866C9; }
+        .dash-side-logout { color: #dc2626 !important; font-weight: 600; }
+        .dash-side-logout:hover { background: #fef2f2 !important; }
+
+        .dash-header-top { display: flex; align-items: stretch; gap: 14px; margin-bottom: 12px; }
+        .dash-header-identity { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .dash-avatar {
+          width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+          background: linear-gradient(135deg, #1866C9, #0F4A96);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px; color: #fff; font-weight: 700;
+        }
+        .dash-greeting {
+          font-size: 18px; font-weight: 700; margin: 0; color: var(--text-dark);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .dash-greeting-sub { font-size: 12px; color: var(--text-secondary); margin: 3px 0 0; }
+        .dash-back-link {
+          background: none; border: none; padding: 0; color: #1866C9; font-weight: 600;
+          font-size: 12px; cursor: pointer; font-family: inherit;
+        }
+        .dash-hdr-trend { flex-shrink: 0; display: flex; align-items: center; }
+        .dash-trend-card {
+          background: #fff; border-radius: 12px; border: 1px solid #e8edf2;
+          padding: 6px 10px; display: flex; align-items: center; gap: 8px;
+        }
+        .dash-hdr-score { flex-shrink: 0; display: flex; align-items: center; }
+        .dash-score-btn {
+          background: #fff; border-radius: 12px; border: 1px solid #e8edf2;
+          padding: 6px 14px 6px 10px; display: flex; align-items: center; gap: 8px;
+          cursor: pointer; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .dash-score-btn:hover { border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(15,23,42,0.06); }
+        .dash-score-icon {
+          width: 36px; height: 36px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .dash-score-label { font-size: 9px; color: var(--text-secondary); font-weight: 600; line-height: 1.1; letter-spacing: 0.02em; }
+        .dash-score-value { font-size: 20px; font-weight: 800; line-height: 1.2; }
+        .dash-score-value span { font-size: 12px; font-weight: 500; color: #94a3b8; }
+        .dash-score-zone { font-size: 9px; font-weight: 600; line-height: 1.1; }
+
+        .dash-assess-cta {
+          display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 12px;
+          border: 2px dashed #1866C9; background: #F0F7FF; color: #1866C9; font-weight: 700;
+          font-size: 13px; cursor: pointer; font-family: inherit; width: 100%;
+          justify-content: center; min-height: 44px; margin-bottom: 10px;
+        }
+        .dash-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .dash-action-primary, .dash-action-secondary {
+          display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px;
+          font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit;
+          text-align: left; width: 100%; min-height: 50px; transition: filter 0.15s, box-shadow 0.15s;
+        }
+        .dash-action-primary {
+          border: none; background: linear-gradient(135deg, #1866C9, #2B7BE8); color: #fff;
+        }
+        .dash-action-primary:hover { filter: brightness(1.05); box-shadow: 0 4px 14px rgba(24,102,201,0.25); }
+        .dash-action-secondary {
+          border: 2px solid var(--primary, #1866C9); background: #fff; color: var(--primary, #1866C9);
+        }
+        .dash-action-secondary:hover { background: #f0f7ff; }
+
+        .dash-mobile-nav { display: none; margin-bottom: 14px; }
+        .dash-mobile-nav nav {
+          display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 8px;
+          scrollbar-width: none; -webkit-overflow-scrolling: touch; -ms-overflow-style: none;
+        }
+        .dash-mobile-nav nav::-webkit-scrollbar { display: none; }
+        .dash-chip {
+          display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+          font-size: 12px; font-weight: 500; color: #6B7280; background: #F3F4F6;
+          border: 1px solid transparent; cursor: pointer; font-family: inherit;
+          white-space: nowrap; border-radius: 20px; min-height: 38px; flex-shrink: 0;
+          transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+        }
+        .dash-chip.active { font-weight: 700; color: #1866C9; background: #E8F0FE; border-color: #CBD5E1; }
+        .dash-more-panel {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+          padding: 10px; background: #fff; border: 1px solid #e8edf2; border-radius: 12px;
+        }
+        .dash-more-item {
+          display: flex; align-items: center; gap: 8px; padding: 12px 10px; border-radius: 10px;
+          border: 1px solid #e8edf2; background: #f8fafc; font-size: 12px; font-weight: 600;
+          color: #334155; cursor: pointer; font-family: inherit; min-height: 44px;
+        }
+        .dash-more-logout { color: #dc2626; grid-column: 1 / -1; justify-content: center; background: #fef2f2; border-color: #fecaca; }
+
+        .overview-grid {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+          gap: 12px; margin-bottom: 16px;
+        }
+        .dash-stat-card {
+          text-align: left; cursor: pointer; padding: 16px 14px; border-radius: 14px;
+          border: 1px solid #e8edf2; background: #fff; font-family: inherit;
+          display: flex; flex-direction: column; gap: 10px;
+          transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .dash-stat-card:hover {
+          border-color: var(--stat-color, #1866C9);
+          box-shadow: 0 4px 14px color-mix(in srgb, var(--stat-color, #1866C9) 12%, transparent);
+        }
+        .dash-stat-icon {
+          width: 36px; height: 36px; border-radius: 10px; background: var(--stat-bg, #eff6ff);
+          display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .dash-stat-value { font-size: 28px; font-weight: 800; color: var(--stat-color, #2563eb); line-height: 1.1; }
+        .dash-stat-label { font-size: 12px; color: #64748b; font-weight: 500; line-height: 1.3; }
+
+        .dash-section-grid-2 {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 12px; margin-bottom: 16px;
+        }
+        .dash-preview-card { padding: 16px; }
+        .dash-preview-head {
+          display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px;
+        }
+        .dash-preview-head h3 { font-size: 14px; font-weight: 700; margin: 0; }
+        .dash-link-btn {
+          background: none; border: none; color: #1866C9; font-size: 12px; font-weight: 600;
+          cursor: pointer; font-family: inherit; flex-shrink: 0;
+        }
+
+        .dash-secondary-grid {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+          gap: 8px; margin-bottom: 20px;
+        }
+        .dash-secondary-tile {
+          display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px;
+          border-radius: 12px; border: 1px solid #e8edf2; background: #fff; cursor: pointer;
+          font-family: inherit; font-size: 11px; font-weight: 600; color: #334155; min-height: 72px;
+          -webkit-tap-highlight-color: transparent; transition: border-color 0.15s;
+        }
+        .dash-secondary-tile:hover { border-color: #1866C9; }
+
+        .dash-welcome {
+          text-align: center; padding: 28px 20px; margin-bottom: 16px;
+          border: 1px solid #dbeafe; background: linear-gradient(180deg, #f0f7ff 0%, #fff 100%);
+          border-radius: 16px;
+        }
+        .dash-welcome-icon { font-size: 32px; margin-bottom: 8px; }
+        .dash-welcome h2 { font-size: 16px; font-weight: 800; margin: 0 0 6px; color: #0f172a; }
+        .dash-welcome p { font-size: 13px; color: #64748b; margin: 0 0 14px; line-height: 1.5; max-width: 420px; margin-left: auto; margin-right: auto; }
+        .dash-welcome-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+        .dash-loading-block { margin-bottom: 16px; }
+        .dash-skel-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px; }
+        .dash-skel-card {
+          height: 96px; border-radius: 14px; border: 1px solid #e8edf2;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%; animation: dashShimmer 1.2s infinite;
+        }
+        .dash-loading-text { font-size: 12px; color: #1866C9; font-weight: 600; margin: 0; text-align: center; }
+
+        @media (max-width: 900px) {
+          .dash-skel-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
         @media (max-width: 768px) {
           .dash-sidebar { display: none !important; }
-          .dash-mobile-nav { display: block !important; }
-          .dash-main { padding: 12px 10px !important; padding-bottom: 88px !important; }
-          .dash-main h1 { font-size: 18px !important; }
-          .dash-main .dash-header-wrap { width: 100% !important; }
-          .dash-header-top { flex-direction: column !important; gap: 10px !important; }
-          .dash-hdr-trend { width: 100% !important; }
-          .dash-hdr-trend > div { width: 100% !important; justify-content: space-between !important; }
-          .dash-hdr-trend svg { width: 80px !important; }
-          .dash-hdr-score { width: 100% !important; }
-          .dash-hdr-score > div { width: 100% !important; justify-content: center !important; }
-          .dash-main .dash-actions { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-          .dash-main .overview-grid > div,
-          .dash-main .overview-grid > button { padding: 14px 10px !important; }
-          .dash-main .overview-grid > div > div:nth-child(1),
-          .dash-main .overview-grid > button > div:nth-child(1) { font-size: 26px !important; }
-          .dash-main .overview-grid > div > div:nth-child(2),
-          .dash-main .overview-grid > button > div:nth-child(2) { font-size: 26px !important; }
-          .dash-main .overview-grid > div > div:nth-child(3),
-          .dash-main .overview-grid > button > div:nth-child(3) { font-size: 12px !important; }
-          .dash-main .card { padding: 14px !important; border-radius: 16px !important; }
-          .dash-main .card h2, .dash-main .card h3 { font-size: 14px !important; }
-          .dash-main .card > div { gap: 8px !important; }
-          .dash-mobile-nav nav {
-            gap: 6px !important;
-            -ms-overflow-style: none;
+          .dash-mobile-nav {
+            display: block !important;
+            position: sticky; top: var(--header-height, 56px); z-index: 40;
+            background: rgba(248, 250, 252, 0.96);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            margin: 0 -10px 12px; padding: 6px 10px 4px;
+            border-bottom: 1px solid #e8edf2;
           }
-          .dash-mobile-nav nav::-webkit-scrollbar { display: none; }
-          .dash-mobile-nav button { padding: 8px 14px !important; font-size: 12px !important; min-height: 38px !important; border-radius: 20px !important; }
-          .dash-mobile-nav button span:first-child { font-size: 14px !important; }
-          .report-search-bar { flex-direction: row !important; flex-wrap: nowrap !important; }
-          .report-search-bar select { width: auto !important; min-width: 100px !important; }
+          .dash-main { padding: 12px 10px !important; padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
+          .dash-greeting { font-size: 16px !important; }
+          .dash-header-top { flex-direction: column !important; gap: 10px !important; }
+          .dash-hdr-score .dash-score-btn { width: 100%; justify-content: flex-start; }
+          .dash-hdr-trend { width: 100%; }
+          .dash-trend-card { width: 100%; justify-content: space-between; }
+          .dash-trend-card svg { width: 80px; }
+          .dash-actions { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+          .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+          .dash-stat-card { padding: 14px 10px !important; }
+          .dash-stat-value { font-size: 24px !important; }
+          .dash-stat-label { font-size: 11px !important; }
+          .dash-main .card { padding: 14px !important; border-radius: 16px !important; }
           .dash-section-grid-2 { grid-template-columns: 1fr !important; gap: 10px !important; }
-          .dash-trend-svg svg { width: 100% !important; height: auto !important; }
+          .dash-secondary-grid { display: none !important; }
           .dash-family-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
           .dash-main .btn { min-height: 40px; font-size: 12px !important; }
           .dash-main .btn-sm { min-height: 34px; padding: 6px 10px !important; font-size: 11px !important; }
+          .report-search-bar { flex-direction: row !important; flex-wrap: nowrap !important; }
+          .report-search-bar select { width: auto !important; min-width: 100px !important; }
+          .dash-score-zone { display: none; }
+          .dash-avatar { width: 42px; height: 42px; font-size: 18px; }
         }
         @media (max-width: 480px) {
           .dash-hdr-trend { display: none !important; }
-          .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
-          .dash-main .overview-grid > div { padding: 12px 8px !important; }
-          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 22px !important; }
-          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 22px !important; }
-          .dash-main .dash-actions { grid-template-columns: 1fr !important; gap: 8px !important; }
+          .dash-actions { grid-template-columns: 1fr !important; }
           .dash-family-grid { grid-template-columns: 1fr !important; }
-          .dash-main h1 { font-size: 16px !important; }
-          .dash-main p { font-size: 12px !important; }
-          .dash-main .card { padding: 12px 12px !important; }
-          .dash-main .panel-body { padding: 12px !important; }
+          .dash-greeting { font-size: 15px !important; }
+          .dash-main .card { padding: 12px !important; }
           .dash-main .input, .dash-main .select { padding: 10px 12px !important; font-size: 13px !important; }
-          .dash-main .grid-2 { gap: 6px !important; }
           .report-search-bar { flex-direction: column !important; gap: 6px !important; }
           .report-search-bar select { width: 100% !important; }
+          .dash-skel-row { grid-template-columns: 1fr 1fr; }
+          .dash-welcome-actions { flex-direction: column; }
+          .dash-welcome-actions .btn { width: 100%; }
+        }
+        @media (hover: none) {
+          .dash-stat-card:hover { box-shadow: none; border-color: #e8edf2; }
+          .dash-side-link:hover { background: transparent; color: inherit; }
+          .dash-side-link.active:hover { background: #e8f0fe; color: #1866C9; }
         }
       `}</style>
     </div>

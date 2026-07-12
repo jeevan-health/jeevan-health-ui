@@ -334,6 +334,9 @@ body.mobile-nav-open .mobile-bottom-bar { display: none !important; }
 .dash-sidebar a.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 .dash-main { flex: 1; padding: 24px; background: var(--bg-body); overflow-y: auto; min-width: 0; max-width: 100%; }
 .dash-section h2 { letter-spacing: -0.2px; }
+/* Prefer no lift on dashboard interactive cards (touch-friendly) */
+.dash-main .card:hover { transform: none; }
+.dash-main .dash-stat-card:hover { transform: none; }
 
 /* ===== MOBILE TYPOGRAPHY OVERRIDES ===== */
 @media (max-width: 768px) {
