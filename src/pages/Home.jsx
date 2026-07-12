@@ -5,6 +5,7 @@ import useUploadModal from '../stores/uploadModalStore';
 import { seedTests, subscribe, ensureLoaded, getPopularTests, getCategoriesSorted, makeSlug } from '../data/seedData';
 import { packageList } from '../data/healthPackages';
 import SmartSearch from '../components/layout/SmartSearch';
+import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
 import { nursingCategories, nurses, nursingServices } from '../data/nursingData';
 
@@ -35,27 +36,35 @@ export default function Home() {
       <HealthLibrarySection />
       <FaqSection />
       <style>{`
+        .home-hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 36px; align-items: center; max-width: 1100px; margin: 0 auto; }
+        .home-popular-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: stretch; }
+        .home-cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .home-section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+        .home-section-head .section-title { margin: 0; }
+        .home-section-head .section-subtitle { margin: 4px 0 0; }
+        @media (max-width: 900px) {
+          .home-hero-grid { grid-template-columns: 1fr; gap: 24px; }
+          .home-hero-side { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+          .home-popular-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 768px) {
           .hero-search { border-radius: 12px !important; }
           .home-qa-mobile { display: block !important; padding: 0 12px; margin-top: -8px; }
+          .home-hero-side { grid-template-columns: 1fr; }
         }
         @media (max-width: 600px) {
           .trust-strip-inner { gap: 4px !important; }
           .trust-strip-inner span { font-size: 10px !important; padding: 3px 8px !important; }
-          .quick-action-card { padding: 12px 14px !important; gap: 10px !important; }
-          .quick-action-card > div:first-child { width: 36px !important; height: 36px !important; font-size: 16px !important; }
-          .quick-action-card > div:last-child > div:first-child { font-size: 12px !important; }
-          .quick-action-card > div:last-child > div:last-child { font-size: 10px !important; }
           .home-qa-mobile { padding: 0 8px; }
+          .home-cat-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
         }
         @media (max-width: 480px) {
-          .popular-test-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+          .home-popular-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
           .why-choose-grid { grid-template-columns: 1fr !important; }
           .why-cta-section { padding: 20px 16px !important; }
           .why-cta-section h3 { font-size: 15px !important; }
           .why-cta-section .btn { width: 100% !important; }
-          .hero .hero-stats-grid { gap: 6px !important; }
-          .hero .hero-stat { padding: 8px !important; font-size: 10px !important; }
+          .home-cat-grid { grid-template-columns: repeat(2, 1fr); }
         }
       `}</style>
     </div>
@@ -81,53 +90,57 @@ function HeroSection() {
     { icon: '🏋️', label: t('home.hero.features.physiotherapy', 'Physiotherapy'), desc: t('home.hero.features.physiotherapyDesc', 'Recover with expert physiotherapists'), path: '/physiotherapy', color: '#16a34a' },
     { icon: '💉', label: t('home.hero.features.vaccination', 'Vaccination at Home'), desc: t('home.hero.features.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
+  const headingRaw = h.heading || t('home.hero.heading', 'Book Lab Tests<br />At Home');
+  const headingHtml = String(headingRaw).includes('<')
+    ? String(headingRaw)
+    : String(headingRaw).replace(/\n/g, '<br />');
+
   return (
-    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : '#0F5DA8', padding: '40px 16px 48px', overflow: 'visible', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', zIndex: 30 }}>
-      <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
+    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #0F5DA8 0%, #1866C9 55%, #1A7AD4 100%)', padding: '44px 16px 52px', overflow: 'visible', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', zIndex: 30 }}>
+      <div className="container home-hero-grid">
         <div style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
             {statBadges.map(s => (
-              <span key={s.label} style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}>
-                {s.icon} {s.label}
+              <span key={s.label} style={{ background: 'rgba(255,255,255,0.14)', padding: '5px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#fff', display: 'inline-flex', alignItems: 'center', gap: 5, border: '1px solid rgba(255,255,255,0.12)' }}>
+                <span aria-hidden>{s.icon}</span> {s.label}
               </span>
             ))}
           </div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.15, margin: '0 0 6px', letterSpacing: -0.5 }}>
-            {h.heading || t('home.hero.heading', 'Book Lab Tests <br />At Home')}
-          </h1>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.6, maxWidth: 480 }}>
-            {h.subheading || t('home.hero.subheading', "India's most trusted diagnostics platform. Free sample collection by trained phlebotomists. NABL certified labs. Accurate digital reports delivered to your doorstep.")}
+          <h1
+            style={{ fontSize: 'clamp(26px, 4vw, 36px)', fontWeight: 800, color: '#fff', lineHeight: 1.18, margin: '0 0 10px', letterSpacing: -0.5 }}
+            dangerouslySetInnerHTML={{ __html: headingHtml }}
+          />
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.88)', marginBottom: 20, lineHeight: 1.65, maxWidth: 480 }}>
+            {h.subheading || t('home.hero.subheading', "India's trusted diagnostics platform. Free home collection by trained phlebotomists. NABL-certified labs. Digital reports you can share.")}
           </p>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 28px' }}>{h.ctaText || t('home.hero.cta', 'Book Lab Tests')}</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#22C55E', borderWidth: 2, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>{h.ctaSecondaryText || t('home.hero.ctaSecondary', '📄 Upload Prescription')}</button>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 24px', minHeight: 46 }}>{h.ctaText || t('home.hero.cta', 'Book Lab Tests')}</Link>
+            <button type="button" onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.55)', borderWidth: 1.5, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', cursor: 'pointer', fontFamily: 'inherit', minHeight: 46 }}>{h.ctaSecondaryText || t('home.hero.ctaSecondary', 'Upload Prescription')}</button>
+            <Link to={h.ctaTertiaryLink || '/health-packages'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.95)', borderColor: 'rgba(255,255,255,0.28)', fontSize: 13, display: 'inline-flex', alignItems: 'center', minHeight: 42 }}>{h.ctaTertiaryText || t('home.hero.ctaTertiary', 'Health Packages')}</Link>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-            <Link to={h.ctaTertiaryLink || '/services'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>{h.ctaTertiaryText || t('home.hero.ctaTertiary', '📦 Book Health Package')}</Link>
-          </div>
-          <div className="hero-search-slot" style={{ marginBottom: 20, maxWidth: 480, position: 'relative', zIndex: 50, overflow: 'visible' }}>
+          <div className="hero-search-slot" style={{ marginBottom: 18, maxWidth: 480, position: 'relative', zIndex: 50, overflow: 'visible' }}>
             <SmartSearch placeholder={t('home.hero.searchPlaceholder', '🔍 Search tests, symptoms, diseases...')} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'flex', gap: 2 }}>
-              {[1,2,3,4,5].map(i => <span key={i} style={{ fontSize: 16, color: '#FFD54F' }}>★</span>)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 1 }} aria-label="4.9 stars">
+              {[1, 2, 3, 4, 5].map(i => <span key={i} style={{ fontSize: 14, color: '#FFD54F' }}>★</span>)}
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{h.rating || '4.9'}</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{h.ratingLabel || t('home.hero.ratingLabel', '50,000+ Happy Patients')}</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{h.ratingLabel || t('home.hero.ratingLabel', '50,000+ Happy Patients')}</span>
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="home-hero-side" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {featureIcons.map(f => (
             <Link key={f.label} to={f.path} style={{ textDecoration: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.08)', borderRadius: 12, backdropFilter: 'blur(4px)', transition: 'all 0.15s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{f.label}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', lineHeight: 1.3 }}>{f.desc}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', transition: 'background 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.16)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.label}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.35 }}>{f.desc}</div>
                 </div>
-                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>→</span>
+                <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 16, flexShrink: 0 }}>→</span>
               </div>
             </Link>
           ))}
@@ -151,11 +164,11 @@ function TrustStrip() {
   ];
   if (trustStrip?.active === false) return null;
   return (
-    <div style={{ background: 'linear-gradient(90deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%)', borderBottom: '1px solid var(--border)', padding: '12px 0' }}>
-      <div className="container" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ background: '#fff', borderBottom: '1px solid #eef2f7', padding: '14px 0' }}>
+      <div className="container trust-strip-inner" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
         {items.map(item => (
-          <span key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', padding: '4px 10px', background: '#f0fdf4', borderRadius: 6 }}>
-            <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 11 }}>{item.icon || '✔'}</span> {item.label}
+          <span key={item.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 500, color: '#475569', padding: '5px 11px', background: '#f8fafc', borderRadius: 8, border: '1px solid #eef2f7' }}>
+            <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 11 }} aria-hidden>{item.icon || '✔'}</span> {item.label}
           </span>
         ))}
       </div>
@@ -277,72 +290,38 @@ function QuickActions() {
 
 function PopularTests({ popular, catalogCount = 0 }) {
   const tr = useT();
-  const catIcons = { Hematology: '🩸', Diabetes: '🩸', Thyroid: '🦋', Cardiac: '❤️', Vitamins: '💊', Fever: '🌡️', 'Full Body': '🧬', Anemia: '🩸', Hormones: '🧪', Arthritis: '🦴', Pregnancy: '🤰', Cancer: '🎗️', STD: '🔬', Allergy: '🤧', Liver: '🫁', Infections: '🦠', Radiology: '📷', Immunology: '🛡️', Kidney: '🫘' };
-  const badges = [tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked')];
-  const badgeColors = { Trending: '#dc2626', 'Most Booked': '#16a34a', Recommended: '#7c3aed' };
+  const badges = ['Most Booked', 'Trending', 'Recommended', 'Most Booked', 'Trending', 'Recommended', 'Most Booked', 'Trending'];
   return (
     <div className="page-section" style={{ background: '#FFFFFF', position: 'relative', zIndex: 1 }}>
       <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+        <div className="home-section-head">
           <div>
-            <h2 className="section-title" style={{ margin: 0 }}>{tr('home.popularTests.title', 'Popular Tests')}</h2>
-            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>
+            <h2 className="section-title">{tr('home.popularTests.title', 'Popular Tests')}</h2>
+            <p className="section-subtitle">
               {tr('home.popularTests.subtitle', 'Most booked diagnostic tests')}
               {catalogCount > 0 && (
-                <span style={{ marginLeft: 8, fontWeight: 600, color: '#1866C9' }}>
-                  · {catalogCount}+ {tr('home.popularTests.inCatalog', 'tests available')}
+                <span style={{ marginLeft: 6, fontWeight: 600, color: '#1866C9' }}>
+                  · {catalogCount} {tr('home.popularTests.inCatalog', 'in catalog')}
                 </span>
               )}
             </p>
           </div>
           <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12 }}>{tr('home.popularTests.viewAll', 'View All Tests →')}</Link>
         </div>
-        {popular.length === 0 && (
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>
-            {tr('home.popularTests.loading', 'Loading tests from catalog…')}
-          </p>
+        {popular.length === 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} style={{ height: 260, borderRadius: 14, background: 'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)', backgroundSize: '200% 100%', animation: 'homeShimmer 1.2s infinite', border: '1px solid #e8edf2' }} />
+            ))}
+            <style>{`@keyframes homeShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+          </div>
+        ) : (
+          <div className="home-popular-grid">
+            {popular.map((test, i) => (
+              <TestCard key={test.id} test={test} badge={badges[i % badges.length]} />
+            ))}
+          </div>
         )}
-        <div className="grid-4 popular-test-grid" style={{ gap: 14 }}>
-          {popular.map((test, i) => {
-            const slug = test.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-            const mrp = test.mrp || Math.round(test.price * 2.2);
-            const offerPrice = test.offerPrice || test.price;
-            const icon = catIcons[test.category] || '🔬';
-            const badge = badges[i];
-            return (
-              <div key={test.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                <Link to={`/test/${slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                  <div style={{ background: `linear-gradient(135deg, #1866C9, #0F4A96)`, padding: '20px 16px', position: 'relative' }}>
-                    {badge && <span style={{ position: 'absolute', top: 8, left: 8, background: badgeColors[badge], color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{badge}</span>}
-                    <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>🔬 {test.category}</span>
-                    <div style={{ fontSize: 36, textAlign: 'center' }}>{icon}</div>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: '#fff', textAlign: 'center', margin: '6px 0 0' }}>{test.name}</h3>
-                  </div>
-                </Link>
-                <div style={{ padding: '12px 14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: '#dc2626' }}>₹{offerPrice}</span>
-                    {offerPrice < mrp && <span style={{ fontSize: 12, color: '#aaa', textDecoration: 'line-through' }}>₹{mrp}</span>}
-                  </div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#16a34a', background: '#f0fdf4', padding: '2px 8px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 3 }}>{tr('home.popularTests.freeHomeCollection', '🚚 Free Home Collection')}</span>
-                    {test.report_time && <span style={{ fontSize: 10, color: 'var(--text-secondary)', background: '#f5f6fa', padding: '2px 8px', borderRadius: 4 }}>⏱️ {test.report_time}</span>}
-                  </div>
-                  {test.preparation_instructions && (
-                    <p style={{ fontSize: 10, color: '#999', marginBottom: 10, lineHeight: 1.4 }}>
-                      📋 {test.preparation_instructions.length > 60 ? test.preparation_instructions.slice(0, 60) + '...' : test.preparation_instructions}
-                    </p>
-                  )}
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/test/${slug}`} style={{ flex: 1, textAlign: 'center', padding: '7px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>{tr('home.popularTests.bookNow', 'Book Now')}</Link>
-                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{tr('home.popularTests.compare', 'Compare')}</button>
-                    <button style={{ padding: '7px 10px', border: '1px solid #e0e3eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{tr('home.popularTests.add', '+ Add')}</button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
@@ -378,35 +357,38 @@ function CategoriesSection({ liveCategories = [] }) {
       }))
     : fallback;
   return (
-    <div className="page-section" style={{ background: '#00D9FF' }}>
+    <div className="page-section" style={{ background: 'linear-gradient(180deg, #E8F4FC 0%, #F0F9FF 100%)' }}>
       <div className="container">
-      <h2 className="section-title">{t('home.categories.title', 'Browse by Category')}</h2>
-      <p className="section-subtitle">{t('home.categories.subtitle', 'Find the right test by health concern')}</p>
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
-        {cats.map(c => (
-          <Link key={c.slug || c.cat} to={`/tests/${c.slug || makeSlug(c.cat)}`}
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-              padding: '14px 16px', borderRadius: 12, textDecoration: 'none',
-              background: '#fff', border: '1px solid #e8edf2', minWidth: 90,
-              transition: 'all 0.15s', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#1866C9'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(11,93,168,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
-            <span style={{ fontSize: 28 }}>{c.icon}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'center', lineHeight: 1.2 }}>{c.label}</span>
-            {c.count > 0 && (
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#1866C9' }}>{c.count} tests</span>
-            )}
+        <div className="home-section-head" style={{ justifyContent: 'center', textAlign: 'center', flexDirection: 'column', alignItems: 'center' }}>
+          <h2 className="section-title">{t('home.categories.title', 'Browse by Category')}</h2>
+          <p className="section-subtitle">{t('home.categories.subtitle', 'Find the right test by health concern')}</p>
+        </div>
+        <div className="home-cat-grid">
+          {cats.map(c => (
+            <Link key={c.slug || c.cat} to={`/tests/${c.slug || makeSlug(c.cat)}`}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
+                padding: '16px 10px', borderRadius: 14, textDecoration: 'none',
+                background: '#fff', border: '1px solid #e2e8f0', minHeight: 108,
+                transition: 'border-color 0.15s, box-shadow 0.15s, transform 0.15s',
+                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#1866C9'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(24,102,201,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(15, 23, 42, 0.04)'; e.currentTarget.style.transform = 'none'; }}>
+              <span style={{ fontSize: 26, lineHeight: 1 }} aria-hidden>{c.icon}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#0f172a', textAlign: 'center', lineHeight: 1.25 }}>{c.label}</span>
+              {c.count > 0 && (
+                <span style={{ fontSize: 10, fontWeight: 600, color: '#1866C9' }}>{c.count}</span>
+              )}
+            </Link>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 18 }}>
+          <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12, background: '#fff' }}>
+            {t('home.categories.viewAll', 'View All Tests →')}
           </Link>
-        ))}
+        </div>
       </div>
-      <div style={{ textAlign: 'center', marginTop: 16 }}>
-        <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12, background: '#fff' }}>
-          {t('home.categories.viewAll', 'View All Tests →')}
-        </Link>
-      </div>
-    </div>
     </div>
   );
 }
@@ -416,44 +398,48 @@ function PackagesSection({ pkgs, featured }) {
   return (
     <div className="page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+        <div className="home-section-head">
           <div>
-            <h2 className="section-title" style={{ margin: 0 }}>{t('home.packages.title', 'Health Packages')}</h2>
-            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>{t('home.packages.subtitle', 'Comprehensive health checkup packages')}</p>
+            <h2 className="section-title">{t('home.packages.title', 'Health Packages')}</h2>
+            <p className="section-subtitle">{t('home.packages.subtitle', 'Comprehensive health checkup packages')}</p>
           </div>
-          <Link to="/services" className="btn btn-outline" style={{ fontSize: 12 }}>{t('home.packages.viewAll', 'View All Packages →')}</Link>
+          <Link to="/health-packages" className="btn btn-outline" style={{ fontSize: 12 }}>{t('home.packages.viewAll', 'View All Packages →')}</Link>
         </div>
-        <div className="grid-4" style={{ gap: 14 }}>
-          {pkgs.filter(Boolean).slice(0, 4).map((p, i) => {
-            const discPct = p.discount || Math.round((1 - p.offerPrice / p.mrp) * 100);
+        <div className="home-popular-grid">
+          {pkgs.filter(Boolean).slice(0, 4).map((p) => {
+            const discPct = p.discount || (p.mrp ? Math.round((1 - p.offerPrice / p.mrp) * 100) : 0);
             return (
-              <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                <div style={{ background: p.color || '#1866C9', padding: '16px 16px 20px', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: 8, left: 8, background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct >= 50 ? t('home.packages.bestValue', 'Best Value') : t('home.packages.popular', 'Popular')}</span>
-                  <span style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>{discPct}% OFF</span>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{p.testCount || t('home.packages.multiple', 'Multiple')} {t('home.packages.tests', 'Tests')}</div>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.2 }}>{p.name}</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={p.name} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%', transition: 'box-shadow 0.2s, transform 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(24,102,201,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
+                <div style={{ background: p.color || 'linear-gradient(135deg, #1866C9, #0F4A96)', padding: '16px 14px 18px', position: 'relative', minHeight: 120 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 10 }}>
+                    <span style={{ background: '#FFD54F', color: '#1a1a1a', fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{discPct >= 50 ? t('home.packages.bestValue', 'Best Value') : t('home.packages.popular', 'Popular')}</span>
+                    {discPct > 0 && <span style={{ background: 'rgba(255,255,255,0.22)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{discPct}% OFF</span>}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.75)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 4 }}>{p.testCount || t('home.packages.multiple', 'Multiple')} {t('home.packages.tests', 'Tests')}</div>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</h3>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                     <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>₹{p.offerPrice}</span>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'line-through' }}>₹{p.mrp}</span>
+                    {p.mrp > p.offerPrice && <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', textDecoration: 'line-through' }}>₹{p.mrp}</span>}
                   </div>
                 </div>
-                <div style={{ padding: '12px 14px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
+                <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14, flex: 1 }}>
                     {[
                       { icon: '🚚', label: t('home.packages.freeCollection', 'Free Home Collection') },
                       { icon: '👨‍⚕️', label: t('home.packages.doctorConsult', 'Doctor Consultation') },
                       { icon: '⏱️', label: `${t('home.packages.reportIn', 'Report in')} ${p.reportTime || t('home.packages.hours24', '24 Hours')}` },
                     ].map(f => (
-                      <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
-                        <span style={{ width: 14, textAlign: 'center' }}>{f.icon}</span>
+                      <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#475569' }}>
+                        <span style={{ width: 16, textAlign: 'center' }} aria-hidden>{f.icon}</span>
                         <span>{f.label}</span>
                       </div>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <Link to={`/package/${p.slug}`} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>{t('home.packages.bookNow', 'Book Now')}</Link>
-                    <Link to={`/package/${p.slug}`} style={{ padding: '8px 12px', border: '1px solid #e0e3eb', borderRadius: 8, fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>{t('home.packages.viewDetails', 'View Details')}</Link>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <Link to={`/package/${p.slug}`} style={{ flex: 1, textAlign: 'center', padding: '10px 0', background: '#1866C9', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t('home.packages.bookNow', 'Book Now')}</Link>
+                    <Link to={`/package/${p.slug}`} style={{ padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#475569', textDecoration: 'none', minHeight: 40, display: 'flex', alignItems: 'center' }}>{t('home.packages.viewDetails', 'Details')}</Link>
                   </div>
                 </div>
               </div>

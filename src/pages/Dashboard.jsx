@@ -307,12 +307,18 @@ export default function Dashboard() {
           <div className="dash-header-top" style={{ display: 'flex', alignItems: 'stretch', gap: 14, marginBottom: 14 }}>
             {/* Avatar + Name */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
-                {p.name.charAt(0)}
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#fff', fontWeight: 700, flexShrink: 0, letterSpacing: 0 }}>
+                {(p.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div style={{ minWidth: 0 }}>
-                <h1 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{GREETING_ICON} {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)} {p.name.split(' ')[0]}</h1>
-                {p.lastCheckup ? <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '1px 0 0' }}>{t('dashboard.lastCheck', 'Last Check:')} <strong>{p.lastCheckup}</strong></p> : null}
+                <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)}{(p.name && p.name.split(' ')[0]) ? `, ${p.name.split(' ')[0]}` : ''}
+                </h1>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '3px 0 0' }}>
+                  {p.lastCheckup
+                    ? <>{t('dashboard.lastCheck', 'Last check-up:')} <strong style={{ color: '#334155' }}>{p.lastCheckup}</strong></>
+                    : t('dashboard.welcomeSub', 'Your health overview')}
+                </p>
               </div>
             </div>
 
@@ -398,18 +404,30 @@ export default function Dashboard() {
 
         {/* ===== OVERVIEW CARDS ===== */}
         {activeSection === 'overview' && (
-          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 24 }}>
+          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 160px), 1fr))', gap: 12, marginBottom: 24 }}>
             {[
-              { icon: '📅', label: t('dashboard.overview.upcoming', 'Upcoming Bookings'), value: upcoming.length, color: '#2563eb', bg: '#dbeafe' },
-              { icon: '🧪', label: t('dashboard.overview.reports', 'Reports Available'), value: reports.length, color: '#16a34a', bg: '#dcfce7' },
-              { icon: '👪', label: t('dashboard.overview.family', 'Family Members'), value: family.length, color: '#c2410c', bg: '#fed7aa' },
-              { icon: '📦', label: t('dashboard.overview.orders', 'Active Orders'), value: activeOrders, color: '#7c3aed', bg: '#ede9fe' },
-            ].map(card => (
-              <div key={card.label} className="card" style={{ textAlign: 'center', cursor: 'pointer', padding: '18px 12px', borderRadius: 16 }} onClick={() => setActiveSection(card.icon === '📅' ? 'bookings' : card.icon === '🧪' ? 'reports' : card.icon === '👪' ? 'family' : 'wallet')}>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>{card.icon}</div>
-                <div style={{ fontSize: 32, fontWeight: 800, color: card.color, lineHeight: 1.1, marginBottom: 4 }}>{card.value}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>{card.label}</div>
-              </div>
+              { key: 'bookings', icon: '📅', label: t('dashboard.overview.upcoming', 'Upcoming Bookings'), value: upcoming.length, color: '#2563eb', bg: '#eff6ff' },
+              { key: 'reports', icon: '🧪', label: t('dashboard.overview.reports', 'Reports Available'), value: reports.length, color: '#16a34a', bg: '#f0fdf4' },
+              { key: 'family', icon: '👪', label: t('dashboard.overview.family', 'Family Members'), value: family.length, color: '#c2410c', bg: '#fff7ed' },
+              { key: 'bookings', icon: '📦', label: t('dashboard.overview.orders', 'Active Orders'), value: activeOrders, color: '#7c3aed', bg: '#f5f3ff' },
+            ].map((card, idx) => (
+              <button
+                key={`${card.label}-${idx}`}
+                type="button"
+                className="card"
+                onClick={() => setActiveSection(card.key)}
+                style={{
+                  textAlign: 'left', cursor: 'pointer', padding: '16px 14px', borderRadius: 14,
+                  border: '1px solid #e8edf2', background: '#fff', fontFamily: 'inherit',
+                  display: 'flex', flexDirection: 'column', gap: 10, transition: 'border-color 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = card.color; e.currentTarget.style.boxShadow = `0 4px 14px ${card.color}18`; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{card.icon}</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: card.color, lineHeight: 1.1 }}>{card.value}</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, lineHeight: 1.3 }}>{card.label}</div>
+              </button>
             ))}
           </div>
         )}
@@ -417,10 +435,11 @@ export default function Dashboard() {
         {/* ===== UPCOMING BOOKINGS ===== */}
         <Section id="bookings" title={t('dashboard.section.bookings', 'Upcoming Bookings')} icon="📅" active={activeSection}>
           {upcoming.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 32 }}>
-              <div style={{ fontSize: 36, marginBottom: 8 }}>📅</div>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('dashboard.noUpcoming', 'No upcoming bookings')}</p>
-              <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">{t('dashboard.bookTestBtn', 'Book a Test')}</button>
+            <div className="card" style={{ textAlign: 'center', padding: '36px 24px', border: '1px dashed #cbd5e1', background: '#fafbfc' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>📅</div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#334155', marginBottom: 4 }}>{t('dashboard.noUpcomingTitle', 'No upcoming bookings')}</p>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>{t('dashboard.noUpcoming', 'Book a home collection test when you are ready.')}</p>
+              <button type="button" onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm">{t('dashboard.bookTestBtn', 'Book a Test')}</button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
