@@ -267,8 +267,8 @@ export default function Dashboard() {
   const renderNav = (vertical) => (
     <nav style={vertical ? { display: 'flex', flexDirection: 'column', gap: 2 } : { display: 'flex', gap: 0, overflowX: 'auto' }}>
       {navItems.map(item => (
-        <button key={item.key} onClick={() => {
-          if (item.key === 'logout') { logout(); }
+        <button key={item.key} type="button" onClick={() => {
+          if (item.key === 'logout') { logout(); navigate('/', { replace: true }); }
           else if (item.action === 'health') { setActiveSection('health'); }
           else { setActiveSection(item.key); }
         }}
@@ -382,23 +382,50 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Mobile Tab Nav */}
+        {/* Mobile Tab Nav — includes Logout (sidebar is hidden on mobile) */}
         <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 16 }}>
-          <nav style={{ display: 'flex', gap: 4, overflowX: 'auto', padding: '4px 0', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
-            {navItems.filter(item => item.key !== 'logout').map(item => (
-              <button key={item.key} onClick={() => { if (item.key === 'health') { setActiveSection('health'); } else { setActiveSection(item.key); } }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px',
-                  fontSize: 13, fontWeight: activeSection === item.key ? 600 : 500,
-                  color: activeSection === item.key ? '#1866C9' : '#6B7280',
-                  background: activeSection === item.key ? '#E8F0FE' : '#F3F4F6',
-                  border: activeSection === item.key ? '1px solid #CBD5E1' : '1px solid transparent',
-                  cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 24,
-                  transition: 'all 0.15s', minHeight: 40,
-                }}>
-                <span>{item.icon}</span> <span>{t(`dashboard.nav.${item.key}`, item.label)}</span>
-              </button>
-            ))}
+          <nav
+            style={{
+              display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 2px 8px',
+              scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
+              maskImage: 'linear-gradient(to right, #000 90%, transparent)',
+              WebkitMaskImage: 'linear-gradient(to right, #000 92%, transparent)',
+            }}
+          >
+            {navItems.map(item => {
+              const isLogout = item.key === 'logout';
+              const active = !isLogout && activeSection === item.key;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => {
+                    if (isLogout) {
+                      logout();
+                      navigate('/', { replace: true });
+                      return;
+                    }
+                    if (item.key === 'health' || item.action === 'health') setActiveSection('health');
+                    else setActiveSection(item.key);
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px',
+                    fontSize: 12, fontWeight: isLogout || active ? 700 : 500,
+                    color: isLogout ? '#dc2626' : (active ? '#1866C9' : '#6B7280'),
+                    background: isLogout ? '#FEF2F2' : (active ? '#E8F0FE' : '#F3F4F6'),
+                    border: isLogout
+                      ? '1px solid #fecaca'
+                      : (active ? '1px solid #CBD5E1' : '1px solid transparent'),
+                    cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', borderRadius: 24,
+                    transition: 'all 0.15s', minHeight: 40, flexShrink: 0,
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  <span aria-hidden>{item.icon}</span>
+                  <span>{t(`dashboard.nav.${item.key}`, item.label)}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
 
@@ -1116,8 +1143,12 @@ export default function Dashboard() {
                   <span style={{ flex: 1 }}>{t('dashboard.profile.settings', 'Settings')}</span>
                   <span style={{ color: '#cbd5e1' }}>›</span>
                 </button>
-                <button onClick={() => logout()} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: '#dc2626', WebkitTapHighlightColor: 'transparent' }}>
-                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>🚪</span>
+                <button
+                  type="button"
+                  onClick={() => { logout(); navigate('/', { replace: true }); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, textAlign: 'left', color: '#dc2626', WebkitTapHighlightColor: 'transparent', minHeight: 48 }}
+                >
+                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }} aria-hidden>🚪</span>
                   <span style={{ flex: 1 }}>{t('dashboard.profile.logout', 'Logout')}</span>
                   <span style={{ color: '#fecaca' }}>›</span>
                 </button>
@@ -1624,7 +1655,7 @@ export default function Dashboard() {
         @media (max-width: 768px) {
           .dash-sidebar { display: none !important; }
           .dash-mobile-nav { display: block !important; }
-          .dash-main { padding: 12px 10px !important; padding-bottom: 80px !important; }
+          .dash-main { padding: 12px 10px !important; padding-bottom: 88px !important; }
           .dash-main h1 { font-size: 18px !important; }
           .dash-main .dash-header-wrap { width: 100% !important; }
           .dash-header-top { flex-direction: column !important; gap: 10px !important; }
@@ -1635,14 +1666,22 @@ export default function Dashboard() {
           .dash-hdr-score > div { width: 100% !important; justify-content: center !important; }
           .dash-main .dash-actions { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
           .dash-main .overview-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-          .dash-main .overview-grid > div { padding: 14px 10px !important; }
-          .dash-main .overview-grid > div > div:nth-child(1) { font-size: 26px !important; }
-          .dash-main .overview-grid > div > div:nth-child(2) { font-size: 26px !important; }
-          .dash-main .overview-grid > div > div:nth-child(3) { font-size: 12px !important; }
+          .dash-main .overview-grid > div,
+          .dash-main .overview-grid > button { padding: 14px 10px !important; }
+          .dash-main .overview-grid > div > div:nth-child(1),
+          .dash-main .overview-grid > button > div:nth-child(1) { font-size: 26px !important; }
+          .dash-main .overview-grid > div > div:nth-child(2),
+          .dash-main .overview-grid > button > div:nth-child(2) { font-size: 26px !important; }
+          .dash-main .overview-grid > div > div:nth-child(3),
+          .dash-main .overview-grid > button > div:nth-child(3) { font-size: 12px !important; }
           .dash-main .card { padding: 14px !important; border-radius: 16px !important; }
           .dash-main .card h2, .dash-main .card h3 { font-size: 14px !important; }
           .dash-main .card > div { gap: 8px !important; }
-          .dash-mobile-nav nav { gap: 6px !important; }
+          .dash-mobile-nav nav {
+            gap: 6px !important;
+            -ms-overflow-style: none;
+          }
+          .dash-mobile-nav nav::-webkit-scrollbar { display: none; }
           .dash-mobile-nav button { padding: 8px 14px !important; font-size: 12px !important; min-height: 38px !important; border-radius: 20px !important; }
           .dash-mobile-nav button span:first-child { font-size: 14px !important; }
           .report-search-bar { flex-direction: row !important; flex-wrap: nowrap !important; }

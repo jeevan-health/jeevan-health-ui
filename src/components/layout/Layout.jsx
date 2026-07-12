@@ -17,12 +17,12 @@ export default function Layout() {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   const params = new URLSearchParams(loc.search);
 
+  // 5 tabs — less cramped on small phones; Doctor is in hamburger + header
   const navItems = [
     { to: '/', icon: '🏠', label: t('layout.navHome', 'Home'), match: '/' },
     { to: '/diagnostics', icon: '🔬', label: t('layout.navTests', 'Tests'), match: '/diagnostics' },
-    { to: '/consult-doctor', icon: '🩺', label: t('layout.navDoctor', 'Doctor'), match: '/consult-doctor' },
     { to: isAuth ? '/dashboard?tab=bookings' : '/signup', icon: '📅', label: t('layout.navBookings', 'Bookings'), match: '/dashboard', tab: 'bookings' },
-    { to: isAuth ? '/dashboard?tab=health' : '/signup', icon: '🩺', label: t('layout.navHealth', 'Health'), match: '/dashboard', tab: 'health' },
+    { to: isAuth ? '/dashboard?tab=health' : '/signup', icon: '💚', label: t('layout.navHealth', 'Health'), match: '/dashboard', tab: 'health' },
     { to: isAuth ? '/dashboard?tab=profile' : '/signup', icon: '👤', label: t('layout.navProfile', 'Profile'), match: '/dashboard', tab: 'profile' },
   ];
 

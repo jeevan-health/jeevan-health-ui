@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import useCartStore from '../../stores/cartStore';
 import useUploadModal from '../../stores/uploadModalStore';
@@ -8,9 +8,10 @@ import { useMobileNavStore } from '../MobileNav';
 
 export default function Header() {
   const t = useT();
-  const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const menuOpen = useMobileNavStore(s => s.open);
+  const toggleMenu = useMobileNavStore(s => s.toggle);
   const isDiagnostics = location.pathname === '/diagnostics' || location.pathname.startsWith('/test/') || location.pathname.startsWith('/tests/') || location.pathname.startsWith('/health-packages') || location.pathname.startsWith('/package/');
   const count = useCartStore(s => s.getCount());
   const setCartOpen = useCartStore(s => s.setCartOpen);
@@ -18,8 +19,18 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <button onClick={() => useMobileNavStore.getState().toggle()} className="hdr-hamburger" aria-label="Menu">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button
+          type="button"
+          onClick={() => toggleMenu()}
+          className={`hdr-hamburger${menuOpen ? ' is-open' : ''}`}
+          aria-label={menuOpen ? t('header.closeMenu', 'Close menu') : t('header.openMenu', 'Open menu')}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          )}
         </button>
         <Link to="/" className="header-logo">
           <img src="/logo.png" alt={t('header.logoAlt', 'Jeevan HealthCare at Home')} />
@@ -115,8 +126,13 @@ export default function Header() {
           display: flex; align-items: center; justify-content: center;
           padding: 0 4px; box-shadow: 0 1px 3px rgba(239,68,68,0.3);
         }
-        .hdr-hamburger { display: none; background: none; border: none; padding: 4px; cursor: pointer; color: #333; border-radius: 6px; }
-        .hdr-hamburger:hover { background: #f5f5f5; }
+        .hdr-hamburger {
+          display: none; background: none; border: none; padding: 8px; cursor: pointer; color: #333;
+          border-radius: 10px; min-width: 40px; min-height: 40px; align-items: center; justify-content: center;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hdr-hamburger:hover, .hdr-hamburger.is-open { background: #f1f5f9; }
+        .hdr-hamburger.is-open { color: #1866C9; }
         .hdr-mobile-search { display: none; padding: 0 12px 8px; }
         @media (max-width: 768px) {
           .hdr-hamburger { display: flex; }
