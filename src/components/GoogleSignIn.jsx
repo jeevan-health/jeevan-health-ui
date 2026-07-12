@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { useT } from '../i18n/LanguageProvider';
@@ -11,8 +11,10 @@ export default function GoogleSignIn({ onError }) {
   const t = useT();
   const btnRef = useRef(null);
   const initialized = useRef(false);
+  const busyRef = useRef(false);
   const navigate = useNavigate();
-  const setUser = useAuthStore(s => s.setUser);
+  const setUser = useAuthStore((s) => s.setUser);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!CLIENT_ID) return;
@@ -53,6 +55,10 @@ export default function GoogleSignIn({ onError }) {
   }
 
   async function handleCredentialResponse(response) {
+    // Guard against double-submit while API + navigation run
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
     try {
       const { data } = await api.post('/auth/google', {
         credential: response.credential,
@@ -66,8 +72,11 @@ export default function GoogleSignIn({ onError }) {
       localStorage.setItem('jh_user', JSON.stringify(user));
 
       setUser(user);
+      // Keep overlay up until route change unmounts this page
       navigate(getPostLoginPath(user?.role), { replace: true });
     } catch (err) {
+      busyRef.current = false;
+      setBusy(false);
       if (onError) onError(t('googleSignIn.failed', 'Google Sign-In failed. Please try again.'));
     }
   }
@@ -75,6 +84,69 @@ export default function GoogleSignIn({ onError }) {
   if (!CLIENT_ID) return null;
 
   return (
-    <div ref={btnRef} style={{ width: '100%', minHeight: 44, display: 'flex', justifyContent: 'center' }} />
+    <>
+      {busy && (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 20000,
+            background: 'rgba(15, 23, 42, 0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+          }}
+        >
+          <div style={{
+            background: '#fff',
+            borderRadius: 16,
+            padding: '28px 32px',
+            maxWidth: 320,
+            width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 20px 50px rgba(15,23,42,0.2)',
+          }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                margin: '0 auto 14px',
+                border: '3px solid #dbeafe',
+                borderTopColor: '#1866C9',
+                borderRadius: '50%',
+                animation: 'jhGoogleSpin 0.75s linear infinite',
+              }}
+            />
+            <div style={{ fontWeight: 800, fontSize: 16, color: '#0f172a', marginBottom: 6 }}>
+              {t('googleSignIn.signingIn', 'Signing you in…')}
+            </div>
+            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.45 }}>
+              {t('googleSignIn.signingInHint', 'Please wait — opening your dashboard.')}
+            </div>
+          </div>
+        </div>
+      )}
+      <div
+        ref={btnRef}
+        style={{
+          width: '100%',
+          minHeight: 44,
+          display: 'flex',
+          justifyContent: 'center',
+          opacity: busy ? 0.45 : 1,
+          pointerEvents: busy ? 'none' : 'auto',
+        }}
+      />
+      <style>{`
+        @keyframes jhGoogleSpin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </>
   );
 }
