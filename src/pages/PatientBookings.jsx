@@ -6,6 +6,7 @@ import * as doctorService from '../services/doctorService';
 import * as diagnosticsService from '../services/diagnosticsService';
 import * as nursingService from '../services/nursingService';
 import * as physioService from '../services/physioService';
+import * as vaccinationService from '../services/vaccinationService';
 import useAuthStore from '../stores/authStore';
 
 const BOOKING_SOURCES = [
@@ -18,6 +19,7 @@ const DOCTOR_SOURCE = { type: 'consultation', icon: '🩺', color: '#1866C9', la
 const DIAG_SOURCE = { type: 'diagnostics', icon: '🔬', color: '#0d9488', labelKey: 'diagnostics', route: '/diagnostics' };
 const NURSING_SOURCE = { type: 'nursing', icon: '👩‍⚕️', color: '#7C3AED', labelKey: 'nursing', route: '/nurse-at-home' };
 const PHYSIO_SOURCE = { type: 'physiotherapy', icon: '💪', color: '#059669', labelKey: 'physiotherapy', route: '/physiotherapy' };
+const VACCINE_SOURCE = { type: 'vaccination', icon: '💉', color: '#2563EB', labelKey: 'vaccination', route: '/vaccination' };
 
 function mapApiAppointment(a) {
   const statusRaw = (a.status || 'scheduled').toLowerCase();
@@ -117,6 +119,29 @@ function mapApiPhysio(b) {
   };
 }
 
+function mapApiVaccine(b) {
+  const statusRaw = (b.status || 'confirmed').toLowerCase();
+  let status = 'upcoming';
+  if (['pending', 'confirmed', 'assigned', 'in_progress'].includes(statusRaw)) status = 'upcoming';
+  if (statusRaw === 'completed') status = 'completed';
+  if (statusRaw === 'cancelled') status = 'cancelled';
+  return {
+    id: b.publicId || String(b.id),
+    apiId: b.id,
+    type: 'vaccination',
+    serviceName: b.vaccineName || 'Vaccination',
+    patientName: b.patientName || '—',
+    date: b.preferredDate || '',
+    time: b.preferredTime || '',
+    amount: Number(b.totalAmount) || 0,
+    status,
+    rawStatus: b.status || statusRaw,
+    source: VACCINE_SOURCE,
+    api: true,
+    apiKind: 'vaccination',
+  };
+}
+
 const STATUS_ORDER = ['upcoming', 'pending', 'completed', 'cancelled'];
 
 const normalizeBooking = (b, source) => {
@@ -205,10 +230,9 @@ export default function PatientBookings() {
   const loadBookings = async () => {
     setLoading(true);
     const all = [];
-    // Local-only sources: vaccination + physio still mock; nursing local used as offline fallback only
+    // Local fallback only when not authenticated or for offline-only types
     BOOKING_SOURCES.forEach(src => {
-      // Prefer API for nursing + physio when signed in
-      if (isAuthenticated && (src.type === 'nursing' || src.type === 'physiotherapy')) return;
+      if (isAuthenticated && (src.type === 'nursing' || src.type === 'physiotherapy' || src.type === 'vaccination')) return;
       try {
         const data = JSON.parse(localStorage.getItem(src.key) || '[]');
         data.forEach(b => all.push(normalizeBooking(b, src)));
@@ -247,6 +271,17 @@ export default function PatientBookings() {
         try {
           const data = JSON.parse(localStorage.getItem('jh_physio_bookings') || '[]');
           data.forEach(b => all.push(normalizeBooking(b, PHYSIO_SOURCE)));
+        } catch { /* ignore */ }
+      }
+      try {
+        const { data } = await vaccinationService.getMyBookings();
+        (data.bookings || []).forEach(b => {
+          try { all.push(mapApiVaccine(b)); } catch { /* skip */ }
+        });
+      } catch {
+        try {
+          const data = JSON.parse(localStorage.getItem('jh_vaccination_bookings') || '[]');
+          data.forEach(b => all.push(normalizeBooking(b, VACCINE_SOURCE)));
         } catch { /* ignore */ }
       }
     }
@@ -327,6 +362,22 @@ export default function PatientBookings() {
     if (booking.api && booking.apiKind === 'diagnostic') {
       try {
         await diagnosticsService.cancelDiagnosticOrder(booking.id);
+        setAllBookings(all => all.map(b => b.id === cancelId && b.type === booking.type ? { ...b, status: 'cancelled', rawStatus: 'cancelled' } : b));
+        setCancelId(null);
+        setCancelReason('');
+        showToast(t('patient.booking.cancelled', 'Booking cancelled.'));
+      } catch {
+        showToast(t('error', 'Error cancelling. Please try again.'));
+      }
+      return;
+    }
+
+    if (booking.api && ['nursing', 'physio', 'vaccination'].includes(booking.apiKind)) {
+      try {
+        const id = booking.apiId || booking.id;
+        if (booking.apiKind === 'nursing') await nursingService.cancelBooking(id);
+        else if (booking.apiKind === 'physio') await physioService.cancelBooking(id);
+        else await vaccinationService.cancelBooking(id);
         setAllBookings(all => all.map(b => b.id === cancelId && b.type === booking.type ? { ...b, status: 'cancelled', rawStatus: 'cancelled' } : b));
         setCancelId(null);
         setCancelReason('');

@@ -36,7 +36,8 @@ const NAV_GROUPS = [
       { path: '/admin/nursing', label: 'admin.layout.nursing', fallback: 'Nursing Tools', icon: '🩹' },
       { path: '/admin/physio-bookings', label: 'admin.layout.physio_bookings', fallback: 'Physio Bookings', icon: '💪' },
       { path: '/admin/physiotherapy', label: 'admin.layout.physiotherapy', fallback: 'Physio Tools', icon: '🦴' },
-      { path: '/admin/vaccination', label: 'admin.layout.vaccination', fallback: 'Vaccination', icon: '💉' },
+      { path: '/admin/vaccination-bookings', label: 'admin.layout.vaccination_bookings', fallback: 'Vaccine Bookings', icon: '💉' },
+      { path: '/admin/vaccination', label: 'admin.layout.vaccination', fallback: 'Vaccine Tools', icon: '🧪' },
     ],
   },
   {

@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { useToast } from '../components/Toast';
-import { vaccines } from '../data/vaccinationData';
+import useAuthStore from '../stores/authStore';
+import { vaccines as staticVaccines } from '../data/vaccinationData';
+import * as vaccinationService from '../services/vaccinationService';
 import { sendBookingConfirmation, getWALink } from '../services/waService';
 
 const STEPS = [
@@ -24,15 +26,33 @@ const TIME_SLOTS = [
   { label: '5:00 PM - 6:00 PM', value: '17-18' },
 ];
 
+const mapStaticVaccine = (v) => ({
+  id: v.slug || v.id,
+  slug: v.slug,
+  apiId: null,
+  name: v.name,
+  disease: v.disease,
+  ageGroup: v.ageGroup,
+  doseCount: v.doseCount || 1,
+  price: Number(v.price) || 0,
+  description: v.description || '',
+  homeAvailable: true,
+  static: true,
+});
+
 export default function VaccinationBooking() {
   const t = useT();
   const toast = useToast();
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const [searchParams] = useSearchParams();
   const preSelectedSlug = searchParams.get('vaccine');
 
+  const [catalog, setCatalog] = useState(() => staticVaccines.map(mapStaticVaccine));
+  const [catalogSource, setCatalogSource] = useState('static');
   const [step, setStep] = useState(preSelectedSlug ? 1 : 0);
   const [data, setData] = useState({
-    vaccine: vaccines.find(v => v.slug === preSelectedSlug) || null,
+    vaccine: null,
     patientName: '', patientDob: '', patientGender: '', patientMobile: '', patientHistory: '',
     serviceType: 'home',
     appointmentDate: '', appointmentSlot: '',
@@ -41,6 +61,46 @@ export default function VaccinationBooking() {
   const [confirmed, setConfirmed] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: res } = await vaccinationService.listVaccines();
+        const list = (res.vaccines || []).map(v => ({
+          id: v.slug || v.id,
+          slug: v.slug,
+          apiId: v.id,
+          name: v.name,
+          disease: v.disease,
+          ageGroup: v.ageGroup,
+          doseCount: v.doseCount || 1,
+          price: Number(v.price) || 0,
+          description: v.description || '',
+          homeAvailable: v.homeAvailable !== false,
+          popular: !!v.popular,
+          api: true,
+        }));
+        if (!cancelled && list.length > 0) {
+          setCatalog(list);
+          setCatalogSource('api');
+          if (preSelectedSlug) {
+            const pre = list.find(v => v.slug === preSelectedSlug);
+            if (pre) setData(d => ({ ...d, vaccine: pre }));
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setCatalogSource('static');
+          if (preSelectedSlug) {
+            const pre = staticVaccines.find(v => v.slug === preSelectedSlug);
+            if (pre) setData(d => ({ ...d, vaccine: mapStaticVaccine(pre) }));
+          }
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [preSelectedSlug]);
 
   const update = (key, val) => {
     setData(d => ({ ...d, [key]: val }));
@@ -70,26 +130,80 @@ export default function VaccinationBooking() {
   };
   const prev = () => setStep(s => Math.max(s - 1, 0));
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!validateStep(4)) return;
+    if (!isAuthenticated) {
+      toast(t('vaccination.booking.loginRequired', 'Please sign in to confirm your vaccination booking.'), 'error');
+      navigate('/signup', { state: { from: '/vaccination/book' } });
+      return;
+    }
     setProcessing(true);
-    setTimeout(() => {
-      const booking = {
-        id: 'VAC-' + Date.now().toString(36).toUpperCase(),
-        ...data,
-        vaccineName: data.vaccine?.name,
-        vaccinePrice: data.vaccine?.price,
-        createdAt: new Date().toISOString(),
-        status: 'Confirmed',
+    const payload = {
+      vaccineId: data.vaccine?.apiId,
+      vaccineSlug: data.vaccine?.slug || data.vaccine?.id,
+      vaccineName: data.vaccine?.name,
+      vaccinePrice: data.vaccine?.price,
+      doseCount: data.vaccine?.doseCount || 1,
+      serviceType: data.serviceType,
+      patientName: data.patientName,
+      patientPhone: data.patientMobile,
+      patientDob: data.patientDob,
+      patientGender: data.patientGender,
+      patientHistory: data.patientHistory,
+      preferredDate: data.appointmentDate,
+      preferredTime: data.appointmentSlot,
+      paymentMethod: data.paymentMethod,
+      totalAmount: data.vaccine?.price || 0,
+    };
+    try {
+      const { data: booking } = await vaccinationService.createBooking(payload);
+      const confirmedBooking = {
+        id: booking.publicId || `VAC-${booking.id}`,
+        apiId: booking.id,
+        vaccineName: booking.vaccineName,
+        vaccinePrice: booking.totalAmount,
+        patientName: booking.patientName,
+        appointmentDate: booking.preferredDate,
+        appointmentSlot: booking.preferredTime,
+        serviceType: booking.serviceType,
+        status: booking.status === 'confirmed' ? 'Confirmed' : booking.status,
+        createdAt: booking.createdAt,
+        paymentMethod: booking.paymentMethod,
+        api: true,
       };
-      const bookings = JSON.parse(localStorage.getItem('jh_vaccination_bookings') || '[]');
-      bookings.push(booking);
-      localStorage.setItem('jh_vaccination_bookings', JSON.stringify(bookings));
-      const waMsg = sendBookingConfirmation(booking);
-      setConfirmed({ ...booking, waMsg });
+      try {
+        const bookings = JSON.parse(localStorage.getItem('jh_vaccination_bookings') || '[]');
+        bookings.push({ ...data, ...confirmedBooking });
+        localStorage.setItem('jh_vaccination_bookings', JSON.stringify(bookings));
+      } catch { /* ignore */ }
+      const waMsg = sendBookingConfirmation(confirmedBooking);
+      setConfirmed({ ...confirmedBooking, waMsg });
       toast(t('vaccination.booking.confirmed', 'Vaccination booked successfully!'), 'success');
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || t('vaccination.booking.failed', 'Booking failed. Please try again.');
+      toast(msg, 'error');
+      if (!err?.response) {
+        const booking = {
+          id: 'VAC-LOCAL-' + Date.now().toString(36).toUpperCase(),
+          ...data,
+          vaccineName: data.vaccine?.name,
+          vaccinePrice: data.vaccine?.price,
+          createdAt: new Date().toISOString(),
+          status: 'Confirmed',
+          localOnly: true,
+        };
+        try {
+          const bookings = JSON.parse(localStorage.getItem('jh_vaccination_bookings') || '[]');
+          bookings.push(booking);
+          localStorage.setItem('jh_vaccination_bookings', JSON.stringify(bookings));
+        } catch { /* ignore */ }
+        const waMsg = sendBookingConfirmation(booking);
+        setConfirmed({ ...booking, waMsg });
+        toast(t('vaccination.booking.localFallback', 'Saved locally — will sync when API is available.'), 'error');
+      }
+    } finally {
       setProcessing(false);
-    }, 1500);
+    }
   };
 
   if (confirmed) {
@@ -144,18 +258,24 @@ export default function VaccinationBooking() {
         {step === 0 && (
           <div>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>{t('select.vaccine', 'Select Vaccine')}</h3>
+            {catalogSource === 'api' && (
+              <p style={{ fontSize: 11, color: '#64748b', margin: '0 0 8px' }}>{t('vaccination.catalog.live', 'Live catalog from Jeevan')}</p>
+            )}
             <div style={{ display: 'grid', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
-              {vaccines.map(v => (
-                <button key={v.id} onClick={() => { update('vaccine', v); next(); }}
+              {catalog.map(v => (
+                <button key={v.slug || v.id} type="button" onClick={() => { update('vaccine', v); next(); }}
                   style={{ padding: '12px 16px', borderRadius: 10, border: data.vaccine?.id === v.id ? '2px solid #2563eb' : '1px solid #e2e8f0', background: data.vaccine?.id === v.id ? '#EFF6FF' : '#fff', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span style={{ fontSize: 22 }}>💉</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{v.name}</div>
                     <div style={{ fontSize: 11, color: '#64748b' }}>{v.disease} · {v.ageGroup}</div>
+                    {v.homeAvailable === false && (
+                      <div style={{ fontSize: 10, color: '#c2410c', fontWeight: 600, marginTop: 2 }}>{t('vaccination.clinicOnly', 'Clinic preferred')}</div>
+                    )}
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#059669' }}>₹{v.price}</div>
-                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{v.doseCount} {t('dose').toLowerCase()}{v.doseCount > 1 ? 's' : ''}</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{v.doseCount} {t('dose', 'dose').toLowerCase()}{v.doseCount > 1 ? 's' : ''}</div>
                   </div>
                 </button>
               ))}
