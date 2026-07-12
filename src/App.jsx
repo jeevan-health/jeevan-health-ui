@@ -74,6 +74,7 @@ const AdminCMS = lazy(() => import('./pages/admin/AdminCMS'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const AdminPatients = lazy(() => import('./pages/admin/AdminPatients'));
 const AdminDoctors = lazy(() => import('./pages/admin/AdminDoctors'));
+const AdminMedicines = lazy(() => import('./pages/admin/AdminMedicines'));
 const AdminStaffOnboarding = lazy(() => import('./pages/admin/AdminStaffOnboarding'));
 const AdminDoctorOnboarding = lazy(() => import('./pages/admin/AdminDoctorOnboarding'));
 const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
@@ -406,6 +407,7 @@ export default function App() {
             <Route path="nursing" element={<AdminNursing />} />
             <Route path="cms" element={<AdminCMS />} />
             <Route path="doctors" element={<AdminDoctors />} />
+            <Route path="medicines" element={<AdminMedicines />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
             <Route path="doctor-onboarding" element={<AdminDoctorOnboarding />} />
             <Route path="inventory" element={<AdminInventory />} />

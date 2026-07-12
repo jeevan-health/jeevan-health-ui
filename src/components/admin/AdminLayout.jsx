@@ -23,6 +23,7 @@ const NAV_GROUPS = [
       { path: '/admin/test-master', label: 'admin.layout.test_master', fallback: 'Test Master', icon: '🧪' },
       { path: '/admin/health-packages', label: 'admin.layout.health_packages', fallback: 'Health Packages', icon: '📦' },
       { path: '/admin/doctors', label: 'admin.layout.doctors', fallback: 'Doctors', icon: '🩺' },
+      { path: '/admin/medicines', label: 'admin.layout.medicines', fallback: 'Medicines', icon: '💊' },
       { path: '/admin/inventory', label: 'admin.layout.inventory', fallback: 'Inventory', icon: '📦' },
       { path: '/admin/coupons', label: 'admin.layout.coupons', fallback: 'Coupons', icon: '🏷️' },
     ],

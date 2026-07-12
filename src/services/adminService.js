@@ -50,3 +50,15 @@ export const updateDoctor = (id, data) =>
 
 export const deleteDoctor = (id) =>
   api.delete(`/admin/doctors/${id}`);
+
+export const listMedicines = (params = {}) =>
+  api.get('/admin/medicines', { params });
+
+export const createMedicine = (data) =>
+  api.post('/admin/medicines', data);
+
+export const updateMedicine = (id, data) =>
+  api.put(`/admin/medicines/${id}`, data);
+
+export const deleteMedicine = (id) =>
+  api.delete(`/admin/medicines/${id}`);
