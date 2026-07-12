@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import usePermissionsStore from '../../stores/permissionsStore';
 import { useT } from '../../i18n/LanguageProvider';
 import * as adminService from '../../services/adminService';
+import { confirmDialog } from '../../stores/dialogStore';
+import { notify } from '../../lib/toastBus';
 
 const MODAL_OVERLAY = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
 
@@ -64,17 +66,17 @@ export default function AdminUsers() {
       setEditingRole(null);
       fetchUsers();
     } catch (err) {
-      alert(err?.response?.data?.error || t('admin.users.roleFailed', 'Failed to update role'));
+      notify.error(err?.response?.data?.error || t('admin.users.roleFailed', 'Failed to update role'));
     }
   };
 
   const handleDelete = async (userId) => {
-    if (!confirm(t('admin.users.delete_confirm', 'Delete this user? This cannot be undone.'))) return;
+    if (!(await confirmDialog(t('admin.users.delete_confirm', 'Delete this user? This cannot be undone.')))) return;
     try {
       await adminService.deleteUser(userId);
       fetchUsers();
     } catch (err) {
-      alert(err?.response?.data?.error || t('admin.users.deleteFailed', 'Failed to delete user'));
+      notify.error(err?.response?.data?.error || t('admin.users.deleteFailed', 'Failed to delete user'));
     }
   };
 
@@ -87,7 +89,7 @@ export default function AdminUsers() {
       setForm({ name: '', phone: '', email: '', role: 'user' });
       fetchUsers();
     } catch (err) {
-      alert(err?.response?.data?.error || t('admin.users.createFailed', 'Failed to create user'));
+      notify.error(err?.response?.data?.error || t('admin.users.createFailed', 'Failed to create user'));
     } finally {
       setSaving(false);
     }

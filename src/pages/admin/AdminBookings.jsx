@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
+import { notify } from '../../lib/toastBus';
 
 const STATUSES = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled'];
 
@@ -69,7 +70,7 @@ export default function AdminBookings() {
       await adminService.updateAppointmentStatus(appt.id, status);
       await load();
     } catch (err) {
-      alert(err?.response?.data?.error || t('admin.bookings.updateFailed', 'Failed to update status'));
+      notify.error(err?.response?.data?.error || t('admin.bookings.updateFailed', 'Failed to update status'));
     } finally {
       setUpdatingId(null);
     }

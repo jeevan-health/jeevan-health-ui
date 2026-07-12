@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
+import { confirmDialog } from '../stores/dialogStore';
 
 const CAMP_KEY = 'jh_vaccination_camps';
 
@@ -30,8 +31,8 @@ export default function VaccineCamps() {
     setShowForm(false);
   };
 
-  const deleteCamp = (id) => {
-    if (!confirm('Delete this camp?')) return;
+  const deleteCamp = async (id) => {
+    if (!(await confirmDialog('Delete this camp?'))) return;
     persist(camps.filter(c => c.id !== id));
   };
 

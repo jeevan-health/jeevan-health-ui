@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../../i18n/LanguageProvider';
 import * as physioService from '../../services/physioService';
+import { notify } from '../../lib/toastBus';
 
 const STATUSES = ['pending', 'confirmed', 'assigned', 'in_progress', 'completed', 'cancelled'];
 
@@ -49,7 +50,7 @@ export default function AdminPhysioBookings() {
       await physioService.adminUpdateBookingStatus(b.id, status);
       await load();
     } catch (err) {
-      alert(err?.response?.data?.error || 'Update failed');
+      notify.error(err?.response?.data?.error || 'Update failed');
     } finally {
       setUpdatingId(null);
     }

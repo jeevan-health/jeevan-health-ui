@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPhlebotomists, savePhlebotomist, deletePhlebotomist, getOrders } from '../../services/localOrderService';
 import { useT } from '../../i18n/LanguageProvider';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const ALL_AREAS = ['Kukatpally', 'Madhapur', 'Gachibowli', 'Hitech City', 'Banjara Hills', 'Jubilee Hills', 'Kondapur', 'Miyapur', 'Ameerpet', 'Begumpet', 'Secunderabad', 'Dilsukhnagar', 'Uppal', 'LB Nagar', 'Shamshabad', 'Patancheru', 'Nizampet', 'KPHB', 'SR Nagar', 'Panjagutta'];
 
@@ -104,7 +105,7 @@ export default function AdminCollection() {
     refresh();
   };
 
-  const handleDelete = (id) => { if (confirm('Delete this phlebotomist?')) { deletePhlebotomist(id); refresh(); } };
+  const handleDelete = async (id) => { if (await confirmDialog('Delete this phlebotomist?')) { deletePhlebotomist(id); refresh(); } };
 
   const toggleEquipment = (item) => {
     setForm(p => ({

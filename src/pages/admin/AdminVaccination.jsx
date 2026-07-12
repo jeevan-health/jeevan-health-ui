@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import EmptyState from '../../components/EmptyState';
 import { vaccineCategories as defaultCategories, vaccines as defaultVaccines } from '../../data/vaccinationData';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const BOOKINGS_KEY = 'jh_vaccination_bookings';
 const CAMPAIGNS_KEY = 'jh_vaccine_marketing_campaigns';
@@ -126,8 +127,8 @@ export default function AdminVaccination() {
     saveLeads(leads.map(l => l.id === id ? { ...l, stage, updatedAt: new Date().toISOString() } : l));
   };
 
-  const deleteLead = (id) => {
-    if (!confirm('Delete this lead?')) return;
+  const deleteLead = async (id) => {
+    if (!(await confirmDialog('Delete this lead?'))) return;
     saveLeads(leads.filter(l => l.id !== id));
   };
 
@@ -214,8 +215,8 @@ export default function AdminVaccination() {
     resetVaccineForm();
   };
 
-  const deleteVaccine = (id) => {
-    if (!confirm('Delete this vaccine?')) return;
+  const deleteVaccine = async (id) => {
+    if (!(await confirmDialog('Delete this vaccine?'))) return;
     persist('vaccines', data.vaccines.filter(v => v.id !== id));
   };
 
@@ -240,8 +241,8 @@ export default function AdminVaccination() {
     setEditingId(null);
   };
 
-  const deleteCategory = (id) => {
-    if (!confirm('Delete this category?')) return;
+  const deleteCategory = async (id) => {
+    if (!(await confirmDialog('Delete this category?'))) return;
     persist('categories', data.categories.filter(c => c.id !== id));
   };
 
@@ -271,8 +272,8 @@ export default function AdminVaccination() {
     resetCampaignForm();
   };
 
-  const deleteCampaign = (id) => {
-    if (!confirm('Delete this campaign?')) return;
+  const deleteCampaign = async (id) => {
+    if (!(await confirmDialog('Delete this campaign?'))) return;
     saveCampaigns(campaigns.filter(c => c.id !== id));
   };
 

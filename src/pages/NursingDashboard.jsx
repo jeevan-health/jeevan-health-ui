@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { STORAGE_KEYS, nursingCategories } from '../data/nursingData';
+import { confirmDialog } from '../stores/dialogStore';
 
 const C = {
   primary: '#7C3AED',
@@ -61,8 +62,7 @@ export default function NursingDashboard() {
   const upcomingBookings = bookings.filter(b => b.status !== 'completed' && b.status !== 'cancelled');
   const historyBookings = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
 
-  const handleCancel = (id) => {
-    if (!confirm(t('nursing.cancel.confirm', 'Cancel this visit?'))) return;
+  const handleCancel = async (id) => { if (!(await confirmDialog(t('nursing.cancel.confirm', 'Cancel this visit?')))) return;
     const next = bookings.map(b => b.id === id ? { ...b, status: 'cancelled' } : b);
     setBookings(next);
     localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(next));

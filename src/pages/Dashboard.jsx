@@ -13,6 +13,8 @@ import * as labReportService from '../services/labReportService';
 import { subscribeWebPush } from '../lib/pwa';
 import InstallAppButton from '../components/InstallAppButton';
 import FeatureGateBanner from '../components/FeatureGateBanner';
+import { confirmDialog } from '../stores/dialogStore';
+import { notify } from '../lib/toastBus';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -640,7 +642,25 @@ export default function Dashboard() {
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     <button className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>{t('dashboard.view', 'View')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => { setShowReschedule(b); setRescheduleDate(null); setRescheduleSlot(null); }}>{t('dashboard.reschedule', 'Reschedule')}</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(t('dashboard.cancelConfirm', 'Cancel booking for') + ` ${b.test} ${t('dashboard.onDate', 'on')} ${b.date}?`)) { store.cancelBooking(b.id); } }} style={{ color: '#dc2626', borderColor: '#fecaca' }}>{t('dashboard.cancel', 'Cancel')}</button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      style={{ color: '#dc2626', borderColor: '#fecaca' }}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: t('dashboard.cancel', 'Cancel'),
+                          message: `${t('dashboard.cancelConfirm', 'Cancel booking for')} ${b.test} ${t('dashboard.onDate', 'on')} ${b.date}?`,
+                          confirmLabel: t('dashboard.cancel', 'Cancel booking'),
+                          cancelLabel: t('common.keep', 'Keep booking'),
+                          danger: true,
+                        });
+                        if (!ok) return;
+                        const res = await store.cancelBooking(b.id);
+                        if (res?.ok) notify.success(t('dashboard.cancelDone', 'Booking cancelled'));
+                        else notify.error(res?.error || t('dashboard.cancelFailed', 'Could not cancel booking'));
+                      }}
+                    >
+                      {t('dashboard.cancel', 'Cancel')}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -723,7 +743,28 @@ export default function Dashboard() {
                     </button>
                   ))}
                 </div>
-                <button onClick={() => { if (rescheduleDate && rescheduleSlot) { store.cancelBooking(showReschedule.id); setShowReschedule(null); alert(`${t('dashboard.rescheduleModal.confirmed', 'Booking rescheduled to')} ${rescheduleDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })} ${t('dashboard.rescheduleModal.at', 'at')} ${rescheduleSlot}`); } else { alert(t('dashboard.rescheduleModal.selectBoth', 'Please select both date and time')); } }} className="btn btn-primary btn-block">{t('dashboard.rescheduleModal.confirm', 'Confirm Reschedule')}</button>
+                <button
+                  onClick={async () => {
+                    if (!rescheduleDate || !rescheduleSlot) {
+                      notify.warning(t('dashboard.rescheduleModal.selectBoth', 'Please select both date and time'));
+                      return;
+                    }
+                    // Reschedule currently cancels old booking; user re-books at new slot
+                    const res = await store.cancelBooking(showReschedule.id);
+                    setShowReschedule(null);
+                    if (res?.ok) {
+                      notify.success(
+                        `${t('dashboard.rescheduleModal.confirmed', 'Booking rescheduled to')} ${rescheduleDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })} ${t('dashboard.rescheduleModal.at', 'at')} ${rescheduleSlot}`
+                      );
+                      navigate('/diagnostics');
+                    } else {
+                      notify.error(res?.error || t('dashboard.cancelFailed', 'Could not update booking'));
+                    }
+                  }}
+                  className="btn btn-primary btn-block"
+                >
+                  {t('dashboard.rescheduleModal.confirm', 'Confirm Reschedule')}
+                </button>
               </div>
             </div>
           </div>
@@ -749,10 +790,10 @@ export default function Dashboard() {
                       },
                       saveSubscription: async (sub) => { await labReportService.savePushSubscription(sub); },
                     });
-                    if (res.ok) alert(t('dashboard.pushOn', 'Notifications enabled'));
-                    else alert(t('dashboard.pushFail', 'Could not enable notifications (browser permission or server VAPID)'));
+                    if (res.ok) notify.success(t('dashboard.pushOn', 'Notifications enabled'));
+                    else notify.warning(t('dashboard.pushFail', 'Could not enable notifications (browser permission or server VAPID)'));
                   } catch {
-                    alert(t('dashboard.pushFail', 'Could not enable notifications'));
+                    notify.error(t('dashboard.pushFail', 'Could not enable notifications'));
                   }
                 }}
               >
@@ -792,7 +833,7 @@ export default function Dashboard() {
                         a.click();
                         URL.revokeObjectURL(url);
                       } catch {
-                        alert(t('dashboard.downloadFail', 'Download failed'));
+                        notify.error(t('dashboard.downloadFail', 'Download failed'));
                       }
                     }}
                   >
@@ -859,7 +900,7 @@ export default function Dashboard() {
                       if (navigator.share) {
                         navigator.share({ title: `${r.test} - Jeevan HealthCare at Home`, text });
                       } else {
-                        navigator.clipboard.writeText(text).then(() => alert(t('dashboard.reports.copied', '✅ Report copied to clipboard. Share via WhatsApp, Email, etc.')));
+                        navigator.clipboard.writeText(text).then(() => notify.success(t('dashboard.reports.copied', 'Report copied to clipboard. Share via WhatsApp, Email, etc.')));
                       }
                     }}>{t('dashboard.reports.share', '📤 Share')}</button>
                   </div>
@@ -874,9 +915,9 @@ export default function Dashboard() {
                         const trend = store.healthTrends?.hba1c;
                         if (trend && trend.length > 1) {
                           const vals = trend.map(t => `${t.date}: ${t.value}%`).join('\n');
-                          alert(`${t('dashboard.reports.hba1cTrend', '📈 HbA1c Trend:')}\n\n${vals}\n\n${t('dashboard.reports.showingReadings', 'Showing last')} ${trend.length} ${t('dashboard.reports.readings', 'readings')}`);
+                          notify.info(`${t('dashboard.reports.hba1cTrend', 'HbA1c Trend:')}\n${vals}\n${t('dashboard.reports.showingReadings', 'Showing last')} ${trend.length} ${t('dashboard.reports.readings', 'readings')}`, 6000);
                         } else {
-                          alert(t('dashboard.reports.trendUnavailable', '📈 Trend data available only for HbA1c. More trends coming soon.'));
+                          notify.info(t('dashboard.reports.trendUnavailable', 'Trend data available only for HbA1c. More trends coming soon.'));
                         }
                       }}>{t('dashboard.reports.viewTrend', '📈 View Trend')}</button>
                     </div>
@@ -904,7 +945,7 @@ export default function Dashboard() {
                         if (navigator.share) {
                           navigator.share({ title: `${r.test} - Jeevan HealthCare at Home`, text });
                         } else {
-                          navigator.clipboard.writeText(text).then(() => alert(t('dashboard.reports.summaryCopied', '✅ Report summary copied! Share it with your doctor via WhatsApp or Email.')));
+                          navigator.clipboard.writeText(text).then(() => notify.success(t('dashboard.reports.summaryCopied', 'Report summary copied! Share it with your doctor via WhatsApp or Email.')));
                         }
                       }}>{t('dashboard.reports.shareDoctor', '🩺 Share with Doctor')}</button>
                     </div>
@@ -1022,7 +1063,24 @@ export default function Dashboard() {
                     <button className="btn btn-outline btn-sm" onClick={() => setShowRecordsMember(m)} style={{ fontSize: 10, padding: '4px 8px' }}>{t('dashboard.family.records', '📋 Records')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ fontSize: 10, padding: '4px 8px' }}>{t('dashboard.family.bookTest', '🧪 Book Test')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ fontSize: 10, padding: '4px 8px', color: '#1866C9' }}>{t('dashboard.family.edit', '✏️ Edit')}</button>
-                    <button className="btn btn-outline btn-sm" onClick={async () => { if (window.confirm(`${t('dashboard.family.removeConfirm', 'Remove')} ${m.name}?`)) { await deleteFamilyApi(m.id); store.removeFamilyMember(m.id); } }} style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}>{t('dashboard.family.remove', '🗑 Remove')}</button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: t('dashboard.family.remove', 'Remove member'),
+                          message: `${t('dashboard.family.removeConfirm', 'Remove')} ${m.name}?`,
+                          confirmLabel: t('dashboard.family.remove', 'Remove'),
+                          danger: true,
+                        });
+                        if (!ok) return;
+                        await deleteFamilyApi(m.id);
+                        store.removeFamilyMember(m.id);
+                        notify.success(t('dashboard.family.removed', 'Family member removed'));
+                      }}
+                    >
+                      {t('dashboard.family.remove', '🗑 Remove')}
+                    </button>
                   </div>
               </div>
             ))}
@@ -1194,7 +1252,7 @@ export default function Dashboard() {
                       <button className="btn btn-outline btn-sm" style={{ color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
                         const text = `🩺 Prescription — Dr. ${a.doctor}\n${a.date}\n\nDiagnosis: ${a.diagnosis}\nRx: ${a.prescription}${a.followUp ? `\nFollow-up: ${a.followUp}` : ''}\n\n— Jeevan HealthCare at Home`;
                         if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${a.doctor}`, text }); }
-                        else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.appointments.prescriptionCopied', '✅ Prescription copied!'))); }
+                        else { navigator.clipboard.writeText(text).then(() => notify.success(t('dashboard.appointments.prescriptionCopied', 'Prescription copied!'))); }
                       }}>{t('dashboard.appointments.share', '📤 Share')}</button>
                     </div>
                   </div>
@@ -1523,7 +1581,7 @@ export default function Dashboard() {
                         <button type="button" className="btn btn-outline btn-sm" onClick={() => {
                           const text = `🩺 Prescription — Dr. ${rx.name}\n${rx.date}\n\nRx: ${rx.medicines}\n\n— Jeevan HealthCare at Home`;
                           if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${rx.name}`, text }); }
-                          else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.prescriptions.copied', '✅ Prescription copied!'))); }
+                          else { navigator.clipboard.writeText(text).then(() => notify.success(t('dashboard.prescriptions.copied', 'Prescription copied!'))); }
                         }}>{t('dashboard.prescriptions.share', '📤')}</button>
                       </div>
                     </div>
@@ -1705,7 +1763,7 @@ export default function Dashboard() {
                 <button className="btn btn-outline btn-sm" style={{ flex: 1, color: '#16a34a', borderColor: '#bbf7d0' }} onClick={() => {
                   const text = `🩺 Prescription — Dr. ${showPrescriptionModal.doctor}\n${showPrescriptionModal.date}${showPrescriptionModal.diagnosis ? `\nDiagnosis: ${showPrescriptionModal.diagnosis}` : ''}\nRx: ${showPrescriptionModal.prescription}${showPrescriptionModal.followUp ? `\nFollow-up: ${showPrescriptionModal.followUp}` : ''}\n\n— Jeevan HealthCare at Home`;
                   if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${showPrescriptionModal.doctor}`, text }); }
-                  else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.prescriptionModal.copied', '✅ Prescription copied!'))); }
+                  else { navigator.clipboard.writeText(text).then(() => notify.success(t('dashboard.prescriptionModal.copied', 'Prescription copied!'))); }
                 }}>{t('dashboard.prescriptionModal.share', '📤 Share')}</button>
               </div>
             </div>

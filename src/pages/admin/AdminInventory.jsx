@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import useInventoryStore, { CATEGORIES, UNITS } from '../../stores/inventoryStore';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
@@ -108,7 +109,7 @@ export default function AdminInventory() {
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                 <button onClick={() => setAdjustId(i.id)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#a16207' }}>Stock</button>
                 <button onClick={() => handleEdit(i)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.inventory.edit', 'Edit')}</button>
-                <button onClick={() => { if (confirm(`Delete ${i.name}?`)) deleteItem(i.id); }} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>Del</button>
+                <button onClick={async () => { if (await confirmDialog(`Delete ${i.name}?`)) deleteItem(i.id); }} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>Del</button>
               </div>
             </div>
           </div>

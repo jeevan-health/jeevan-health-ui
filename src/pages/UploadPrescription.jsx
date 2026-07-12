@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
+import { notify } from '../lib/toastBus';
 
 const ACCEPTED = 'image/jpeg,image/png,application/pdf';
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -23,7 +24,7 @@ export default function UploadPrescription() {
 
   function handleFile(f) {
     const err = validateFile(f);
-    if (err) { alert(err); return; }
+    if (err) { notify.info(err); return; }
     setFile(f);
   }
 
@@ -35,8 +36,8 @@ export default function UploadPrescription() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!file) { alert(t('uploadPrescription.alert.noFile', 'Please upload your prescription first.')); return; }
-    if (!form.name.trim() || !form.phone.trim()) { alert(t('uploadPrescription.alert.noDetails', 'Please fill in your name and phone number.')); return; }
+    if (!file) { notify.info(t('uploadPrescription.alert.noFile', 'Please upload your prescription first.')); return; }
+    if (!form.name.trim() || !form.phone.trim()) { notify.info(t('uploadPrescription.alert.noDetails', 'Please fill in your name and phone number.')); return; }
     setSubmitting(true);
     setTimeout(() => { setSubmitting(false); setStep('success'); }, 1500);
   }

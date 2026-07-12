@@ -5,6 +5,7 @@ import ScrollToTop from './components/layout/ScrollToTop';
 import AnalyticsTracker from './components/AnalyticsTracker';
 import ChatBotWidget from './components/ChatBotWidget';
 import LeadCapturePopup from './components/LeadCapturePopup';
+import ConfirmDialogHost from './components/ConfirmDialogHost';
 import useAuthStore from './stores/authStore';
 import useSettingsStore from './stores/settingsStore';
 import AdminLayout from './components/admin/AdminLayout';
@@ -311,6 +312,7 @@ export default function App() {
       <AnalyticsTracker />
       <ToastProvider>
       <LanguageProvider>
+      <ConfirmDialogHost />
       <ChatBotWidget />
       <LeadCapturePopup />
       <ThemeToggle />

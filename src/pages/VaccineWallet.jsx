@@ -4,6 +4,8 @@ import { useT } from '../i18n/LanguageProvider';
 import { vaccines } from '../data/vaccinationData';
 import { getPendingNotifications, getWALink, markNotificationSent, clearNotifications } from '../services/waService';
 import EmptyState from '../components/EmptyState';
+import { confirmDialog } from '../stores/dialogStore';
+import { notify } from '../lib/toastBus';
 
 const FAMILY_KEY = 'jh_vaccination_family';
 const BOOKINGS_KEY = 'jh_vaccination_bookings';
@@ -74,7 +76,7 @@ function getDefaultNotifSettings() {
 
 function printVaccinationCard(bookingsList) {
   const printWin = window.open('', '_blank');
-  if (!printWin) return alert('Please allow pop-ups to print');
+  if (!printWin) return notify.info('Please allow pop-ups to print');
   const rows = bookingsList.map(b => `
     <tr>
       <td style="padding:6px 10px;border:1px solid #ddd;font-size:11px">${b.vaccineName || b.vaccine || '-'}</td>
@@ -129,8 +131,7 @@ export default function VaccineWallet() {
     setShowAddMember(false);
   };
 
-  const removeMember = (id) => {
-    if (!confirm(`Remove ${family.find(m => m.id === id)?.name}?`)) return;
+  const removeMember = async (id) => { if (!(await confirmDialog(`Remove ${family.find(m => m.id === id)?.name}?`))) return;
     saveFamily(family.filter(m => m.id !== id));
   };
 

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import usePatientsStore from '../../stores/patientsStore';
 import { useT } from '../../i18n/LanguageProvider';
 import EmptyState from '../../components/EmptyState';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -136,7 +137,7 @@ export default function AdminPatients() {
             <div style={{ display: 'flex', gap: 4 }}>
               <button onClick={() => { handleEdit(p); setViewPt(null); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.patients.edit', 'Edit')}</button>
               <button onClick={() => setViewPt(p)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.patients.view', 'View')}</button>
-              <button onClick={() => { if (confirm(`${t('admin.patients.delete_confirm', 'Delete')} ${p.name}?`)) deletePatient(p.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>{t('admin.patients.del', 'Del')}</button>
+              <button onClick={async () => { if (await confirmDialog(`${t('admin.patients.delete_confirm', 'Delete')} ${p.name}?`)) deletePatient(p.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>{t('admin.patients.del', 'Del')}</button>
             </div>
           </div>
         </div>

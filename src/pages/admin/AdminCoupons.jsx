@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import useAdminStore from '../../stores/adminStore';
+import { confirmDialog } from '../../stores/dialogStore';
 
 export default function AdminCoupons() {
   const t = useT();
@@ -78,7 +79,7 @@ export default function AdminCoupons() {
                   </td>
                   <td style={{ padding: '10px 14px', textAlign: 'right' }}>
                     <button onClick={() => handleEdit(c)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12, marginRight: 8 }}>{t('admin.coupons.edit', 'Edit')}</button>
-                    <button onClick={() => { if (confirm('Delete coupon?')) deleteCoupon(c.code); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('admin.coupons.delete', 'Delete')}</button>
+                    <button onClick={async () => { if (await confirmDialog('Delete coupon?')) deleteCoupon(c.code); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('admin.coupons.delete', 'Delete')}</button>
                   </td>
                 </tr>
               ))}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { STORAGE_KEYS } from '../data/physiotherapyData';
+import { confirmDialog } from '../stores/dialogStore';
 
 const C = {
   primary: '#0D9488',
@@ -45,8 +46,7 @@ export default function PhysioDashboard() {
   const upcomingBookings = bookings.filter(b => b.status !== 'completed' && b.status !== 'cancelled');
   const completedBookings = bookings.filter(b => b.status === 'completed');
 
-  const handleCancel = (id) => {
-    if (!confirm(t('cancel.confirm', 'Cancel this session?'))) return;
+  const handleCancel = async (id) => { if (!(await confirmDialog(t('cancel.confirm', 'Cancel this session?')))) return;
     const next = bookings.map(b => b.id === id ? { ...b, status: 'cancelled' } : b);
     setBookings(next);
     localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(next));

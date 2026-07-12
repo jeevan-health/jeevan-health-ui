@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { confirmDialog } from './dialogStore';
 
 const KEY = 'jh_audit_log';
 const PAGE_SIZE = 50;
@@ -79,8 +80,14 @@ const useAuditStore = create((set, get) => ({
     return { entries: filtered.slice(start, start + PAGE_SIZE), total, page, pages: Math.ceil(total / PAGE_SIZE) };
   },
 
-  clearLogs: () => {
-    if (!window.confirm('Clear all audit logs?')) return;
+  clearLogs: async () => {
+    const ok = await confirmDialog({
+      title: 'Clear audit logs',
+      message: 'Clear all audit logs? This cannot be undone.',
+      confirmLabel: 'Clear all',
+      danger: true,
+    });
+    if (!ok) return;
     save([]);
     set({ logs: [] });
   },

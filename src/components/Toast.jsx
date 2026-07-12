@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { registerToast } from '../lib/toastBus';
 
 const ToastContext = createContext(null);
 
@@ -34,8 +35,12 @@ export function ToastProvider({ children }) {
   }, [add]);
 
   useEffect(() => {
-    return () => Object.values(timers.current).forEach(clearTimeout);
-  }, []);
+    registerToast(toast);
+    return () => {
+      registerToast(null);
+      Object.values(timers.current).forEach(clearTimeout);
+    };
+  }, [toast]);
 
   return (
     <ToastContext.Provider value={toast}>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useT } from '../../i18n/LanguageProvider';
 import EmptyState from '../../components/EmptyState';
 import { physioCategories, therapists as defaultTherapists, physioPackages, STORAGE_KEYS } from '../../data/physiotherapyData';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const emptyTherapist = {
   id: 0, name: '', qualifications: '', experience: 0, specialties: [],
@@ -149,8 +150,7 @@ export default function AdminPhysiotherapy() {
     setEditingTherapistId(null);
   };
 
-  const deleteTherapist = (id) => {
-    if (!confirm(t('admin.physio.confirm_delete_therapist', 'Delete this therapist?'))) return;
+  const deleteTherapist = async (id) => { if (!(await confirmDialog(t('admin.physio.confirm_delete_therapist', 'Delete this therapist?')))) return;
     const list = therapists.filter(t => t.id !== id);
     setTherapists(list);
     saveData(STORAGE_KEYS.THERAPISTS, list);
@@ -187,8 +187,7 @@ export default function AdminPhysiotherapy() {
     setEditingExerciseId(null);
   };
 
-  const deleteExercise = (id) => {
-    if (!confirm(t('admin.physio.confirm_delete_exercise', 'Delete this exercise?'))) return;
+  const deleteExercise = async (id) => { if (!(await confirmDialog(t('admin.physio.confirm_delete_exercise', 'Delete this exercise?')))) return;
     const list = exercises.filter(ex => ex.id !== id);
     setExercises(list);
     saveData(STORAGE_KEYS.EXERCISES, list);

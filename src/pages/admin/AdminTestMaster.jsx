@@ -4,6 +4,8 @@ import useAdminStore from '../../stores/adminStore';
 import { generateAllTestsData } from '../../utils/generateTestData';
 import { useT } from '../../i18n/LanguageProvider';
 import * as adminService from '../../services/adminService';
+import { confirmDialog } from '../../stores/dialogStore';
+import { notify } from '../../lib/toastBus';
 
 const STORAGE_KEY = 'jeevan_testMaster';
 const CATEGORIES = ['Hematology', 'Diabetes', 'Thyroid', 'Cardiac', 'Vitamins', 'Full Body', 'Anemia', 'Fever', 'Cancer', 'Hormones', 'Allergy', 'Arthritis', 'Pregnancy', 'Liver', 'STD', 'Kidney'];
@@ -140,7 +142,7 @@ export default function AdminTestMaster() {
     data.preparation_instructions = data.preparation;
     data.fasting_required = data.fastingRequired;
     data.report_time = data.reportTime;
-    if (!data.name) { alert(t('admin.test_master.name_required', 'Test name is required')); return; }
+    if (!data.name) { notify.info(t('admin.test_master.name_required', 'Test name is required')); return; }
 
     const corePayload = {
       name: data.name,
@@ -189,7 +191,7 @@ export default function AdminTestMaster() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm(t('admin.test_master.delete_confirm', 'Delete this test?'))) return;
+    if (!(await confirmDialog(t('admin.test_master.delete_confirm', 'Delete this test?')))) return;
     try {
       if (catalog.find(t => String(t.id) === String(id))) {
         await adminService.deleteTest(id);
@@ -577,12 +579,12 @@ export default function AdminTestMaster() {
             {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <button onClick={handleNew} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>+ {t('admin.test_master.add_test', 'Add Test')}</button>
-          <button onClick={() => {
-            if (!confirm(`Generate complete data for all ${seedTests.length} tests? This will overwrite existing data.`)) return;
+          <button onClick={async () => {
+            if (!(await confirmDialog(`Generate complete data for all ${seedTests.length} tests? This will overwrite existing data.`))) return;
             const data = generateAllTestsData();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             setExtendedData(data);
-            alert(`Generated complete data for ${Object.keys(data).length} tests!`);
+            notify.info(`Generated complete data for ${Object.keys(data).length} tests!`);
           }} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>⚡ Generate All</button>
         </div>
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'auto' }}>

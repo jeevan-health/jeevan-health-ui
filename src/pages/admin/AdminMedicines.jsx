@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
+import { confirmDialog } from '../../stores/dialogStore';
+import { notify } from '../../lib/toastBus';
 
 const inputStyle = {
   padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13,
@@ -114,17 +116,17 @@ export default function AdminMedicines() {
       await adminService.updateMedicine(m.id, { inStock: !m.inStock });
       await load();
     } catch (err) {
-      alert(err?.response?.data?.error || 'Update failed');
+      notify.error(err?.response?.data?.error || 'Update failed');
     }
   };
 
   const handleDelete = async (m) => {
-    if (!confirm(`Delete ${m.name}?`)) return;
+    if (!(await confirmDialog(`Delete ${m.name}?`))) return;
     try {
       await adminService.deleteMedicine(m.id);
       await load();
     } catch (err) {
-      alert(err?.response?.data?.error || 'Delete failed');
+      notify.error(err?.response?.data?.error || 'Delete failed');
     }
   };
 

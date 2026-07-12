@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import useAdminStore from '../../stores/adminStore';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const CATEGORIES = ['Hematology', 'Diabetes', 'Thyroid', 'Cardiac', 'Vitamins', 'Full Body', 'Anemia', 'Fever', 'Cancer', 'Hormones', 'Allergy', 'Arthritis', 'Pregnancy', 'Liver', 'STD'];
 
@@ -46,7 +47,7 @@ export default function AdminCatalog() {
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <button onClick={() => setShowAdd(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#1866C9', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>+ {t('admin.catalog.add_test', 'Add Test')}</button>
-        <button onClick={() => { if (confirm('Reset all catalog overrides?')) { resetCatalog(); setCatalog(getCatalog()); } }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#ef4444' }}>Reset</button>
+        <button onClick={async () => { if (await confirmDialog('Reset all catalog overrides?')) { resetCatalog(); setCatalog(getCatalog()); } }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#ef4444' }}>Reset</button>
         <span style={{ fontSize: 12, color: '#64748b' }}>{filtered.length} tests</span>
       </div>
 

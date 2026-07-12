@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { packageList } from '../../data/healthPackages';
 import { useT } from '../../i18n/LanguageProvider';
+import { confirmDialog } from '../../stores/dialogStore';
+import { notify } from '../../lib/toastBus';
 
 const STORAGE_KEY = 'jeevan_healthPackages';
 const TARGETS = [...new Set(packageList.map(p => p.target.split('|').map(s => s.trim())).flat())];
@@ -93,7 +95,7 @@ export default function AdminHealthPackages() {
   const handleSave = () => {
     const id = editingId || Date.now().toString();
     const data = { ...form };
-    if (!data.name) { alert(t('admin.health_packages.name_required', 'Package name is required')); return; }
+    if (!data.name) { notify.info(t('admin.health_packages.name_required', 'Package name is required')); return; }
     persist(id, data);
     setShowForm(false);
     setEditingId(null);
@@ -106,8 +108,7 @@ export default function AdminHealthPackages() {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
-    if (!confirm(t('admin.health_packages.delete_confirm', 'Delete this package?'))) return;
+  const handleDelete = async (id) => { if (!(await confirmDialog(t('admin.health_packages.delete_confirm', 'Delete this package?')))) return;
     const next = { ...extendedData };
     delete next[id];
     setExtendedData(next);

@@ -217,7 +217,42 @@ const useDashboardStore = create((set, get) => ({
   addFamilyMember: (member) => set(state => ({ family: [...state.family, { ...member, id: `FM${Date.now()}` }] })),
   updateFamilyMember: (id, updates) => set(state => ({ family: state.family.map(m => m.id === id ? { ...m, ...updates } : m) })),
   removeFamilyMember: (id) => set(state => ({ family: state.family.filter(m => m.id !== id) })),
-  cancelBooking: (id) => set(state => ({ upcomingBookings: state.upcomingBookings.filter(b => b.id !== id) })),
+  /**
+   * Cancel a dashboard booking against the real API.
+   * IDs are mapped as ORD-{numericId} (diagnostics) or APT-{numericId} (appointments).
+   */
+  cancelBooking: async (id) => {
+    const key = String(id || '');
+    try {
+      if (key.startsWith('ORD-')) {
+        const numId = key.slice(4);
+        await api.put(`/diagnostics/orders/${numId}/cancel`);
+        set((state) => ({
+          upcomingBookings: state.upcomingBookings.filter((b) => b.id !== id),
+        }));
+        return { ok: true, type: 'order' };
+      }
+      if (key.startsWith('APT-')) {
+        const numId = key.slice(4);
+        await api.put(`/doctors/appointments/${numId}/cancel`);
+        set((state) => ({
+          appointments: state.appointments.filter((a) => a.id !== id),
+          upcomingBookings: state.upcomingBookings.filter((b) => b.id !== id),
+        }));
+        return { ok: true, type: 'appointment' };
+      }
+      // Unknown / legacy local-only id
+      set((state) => ({
+        upcomingBookings: state.upcomingBookings.filter((b) => b.id !== id),
+      }));
+      return { ok: true, type: 'local' };
+    } catch (err) {
+      const message = err?.response?.data?.message
+        || err?.response?.data?.error
+        || 'Could not cancel. Please try again.';
+      return { ok: false, error: message };
+    }
+  },
 
   fetchDashboard: async () => {
     set({ loading: true });

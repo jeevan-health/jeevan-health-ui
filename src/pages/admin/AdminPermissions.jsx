@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import usePermissionsStore from '../../stores/permissionsStore';
 import { useT } from '../../i18n/LanguageProvider';
+import { confirmDialog } from '../../stores/dialogStore';
 
 export default function AdminPermissions() {
   const t = useT();
@@ -38,16 +39,22 @@ export default function AdminPermissions() {
     }
   };
 
-  const handleDeleteRole = (roleId) => {
+  const handleDeleteRole = async (roleId) => {
     if (roleId === 'super_admin') return;
-    if (confirm(`Delete role "${roles[roleId]?.label || roleId}"?`)) {
+    const ok = await confirmDialog({
+      title: 'Delete role',
+      message: `Delete role "${roles[roleId]?.label || roleId}"?`,
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (ok) {
       deleteRole(roleId);
       setActiveRole('admin');
     }
   };
 
-  const handleReset = () => {
-    if (confirm('Reset all permissions to default? This cannot be undone.')) {
+  const handleReset = async () => {
+    if (await confirmDialog('Reset all permissions to default? This cannot be undone.')) {
       resetPermissions();
     }
   };

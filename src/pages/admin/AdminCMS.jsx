@@ -3,6 +3,7 @@ import useCmsStore from '../../stores/cmsStore';
 import { getPackagesByAxis } from '../../utils/packageGenerator';
 import { seedTests } from '../../data/seedData';
 import { useT } from '../../i18n/LanguageProvider';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const labelStyle = { fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4, fontWeight: 500 };
@@ -70,7 +71,7 @@ export default function AdminCMS() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ fontSize: 13, color: '#64748b' }}>Control what visitors see on the public website</div>
-        <button onClick={() => { if (confirm('Reset all website content to defaults?')) resetContent(); }}
+        <button onClick={async () => { if (await confirmDialog('Reset all website content to defaults?')) resetContent(); }}
           style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#dc2626' }}>
           Reset to Defaults
         </button>
@@ -174,7 +175,7 @@ function ServicesSection({ services, updateService, addService, deleteService, i
                 <input type="checkbox" checked={s.active !== false} onChange={e => updateService(s.id, { active: e.target.checked })} style={{ accentColor: '#3b82f6' }} /> Active
               </label>
               <button onClick={() => { const l = prompt('Label:', s.label); if (l) updateService(s.id, { label: l }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
-              <button onClick={() => { if (confirm(`Delete "${s.label}"?`)) deleteService(s.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+              <button onClick={async () => { if (await confirmDialog(`Delete "${s.label}"?`)) deleteService(s.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
             </div>
           </div>
         </div>
@@ -227,7 +228,7 @@ function ServicesSection({ services, updateService, addService, deleteService, i
                   <div style={{ fontSize: 11, color: '#64748b' }}>{q.desc}</div>
                 </div>
               </div>
-              <button onClick={() => { if (confirm('Delete?')) deleteServicesPageQuickAction(i); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14 }}>×</button>
+              <button onClick={async () => { if (await confirmDialog('Delete?')) deleteServicesPageQuickAction(i); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14 }}>×</button>
             </div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
               <input value={q.label} onChange={e => updateServicesPageQuickAction(i, { label: e.target.value })} style={{ ...inputStyle, fontSize: 11, flex: 1 }} placeholder="Label" />
@@ -338,7 +339,7 @@ function TestimonialsSection({ testimonials, addTestimonial, updateTestimonial, 
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
               <button onClick={() => { const n = prompt('Name:', t.name); if (n) updateTestimonial(t.id, { name: n }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
-              <button onClick={() => { if (confirm('Delete?')) deleteTestimonial(t.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+              <button onClick={async () => { if (await confirmDialog('Delete?')) deleteTestimonial(t.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
             </div>
           </div>
         </div>
@@ -394,7 +395,7 @@ function FaqsSection({ faqs, addFaq, updateFaq, deleteFaq, inputStyle, FormField
             </div>
             <div style={{ display: 'flex', gap: 4, marginLeft: 12 }}>
               <button onClick={() => { const q = prompt('Question:', f.question); if (q) updateFaq(f.id, { question: q }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
-              <button onClick={() => { if (confirm('Delete?')) deleteFaq(f.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+              <button onClick={async () => { if (await confirmDialog('Delete?')) deleteFaq(f.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
             </div>
           </div>
         </div>
@@ -494,7 +495,7 @@ function PackagesSection({ content, cms, inputStyle, FormField, sectionCard }) {
               <div style={{ display: 'flex', gap: 4 }}>
                 <button onClick={() => { const b = prompt('Badge:', f.badge); if (b) cms.updateHealthPackageFeatured(i, { badge: b }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Badge</button>
                 <button onClick={() => { const g = prompt('Gradient:', f.gradient); if (g) cms.updateHealthPackageFeatured(i, { gradient: g }); }} style={{ background: 'none', border: 'none', color: '#8b5cf6', cursor: 'pointer', fontSize: 12 }}>Gradient</button>
-                <button onClick={() => { if (confirm('Remove from featured?')) cms.removeHealthPackageFeatured(i); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Remove</button>
+                <button onClick={async () => { if (await confirmDialog('Remove from featured?')) cms.removeHealthPackageFeatured(i); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Remove</button>
               </div>
             </div>
           );
@@ -616,7 +617,7 @@ function DiagnosticsSection({ content, cms, inputStyle, FormField, sectionCard }
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                 <label style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}><input type="checkbox" checked={cat.active !== false} onChange={e => cms.updateDiagnosticsCategory(cat.id, { active: e.target.checked })} style={{ accentColor: '#3b82f6' }} /> Active</label>
                 <button onClick={() => { const n = prompt('Name:', cat.name); if (n) cms.updateDiagnosticsCategory(cat.id, { name: n }); }} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
-                <button onClick={() => { if (confirm(`Delete "${cat.name}"?`)) cms.deleteDiagnosticsCategory(cat.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+                <button onClick={async () => { if (await confirmDialog(`Delete "${cat.name}"?`)) cms.deleteDiagnosticsCategory(cat.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
               </div>
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
@@ -696,7 +697,7 @@ function BlogSection({ content, addBlogPost, updateBlogPost, deleteBlogPost, upd
             <div style={{ display: 'flex', gap: 4, marginLeft: 12 }}>
               <button onClick={() => updateBlogPost(post.id, { active: !post.active })} style={{ background: 'none', border: 'none', color: post.active ? '#f59e0b' : '#22c55e', cursor: 'pointer', fontSize: 12 }}>{post.active ? 'Hide' : 'Show'}</button>
               <button onClick={() => handleEdit(post)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>Edit</button>
-              <button onClick={() => { if (confirm('Delete?')) deleteBlogPost(post.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
+              <button onClick={async () => { if (await confirmDialog('Delete?')) deleteBlogPost(post.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Del</button>
             </div>
           </div>
         </div>
@@ -740,7 +741,7 @@ function SeoSection({ content, updateSeoRoute, addSeoRoute, deleteSeoRoute, inpu
         <div key={route} style={sectionCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#1866C9', fontFamily: 'monospace' }}>{route}</span>
-            <button onClick={() => { if (confirm(`Delete SEO for "${route}"?`)) deleteSeoRoute(route); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Remove</button>
+            <button onClick={async () => { if (await confirmDialog(`Delete SEO for "${route}"?`)) deleteSeoRoute(route); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>Remove</button>
           </div>
           <FormField label="Meta Title"><input value={meta.title || ''} onChange={e => updateSeoRoute(route, { title: e.target.value })} style={inputStyle} /></FormField>
           <FormField label="Meta Description"><textarea rows={2} value={meta.description || ''} onChange={e => updateSeoRoute(route, { description: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} /></FormField>

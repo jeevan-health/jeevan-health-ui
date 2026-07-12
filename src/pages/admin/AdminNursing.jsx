@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import EmptyState from '../../components/EmptyState';
 import { nursingCategories, nursingServices as defaultServices, nurses as defaultNurses, nursingPackages as defaultPackages, STORAGE_KEYS } from '../../data/nursingData';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const C = {
   primary: '#7C3AED',
@@ -156,8 +157,7 @@ export default function AdminNursing() {
     setEditingServiceId(null);
   };
 
-  const deleteService = (id) => {
-    if (!confirm(t('admin.nursing.confirm_delete_service', 'Delete this service?'))) return;
+  const deleteService = async (id) => { if (!(await confirmDialog(t('admin.nursing.confirm_delete_service', 'Delete this service?')))) return;
     const list = services.filter(s => s.id !== id);
     setServices(list);
     saveData(STORAGE_KEYS.SERVICES, list);
@@ -188,8 +188,7 @@ export default function AdminNursing() {
     setEditingNurseId(null);
   };
 
-  const deleteNurse = (id) => {
-    if (!confirm(t('admin.nursing.confirm_delete_nurse', 'Delete this nurse?'))) return;
+  const deleteNurse = async (id) => { if (!(await confirmDialog(t('admin.nursing.confirm_delete_nurse', 'Delete this nurse?')))) return;
     const list = nurses.filter(n => n.id !== id);
     setNurses(list);
     saveData(STORAGE_KEYS.CAREGIVERS, list);

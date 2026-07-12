@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { physioCategories, STORAGE_KEYS } from '../data/physiotherapyData';
+import { confirmDialog } from '../stores/dialogStore';
 
 const LEAD_STATUSES = [
   'New', 'Contacted', 'Assessment Pending', 'Appointment Scheduled',
@@ -138,8 +139,7 @@ export default function PhysioCrmLeads() {
     setShowAddModal(false);
   };
 
-  const deleteLead = (id) => {
-    if (!confirm(t('physio.crm.confirm_delete', 'Delete this lead?'))) return;
+  const deleteLead = async (id) => { if (!(await confirmDialog(t('physio.crm.confirm_delete', 'Delete this lead?')))) return;
     persistLeads(leads.filter(l => l.id !== id));
     if (selectedLead?.id === id) setSelectedLead(null);
   };

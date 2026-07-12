@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import useUploadModal from '../../stores/uploadModalStore';
 import { useT } from '../../i18n/LanguageProvider';
+import { notify } from '../../lib/toastBus';
 
 const ACCEPTED = 'image/jpeg,image/png,application/pdf';
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -26,14 +27,14 @@ export default function UploadModal() {
 
   const handleFile = (f) => {
     const err = validateFile(f);
-    if (err) { alert(err); return; }
+    if (err) { notify.info(err); return; }
     setFile(f);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!file) { alert(t('uploadModal.alertUploadFirst', 'Upload your prescription first.')); return; }
-    if (!form.name.trim() || !form.phone.trim()) { alert(t('uploadModal.alertFillDetails', 'Fill in name and phone.')); return; }
+    if (!file) { notify.info(t('uploadModal.alertUploadFirst', 'Upload your prescription first.')); return; }
+    if (!form.name.trim() || !form.phone.trim()) { notify.info(t('uploadModal.alertFillDetails', 'Fill in name and phone.')); return; }
     setSubmitting(true);
     setTimeout(() => { setSubmitting(false); setStep('success'); }, 1200);
   };

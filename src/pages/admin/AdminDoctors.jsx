@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SPECIALTIES, DAYS } from '../../stores/doctorsStore';
 import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
+import { confirmDialog } from '../../stores/dialogStore';
+import { notify } from '../../lib/toastBus';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
@@ -127,18 +129,18 @@ export default function AdminDoctors() {
         setViewDr({ ...d, isActive: !d.isActive, isAvailable: !d.isActive });
       }
     } catch (err) {
-      alert(err?.response?.data?.error || 'Update failed');
+      notify.error(err?.response?.data?.error || 'Update failed');
     }
   };
 
   const handleDelete = async (d) => {
-    if (!confirm(`${t('admin.doctors.delete_confirm', 'Delete')} ${d.name}?`)) return;
+    if (!(await confirmDialog(`${t('admin.doctors.delete_confirm', 'Delete')} ${d.name}?`))) return;
     try {
       await adminService.deleteDoctor(d.id);
       if (viewDr?.id === d.id) setViewDr(null);
       await load();
     } catch (err) {
-      alert(err?.response?.data?.error || 'Delete failed');
+      notify.error(err?.response?.data?.error || 'Delete failed');
     }
   };
 

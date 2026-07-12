@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useT } from '../../i18n/LanguageProvider';
 import { getOrders } from '../../services/localOrderService';
+import { confirmDialog } from '../../stores/dialogStore';
 
 const REPORTS_KEY = 'jh_reports';
 const loadReports = () => { try { return JSON.parse(localStorage.getItem(REPORTS_KEY) || '[]'); } catch { return []; } };
@@ -64,8 +65,8 @@ export default function AdminReports() {
     setReports(all);
   };
 
-  const handleDelete = (id) => {
-    if (!confirm('Delete this report?')) return;
+  const handleDelete = async (id) => {
+    if (!(await confirmDialog('Delete this report?'))) return;
     const all = loadReports().filter(r => r.id !== id);
     saveReports(all);
     setReports(all);

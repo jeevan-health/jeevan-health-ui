@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 import * as diagnosticsService from '../services/diagnosticsService';
+import { confirmDialog } from '../stores/dialogStore';
+import { notify } from '../lib/toastBus';
 
 const STATUS_LABELS = {
   pending: 'Pending',
@@ -113,13 +115,13 @@ export default function MyTestOrders() {
   }), [orders]);
 
   const handleCancel = async (id) => {
-    if (!window.confirm(t('orders.confirmCancel', 'Cancel this order?'))) return;
+    if (!(await confirmDialog(t('orders.confirmCancel', 'Cancel this order?')))) return;
     setCancellingId(id);
     try {
       await diagnosticsService.cancelDiagnosticOrder(id);
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'cancelled', statusLabel: 'Cancelled', filter: 'cancelled', canCancel: false } : o));
     } catch {
-      alert(t('orders.cancelFailed', 'Could not cancel order.'));
+      notify.error(t('orders.cancelFailed', 'Could not cancel order.'));
     } finally {
       setCancellingId(null);
     }

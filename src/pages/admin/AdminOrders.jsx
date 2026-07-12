@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
+import { notify } from '../../lib/toastBus';
 
 const DIAG_STATUSES = ['pending', 'confirmed', 'sample_collected', 'processing', 'results_ready', 'completed', 'cancelled'];
 const PHARM_STATUSES = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'];
@@ -87,7 +88,7 @@ export default function AdminOrders() {
       await adminService.updateOrderStatus(order.orderType, order.id, status);
       await load();
     } catch (err) {
-      alert(err?.response?.data?.error || t('admin.orders.updateFailed', 'Failed to update status'));
+      notify.error(err?.response?.data?.error || t('admin.orders.updateFailed', 'Failed to update status'));
     } finally {
       setUpdatingId(null);
     }
