@@ -62,28 +62,53 @@ const navItems = [
   { key: 'bookings', label: 'Bookings', icon: '📅' },
   { key: 'reports', label: 'Reports', icon: '🧪' },
   { key: 'appointments', label: 'Appointments', icon: '👨‍⚕️' },
-  { key: 'health', label: 'Health Score', icon: '🩺', action: 'health' },
+  { key: 'health', label: 'Health', icon: '🩺', action: 'health' },
   { key: 'family', label: 'Family', icon: '👪' },
   { key: 'wallet', label: 'Wallet', icon: '💳' },
   { key: 'invoices', label: 'Invoices', icon: '📄' },
   { key: 'abha', label: 'ABHA ID', icon: '🆔' },
+  { key: 'profile', label: 'Profile', icon: '👤' },
   { key: 'settings', label: 'Settings', icon: '⚙️' },
   { key: 'logout', label: 'Logout', icon: '🚪' },
 ];
 
-function Section({ id, title, icon, children, active }) {
-  if (active !== 'overview' && active !== id) return null;
+/** Primary chips on mobile — rest live under Profile */
+const mobilePrimaryKeys = ['overview', 'bookings', 'reports', 'health', 'family', 'profile', 'logout'];
+
+function Section({ id, title, icon, children, active, action }) {
+  // Only render the selected section — overview is its own layout (not a dump of every panel)
+  if (active !== id) return null;
   return (
-    <div id={id} style={{ marginBottom: 24 }}>
-      {title && (
-        <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-          {icon && <span>{icon}</span>} {title}
-        </h2>
+    <div id={id} className="dash-section" style={{ marginBottom: 24 }}>
+      {(title || action) && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+          {title ? (
+            <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+              {icon && <span aria-hidden>{icon}</span>} {title}
+            </h2>
+          ) : <span />}
+          {action || null}
+        </div>
       )}
       {children}
     </div>
   );
 }
+
+function EmptyCard({ icon, title, desc, ctaLabel, onCta }) {
+  return (
+    <div className="card" style={{ textAlign: 'center', padding: '32px 20px', border: '1px dashed #cbd5e1', background: '#fafbfc' }}>
+      <div style={{ width: 48, height: 48, borderRadius: 12, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }} aria-hidden>{icon}</div>
+      <p style={{ fontSize: 14, fontWeight: 600, color: '#334155', marginBottom: 4 }}>{title}</p>
+      {desc ? <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: ctaLabel ? 14 : 0, lineHeight: 1.5 }}>{desc}</p> : null}
+      {ctaLabel && onCta ? (
+        <button type="button" onClick={onCta} className="btn btn-primary btn-sm">{ctaLabel}</button>
+      ) : null}
+    </div>
+  );
+}
+
+const VALID_TABS = new Set(['overview', 'bookings', 'reports', 'appointments', 'health', 'family', 'wallet', 'invoices', 'abha', 'settings', 'profile']);
 
 function Badge({ variant, children }) {
   const colors = {
@@ -150,24 +175,37 @@ function TrendMiniBar({ values, color = '#1866C9' }) {
 export default function Dashboard() {
   const t = useT();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'bookings') return 'bookings';
-    if (tab === 'health') return 'health';
-    if (tab === 'profile') return 'profile';
-    return 'overview';
+    return tab && VALID_TABS.has(tab) ? tab : 'overview';
   });
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'bookings' && activeSection !== 'bookings') setActiveSection('bookings');
-    else if (tab === 'health' && activeSection !== 'health') setActiveSection('health');
-    else if (tab === 'profile' && activeSection !== 'profile') setActiveSection('profile');
-    else if (!tab && activeSection !== 'overview') setActiveSection('overview');
+    const next = tab && VALID_TABS.has(tab) ? tab : 'overview';
+    setActiveSection(next);
   }, [searchParams]);
+
+  const goToSection = (key) => {
+    if (key === 'logout') return;
+    setActiveSection(key);
+    if (key === 'overview') {
+      setSearchParams({}, { replace: true });
+    } else {
+      setSearchParams({ tab: key }, { replace: true });
+    }
+    // Keep content in view on mobile after chip tap
+    try {
+      const main = document.querySelector('.dash-main');
+      if (main) main.scrollTo?.({ top: 0, behavior: 'smooth' });
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch { /* ignore */ }
+  };
+
   const [comingSoon, setComingSoon] = useState(null);
   const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
+  const dashLoading = useDashboardStore(s => s.loading);
   const fetchFamily = useAuthStore(s => s.fetchFamily);
   const authFamily = useAuthStore(s => s.family);
   const addFamilyApi = useAuthStore(s => s.addFamilyMember);
@@ -175,7 +213,7 @@ export default function Dashboard() {
   const deleteFamilyApi = useAuthStore(s => s.deleteFamilyMember);
   useEffect(() => { fetchDashboard(); fetchFamily(); }, []);
 
-  useEffect(() => { if (comingSoon) { const t = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(t); } }, [comingSoon]);
+  useEffect(() => { if (comingSoon) { const timer = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(timer); } }, [comingSoon]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   const [editingFamily, setEditingFamily] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -216,17 +254,26 @@ export default function Dashboard() {
   const store = useDashboardStore();
   const authUser = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
-  const p = { ...store.profile, name: authUser?.name || store.profile.name, phone: authUser?.phone || store.profile.phone };
+  const p = {
+    ...store.profile,
+    name: authUser?.name || store.profile.name || '',
+    phone: authUser?.phone || store.profile.phone || '',
+    email: authUser?.email || store.profile.email || '',
+  };
+  const displayName = (p.name && String(p.name).trim()) || t('dashboard.userFallback', 'there');
+  const nameInitial = (p.name && String(p.name).trim().charAt(0).toUpperCase()) || 'U';
   const reports = store.reports;
   const family = (authFamily && authFamily.length > 0) ? authFamily : store.family;
   const upcoming = store.upcomingBookings;
   const appointments = store.appointments;
+  const upcomingAppts = appointments.filter(a => !['Completed', 'cancelled', 'Cancelled', 'completed'].includes(a.status));
+  const pastAppts = appointments.filter(a => ['Completed', 'completed'].includes(a.status));
   const invoices = store.invoices;
   const wallet = store.wallet;
   const abha = store.abha;
   const notifs = store.notifications;
   const prescriptions = store.savedPrescriptions;
-  const activeOrders = store.activeOrders;
+  const activeOrders = store.activeOrders ?? upcoming.length;
   const healthScoreComputed = useMemo(() => {
     const bonus = useDailyActivityStore.getState().getHealthScoreImpact();
     return computeHealthScore(store.healthData, store.reports, bonus);
@@ -265,12 +312,11 @@ export default function Dashboard() {
   };
 
   const renderNav = (vertical) => (
-    <nav style={vertical ? { display: 'flex', flexDirection: 'column', gap: 2 } : { display: 'flex', gap: 0, overflowX: 'auto' }}>
+    <nav style={vertical ? { display: 'flex', flexDirection: 'column', gap: 2 } : { display: 'flex', gap: 0, overflowX: 'auto' }} aria-label={t('dashboard.sidebar.navAria', 'Dashboard navigation')}>
       {navItems.map(item => (
         <button key={item.key} type="button" onClick={() => {
           if (item.key === 'logout') { logout(); navigate('/', { replace: true }); }
-          else if (item.action === 'health') { setActiveSection('health'); }
-          else { setActiveSection(item.key); }
+          else goToSection(item.key);
         }}
           style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: vertical ? '10px 20px' : '10px 14px',
@@ -278,22 +324,26 @@ export default function Dashboard() {
             color: item.key === 'logout' ? '#dc2626' : (activeSection === item.key ? '#1866C9' : 'var(--text-body)'),
             background: item.key === 'logout' ? 'transparent' : (activeSection === item.key ? '#e8f0fe' : 'transparent'),
             border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-            whiteSpace: 'nowrap', borderRadius: vertical ? 0 : 0, textAlign: 'left', width: vertical ? '100%' : 'auto',
+            whiteSpace: 'nowrap', textAlign: 'left', width: vertical ? '100%' : 'auto',
             borderRight: vertical && activeSection === item.key ? '3px solid #1866C9' : '3px solid transparent',
             borderBottom: !vertical && activeSection === item.key ? '2px solid #1866C9' : '2px solid transparent',
+            WebkitTapHighlightColor: 'transparent',
           }}>
-          <span>{item.icon}</span> <span style={{ whiteSpace: 'nowrap' }}>{t(`dashboard.nav.${item.key}`, item.label)}</span>
+          <span aria-hidden>{item.icon}</span> <span style={{ whiteSpace: 'nowrap' }}>{t(`dashboard.nav.${item.key}`, item.label)}</span>
         </button>
       ))}
     </nav>
   );
 
+  const firstName = displayName !== t('dashboard.userFallback', 'there') ? displayName.split(' ')[0] : '';
+
   return (
     <div className="dash-layout">
-      {/* Sidebar */}
+      {/* Sidebar — desktop */}
       <aside className="dash-sidebar">
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9' }}>{t('dashboard.sidebar.myHealth', 'My Health')}</div>
+          {p.name ? <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div> : null}
         </div>
         {renderNav(true)}
       </aside>
@@ -302,27 +352,30 @@ export default function Dashboard() {
       <main className="dash-main">
 
         {/* ===== HEADER ===== */}
-        <div className="dash-header-wrap" style={{ marginBottom: 20 }}>
-          {/* Top row: Avatar + Name | Health Trends | Health Score */}
-          <div className="dash-header-top" style={{ display: 'flex', alignItems: 'stretch', gap: 14, marginBottom: 14 }}>
-            {/* Avatar + Name */}
+        <div className="dash-header-wrap" style={{ marginBottom: activeSection === 'overview' ? 20 : 12 }}>
+          <div className="dash-header-top" style={{ display: 'flex', alignItems: 'stretch', gap: 14, marginBottom: activeSection === 'overview' ? 14 : 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#fff', fontWeight: 700, flexShrink: 0, letterSpacing: 0 }}>
-                {(p.name || 'U').charAt(0).toUpperCase()}
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
+                {nameInitial}
               </div>
               <div style={{ minWidth: 0 }}>
                 <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--text-dark)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)}{(p.name && p.name.split(' ')[0]) ? `, ${p.name.split(' ')[0]}` : ''}
+                  {t('dashboard.greeting.good', 'Good')} {t(`dashboard.greeting.${GREETING.toLowerCase()}`, GREETING)}{firstName ? `, ${firstName}` : ''}
                 </h1>
                 <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '3px 0 0' }}>
-                  {p.lastCheckup
-                    ? <>{t('dashboard.lastCheck', 'Last check-up:')} <strong style={{ color: '#334155' }}>{p.lastCheckup}</strong></>
-                    : t('dashboard.welcomeSub', 'Your health overview')}
+                  {activeSection !== 'overview' ? (
+                    <button type="button" onClick={() => goToSection('overview')} style={{ background: 'none', border: 'none', padding: 0, color: '#1866C9', fontWeight: 600, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      ← {t('dashboard.backToOverview', 'Back to overview')}
+                    </button>
+                  ) : p.lastCheckup ? (
+                    <>{t('dashboard.lastCheck', 'Last check-up:')} <strong style={{ color: '#334155' }}>{p.lastCheckup}</strong></>
+                  ) : (
+                    t('dashboard.welcomeSub', 'Your health overview')
+                  )}
                 </p>
               </div>
             </div>
 
-            {/* Health Trends mini */}
             {activeSection === 'overview' && store.healthTrends.hba1c.length > 0 && (
               <div className="dash-hdr-trend" style={{ flexShrink: 0, minWidth: 0, display: 'flex', alignItems: 'center' }}>
                 <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -333,66 +386,67 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Health Score compact */}
             <div className="dash-hdr-score" style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
               {store.healthData && healthScoreComputed ? (
-                <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 14px 4px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button type="button" onClick={() => goToSection('health')} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 14px 4px 10px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%', background: healthScoreComputed.recommendation.color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
                     {healthScoreComputed.recommendation.icon}
                   </div>
-                  <div>
+                  <div style={{ textAlign: 'left' }}>
                     <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
                     <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2, color: healthScoreComputed.recommendation.color }}>{healthScoreComputed.score}<span style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8' }}>/{healthScoreComputed.max}</span></div>
                     <div style={{ fontSize: 9, color: healthScoreComputed.recommendation.color, fontWeight: 600, lineHeight: 1.1 }}>{healthScoreComputed.recommendation.zone}</div>
                   </div>
-                </div>
+                </button>
               ) : (
-                <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>
+                <button type="button" style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8edf2', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontFamily: 'inherit' }} onClick={() => { setHealthStep(1); setShowHealthModal(true); }}>
                   <div style={{ fontSize: 22 }}>🩺</div>
-                  <div>
+                  <div style={{ textAlign: 'left' }}>
                     <div style={{ fontSize: 9, color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.1 }}>{t('dashboard.healthScore', 'HEALTH SCORE')}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#1866C9', lineHeight: 1.2 }}>--/100</div>
                   </div>
-                </div>
+                </button>
               )}
             </div>
           </div>
 
-          {/* CTA buttons */}
-          {!store.healthData && (
-            <button onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 12, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 44, marginBottom: 10 }}>
-              {t('dashboard.startAssessment', '🩺 Start Health Assessment')}
-            </button>
+          {/* Primary CTAs only on overview — less noise on detail tabs */}
+          {activeSection === 'overview' && (
+            <>
+              {!store.healthData && (
+                <button type="button" onClick={() => { setHealthStep(1); setShowHealthModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 12, border: '2px dashed #1866C9', background: '#F0F7FF', color: '#1866C9', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', width: '100%', justifyContent: 'center', minHeight: 44, marginBottom: 10 }}>
+                  {t('dashboard.startAssessment', '🩺 Start Health Assessment')}
+                </button>
+              )}
+              <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <button type="button" onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
+                  <span style={{ fontSize: 22, flexShrink: 0 }} aria-hidden>🧪</span>
+                  <div style={{ lineHeight: 1.3 }}>
+                    <div style={{ fontWeight: 700 }}>{t('dashboard.bookTest', 'Book a Test')}</div>
+                    <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.homeCollection', 'Home Collection')}</div>
+                  </div>
+                </button>
+                <button type="button" onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
+                  <span style={{ fontSize: 22, flexShrink: 0 }} aria-hidden>📄</span>
+                  <div style={{ lineHeight: 1.3 }}>
+                    <div style={{ fontWeight: 700 }}>{t('dashboard.uploadReport', 'Upload Report')}</div>
+                    <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.prescription', 'Prescription')}</div>
+                  </div>
+                </button>
+              </div>
+            </>
           )}
-          <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>🧪</span>
-              <div style={{ lineHeight: 1.3 }}>
-                <div style={{ fontWeight: 700 }}>{t('dashboard.bookTest', 'Book a Test')}</div>
-                <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.homeCollection', 'Home Collection')}</div>
-              </div>
-            </button>
-            <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '2px solid var(--primary)', background: '#fff', color: 'var(--primary)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%', minHeight: 50 }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>📄</span>
-              <div style={{ lineHeight: 1.3 }}>
-                <div style={{ fontWeight: 700 }}>{t('dashboard.uploadReport', 'Upload Report')}</div>
-                <div style={{ fontSize: 11, opacity: 0.8 }}>{t('dashboard.prescription', 'Prescription')}</div>
-              </div>
-            </button>
-          </div>
         </div>
 
-        {/* Mobile Tab Nav — includes Logout (sidebar is hidden on mobile) */}
-        <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 16 }}>
+        {/* Mobile Tab Nav — primary chips only */}
+        <div className="dash-mobile-nav" style={{ display: 'none', marginBottom: 14 }}>
           <nav
             style={{
               display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 2px 8px',
               scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
-              maskImage: 'linear-gradient(to right, #000 90%, transparent)',
-              WebkitMaskImage: 'linear-gradient(to right, #000 92%, transparent)',
             }}
           >
-            {navItems.map(item => {
+            {navItems.filter(item => mobilePrimaryKeys.includes(item.key)).map(item => {
               const isLogout = item.key === 'logout';
               const active = !isLogout && activeSection === item.key;
               return (
@@ -405,8 +459,7 @@ export default function Dashboard() {
                       navigate('/', { replace: true });
                       return;
                     }
-                    if (item.key === 'health' || item.action === 'health') setActiveSection('health');
-                    else setActiveSection(item.key);
+                    goToSection(item.key);
                   }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px',
@@ -429,20 +482,27 @@ export default function Dashboard() {
           </nav>
         </div>
 
-        {/* ===== OVERVIEW CARDS ===== */}
+        {dashLoading && activeSection === 'overview' && (
+          <div style={{ padding: '10px 14px', marginBottom: 12, borderRadius: 10, background: '#F0F7FF', border: '1px solid #dbeafe', fontSize: 12, color: '#1866C9', fontWeight: 600 }}>
+            {t('dashboard.loading', 'Refreshing your health data…')}
+          </div>
+        )}
+
+        {/* ===== OVERVIEW ===== */}
         {activeSection === 'overview' && (
-          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 160px), 1fr))', gap: 12, marginBottom: 24 }}>
+          <>
+          <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 160px), 1fr))', gap: 12, marginBottom: 16 }}>
             {[
               { key: 'bookings', icon: '📅', label: t('dashboard.overview.upcoming', 'Upcoming Bookings'), value: upcoming.length, color: '#2563eb', bg: '#eff6ff' },
               { key: 'reports', icon: '🧪', label: t('dashboard.overview.reports', 'Reports Available'), value: reports.length, color: '#16a34a', bg: '#f0fdf4' },
               { key: 'family', icon: '👪', label: t('dashboard.overview.family', 'Family Members'), value: family.length, color: '#c2410c', bg: '#fff7ed' },
-              { key: 'bookings', icon: '📦', label: t('dashboard.overview.orders', 'Active Orders'), value: activeOrders, color: '#7c3aed', bg: '#f5f3ff' },
+              { key: 'appointments', icon: '👨‍⚕️', label: t('dashboard.overview.appointments', 'Appointments'), value: upcomingAppts.length, color: '#7c3aed', bg: '#f5f3ff' },
             ].map((card, idx) => (
               <button
-                key={`${card.label}-${idx}`}
+                key={`${card.key}-${idx}`}
                 type="button"
                 className="card"
-                onClick={() => setActiveSection(card.key)}
+                onClick={() => goToSection(card.key)}
                 style={{
                   textAlign: 'left', cursor: 'pointer', padding: '16px 14px', borderRadius: 14,
                   border: '1px solid #e8edf2', background: '#fff', fontFamily: 'inherit',
@@ -451,12 +511,80 @@ export default function Dashboard() {
                 onMouseEnter={e => { e.currentTarget.style.borderColor = card.color; e.currentTarget.style.boxShadow = `0 4px 14px ${card.color}18`; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = 'none'; }}
               >
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{card.icon}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }} aria-hidden>{card.icon}</div>
                 <div style={{ fontSize: 28, fontWeight: 800, color: card.color, lineHeight: 1.1 }}>{card.value}</div>
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500, lineHeight: 1.3 }}>{card.label}</div>
               </button>
             ))}
           </div>
+
+          {/* Compact previews */}
+          <div className="dash-section-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 16 }}>
+            <div className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{t('dashboard.overview.nextBooking', '📅 Next booking')}</h3>
+                <button type="button" onClick={() => goToSection('bookings')} style={{ background: 'none', border: 'none', color: '#1866C9', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('dashboard.viewAll', 'View all')}</button>
+              </div>
+              {upcoming[0] ? (
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{upcoming[0].test}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>📅 {upcoming[0].date} · 🕘 {upcoming[0].time}</div>
+                  <Badge variant={upcoming[0].status === 'Confirmed' ? 'green' : 'yellow'}>{upcoming[0].status}</Badge>
+                </div>
+              ) : (
+                <div>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.noUpcoming', 'No upcoming bookings yet.')}</p>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.bookTestBtn', 'Book a Test')}</button>
+                </div>
+              )}
+            </div>
+            <div className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{t('dashboard.overview.latestReport', '🧪 Latest report')}</h3>
+                <button type="button" onClick={() => goToSection('reports')} style={{ background: 'none', border: 'none', color: '#1866C9', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('dashboard.viewAll', 'View all')}</button>
+              </div>
+              {reports[0] ? (
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{reports[0].test}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{reports[0].date} · {reports[0].lab}</div>
+                  <Badge variant={reports[0].status === 'Normal' ? 'green' : 'orange'}>{reports[0].status}</Badge>
+                </div>
+              ) : (
+                <div>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10 }}>{t('dashboard.noReportsYet', 'Reports will appear here after lab results are ready.')}</p>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.bookTestBtn', 'Book a Test')}</button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Secondary shortcuts */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 8, marginBottom: 20 }}>
+            {[
+              { key: 'appointments', icon: '👨‍⚕️', label: t('dashboard.nav.appointments', 'Appointments') },
+              { key: 'wallet', icon: '💳', label: t('dashboard.nav.wallet', 'Wallet') },
+              { key: 'invoices', icon: '📄', label: t('dashboard.nav.invoices', 'Invoices') },
+              { key: 'abha', icon: '🆔', label: t('dashboard.nav.abha', 'ABHA') },
+              { key: 'settings', icon: '⚙️', label: t('dashboard.nav.settings', 'Settings') },
+              { key: 'health', icon: '🩺', label: t('dashboard.nav.health', 'Health') },
+            ].map(s => (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => goToSection(s.key)}
+                style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '12px 8px',
+                  borderRadius: 12, border: '1px solid #e8edf2', background: '#fff', cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: 11, fontWeight: 600, color: '#334155', minHeight: 72,
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                <span style={{ fontSize: 20 }} aria-hidden>{s.icon}</span>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          </>
         )}
 
         {/* ===== UPCOMING BOOKINGS ===== */}
@@ -577,8 +705,19 @@ export default function Dashboard() {
         )}
 
         {/* ===== MY REPORTS ===== */}
-        <Section id="reports" title={t('dashboard.section.reports', 'My Reports')} icon="🧪" active={activeSection}>
-          {/* Filter/search bar */}
+        <Section id="reports" title={t('dashboard.section.reports', 'My Reports')} icon="🧪" active={activeSection}
+          action={<button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.bookNewTest', '+ Book New Test')}</button>}
+        >
+          {reports.length === 0 ? (
+            <EmptyCard
+              icon="🧪"
+              title={t('dashboard.noReportsTitle', 'No reports yet')}
+              desc={t('dashboard.noReportsDesc', 'After your sample is collected and processed, digital reports will show up here.')}
+              ctaLabel={t('dashboard.bookTestBtn', 'Book a Test')}
+              onCta={() => navigate('/diagnostics')}
+            />
+          ) : (
+          <>
           <div className="report-search-bar" style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'nowrap', alignItems: 'center', width: '100%' }}>
             <input placeholder={t('dashboard.reports.searchPlaceholder', 'Search by test name...')} className="input" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />
             <select className="select" style={{ width: 130, flexShrink: 0, fontSize: 12, padding: '10px 8px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportFilter} onChange={e => setReportFilter(e.target.value)}>
@@ -592,9 +731,10 @@ export default function Dashboard() {
             {reports.filter(r => {
               const match = !reportSearch || r.test.toLowerCase().includes(reportSearch.toLowerCase()) || r.status.toLowerCase().includes(reportSearch.toLowerCase());
               if (!match) return false;
-              if (reportFilter === 'All Reports') return true;
-              const days = reportFilter === 'This Month' ? 30 : reportFilter === 'Last 3 Months' ? 90 : 180;
+              if (reportFilter === 'All Reports' || reportFilter === t('dashboard.reports.filterAll', 'All Reports')) return true;
+              const days = reportFilter.includes('3') ? 90 : reportFilter.includes('6') ? 180 : 30;
               const d = new Date(r.date);
+              if (Number.isNaN(d.getTime())) return true;
               const now = new Date();
               return (now - d) / (1000 * 60 * 60 * 24) <= days;
             }).map((r, i) => (
@@ -677,11 +817,28 @@ export default function Dashboard() {
                 )}
               </div>
             ))}
+            {reports.length > 0 && reports.filter(r => {
+              const match = !reportSearch || r.test.toLowerCase().includes(reportSearch.toLowerCase()) || r.status.toLowerCase().includes(reportSearch.toLowerCase());
+              return match;
+            }).length === 0 && (
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', padding: 16 }}>{t('dashboard.reports.noMatch', 'No reports match your search.')}</p>
+            )}
           </div>
+          </>
+          )}
         </Section>
 
         {/* ===== INVOICES ===== */}
         <Section id="invoices" title={t('dashboard.section.invoices', 'Invoices & Payments')} icon="📄" active={activeSection}>
+          {invoices.length === 0 ? (
+            <EmptyCard
+              icon="📄"
+              title={t('dashboard.noInvoicesTitle', 'No invoices yet')}
+              desc={t('dashboard.noInvoicesDesc', 'Payment receipts and tax invoices will appear here after you book a test or package.')}
+              ctaLabel={t('dashboard.bookTestBtn', 'Book a Test')}
+              onCta={() => navigate('/diagnostics')}
+            />
+          ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {invoices.map(inv => (
               <div key={inv.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -712,10 +869,13 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+          )}
         </Section>
 
         {/* ===== FAMILY MEMBERS ===== */}
-        <Section id="family" title={t('dashboard.section.family', 'Family Members')} icon="👪" active={activeSection}>
+        <Section id="family" title={t('dashboard.section.family', 'Family Members')} icon="👪" active={activeSection}
+          action={<button type="button" className="btn btn-outline btn-sm" onClick={() => { setEditingFamily(null); setFamilyForm({ name: '', relation: '', age: '', gender: '' }); setShowFamilyModal(true); }}>{t('dashboard.family.addMember', 'Add Member')}</button>}
+        >
           <div className="dash-family-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
             {family.map(m => (
               <div key={m.id} className="card" style={{ cursor: 'pointer' }}>
@@ -848,10 +1008,22 @@ export default function Dashboard() {
         </Section>
 
         {/* ===== APPOINTMENTS ===== */}
-        <Section id="appointments" title={t('dashboard.section.appointments', 'Appointments')} icon="👨‍⚕️" active={activeSection}>
+        <Section id="appointments" title={t('dashboard.section.appointments', 'Appointments')} icon="👨‍⚕️" active={activeSection}
+          action={<button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/consult-doctor')}>{t('dashboard.appointments.bookNew', '+ Book Doctor')}</button>}
+        >
+          {appointments.length === 0 ? (
+            <EmptyCard
+              icon="👨‍⚕️"
+              title={t('dashboard.appointments.noneTitle', 'No appointments yet')}
+              desc={t('dashboard.appointments.noneDesc', 'Consult a doctor online or schedule a visit — your appointments will list here.')}
+              ctaLabel={t('dashboard.appointments.consultCta', 'Consult Doctor')}
+              onCta={() => navigate('/consult-doctor')}
+            />
+          ) : (
+          <>
           <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.appointments.upcoming', 'Upcoming')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-            {appointments.filter(a => a.status === 'Upcoming').map(a => (
+            {upcomingAppts.map(a => (
               <div key={a.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>🩺 {a.doctor}</div>
@@ -864,14 +1036,17 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
-            {appointments.filter(a => a.status === 'Upcoming').length === 0 && (
+            {upcomingAppts.length === 0 && (
               <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dashboard.appointments.noUpcoming', 'No upcoming appointments')}</p>
             )}
           </div>
 
           <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.appointments.past', 'Past Appointments')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {appointments.filter(a => a.status === 'Completed').map(a => (
+            {pastAppts.length === 0 && (
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dashboard.appointments.noPast', 'No past appointments')}</p>
+            )}
+            {pastAppts.map(a => (
               <div key={a.id} className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
                   <div>
@@ -908,6 +1083,8 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+          </>
+          )}
         </Section>
 
         {/* ===== HEALTH WALLET ===== */}
@@ -915,12 +1092,14 @@ export default function Dashboard() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
             <div className="card" style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', border: 'none' }}>
               <div style={{ fontSize: 13, opacity: 0.85 }}>{t('dashboard.wallet.balance', 'Wallet Balance')}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, margin: '4px 0' }}>₹{wallet.balance}</div>
+              <div style={{ fontSize: 32, fontWeight: 800, margin: '4px 0' }}>₹{wallet.balance ?? 0}</div>
               <div style={{ fontSize: 12, opacity: 0.75 }}>{t('dashboard.wallet.balanceDesc', 'Use for test bookings & health services')}</div>
             </div>
             <div className="card">
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.wallet.coupons', 'Available Coupons')}</div>
-              {wallet.coupons.map(c => (
+              {(wallet.coupons || []).length === 0 ? (
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>{t('dashboard.wallet.noCoupons', 'No coupons available right now. Check back after your next booking.')}</p>
+              ) : wallet.coupons.map(c => (
                 <div key={c.code} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
                   <span><strong>{c.code}</strong> — ₹{c.discount} {t('dashboard.wallet.off', 'off')}</span>
                   <span style={{ color: 'var(--text-light)' }}>{t('dashboard.wallet.min', 'Min')} ₹{c.minOrder}</span>
@@ -929,19 +1108,20 @@ export default function Dashboard() {
             </div>
             <div className="card">
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('dashboard.wallet.rewards', 'Rewards Earned')}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#E65100' }}>{wallet.rewardsPoints} pts</div>
-              <button className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>{t('dashboard.wallet.redeem', 'Redeem Now')}</button>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#E65100' }}>{wallet.rewardsPoints ?? 0} pts</div>
+              <button type="button" className="btn btn-outline btn-sm" style={{ marginTop: 8 }} onClick={() => setComingSoon(t('dashboard.wallet.redeem', 'Redeem'))}>{t('dashboard.wallet.redeem', 'Redeem Now')}</button>
             </div>
           </div>
         </Section>
 
         {/* ===== ABHA HEALTH ID ===== */}
         <Section id="abha" title={t('dashboard.section.abha', 'ABHA Health ID')} icon="🆔" active={activeSection}>
+          {abha?.connected && abha?.number ? (
           <div className="card" style={{ background: 'linear-gradient(135deg, #f0fdf4, #fff)', border: '1px solid #bbf7d0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 24 }}>🆔</span>
+                  <span style={{ fontSize: 24 }} aria-hidden>🆔</span>
                   <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>{t('dashboard.abha.title', 'ABHA Health ID')}</h3>
                 </div>
                 <Badge variant="green">{t('dashboard.abha.connected', 'Connected ✅')}</Badge>
@@ -949,19 +1129,27 @@ export default function Dashboard() {
                   <strong>{t('dashboard.abha.number', 'ABHA Number:')}</strong> {abha.number}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                  {t('dashboard.abha.linkedRecords', 'Linked Records:')} {abha.linkedRecords}
+                  {t('dashboard.abha.linkedRecords', 'Linked Records:')} {abha.linkedRecords || 0}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <button className="btn btn-outline btn-sm">{t('dashboard.abha.manage', 'Manage')}</button>
-                <button className="btn btn-outline btn-sm">{t('dashboard.abha.update', 'Update')}</button>
-                <button className="btn btn-outline btn-sm">{t('dashboard.abha.linkRecords', 'Link Records')}</button>
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => setComingSoon(t('dashboard.abha.manage', 'Manage'))}>{t('dashboard.abha.manage', 'Manage')}</button>
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => setComingSoon(t('dashboard.abha.update', 'Update'))}>{t('dashboard.abha.update', 'Update')}</button>
               </div>
             </div>
             <div style={{ marginTop: 12, padding: 10, background: '#f0fdf4', borderRadius: 8, fontSize: 11, color: '#16a34a' }}>
               {t('dashboard.abha.benefits', '✅ Digital health records · Easy sharing with healthcare providers · Unified medical history')}
             </div>
           </div>
+          ) : (
+            <EmptyCard
+              icon="🆔"
+              title={t('dashboard.abha.notLinkedTitle', 'ABHA not linked yet')}
+              desc={t('dashboard.abha.notLinkedDesc', 'Link your Ayushman Bharat Health Account to keep records unified across providers. Setup will be available soon.')}
+              ctaLabel={t('dashboard.abha.notifyCta', 'Got it')}
+              onCta={() => setComingSoon(t('dashboard.abha.title', 'ABHA Health ID'))}
+            />
+          )}
         </Section>
 
         {/* ===== HEALTH CENTER ===== */}
@@ -1088,12 +1276,12 @@ export default function Dashboard() {
             {/* Profile Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: '16px', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', borderRadius: 16, color: '#fff' }}>
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 700 }}>
-                {p.name.charAt(0)}
+                {nameInitial}
               </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 700 }}>{p.name}</div>
-                <div style={{ fontSize: 12, opacity: 0.85 }}>{p.phone}</div>
-                {p.healthScore != null && <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>{t('dashboard.profile.healthScore', 'Health Score:')} {p.healthScore}/100 🟢</div>}
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name || t('dashboard.profile.yourProfile', 'Your Profile')}</div>
+                <div style={{ fontSize: 12, opacity: 0.85 }}>{p.phone || p.email || t('dashboard.profile.addDetails', 'Add your contact details')}</div>
+                {healthScoreComputed?.score != null && <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>{t('dashboard.profile.healthScore', 'Health Score:')} {healthScoreComputed.score}/100</div>}
               </div>
             </div>
 
@@ -1108,10 +1296,10 @@ export default function Dashboard() {
                   { icon: '🧾', label: t('dashboard.profile.invoices', 'Invoices'), section: 'invoices' },
                   { icon: '🆔', label: t('dashboard.profile.abha', 'ABHA ID'), section: 'abha' },
                 ].map(item => (
-                  <button key={item.section} onClick={() => setActiveSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
-                    <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
+                  <button key={item.section} type="button" onClick={() => goToSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent', minHeight: 48 }}>
+                    <span style={{ fontSize: 18, width: 24, textAlign: 'center' }} aria-hidden>{item.icon}</span>
                     <span style={{ flex: 1 }}>{item.label}</span>
-                    <span style={{ color: '#cbd5e1' }}>›</span>
+                    <span style={{ color: '#cbd5e1' }} aria-hidden>›</span>
                   </button>
                 ))}
               </div>
@@ -1122,13 +1310,13 @@ export default function Dashboard() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>{t('dashboard.profile.sectionHealth', 'Health')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
                 {[
-                  { icon: '🩺', label: t('dashboard.profile.healthScore', 'Health Score'), section: 'health' },
+                  { icon: '🩺', label: t('dashboard.profile.healthMenu', 'Health Score'), section: 'health' },
                   { icon: '👨‍⚕️', label: t('dashboard.profile.appointments', 'Appointments'), section: 'appointments' },
                 ].map(item => (
-                  <button key={item.section} onClick={() => setActiveSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
-                    <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
+                  <button key={item.section} type="button" onClick={() => goToSection(item.section)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent', minHeight: 48 }}>
+                    <span style={{ fontSize: 18, width: 24, textAlign: 'center' }} aria-hidden>{item.icon}</span>
                     <span style={{ flex: 1 }}>{item.label}</span>
-                    <span style={{ color: '#cbd5e1' }}>›</span>
+                    <span style={{ color: '#cbd5e1' }} aria-hidden>›</span>
                   </button>
                 ))}
               </div>
@@ -1138,10 +1326,10 @@ export default function Dashboard() {
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, padding: '0 4px' }}>{t('dashboard.profile.sectionSettings', 'Settings')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border)' }}>
-                <button onClick={() => { openProfileEdit(); setActiveSection('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent' }}>
-                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>⚙️</span>
+                <button type="button" onClick={() => { openProfileEdit(); goToSection('settings'); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, textAlign: 'left', color: 'var(--text-dark)', WebkitTapHighlightColor: 'transparent', minHeight: 48 }}>
+                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }} aria-hidden>⚙️</span>
                   <span style={{ flex: 1 }}>{t('dashboard.profile.settings', 'Settings')}</span>
-                  <span style={{ color: '#cbd5e1' }}>›</span>
+                  <span style={{ color: '#cbd5e1' }} aria-hidden>›</span>
                 </button>
                 <button
                   type="button"
@@ -1174,9 +1362,11 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {(showNotifs ? notifs : notifs.slice(0, 3)).map(n => (
+                  {notifs.length === 0 ? (
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>{t('dashboard.notifs.empty', 'No notifications yet. We will alert you about bookings and reports here.')}</p>
+                  ) : (showNotifs ? notifs : notifs.slice(0, 3)).map(n => (
                     <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12, opacity: n.read ? 0.6 : 1 }}>
-                      <span style={{ fontSize: 16 }}>
+                      <span style={{ fontSize: 16 }} aria-hidden>
                         {n.type === 'report' ? '📋' : n.type === 'reminder' ? '⏰' : n.type === 'success' ? '✅' : '🏆'}
                       </span>
                       <span style={{ flex: 1 }}>{n.text}</span>
@@ -1192,30 +1382,32 @@ export default function Dashboard() {
                   {t('dashboard.prescriptions.title', '📋 Saved Prescriptions')}
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {prescriptions.map(p => (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12 }}>
+                  {prescriptions.length === 0 ? (
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>{t('dashboard.prescriptions.empty', 'Upload a prescription to order tests faster next time.')}</p>
+                  ) : prescriptions.map(rx => (
+                    <div key={rx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 500 }}>🩺 {p.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{p.date} · {p.medicines}</div>
+                        <div style={{ fontWeight: 500 }}>🩺 {rx.name}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{rx.date} · {rx.medicines}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                        <button className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: p.name, date: p.date, prescription: p.medicines })}>{t('dashboard.prescriptions.view', '👁️')}</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => {
-                          const text = `Jeevan HealthCare at Home — Prescription\nDoctor: ${p.name}\nDate: ${p.date}\nRx: ${p.medicines}`;
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowPrescriptionModal({ doctor: rx.name, date: rx.date, prescription: rx.medicines })}>{t('dashboard.prescriptions.view', '👁️')}</button>
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => {
+                          const text = `Jeevan HealthCare at Home — Prescription\nDoctor: ${rx.name}\nDate: ${rx.date}\nRx: ${rx.medicines}`;
                           const blob = new Blob([text], { type: 'text/plain' });
                           const url = URL.createObjectURL(blob);
-                          const el = document.createElement('a'); el.href = url; el.download = `Prescription_${p.name.replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
+                          const el = document.createElement('a'); el.href = url; el.download = `Prescription_${String(rx.name).replace(/\s+/g, '_')}.txt`; el.click(); URL.revokeObjectURL(url);
                         }}>{t('dashboard.prescriptions.download', '📥')}</button>
-                        <button className="btn btn-outline btn-sm" onClick={() => {
-                          const text = `🩺 Prescription — Dr. ${p.name}\n${p.date}\n\nRx: ${p.medicines}\n\n— Jeevan HealthCare at Home`;
-                          if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${p.name}`, text }); }
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => {
+                          const text = `🩺 Prescription — Dr. ${rx.name}\n${rx.date}\n\nRx: ${rx.medicines}\n\n— Jeevan HealthCare at Home`;
+                          if (navigator.share) { navigator.share({ title: `Prescription - Dr. ${rx.name}`, text }); }
                           else { navigator.clipboard.writeText(text).then(() => alert(t('dashboard.prescriptions.copied', '✅ Prescription copied!'))); }
                         }}>{t('dashboard.prescriptions.share', '📤')}</button>
                       </div>
                     </div>
                   ))}
                 </div>
-                <button onClick={() => navigate('/upload-prescription')} className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>{t('dashboard.prescriptions.uploadNew', '📤 Upload New')}</button>
+                <button type="button" onClick={() => navigate('/upload-prescription')} className="btn btn-outline btn-sm" style={{ marginTop: 8 }}>{t('dashboard.prescriptions.uploadNew', '📤 Upload New')}</button>
               </div>
 
               {/* Recommended for You */}
@@ -1281,12 +1473,12 @@ export default function Dashboard() {
             <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>{t('dashboard.settings.profileSettings', 'Profile Settings')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
               {[
-                { label: t('dashboard.settings.fullName', 'Full Name'), value: p.name },
-                { label: t('dashboard.settings.phone', 'Phone'), value: p.phone },
+                { label: t('dashboard.settings.fullName', 'Full Name'), value: p.name || '—' },
+                { label: t('dashboard.settings.phone', 'Phone'), value: p.phone || '—' },
                 { label: t('dashboard.settings.email', 'Email'), value: p.email || '—' },
-                { label: t('dashboard.settings.bloodGroup', 'Blood Group'), value: p.bloodGroup },
-                { label: t('dashboard.settings.dob', 'Date of Birth'), value: p.dob },
-                { label: t('dashboard.settings.gender', 'Gender'), value: p.gender },
+                { label: t('dashboard.settings.bloodGroup', 'Blood Group'), value: p.bloodGroup || '—' },
+                { label: t('dashboard.settings.dob', 'Date of Birth'), value: p.dob || '—' },
+                { label: t('dashboard.settings.gender', 'Gender'), value: p.gender || '—' },
               ].map(f => (
                 <div key={f.label}>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{f.label}</div>
@@ -1294,7 +1486,10 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <button className="btn btn-outline btn-sm" style={{ marginTop: 12 }} onClick={openProfileEdit}>{t('dashboard.settings.editProfile', 'Edit Profile')}</button>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+              <button type="button" className="btn btn-outline btn-sm" onClick={openProfileEdit}>{t('dashboard.settings.editProfile', 'Edit Profile')}</button>
+              <button type="button" className="btn btn-outline btn-sm" style={{ color: '#dc2626', borderColor: '#fecaca' }} onClick={() => { logout(); navigate('/', { replace: true }); }}>{t('dashboard.profile.logout', 'Logout')}</button>
+            </div>
           </div>
         </Section>
 
