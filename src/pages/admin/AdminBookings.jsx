@@ -1,224 +1,224 @@
-import { useState, useMemo } from 'react';
-import useBookingsStore from '../../stores/bookingsStore';
+import { useState, useEffect, useCallback } from 'react';
+import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
-import EmptyState from '../../components/EmptyState';
 
-const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
-const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
+const STATUSES = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled'];
 
-function formatDate(d) {
-  if (!d) return '';
-  const [y, m, day] = d.split('-');
-  return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${+day}, ${y}`;
+const statusColor = {
+  scheduled: '#3b82f6',
+  confirmed: '#22c55e',
+  in_progress: '#f59e0b',
+  completed: '#16a34a',
+  cancelled: '#ef4444',
+};
+
+function mapAppt(a) {
+  return {
+    id: a.id,
+    status: a.status || 'scheduled',
+    doctorName: a.doctor_name || a.doctorName || '—',
+    specialty: a.specialty || '',
+    userName: a.user_name || a.userName || '—',
+    userPhone: a.user_phone || a.userPhone || '',
+    date: a.appointment_date || a.appointmentDate || '',
+    timeSlot: a.time_slot || a.timeSlot || '',
+    type: a.type || a.mode || '',
+    notes: a.notes || '',
+  };
 }
-
-function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
 export default function AdminBookings() {
   const t = useT();
-  const STATUSES = [
-    { value: 'scheduled', label: t('admin.bookings.scheduled', 'Scheduled'), color: '#3b82f6' },
-    { value: 'confirmed', label: t('admin.bookings.confirmed', 'Confirmed'), color: '#22c55e' },
-    { value: 'in_progress', label: t('admin.bookings.in_progress', 'In Progress'), color: '#f59e0b' },
-    { value: 'completed', label: t('admin.bookings.completed', 'Completed'), color: '#16a34a' },
-    { value: 'cancelled', label: t('admin.bookings.cancelled', 'Cancelled'), color: '#ef4444' },
-    { value: 'no_show', label: t('admin.bookings.no_show', 'No Show'), color: '#64748b' },
-  ];
-  const STATUS_MAP = Object.fromEntries(STATUSES.map(s => [s.value, s]));
-  const bookings = useBookingsStore(s => s.bookings);
-  const timeSlots = useBookingsStore(s => s.timeSlots);
-  const addBooking = useBookingsStore(s => s.addBooking);
-  const updateBooking = useBookingsStore(s => s.updateBooking);
-  const deleteBooking = useBookingsStore(s => s.deleteBooking);
-
-  const [view, setView] = useState('day');
-  const [selDate, setSelDate] = useState(todayStr());
-  const [statusFilter, setStatusFilter] = useState('');
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [showAdd, setShowAdd] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ patientName: '', patientPhone: '', testName: '', doctorName: '', date: todayStr(), timeSlot: '', location: 'Home Collection', address: '', status: 'scheduled', notes: '' });
-  const [showSlots, setShowSlots] = useState(false);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [total, setTotal] = useState(0);
 
-  const resetForm = () => setForm({ patientName: '', patientPhone: '', testName: '', doctorName: '', date: todayStr(), timeSlot: '', location: 'Home Collection', address: '', status: 'scheduled', notes: '' });
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await adminService.getAppointments({
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        limit: 100,
+      });
+      setAppointments((data.appointments || []).map(mapAppt));
+      setTotal(data.total ?? (data.appointments || []).length);
+    } catch (err) {
+      setError(err?.response?.data?.error || t('admin.bookings.loadError', 'Failed to load appointments from API'));
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter, t]);
 
-  const filtered = useMemo(() => {
-    let b = bookings;
-    if (view === 'day') b = b.filter(x => x.date === selDate);
-    if (statusFilter) b = b.filter(x => x.status === statusFilter);
-    if (search) { const q = search.toLowerCase(); b = b.filter(x => (x.patientName + x.testName + x.doctorName + x.patientPhone).toLowerCase().includes(q)); }
-    return b.sort((a, b2) => (a.timeSlot || '').localeCompare(b2.timeSlot || ''));
-  }, [bookings, view, selDate, statusFilter, search]);
+  useEffect(() => { load(); }, [load]);
 
-  const dayStats = useMemo(() => {
-    const d = bookings.filter(x => x.date === selDate);
-    return { total: d.length, completed: d.filter(x => x.status === 'completed').length, cancelled: d.filter(x => x.status === 'cancelled' || x.status === 'no_show').length, scheduled: d.filter(x => x.status === 'scheduled' || x.status === 'confirmed').length };
-  }, [bookings, selDate]);
+  const filtered = appointments.filter(a => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return [a.userName, a.doctorName, a.userPhone, a.specialty, String(a.id)].join(' ').toLowerCase().includes(q);
+  });
 
-  const handleSave = () => {
-    if (!form.patientName || !form.date || !form.timeSlot) return;
-    if (editingId) { updateBooking(editingId, form); setEditingId(null); }
-    else addBooking(form);
-    setShowAdd(false);
-    resetForm();
+  const handleStatus = async (appt, status) => {
+    setUpdatingId(appt.id);
+    try {
+      await adminService.updateAppointmentStatus(appt.id, status);
+      await load();
+    } catch (err) {
+      alert(err?.response?.data?.error || t('admin.bookings.updateFailed', 'Failed to update status'));
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
-  const handleEdit = (b) => {
-    setEditingId(b.id);
-    setForm({ patientName: b.patientName, patientPhone: b.patientPhone || '', testName: b.testName || '', doctorName: b.doctorName || '', date: b.date, timeSlot: b.timeSlot, location: b.location || 'Home Collection', address: b.address || '', status: b.status, notes: b.notes || '' });
-    setShowAdd(true);
-  };
-
-  const changeDate = (offset) => {
-    const d = new Date(selDate);
-    d.setDate(d.getDate() + offset);
-    setSelDate(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
+  const stats = {
+    total: appointments.length,
+    scheduled: appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length,
+    completed: appointments.filter(a => a.status === 'completed').length,
+    cancelled: appointments.filter(a => a.status === 'cancelled').length,
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>📅 {t('admin.bookings.title', 'Bookings')}</div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowSlots(true)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>⏰ {t('admin.bookings.time_slots', 'Time Slots')}</button>
-          <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ {t('admin.bookings.new_booking', 'New Booking')}</button>
-        </div>
-      </div>
-
-      {/* Stats + Date Nav */}
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-        <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{dayStats.total}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.total', 'Total')}</div>
-        </div>
-        <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#3b82f6' }}>{dayStats.scheduled}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.active', 'Active')}</div>
-        </div>
-        <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#22c55e' }}>{dayStats.completed}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.completed', 'Completed')}</div>
-        </div>
-        <div style={{ flex: 1, minWidth: 120, ...sectionCard, padding: 14, textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#ef4444' }}>{dayStats.cancelled}</div>
-          <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.bookings.cancelled', 'Cancelled')}</div>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ display: 'flex', gap: 4, background: '#f1f5f9', borderRadius: 8, padding: 3 }}>
-          {['day', 'week', 'all'].map(v => (
-            <button key={v} onClick={() => setView(v)} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: view === v ? '#fff' : 'transparent', color: view === v ? '#0f172a' : '#64748b', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: view === v ? 600 : 400, boxShadow: view === v ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>
-              {v === 'day' ? t('admin.bookings.day', 'Day') : v === 'week' ? t('admin.bookings.week', 'Week') : t('admin.bookings.all', 'All')}
-            </button>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        <input
+          className="input"
+          placeholder={t('admin.bookings.search', 'Search patient, doctor, phone…')}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ flex: 1, minWidth: 160, maxWidth: 320, fontSize: 13 }}
+        />
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', background: '#fff', minHeight: 40 }}
+        >
+          <option value="all">{t('admin.bookings.allStatus', 'All status')}</option>
+          {STATUSES.map(s => (
+            <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
           ))}
-        </div>
-        {view !== 'all' && (
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <button onClick={() => changeDate(-1)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>←</button>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', minWidth: 130, textAlign: 'center' }}>{formatDate(selDate)}</span>
-            <button onClick={() => changeDate(1)} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>→</button>
-            <button onClick={() => setSelDate(todayStr())} style={{ marginLeft: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.bookings.today', 'Today')}</button>
-          </div>
-        )}
-        <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 200, fontSize: 12 }} placeholder={t('admin.bookings.search_placeholder', '🔍 Search patient/test...')} />
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ ...inputStyle, width: 130, fontSize: 12 }}>
-          <option value="">{t('admin.bookings.all_status', 'All Status')}</option>
-          {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
+        <button type="button" className="btn btn-outline btn-sm" onClick={load} style={{ minHeight: 40 }}>
+          {t('admin.bookings.refresh', 'Refresh')}
+        </button>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{total} {t('admin.bookings.total', 'total')}</span>
       </div>
 
-      {/* Booking List */}
-      {filtered.length === 0 && <EmptyState icon="📅" title="No bookings found" message="No bookings match the current filter." />}
-      {filtered.map(b => {
-        const st = STATUS_MAP[b.status] || STATUS_MAP['scheduled'];
-        return (
-          <div key={b.id} style={sectionCard}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flex: 1 }}>
-                <div style={{ minWidth: 80, textAlign: 'center' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>{b.timeSlot?.split(' – ')[0] || b.timeSlot}</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{b.patientName}</span>
-                    {b.patientPhone && <span style={{ fontSize: 11, color: '#94a3b8' }}>{b.patientPhone}</span>}
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: st.color, padding: '2px 8px', borderRadius: 4 }}>{st.label}</span>
-                  </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
-                    {b.testName && <span>🧪 {b.testName}</span>}
-                    {b.doctorName && <span style={{ marginLeft: 12 }}>🩺 {b.doctorName}</span>}
-                  </div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{b.location}{b.address ? ` — ${b.address}` : ''}</div>
-                  {b.notes && <div style={{ fontSize: 11, color: '#64748b', marginTop: 4, fontStyle: 'italic' }}>📝 {b.notes}</div>}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
-                <select value={b.status} onChange={e => updateBooking(b.id, { status: e.target.value })} style={{ fontSize: 11, padding: '3px 6px', borderRadius: 6, border: '1px solid #e2e8f0', fontFamily: 'inherit', background: '#fff' }}>
-                  {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                </select>
-                <button onClick={() => handleEdit(b)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.bookings.edit', 'Edit')}</button>
-                <button onClick={() => { if (confirm(t('admin.bookings.delete_confirm', 'Delete booking?'))) deleteBooking(b.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>{t('admin.bookings.del', 'Del')}</button>
-              </div>
-            </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8, marginBottom: 16 }}>
+        {[
+          { label: t('admin.bookings.loaded', 'Loaded'), value: stats.total },
+          { label: t('admin.bookings.active', 'Active'), value: stats.scheduled },
+          { label: t('admin.bookings.done', 'Completed'), value: stats.completed },
+          { label: t('admin.bookings.cancelled', 'Cancelled'), value: stats.cancelled },
+        ].map(s => (
+          <div key={s.label} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '10px 12px' }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: '#64748b' }}>{s.label}</div>
           </div>
-        );
-      })}
+        ))}
+      </div>
 
-      {/* Add/Edit Modal */}
-      {showAdd && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 480, maxWidth: '90vw', maxHeight: '85vh', overflowY: 'auto' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? t('admin.bookings.edit_booking', 'Edit Booking') : t('admin.bookings.new_booking', 'New Booking')}</h4>
-            <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
-              <input placeholder={t('admin.bookings.patient_name_req', 'Patient Name *')} value={form.patientName} onChange={e => setForm({ ...form, patientName: e.target.value })} style={inputStyle} />
-              <input placeholder={t('admin.bookings.patient_phone', 'Patient Phone')} value={form.patientPhone} onChange={e => setForm({ ...form, patientPhone: e.target.value })} style={inputStyle} />
-              <input placeholder={t('admin.bookings.test_name', 'Test Name')} value={form.testName} onChange={e => setForm({ ...form, testName: e.target.value })} style={inputStyle} />
-              <input placeholder={t('admin.bookings.doctor_name_opt', 'Doctor Name (optional)')} value={form.doctorName} onChange={e => setForm({ ...form, doctorName: e.target.value })} style={inputStyle} />
-              <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={inputStyle} />
-              <select value={form.timeSlot} onChange={e => setForm({ ...form, timeSlot: e.target.value })} style={inputStyle}>
-                <option value="">{t('admin.bookings.select_time_slot', '— Select time slot —')}</option>
-                {timeSlots.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={inputStyle}>
-                <option value="Home Collection">{t('admin.bookings.home_collection', 'Home Collection')}</option>
-                <option value="Lab Visit">{t('admin.bookings.lab_visit', 'Lab Visit')}</option>
-                <option value="Online Consultation">{t('admin.bookings.online_consultation', 'Online Consultation')}</option>
-                <option value="Clinic Visit">{t('admin.bookings.clinic_visit', 'Clinic Visit')}</option>
-              </select>
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
-                {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
-            </div>
-            <input placeholder={t('admin.bookings.address', 'Collection/Visit Address')} value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} style={{ ...inputStyle, marginTop: 10 }} />
-            <textarea rows={2} placeholder={t('admin.bookings.notes', 'Notes')} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginTop: 10 }} />
-            <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.bookings.cancel', 'Cancel')}</button>
-              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? t('admin.bookings.update', 'Update') : t('admin.bookings.create_booking', 'Create Booking')}</button>
-            </div>
-          </div>
+      {loading && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('admin.bookings.loading', 'Loading appointments…')}</div>}
+      {error && !loading && <div style={{ textAlign: 'center', padding: 40, color: '#dc2626', fontSize: 13 }}>{error}</div>}
+      {!loading && !error && filtered.length === 0 && (
+        <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+          {t('admin.bookings.empty', 'No doctor appointments found. New bookings from the app will show here.')}
         </div>
       )}
 
-      {/* Time Slots Modal */}
-      {showSlots && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowSlots(false)}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 400, maxWidth: '90vw' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>⏰ {t('admin.bookings.time_slot_mgmt', 'Time Slot Management')}</h4>
-            {timeSlots.map((s, i) => (
-              <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' }}>
-                <input value={s} onChange={e => { const t = [...timeSlots]; t[i] = e.target.value; useBookingsStore.getState().setTimeSlots(t); }} style={inputStyle} />
-                <button onClick={() => useBookingsStore.getState().removeTimeSlot(i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14, padding: 4 }}>×</button>
-              </div>
-            ))}
-            <button onClick={() => useBookingsStore.getState().addTimeSlot('')} style={{ marginTop: 4, padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.bookings.add_slot', '+ Add Slot')}</button>
-            <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowSlots(false)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>{t('admin.bookings.done', 'Done')}</button>
+      {/* Mobile cards */}
+      <div className="admin-bookings-cards" style={{ display: 'none', flexDirection: 'column', gap: 10 }}>
+        {filtered.map(a => (
+          <div key={a.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>#{a.id} · {a.userName}</div>
+              <span style={{ fontSize: 11, fontWeight: 600, color: statusColor[a.status] || '#64748b', textTransform: 'capitalize' }}>
+                {(a.status || '').replace(/_/g, ' ')}
+              </span>
             </div>
+            <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5, marginBottom: 10 }}>
+              <div>🩺 {a.doctorName}{a.specialty ? ` · ${a.specialty}` : ''}</div>
+              <div>📅 {a.date ? new Date(a.date).toLocaleDateString('en-IN') : '—'} · {a.timeSlot || '—'}</div>
+              {a.userPhone && <div>📞 {a.userPhone}</div>}
+            </div>
+            <select
+              value={a.status}
+              disabled={updatingId === a.id}
+              onChange={e => handleStatus(a, e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', minHeight: 42 }}
+            >
+              {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+            </select>
           </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      {!loading && filtered.length > 0 && (
+        <div className="admin-bookings-table" style={{ background: '#fff', borderRadius: 12, overflowX: 'auto', border: '1px solid #e2e8f0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 700 }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontSize: 11 }}>ID</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontSize: 11 }}>Patient</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontSize: 11 }}>Doctor</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontSize: 11 }}>When</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontSize: 11 }}>Status</th>
+                <th style={{ textAlign: 'right', padding: '10px 14px', color: '#64748b', fontSize: 11 }}>Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(a => (
+                <tr key={a.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '10px 14px', fontWeight: 600 }}>#{a.id}</td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div>{a.userName}</div>
+                    {a.userPhone && <div style={{ fontSize: 11, color: '#94a3b8' }}>{a.userPhone}</div>}
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div>{a.doctorName}</div>
+                    {a.specialty && <div style={{ fontSize: 11, color: '#94a3b8' }}>{a.specialty}</div>}
+                  </td>
+                  <td style={{ padding: '10px 14px', color: '#64748b', fontSize: 12 }}>
+                    {a.date ? new Date(a.date).toLocaleDateString('en-IN') : '—'}
+                    <div>{a.timeSlot || ''}</div>
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <span style={{
+                      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                      background: `${statusColor[a.status] || '#94a3b8'}20`, color: statusColor[a.status] || '#475569',
+                      textTransform: 'capitalize',
+                    }}>
+                      {(a.status || '').replace(/_/g, ' ')}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                    <select
+                      value={a.status}
+                      disabled={updatingId === a.id}
+                      onChange={e => handleStatus(a, e.target.value)}
+                      style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit' }}
+                    >
+                      {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-bookings-table { display: none !important; }
+          .admin-bookings-cards { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }

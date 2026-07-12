@@ -3,104 +3,189 @@ import { Link } from 'react-router-dom';
 import { useT } from '../../i18n/LanguageProvider';
 import * as adminService from '../../services/adminService';
 
-const DEFAULT_ANALYTICS = {
-  usersCount: 0, ordersCount: 0, revenue: 0, testsCount: 0,
-  pendingOrders: 0, cancelledOrders: 0, completedOrders: 0, ordersByStatus: {},
-  revenueToday: 0, revenueMonth: 0, topTests: [],
-  physioBookings: 0, physioRevenue: 0, physioTopConditions: [],
-  physioBookingsToday: 0, physioBookingsMonth: 0,
-  vaccBookings: 0, vaccRevenue: 0, vaccTopVaccines: [],
-  vaccBookingsToday: 0, vaccBookingsMonth: 0,
+const DEFAULT = {
+  totalUsers: 0,
+  totalDiagnosticOrders: 0,
+  totalPharmacyOrders: 0,
+  totalAppointments: 0,
+  totalTests: 0,
+  revenue: 0,
+  revenueMonth: 0,
+  revenueToday: 0,
+  pendingOrders: 0,
+  completedOrders: 0,
+  cancelledOrders: 0,
+  ordersToday: 0,
+  appointmentsToday: 0,
+  usersByRole: [],
+  ordersByStatus: [],
+  recentUsers: [],
+  recentOrders: [],
+};
+
+const statusColor = {
+  pending: '#f97316', confirmed: '#3b82f6', sample_collected: '#8b5cf6',
+  processing: '#f59e0b', results_ready: '#22c55e', completed: '#10b981', cancelled: '#ef4444',
+  preparing: '#a855f7', shipped: '#0ea5e9', delivered: '#10b981',
 };
 
 export default function AdminDashboard() {
   const t = useT();
-  const [analytics, setAnalytics] = useState(DEFAULT_ANALYTICS);
+  const [data, setData] = useState(DEFAULT);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [lastRefresh, setLastRefresh] = useState(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await adminService.getDashboardStats();
-        const ordersByStatus = {};
-        (data.ordersByStatus || []).forEach(o => {
-          ordersByStatus[o.status || 'unknown'] = (ordersByStatus[o.status] || 0) + o.count;
-        });
-        setAnalytics({
-          usersCount: data.totalUsers || 0,
-          ordersCount: (data.totalDiagnosticOrders || 0) + (data.totalPharmacyOrders || 0),
-          revenue: 0,
-          testsCount: 0,
-          pendingOrders: ordersByStatus['pending'] || 0,
-          cancelledOrders: ordersByStatus['cancelled'] || 0,
-          completedOrders: ordersByStatus['completed'] || 0,
-          ordersByStatus,
-          revenueToday: 0,
-          revenueMonth: 0,
-          topTests: [],
-          physioBookings: 0, physioRevenue: 0, physioTopConditions: [],
-          physioBookingsToday: 0, physioBookingsMonth: 0,
-          vaccBookings: 0, vaccRevenue: 0, vaccTopVaccines: [],
-          vaccBookingsToday: 0, vaccBookingsMonth: 0,
-        });
-      } catch {
-        // keep defaults
-      }
-    })();
-  }, []);
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data: stats } = await adminService.getDashboardStats();
+      setData({ ...DEFAULT, ...stats });
+      setLastRefresh(new Date());
+    } catch {
+      setError(t('admin.dashboard.loadError', 'Could not load dashboard stats. Check API connection.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const ordersCount = (data.totalDiagnosticOrders || 0) + (data.totalPharmacyOrders || 0);
+
+  // Merge status rows for display (sum by status name across types)
+  const statusMap = {};
+  (data.ordersByStatus || []).forEach(row => {
+    const key = row.status || 'unknown';
+    statusMap[key] = (statusMap[key] || 0) + (row.count || 0);
+  });
 
   const cards = [
-    { label: t('admin.dashboard.total_users', 'Total Users'), value: analytics.usersCount, icon: '👥', color: '#3B82F6' },
-    { label: t('admin.dashboard.total_orders', 'Diagnostics Orders'), value: analytics.ordersCount, icon: '📋', color: '#10B981' },
-    { label: t('admin.dashboard.revenue', 'Revenue'), value: `₹${(analytics.revenue || 0).toLocaleString()}`, icon: '💰', color: '#F59E0B' },
-    { label: t('admin.dashboard.tests', 'Tests'), value: analytics.testsCount, icon: '🧪', color: '#8B5CF6' },
-    { label: t('admin.dashboard.pending', 'Pending'), value: analytics.pendingOrders, icon: '⏳', color: '#F97316' },
-    { label: t('admin.dashboard.completed', 'Completed'), value: analytics.completedOrders, icon: '✅', color: '#22C55E' },
-    { label: t('admin.dashboard.physio', 'Physio Bookings'), value: analytics.physioBookings, icon: '🦴', color: '#0D9488' },
-    { label: t('admin.dashboard.vaccine', 'Vaccine Bookings'), value: analytics.vaccBookings, icon: '💉', color: '#2563EB' },
-    { label: t('admin.dashboard.revenue_today', 'Revenue Today'), value: `₹${(analytics.revenueToday || 0).toLocaleString()}`, icon: '📅', color: '#EC4899' },
+    { label: t('admin.dashboard.total_users', 'Total Users'), value: data.totalUsers, icon: '👥', color: '#3B82F6', to: '/admin/users' },
+    { label: t('admin.dashboard.total_orders', 'Orders'), value: ordersCount, icon: '📋', color: '#10B981', to: '/admin/orders' },
+    { label: t('admin.dashboard.revenue', 'Revenue (diag)'), value: `₹${Number(data.revenue || 0).toLocaleString('en-IN')}`, icon: '💰', color: '#F59E0B', to: '/admin/orders' },
+    { label: t('admin.dashboard.tests', 'Tests in catalog'), value: data.totalTests, icon: '🧪', color: '#8B5CF6', to: '/admin/test-master' },
+    { label: t('admin.dashboard.pending', 'Pending / confirmed'), value: data.pendingOrders, icon: '⏳', color: '#F97316', to: '/admin/orders' },
+    { label: t('admin.dashboard.completed', 'Completed / ready'), value: data.completedOrders, icon: '✅', color: '#22C55E', to: '/admin/orders' },
+    { label: t('admin.dashboard.appointments', 'Appointments'), value: data.totalAppointments, icon: '🩺', color: '#0D9488', to: '/admin/bookings' },
+    { label: t('admin.dashboard.orders_today', 'Orders today'), value: data.ordersToday, icon: '📅', color: '#EC4899', to: '/admin/orders' },
   ];
 
-  const sectionStyle = {
-    background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0',
+  const quickLinks = [
+    { to: '/admin/orders', icon: '📋', label: t('admin.dashboard.ql.orders', 'Manage orders') },
+    { to: '/admin/users', icon: '👥', label: t('admin.dashboard.ql.users', 'Users & roles') },
+    { to: '/admin/test-master', icon: '🧪', label: t('admin.dashboard.ql.tests', 'Test master') },
+    { to: '/admin/bookings', icon: '📅', label: t('admin.dashboard.ql.bookings', 'Appointments') },
+    { to: '/admin/cms', icon: '🌐', label: t('admin.dashboard.ql.cms', 'Website CMS') },
+    { to: '/admin/export', icon: '📤', label: t('admin.dashboard.ql.export', 'Export data') },
+  ];
+
+  const cardStyle = {
+    background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0',
   };
-  const tableHeadStyle = { textAlign: 'left', padding: '8px 12px', color: '#64748b', fontWeight: 600, fontSize: 12 };
-  const tableCellStyle = { padding: '10px 12px', color: '#0f172a', fontSize: 13 };
 
   return (
     <div className="admin-dashboard">
-      {/* Stat Cards */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+        <div>
+          <div style={{ fontSize: 13, color: '#64748b' }}>
+            {loading
+              ? t('admin.dashboard.loading', 'Loading live stats…')
+              : lastRefresh
+                ? `${t('admin.dashboard.updated', 'Updated')} ${lastRefresh.toLocaleTimeString('en-IN')}`
+                : ''}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={load}
+          disabled={loading}
+          style={{
+            padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff',
+            fontSize: 12, fontWeight: 600, cursor: loading ? 'wait' : 'pointer', fontFamily: 'inherit', minHeight: 40,
+          }}
+        >
+          {loading ? t('admin.dashboard.refreshing', 'Refreshing…') : t('admin.dashboard.refresh', '↻ Refresh')}
+        </button>
+      </div>
+
+      {error && (
+        <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 10, background: '#FEF2F2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: 13 }}>
+          {error}
+        </div>
+      )}
+
+      {/* Stat cards */}
       <div className="admin-dash-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 148px), 1fr))', gap: 12, marginBottom: 20 }}>
         {cards.map(c => (
-          <div key={c.label} style={{ background: '#fff', borderRadius: 12, padding: '14px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{c.icon}</div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>{c.value}</div>
-                <div style={{ fontSize: 10, color: '#64748b', marginTop: 2, lineHeight: 1.3 }}>{c.label}</div>
+          <Link key={c.label} to={c.to} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ ...cardStyle, padding: '14px', height: '100%', transition: 'border-color 0.15s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${c.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+                  {c.icon}
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>{c.value}</div>
+                  <div style={{ fontSize: 10, color: '#64748b', marginTop: 2, lineHeight: 1.3 }}>{c.label}</div>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
-      {/* Diagnostics Revenue + Status */}
+      {/* Quick links */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8, marginBottom: 20 }}>
+        {quickLinks.map(q => (
+          <Link
+            key={q.to}
+            to={q.to}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8, padding: '12px 12px',
+              background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10,
+              textDecoration: 'none', color: '#0f172a', fontSize: 12, fontWeight: 600, minHeight: 44,
+            }}
+          >
+            <span aria-hidden>{q.icon}</span> {q.label}
+          </Link>
+        ))}
+      </div>
+
+      {/* Revenue + status */}
       <div className="admin-dash-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-        <div style={{ ...sectionStyle, padding: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#0f172a' }}>{t('admin.dashboard.revenue.overview', 'Revenue Overview')}</h3>
+        <div style={cardStyle}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px', color: '#0f172a' }}>
+            {t('admin.dashboard.revenue.overview', 'Diagnostics revenue')}
+          </h3>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <div><div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenueMonth || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.this.month', 'This Month')}</div></div>
-            <div><div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenueToday || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.today', 'Today')}</div></div>
-            <div><div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenue || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.all.time', 'All Time')}</div></div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#0f172a' }}>₹{Number(data.revenueMonth || 0).toLocaleString('en-IN')}</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.this.month', 'This month')}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#0f172a' }}>₹{Number(data.revenueToday || 0).toLocaleString('en-IN')}</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.today', 'Today')}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#0f172a' }}>₹{Number(data.revenue || 0).toLocaleString('en-IN')}</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.all.time', 'All time')}</div>
+            </div>
           </div>
+          <p style={{ fontSize: 11, color: '#94a3b8', margin: '12px 0 0' }}>
+            {t('admin.dashboard.revenueNote', 'Excludes cancelled diagnostic orders. Pharmacy revenue not included yet.')}
+          </p>
         </div>
-        <div style={{ ...sectionStyle, padding: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#0f172a' }}>{t('admin.dashboard.orders.status', 'Orders by Status')}</h3>
+        <div style={cardStyle}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px', color: '#0f172a' }}>
+            {t('admin.dashboard.orders.status', 'Orders by status')}
+          </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {Object.keys(analytics.ordersByStatus || {}).length === 0 ? (
+            {Object.keys(statusMap).length === 0 ? (
               <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{t('admin.dashboard.noOrderStatus', 'No order status data yet.')}</p>
-            ) : Object.entries(analytics.ordersByStatus || {}).map(([status, count]) => (
+            ) : Object.entries(statusMap).map(([status, count]) => (
               <div key={status} style={{ padding: '8px 12px', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{count}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: statusColor[status] || '#0f172a' }}>{count}</div>
                 <div style={{ fontSize: 10, color: '#64748b', textTransform: 'capitalize' }}>{status.replace(/_/g, ' ')}</div>
               </div>
             ))}
@@ -108,127 +193,98 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Recent orders + users */}
+      <div className="admin-dash-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0, color: '#0f172a' }}>{t('admin.dashboard.recentOrders', 'Recent diagnostic orders')}</h3>
+            <Link to="/admin/orders" style={{ fontSize: 12, color: '#1866C9', fontWeight: 600, textDecoration: 'none' }}>{t('admin.dashboard.viewAll', 'View all →')}</Link>
+          </div>
+          {(data.recentOrders || []).length === 0 ? (
+            <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{t('admin.dashboard.noRecentOrders', 'No orders yet.')}</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {data.recentOrders.map(o => (
+                <Link
+                  key={o.id}
+                  to="/admin/orders"
+                  style={{
+                    display: 'flex', justifyContent: 'space-between', gap: 8, padding: '10px 0',
+                    borderBottom: '1px solid #f1f5f9', textDecoration: 'none', color: 'inherit', fontSize: 12,
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, color: '#0f172a' }}>#{o.id} · {o.user_name || 'Patient'}</div>
+                    <div style={{ color: '#94a3b8', marginTop: 2 }}>
+                      {o.created_at ? new Date(o.created_at).toLocaleString('en-IN') : ''}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontWeight: 700, color: '#0f172a' }}>₹{Number(o.total_amount || 0).toLocaleString('en-IN')}</div>
+                    <div style={{ color: statusColor[o.status] || '#64748b', textTransform: 'capitalize', fontSize: 11 }}>
+                      {(o.status || '').replace(/_/g, ' ')}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0, color: '#0f172a' }}>{t('admin.dashboard.recentUsers', 'Recent users')}</h3>
+            <Link to="/admin/users" style={{ fontSize: 12, color: '#1866C9', fontWeight: 600, textDecoration: 'none' }}>{t('admin.dashboard.viewAll', 'View all →')}</Link>
+          </div>
+          {(data.recentUsers || []).length === 0 ? (
+            <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{t('admin.dashboard.noRecentUsers', 'No users yet.')}</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {data.recentUsers.map(u => (
+                <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, padding: '10px 0', borderBottom: '1px solid #f1f5f9', fontSize: 12 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, color: '#0f172a' }}>{u.name || u.phone || 'User'}</div>
+                    <div style={{ color: '#94a3b8', marginTop: 2 }}>{u.phone || u.email || '—'}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <span style={{
+                      fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
+                      background: '#f1f5f9', color: '#475569', textTransform: 'capitalize',
+                    }}>
+                      {u.role || 'user'}
+                    </span>
+                    <div style={{ color: '#94a3b8', marginTop: 4, fontSize: 10 }}>
+                      {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : ''}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Roles breakdown */}
+      {(data.usersByRole || []).length > 0 && (
+        <div style={{ ...cardStyle, marginBottom: 12 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px', color: '#0f172a' }}>{t('admin.dashboard.usersByRole', 'Users by role')}</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {data.usersByRole.map(r => (
+              <div key={r.role} style={{ padding: '8px 12px', borderRadius: 8, background: '#EEF2FF', border: '1px solid #c7d2fe' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1866C9' }}>{r.count}</div>
+                <div style={{ fontSize: 10, color: '#475569', textTransform: 'capitalize' }}>{r.role || 'user'}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <style>{`
         @media (max-width: 768px) {
           .admin-dash-split { grid-template-columns: 1fr !important; gap: 12px !important; }
-          .admin-dash-stats { gap: 8px !important; margin-bottom: 16px !important; }
+          .admin-dash-stats { gap: 8px !important; }
         }
       `}</style>
-
-      {/* Physiotherapy Section */}
-      <div style={{ ...sectionStyle, marginBottom: 24, borderLeft: '4px solid #0D9488' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-          <span style={{ fontSize: 22 }}>🦴</span>
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#0f172a' }}>{t('admin.dashboard.physiotherapy', 'Physiotherapy')}</h3>
-          <Link to="/admin/physiotherapy" style={{ marginLeft: 'auto', fontSize: 11, color: '#0D9488', fontWeight: 600, textDecoration: 'none' }}>{t('admin.dashboard.manage', 'Manage →')}</Link>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginBottom: 16 }}>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#0D9488' }}>{analytics.physioBookings}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.total.bookings', 'Total Bookings')}</div>
-          </div>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#0D9488' }}>₹{(analytics.physioRevenue || 0).toLocaleString()}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.revenue', 'Revenue')}</div>
-          </div>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#0D9488' }}>{analytics.physioBookingsMonth}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.this.month', 'This Month')}</div>
-          </div>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#F0FDFA', border: '1px solid #CCFBF1' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#0D9488' }}>{analytics.physioBookingsToday}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.today', 'Today')}</div>
-          </div>
-        </div>
-        {analytics.physioTopConditions.length > 0 ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={tableHeadStyle}>#</th><th style={tableHeadStyle}>{t('admin.dashboard.condition', 'Condition')}</th><th style={{ ...tableHeadStyle, textAlign: 'right' }}>{t('admin.dashboard.bookings', 'Bookings')}</th></tr></thead>
-            <tbody>
-              {analytics.physioTopConditions.map((c, i) => (
-                <tr key={c.name} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{i + 1}</td>
-                  <td style={tableCellStyle}>{c.name}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{c.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p style={{ fontSize: 13, color: '#94a3b8' }}>{t('admin.dashboard.no.physio', 'No physiotherapy bookings yet.')}</p>
-        )}
-      </div>
-
-      {/* Vaccination Section */}
-      <div style={{ ...sectionStyle, marginBottom: 24, borderLeft: '4px solid #2563EB' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-          <span style={{ fontSize: 22 }}>💉</span>
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#0f172a' }}>{t('admin.dashboard.vaccination', 'Vaccination')}</h3>
-          <Link to="/admin/vaccination" style={{ marginLeft: 'auto', fontSize: 11, color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>{t('admin.dashboard.manage', 'Manage →')}</Link>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginBottom: 16 }}>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#2563EB' }}>{analytics.vaccBookings}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.total.bookings', 'Total Bookings')}</div>
-          </div>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#2563EB' }}>₹{(analytics.vaccRevenue || 0).toLocaleString()}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.revenue', 'Revenue')}</div>
-          </div>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#2563EB' }}>{analytics.vaccBookingsMonth}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.this.month', 'This Month')}</div>
-          </div>
-          <div style={{ padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#2563EB' }}>{analytics.vaccBookingsToday}</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>{t('admin.dashboard.today', 'Today')}</div>
-          </div>
-        </div>
-        {analytics.vaccTopVaccines.length > 0 ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={tableHeadStyle}>#</th><th style={tableHeadStyle}>{t('admin.dashboard.vaccine', 'Vaccine')}</th><th style={{ ...tableHeadStyle, textAlign: 'right' }}>{t('admin.dashboard.bookings', 'Bookings')}</th></tr></thead>
-            <tbody>
-              {analytics.vaccTopVaccines.map((v, i) => (
-                <tr key={v.name} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{i + 1}</td>
-                  <td style={tableCellStyle}>{v.name}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{v.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p style={{ fontSize: 13, color: '#94a3b8' }}>{t('admin.dashboard.no.vaccine', 'No vaccination bookings yet.')}</p>
-        )}
-      </div>
-
-      {/* Top Tests */}
-      <div style={sectionStyle}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#0f172a' }}>{t('admin.dashboard.top.tests', 'Top Selling Tests')}</h3>
-        {analytics.topTests.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#94a3b8' }}>{t('admin.dashboard.no.orders', 'No orders yet.')}</p>
-        ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={tableHeadStyle}>#</th><th style={tableHeadStyle}>{t('admin.dashboard.test', 'Test')}</th><th style={{ ...tableHeadStyle, textAlign: 'right' }}>{t('admin.dashboard.orders', 'Orders')}</th></tr></thead>
-            <tbody>
-              {analytics.topTests.map((t, i) => (
-                <tr key={t.name} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{i + 1}</td>
-                  <td style={tableCellStyle}>{t.name}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>{t.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <Link to="/admin/orders" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, background: '#0f172a', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>{t('admin.dashboard.view.orders', 'View All Orders')}</Link>
-        <Link to="/admin/users" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', textDecoration: 'none', fontWeight: 600 }}>{t('admin.dashboard.manage.users', 'Manage Users')}</Link>
-        <Link to="/admin/test-master" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', textDecoration: 'none', fontWeight: 600 }}>{t('admin.dashboard.manage.tests', 'Manage Tests')}</Link>
-        <Link to="/admin/physiotherapy" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', textDecoration: 'none', fontWeight: 600 }}>{t('admin.dashboard.manage.physio', 'Physiotherapy')}</Link>
-        <Link to="/admin/vaccination" style={{ fontSize: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#334155', textDecoration: 'none', fontWeight: 600 }}>{t('admin.dashboard.manage.vaccine', 'Vaccination')}</Link>
-      </div>
     </div>
   );
 }
