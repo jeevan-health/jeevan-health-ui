@@ -5,11 +5,13 @@ import useUploadModal from '../../stores/uploadModalStore';
 import SmartSearch from './SmartSearch';
 import { useT } from '../../i18n/LanguageProvider';
 import { useMobileNavStore } from '../MobileNav';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function Header() {
   const t = useT();
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const { isDark, toggle: toggleTheme } = useTheme();
   const menuOpen = useMobileNavStore(s => s.open);
   const toggleMenu = useMobileNavStore(s => s.toggle);
   const isDiagnostics = location.pathname === '/diagnostics' || location.pathname.startsWith('/test/') || location.pathname.startsWith('/tests/') || location.pathname.startsWith('/health-packages') || location.pathname.startsWith('/package/');
@@ -41,6 +43,17 @@ export default function Header() {
         </div>}
 
         <div className="hdr-right">
+          {/* Theme — header on mobile only (FAB covers bottom nav Home otherwise) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="hdr-btn hdr-theme"
+            title={isDark ? t('header.lightMode', 'Light mode') : t('header.darkMode', 'Dark mode')}
+            aria-label={isDark ? t('header.lightMode', 'Light mode') : t('header.darkMode', 'Dark mode')}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden>{isDark ? '☀️' : '🌙'}</span>
+          </button>
+
           <a href="tel:+919700104108" className="hdr-btn hdr-call" title={t('header.callTitle', 'Call us')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             <span className="hdr-label">{t('header.call', 'Call')}</span>
@@ -133,9 +146,12 @@ export default function Header() {
         }
         .hdr-hamburger:hover, .hdr-hamburger.is-open { background: #f1f5f9; }
         .hdr-hamburger.is-open { color: #1866C9; }
+        /* Mobile-only theme control in header (desktop uses floating FAB) */
+        .hdr-theme { display: none; }
         .hdr-mobile-search { display: none; padding: 0 12px 8px; }
         @media (max-width: 768px) {
           .hdr-hamburger { display: flex; }
+          .hdr-theme { display: flex; min-width: 40px; min-height: 40px; }
           .header-inner { padding: 6px 10px; gap: 6px; }
           .header-logo img { height: 28px; }
           .hdr-search-wrap { display: none; }
@@ -144,6 +160,8 @@ export default function Header() {
           .hdr-btn { padding: 6px; }
           .hdr-signup .hdr-label { display: inline; font-size: 10px; }
           .hdr-signup { padding: 6px 8px !important; }
+          /* Free up space: hide secondary actions on small phones */
+          .hdr-call, .hdr-upload, .hdr-consult { display: none; }
         }
         @media (min-width: 769px) {
           .hdr-btn.hdr-call { color: #16a34a; }
