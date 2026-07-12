@@ -27,7 +27,7 @@ export default function Home() {
   const liveCategories = getCategoriesSorted(15);
 
   return (
-    <div>
+    <div className="home-page-root">
       <HeroSection />
       <TrustStrip />
       <QuickActions />
@@ -181,18 +181,54 @@ export default function Home() {
         .home-hero-feature-desc { font-size: 11px; color: rgba(255,255,255,0.72); line-height: 1.35; margin-top: 2px; }
         .home-hero-feature-arrow { color: rgba(255,255,255,0.45); font-size: 16px; flex-shrink: 0; }
 
+        /* ── Landing page sections ── */
         .home-popular-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: stretch; }
         .home-cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
         .home-section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
         .home-section-head .section-title { margin: 0; }
         .home-section-head .section-subtitle { margin: 4px 0 0; }
+        .home-page-section { scroll-margin-top: 72px; }
+        .home-faq details { transition: border-color 0.15s; }
+        .home-faq details[open] { border-color: #cbd5e1; box-shadow: 0 2px 10px rgba(15,23,42,0.04); }
+        .home-faq summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+        .home-faq summary::-webkit-details-marker { display: none; }
+        .home-faq summary::after { content: '+'; font-size: 18px; font-weight: 500; color: #1866C9; flex-shrink: 0; }
+        .home-faq details[open] summary::after { content: '−'; }
+        .home-services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .home-timeline-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .home-nh-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .home-why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .home-trust-scroll { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .home-sticky-cta {
+          display: none; position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+          z-index: 8990; padding: 8px 12px; background: rgba(255,255,255,0.96);
+          border-top: 1px solid #e8edf2; box-shadow: 0 -4px 16px rgba(15,23,42,0.06);
+          backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .home-sticky-cta-inner { display: flex; gap: 8px; max-width: 480px; margin: 0 auto; }
+        .home-sticky-cta a, .home-sticky-cta button {
+          flex: 1; min-height: 44px; border-radius: 12px; font-weight: 700; font-size: 13px;
+          display: flex; align-items: center; justify-content: center; font-family: inherit; cursor: pointer;
+          text-decoration: none; border: none;
+        }
+        body.mobile-nav-open .home-sticky-cta { display: none !important; }
+        @media (max-width: 768px) {
+          .home-page-root { padding-bottom: 56px; }
+        }
 
+        @media (max-width: 1100px) {
+          .home-timeline-grid { grid-template-columns: repeat(3, 1fr); }
+          .home-nh-grid { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 900px) {
           .hero.home-hero { padding: 40px 16px 44px; }
           .home-hero-grid { grid-template-columns: 1fr; gap: 22px; }
           .hero.home-hero h1 { max-width: none; font-size: clamp(24px, 5.5vw, 32px); }
           .home-hero-side { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
           .home-popular-grid { grid-template-columns: repeat(2, 1fr); }
+          .home-services-grid { grid-template-columns: repeat(2, 1fr); }
+          .home-why-grid { grid-template-columns: repeat(2, 1fr); }
+          .testimonials-layout { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 768px) {
           .hero.home-hero { padding: 32px 14px 36px; }
@@ -212,7 +248,24 @@ export default function Home() {
           .home-hero-feature-icon { width: 36px; height: 36px; border-radius: 10px; font-size: 16px; }
           .home-hero-feature-arrow { display: none; }
           .hero-search { border-radius: 12px !important; }
-          .home-qa-mobile { display: block !important; padding: 0 12px; margin-top: -8px; }
+          .home-qa-mobile { display: block !important; padding: 0 12px 8px; margin-top: 0; }
+          .home-qa-desktop { display: none !important; }
+          .home-sticky-cta { display: block; }
+          .home-trust-scroll {
+            flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+            padding-bottom: 2px; mask-image: linear-gradient(to right, #000 88%, transparent);
+          }
+          .home-trust-scroll::-webkit-scrollbar { display: none; }
+          .home-trust-scroll > span { flex-shrink: 0; }
+          .home-timeline-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+          .home-timeline-grid .timeline-card { min-height: auto !important; }
+          .timeline-line { display: none !important; }
+          .home-nh-grid { grid-template-columns: 1fr 1fr; }
+          .home-section-head { flex-direction: column; align-items: flex-start !important; }
+          .page-section { padding: 28px 0 !important; }
+          .section-title { font-size: 20px !important; }
+          .section-subtitle { font-size: 13px !important; margin-bottom: 14px !important; }
         }
         @media (max-width: 600px) {
           .hero.home-hero { padding: 28px 12px 32px; }
@@ -222,10 +275,12 @@ export default function Home() {
           .home-hero-stat-label { font-size: 13px; }
           .home-hero-stat-sub { font-size: 10px; }
           .home-hero-cta-primary, .home-hero-cta-secondary { font-size: 13px !important; padding: 11px 14px !important; }
-          .trust-strip-inner { gap: 4px !important; }
-          .trust-strip-inner span { font-size: 10px !important; padding: 3px 8px !important; }
-          .home-qa-mobile { padding: 0 8px; }
+          .trust-strip-inner span { font-size: 11px !important; padding: 6px 10px !important; }
+          .home-qa-mobile { padding: 0 8px 8px; }
           .home-cat-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+          .home-services-grid { grid-template-columns: 1fr; }
+          .home-why-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+          .stats-glass-card { padding: 16px 12px !important; }
         }
         @media (max-width: 480px) {
           .hero.home-hero { padding: 24px 12px 28px; }
@@ -236,13 +291,21 @@ export default function Home() {
           .home-hero-feature { justify-content: flex-start; }
           .home-hero-feature-label { font-size: 12px; }
           .home-popular-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
-          .why-choose-grid { grid-template-columns: 1fr !important; }
-          .why-cta-section { padding: 20px 16px !important; }
-          .why-cta-section h3 { font-size: 15px !important; }
-          .why-cta-section .btn { width: 100% !important; }
+          .home-timeline-grid { grid-template-columns: 1fr; }
           .home-cat-grid { grid-template-columns: repeat(2, 1fr); }
+          .home-why-grid { grid-template-columns: 1fr; }
+          .home-nh-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+          .how-cta .btn, .testimonials-cta .btn, .why-cta-section .btn, .nh-cta .btn { width: 100% !important; }
+          .how-cta, .testimonials-cta, .nh-cta { padding: 18px 14px !important; }
         }
       `}</style>
+      {/* Mobile sticky book CTA above bottom nav */}
+      <div className="home-sticky-cta" aria-label="Quick book">
+        <div className="home-sticky-cta-inner">
+          <Link to="/diagnostics" style={{ background: '#FF3B30', color: '#fff' }}>{t('home.sticky.book', 'Book Lab Test')}</Link>
+          <button type="button" onClick={() => useUploadModal.getState().setOpen(true)} style={{ background: '#fff', color: '#1866C9', border: '1.5px solid #1866C9' }}>{t('home.sticky.upload', 'Upload Rx')}</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -405,10 +468,10 @@ function TrustStrip() {
   ];
   if (trustStrip?.active === false) return null;
   return (
-    <div style={{ background: '#fff', borderBottom: '1px solid #eef2f7', padding: '14px 0' }}>
-      <div className="container trust-strip-inner" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ background: '#fff', borderBottom: '1px solid #eef2f7', padding: '12px 0' }}>
+      <div className="container home-trust-scroll trust-strip-inner">
         {items.map(item => (
-          <span key={item.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 500, color: '#475569', padding: '5px 11px', background: '#f8fafc', borderRadius: 8, border: '1px solid #eef2f7' }}>
+          <span key={item.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 500, color: '#475569', padding: '6px 12px', background: '#f8fafc', borderRadius: 999, border: '1px solid #eef2f7' }}>
             <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 11 }} aria-hidden>{item.icon || '✔'}</span> {item.label}
           </span>
         ))}
@@ -432,94 +495,79 @@ function QuickActions() {
     { icon: '🏋️', label: t('home.quickActions.physiotherapy', 'Physiotherapy'), desc: t('home.quickActions.physiotherapyDesc', 'Recover with expert physiotherapists'), path: '/physiotherapy', color: '#16a34a' },
     { icon: '💉', label: t('home.quickActions.vaccination', 'Vaccination at Home'), desc: t('home.quickActions.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
+  const mobileTiles = [
+    { to: '/diagnostics', icon: '🧪', label: t('home.quickActions.mobile.bookTest', 'Book Test'), sub: t('home.quickActions.mobile.homeCollection', 'Home Collection') },
+    { to: null, icon: '📄', label: t('home.quickActions.mobile.upload', 'Upload Rx'), sub: t('home.quickActions.mobile.prescription', 'Prescription'), upload: true },
+    { to: '/health-packages', icon: '📦', label: t('home.quickActions.mobile.packages', 'Packages'), sub: t('home.quickActions.mobile.packagesSub', 'Full body & more') },
+    { to: '/consult-doctor', icon: '🩺', label: t('home.quickActions.mobile.doctor', 'Doctor'), sub: t('home.quickActions.mobile.doctorSub', 'Online consult') },
+    { to: '/nurse-at-home', icon: '👩‍⚕️', label: t('home.quickActions.mobile.nursing', 'Nursing'), sub: t('home.quickActions.mobile.nursingSub', 'Care at home') },
+    { to: '/vaccination', icon: '💉', label: t('home.quickActions.mobile.vaccine', 'Vaccines'), sub: t('home.quickActions.mobile.vaccineSub', 'At home') },
+  ];
+
   return (
-    <div className="page-section" style={{ background: '#F8FAFC' }}>
-      {/* Mobile Quick Actions Grid — 2x2 */}
-      <div className="home-qa-mobile" style={{ display: 'none', marginBottom: 10 }}>
-        {/* Today's Health Mini Card */}
-        <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
-          <div style={{ background: 'linear-gradient(135deg, #1866C9, #2B7BE8)', borderRadius: 14, padding: '14px 16px', marginBottom: 10, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>{t('home.quickActions.mobile.journey', '🌿 Jeevan HealthCare at Home Journey')}</div>
-              <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>
-                {(() => {
-                  try {
-                    const ds = JSON.parse(localStorage.getItem('jh_daily_activity') || '{}');
-                    return ds.lastScore != null ? `${ds.lastScore}/100` : '--/100';
-                  } catch { return '--/100'; }
-                })()}
-              </div>
-              <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
-                {(() => {
-                  try {
-                    const ds = JSON.parse(localStorage.getItem('jh_daily_activity') || '{}');
-                    return ds.streak ? `${t('home.quickActions.mobile.streak', '🔥 {streak} day streak').replace('{streak}', ds.streak)}` : t('home.quickActions.mobile.startTracking', 'Start tracking today →');
-                  } catch { return t('home.quickActions.mobile.startTracking', 'Start tracking today →'); }
-                })()}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 4 }}>
-              <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: 6 }}>🚶</span>
-              <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: 6 }}>💧</span>
-              <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: 6 }}>😴</span>
-            </div>
-          </div>
-        </Link>
+    <div className="page-section home-page-section" style={{ background: '#F8FAFC', paddingTop: 20, paddingBottom: 28 }}>
+      {/* Mobile-only quick actions — services, not dashboard clutter */}
+      <div className="home-qa-mobile" style={{ display: 'none' }}>
+        <div style={{ padding: '0 4px 10px' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 4px', color: '#0f172a' }}>{t('home.quickActions.mobile.title', 'What do you need?')}</h2>
+          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>{t('home.quickActions.mobile.sub', 'Book services in a few taps')}</p>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <Link to="/diagnostics" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-              <span style={{ fontSize: 28 }}>🧪</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.bookTest', 'Book Test')}</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.homeCollection', 'Home Collection')}</span>
-            </div>
-          </Link>
-          <button onClick={() => useUploadModal.getState().setOpen(true)} style={{ fontFamily: 'inherit', cursor: 'pointer', border: 'none', background: 'none', padding: 0, width: '100%' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-              <span style={{ fontSize: 28 }}>📄</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.upload', 'Upload')}</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.prescription', 'Prescription')}</span>
-            </div>
-          </button>
-          <Link to="/dashboard?tab=bookings" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-              <span style={{ fontSize: 28 }}>📅</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.myBookings', 'My Bookings')}</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.trackStatus', 'Track Status')}</span>
-            </div>
-          </Link>
-          <Link to="/dashboard?tab=health" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '16px 12px', background: '#fff', borderRadius: 14, border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-              <span style={{ fontSize: 28 }}>🩺</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{t('home.quickActions.mobile.healthScore', 'Health Score')}</span>
-              <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('home.quickActions.mobile.checkNow', 'Check Now')}</span>
-            </div>
-          </Link>
+          {mobileTiles.map(tile => {
+            const inner = (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6, padding: '14px 12px',
+                background: '#fff', borderRadius: 14, border: '1px solid #e8edf2',
+                boxShadow: '0 1px 4px rgba(15,23,42,0.04)', minHeight: 96, height: '100%',
+              }}>
+                <span style={{ fontSize: 24, lineHeight: 1 }} aria-hidden>{tile.icon}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{tile.label}</span>
+                <span style={{ fontSize: 11, color: '#64748b' }}>{tile.sub}</span>
+              </div>
+            );
+            if (tile.upload) {
+              return (
+                <button key={tile.label} type="button" onClick={() => useUploadModal.getState().setOpen(true)} style={{ fontFamily: 'inherit', cursor: 'pointer', border: 'none', background: 'none', padding: 0, width: '100%', textAlign: 'left' }}>
+                  {inner}
+                </button>
+              );
+            }
+            return <Link key={tile.label} to={tile.to} style={{ textDecoration: 'none' }}>{inner}</Link>;
+          })}
         </div>
       </div>
 
-      <div className="container">
-        <div className="grid-3" style={{ gap: 14 }}>
+      {/* Desktop / tablet service cards */}
+      <div className="container home-qa-desktop">
+        <div className="home-section-head" style={{ marginBottom: 16 }}>
+          <div>
+            <h2 className="section-title">{t('home.quickActions.title', 'Our Services')}</h2>
+            <p className="section-subtitle">{t('home.quickActions.subtitle', 'Complete healthcare at your doorstep')}</p>
+          </div>
+        </div>
+        <div className="home-services-grid">
           {actions.map(a => {
             const Tag = a.path ? Link : 'button';
             const extraProps = a.path ? { to: a.path } : { onClick: () => useUploadModal.getState().setOpen(true), type: 'button' };
             return (
               <Tag key={a.label} {...extraProps}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',
+                  display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px',
                   background: '#fff', borderRadius: 14, textDecoration: 'none',
                   boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #e8edf2',
                   transition: 'all 0.15s', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', textAlign: 'left', width: '100%',
+                  minHeight: 84,
                 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = a.color; e.currentTarget.style.boxShadow = `0 4px 16px ${a.color}20`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'none'; }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: `${a.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
                   {a.icon}
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700 }}>{a.label}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{a.desc}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.4 }}>{a.desc}</div>
                 </div>
-                <span style={{ color: a.color, fontSize: 18 }}>→</span>
+                <span style={{ color: a.color, fontSize: 18 }} aria-hidden>→</span>
               </Tag>
             );
           })}
@@ -547,7 +595,7 @@ function PopularTests({ popular, catalogCount = 0 }) {
               )}
             </p>
           </div>
-          <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12 }}>{tr('home.popularTests.viewAll', 'View All Tests →')}</Link>
+          <Link to="/diagnostics" className="btn btn-outline" style={{ fontSize: 12 }}>{tr('home.popularTests.viewAll', 'View All Tests →')}</Link>
         </div>
         {popular.length === 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
@@ -625,7 +673,7 @@ function CategoriesSection({ liveCategories = [] }) {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: 18 }}>
-          <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12, background: '#fff' }}>
+          <Link to="/diagnostics" className="btn btn-outline" style={{ fontSize: 12, background: '#fff' }}>
             {t('home.categories.viewAll', 'View All Tests →')}
           </Link>
         </div>
@@ -694,57 +742,47 @@ function PackagesSection({ pkgs, featured }) {
 
 function HowItWorks() {
   const t = useT();
+  // 4 clear steps — easier on mobile than 6 dense cards
   const steps = [
-    { icon: '🛒', title: t('home.howItWorks.step1.title', 'Book Your Test'), desc: t('home.howItWorks.step1.desc', 'Search from 2000+ tests and health packages. Book instantly online or upload your prescription.'), badge: t('home.howItWorks.step1.badge', 'Easy Online Booking'), badge2: t('home.howItWorks.step1.badge2', 'Prescription Upload') },
-    { icon: '📅', title: t('home.howItWorks.step2.title', 'Choose Your Slot'), desc: t('home.howItWorks.step2.desc', 'Select your preferred date and convenient home collection time.'), badge: t('home.howItWorks.step2.badge', 'Flexible Time Slots'), badge2: t('home.howItWorks.step2.badge2', 'Same Day Availability') },
-    { icon: '🏠', title: t('home.howItWorks.step3.title', 'Home Sample Collection'), desc: t('home.howItWorks.step3.desc', 'Certified healthcare professionals collect samples safely at your doorstep.'), badge: t('home.howItWorks.step3.badge', 'Hygienic Collection'), badge2: t('home.howItWorks.step3.badge2', 'Trained Phlebotomists') },
-    { icon: '🔬', title: t('home.howItWorks.step4.title', 'Advanced Lab Testing'), desc: t('home.howItWorks.step4.desc', 'Your samples are processed using advanced technology and quality-controlled laboratories.'), badge: t('home.howItWorks.step4.badge', 'Quality Checked'), badge2: t('home.howItWorks.step4.badge2', 'Accurate Results') },
-    { icon: '📱', title: t('home.howItWorks.step5.title', 'Get Digital Reports'), desc: t('home.howItWorks.step5.desc', 'Receive your reports securely through WhatsApp, email, or patient dashboard.'), badge: t('home.howItWorks.step5.badge', 'Anytime Access'), badge2: t('home.howItWorks.step5.badge2', 'Download & Share') },
-    { icon: '👨‍⚕️', title: t('home.howItWorks.step6.title', 'Doctor Consultation'), desc: t('home.howItWorks.step6.desc', 'Understand your results with expert medical guidance and follow-up recommendations.'), badge: t('home.howItWorks.step6.badge', 'Expert Consultation'), badge2: t('home.howItWorks.step6.badge2', 'Health Guidance') },
+    { icon: '🛒', title: t('home.howItWorks.step1.title', 'Book Your Test'), desc: t('home.howItWorks.step1.short', 'Search 5000+ tests or upload a prescription. Book online in minutes.'), badge: t('home.howItWorks.step1.badge', 'Easy Online Booking') },
+    { icon: '🏠', title: t('home.howItWorks.step3.title', 'Home Collection'), desc: t('home.howItWorks.step3.short', 'Trained phlebotomists collect samples at your doorstep — free & hygienic.'), badge: t('home.howItWorks.step3.badge', 'Hygienic Collection') },
+    { icon: '🔬', title: t('home.howItWorks.step4.title', 'Lab Testing'), desc: t('home.howItWorks.step4.short', 'NABL-certified labs process your samples with quality checks.'), badge: t('home.howItWorks.step4.badge', 'Quality Checked') },
+    { icon: '📱', title: t('home.howItWorks.step5.title', 'Digital Reports'), desc: t('home.howItWorks.step5.short', 'Get reports on WhatsApp, email, or dashboard — usually within 24 hours.'), badge: t('home.howItWorks.step5.badge', 'Anytime Access') },
   ];
   return (
-    <div className="page-section" style={{ background: '#FFFFFF' }}>
-      <div className="how-bg-decoration" />
+    <div className="page-section home-page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 6 }}>
-          <span style={{ fontSize: 24 }}>🏥</span>
-          <h2 className="section-title" style={{ margin: 0, fontSize: 22 }}>{t('home.howItWorks.sectionTitle', 'How Jeevan Makes Healthcare Simple')}</h2>
+        <h2 className="section-title text-center">{t('home.howItWorks.sectionTitle', 'How it works')}</h2>
+        <p className="section-subtitle text-center">{t('home.howItWorks.sectionSubtitle', 'Book · Collect · Test · Report — simple healthcare at home.')}</p>
+        <div className="journey-banner" style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 22, padding: '8px 14px', background: 'rgba(24, 102, 201,0.06)', borderRadius: 30, fontSize: 11, fontWeight: 600, color: '#1866C9', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+          <span>{t('home.howItWorks.journey.book', 'Book')}</span><span style={{ color: '#20B7F5' }}>→</span>
+          <span>{t('home.howItWorks.journey.collect', 'Collect')}</span><span style={{ color: '#20B7F5' }}>→</span>
+          <span>{t('home.howItWorks.journey.test', 'Test')}</span><span style={{ color: '#20B7F5' }}>→</span>
+          <span>{t('home.howItWorks.journey.report', 'Report')}</span>
+          <span style={{ background: '#22C55E', color: '#fff', fontSize: 9, padding: '2px 8px', borderRadius: 10, marginLeft: 4 }}>{t('home.howItWorks.completed', '24–48 hrs')}</span>
         </div>
-        <p className="section-subtitle text-center">{t('home.howItWorks.sectionSubtitle', 'From booking your test to receiving expert medical advice, we make your healthcare journey smooth, safe, and convenient.')}</p>
-        <div className="journey-banner" style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 24, padding: '8px 16px', background: 'rgba(24, 102, 201,0.06)', borderRadius: 30, fontSize: 11, fontWeight: 600, color: '#1866C9', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
-          <span>{t('home.howItWorks.journey.book', 'Book')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.collect', 'Collect')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.test', 'Test')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.report', 'Report')}</span><span style={{ color: '#20B7F5' }}>→</span><span>{t('home.howItWorks.journey.consult', 'Consult')}</span>
-          <span style={{ background: '#22C55E', color: '#fff', fontSize: 9, padding: '1px 8px', borderRadius: 10, marginLeft: 6 }}>{t('home.howItWorks.completed', 'Completed in 24-48 Hours')}</span>
-        </div>
-        <div className="timeline-wrapper" style={{ position: 'relative', paddingTop: 20 }}>
-          <div className="timeline-line" style={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', width: '80%', height: 3, background: 'linear-gradient(90deg, #1866C9, #20B7F5, #1866C9)', borderRadius: 2, zIndex: 0 }} />
-          <div className="timeline-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, position: 'relative', zIndex: 1 }}>
-            {steps.map((s, i) => (
-              <div key={s.title} className="timeline-step" style={{ textAlign: 'center' }}>
-                <div className="timeline-dot" style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(24, 102, 201,0.25)', position: 'relative', zIndex: 2 }}>
-                  {s.icon}
-                </div>
-                <div className="timeline-card" style={{ background: '#fff', borderRadius: 16, padding: '14px 10px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', minHeight: 200, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#1866C9', background: '#E8F1FC', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 6, alignSelf: 'center' }}>{t('home.howItWorks.step', 'Step')} {String(i + 1).padStart(2, '0')}</div>
-                  <h3 style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 6, lineHeight: 1.2 }}>{s.title}</h3>
-                  <p style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10, flex: 1 }}>{s.desc}</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#16a34a', fontWeight: 600 }}>
-                      <span>✓</span> {s.badge}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#16a34a', fontWeight: 600 }}>
-                      <span>✓</span> {s.badge2}
-                    </div>
-                  </div>
+        <div className="home-timeline-grid timeline-grid" style={{ position: 'relative', zIndex: 1 }}>
+          {steps.map((s, i) => (
+            <div key={s.title} className="timeline-step" style={{ textAlign: 'center' }}>
+              <div className="timeline-dot" style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(24, 102, 201,0.25)' }}>
+                {s.icon}
+              </div>
+              <div className="timeline-card" style={{ background: '#fff', borderRadius: 16, padding: '16px 14px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#1866C9', background: '#E8F1FC', borderRadius: 10, padding: '2px 8px', display: 'inline-block', marginBottom: 8, alignSelf: 'center' }}>{t('home.howItWorks.step', 'Step')} {i + 1}</div>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 6, lineHeight: 1.25 }}>{s.title}</h3>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 10, flex: 1 }}>{s.desc}</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 11, color: '#16a34a', fontWeight: 600 }}>
+                  <span aria-hidden>✓</span> {s.badge}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-        <div className="how-cta" style={{ textAlign: 'center', marginTop: 32, padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', borderRadius: 16, color: '#fff' }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>{t('home.howItWorks.cta.title', 'Ready to Start Your Health Check?')}</h3>
+        <div className="how-cta" style={{ textAlign: 'center', marginTop: 28, padding: '22px 18px', background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', borderRadius: 16, color: '#fff' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{t('home.howItWorks.cta.title', 'Ready to Start Your Health Check?')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.howItWorks.cta.bookTest', '🔵 Book Test Now')}</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.howItWorks.cta.upload', '📄 Upload Prescription')}</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 22px', fontSize: 13, fontWeight: 700 }}>{t('home.howItWorks.cta.bookTest', 'Book Test Now')}</Link>
+            <button type="button" onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 22px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.howItWorks.cta.upload', 'Upload Prescription')}</button>
           </div>
         </div>
       </div>
@@ -764,124 +802,65 @@ function Testimonials() {
   ];
   const getImg = (t) => t.image || (t.name ? t.name[0] === 'P' ? '👩' : t.name[0] === 'R' ? '👨' : t.name[0] === 'A' ? '👵' : t.name[0] === 'V' ? '👨‍💼' : '👩‍⚕️' : '👤');
 
-  const videos = [
-    { title: t('home.testimonials.video1.title', 'My Jeevan Experience'), name: 'Meera Joshi', location: 'Mumbai', topic: t('home.testimonials.video1.topic', 'Home Sample Collection') },
-    { title: t('home.testimonials.video2.title', 'Care for My Parents'), name: 'Arun Kapoor', location: 'Delhi', topic: t('home.testimonials.video2.topic', 'Elderly Care Experience') },
-    { title: t('home.testimonials.video3.title', 'Corporate Wellness'), name: 'Neha Gupta', location: 'Pune', topic: t('home.testimonials.video3.topic', 'Corporate Health Camp') },
-  ];
-
-  const stories = [
-    { icon: '🩸', title: t('home.testimonials.story1.title', 'Diabetes Management Journey'), before: t('home.testimonials.story1.before', 'High sugar levels (HbA1c 8.5)'), after: t('home.testimonials.story1.after', 'Regular testing + doctor guidance'), result: t('home.testimonials.story1.result', 'Better health monitoring (HbA1c 6.8)'), color: '#dc2626' },
-    { icon: '👴', title: t('home.testimonials.story2.title', 'Senior Citizen Care Story'), before: t('home.testimonials.story2.before', '80-yr-old with limited mobility'), after: t('home.testimonials.story2.after', 'Home diagnostics support'), result: t('home.testimonials.story2.result', 'Regular monitoring, family peace of mind'), color: '#1866C9' },
-  ];
-
-  const photos = [
-    { emoji: '👩', label: t('home.testimonials.photo.patient', 'Patient') },
-    { emoji: '👴', label: t('home.testimonials.photo.seniorCare', 'Senior Care') },
-    { emoji: '👨‍👩‍👧', label: t('home.testimonials.photo.family', 'Family') },
-    { emoji: '🏠', label: t('home.testimonials.photo.homeCollection', 'Home Collection') },
-  ];
-
   const [activeReview, setActiveReview] = useState(0);
-  const next = useCallback(() => setActiveReview(i => (i + 1) % reviews.length), [reviews.length]);
-  useEffect(() => { const t = setInterval(next, 4000); return () => clearInterval(t); }, [next]);
+  const next = useCallback(() => setActiveReview(i => (i + 1) % Math.max(reviews.length, 1)), [reviews.length]);
+  useEffect(() => { const timer = setInterval(next, 5000); return () => clearInterval(timer); }, [next]);
+
+  const review = reviews[activeReview] || reviews[0] || { name: '', text: '', rating: 5, tag: '' };
 
   return (
-    <div className="page-section" style={{ background: '#FFFFFF' }}>
+    <div className="page-section home-page-section" style={{ background: '#F8FAFC' }}>
       <div className="container">
-        <h2 className="section-title text-center">{t('home.testimonials.sectionTitle', '❤️ Loved by Thousands of Happy Patients')}</h2>
-        <p className="section-subtitle text-center">{t('home.testimonials.sectionSubtitle', 'Real experiences from patients who trusted Jeevan for their healthcare journey.')}</p>
+        <h2 className="section-title text-center">{t('home.testimonials.sectionTitle', 'Trusted by thousands of families')}</h2>
+        <p className="section-subtitle text-center">{t('home.testimonials.sectionSubtitle', 'Real experiences from patients who chose home diagnostics with Jeevan.')}</p>
 
-        <div className="grid-4" style={{ gap: 12, marginBottom: 24 }}>
+        <div className="grid-4" style={{ gap: 10, marginBottom: 20 }}>
           {[
             { label: '2,00,000+', sub: t('home.testimonials.stat.homeCollections', 'Home Collections') },
             { label: '50,000+', sub: t('home.testimonials.stat.happyFamilies', 'Happy Families') },
-            { label: '4.9 ⭐', sub: t('home.testimonials.stat.googleRating', 'Google Rating') },
-            { label: '10+ Years', sub: t('home.testimonials.stat.experience', 'Healthcare Experience') },
+            { label: '4.9 ★', sub: t('home.testimonials.stat.googleRating', 'Google Rating') },
+            { label: '10+ Years', sub: t('home.testimonials.stat.experience', 'Experience') },
           ].map(s => (
-            <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
-              <div className="stats-count" style={{ fontSize: 20, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
+            <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '14px 10px', textAlign: 'center', border: '1px solid #e8edf2' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.sub}</div>
             </div>
           ))}
         </div>
 
-        <div className="testimonials-layout" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 20, marginBottom: 24 }}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: '24px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>{t('home.testimonials.googleRating', 'Google Rating')}</div>
-            <div style={{ fontSize: 36, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>4.9</div>
-            <div style={{ fontSize: 22, marginBottom: 8, letterSpacing: 4 }}>⭐⭐⭐⭐⭐</div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('home.testimonials.basedOn', 'Based on')} <strong style={{ color: '#1a1a1a' }}>{t('home.testimonials.reviewsCount', '500+ Reviews')}</strong></div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#E8F1FC', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#1866C9', marginBottom: 14 }}>
-              <span>✅</span> {t('home.testimonials.verifiedPatients', 'Verified Patients')}
-            </div>
-            <div style={{ width: 32, height: 32, margin: '0 auto', background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 700 }}>G</div>
+        <div className="testimonials-layout" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 16, marginBottom: 20, alignItems: 'stretch' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '22px 18px', textAlign: 'center', border: '1px solid #e8edf2', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#1866C9', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{t('home.testimonials.googleRating', 'Patient rating')}</div>
+            <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>4.9</div>
+            <div style={{ fontSize: 16, margin: '8px 0', color: '#F59E0B' }} aria-hidden>★★★★★</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{t('home.testimonials.basedOn', 'Based on')} <strong style={{ color: '#0f172a' }}>{t('home.testimonials.reviewsCount', '500+ reviews')}</strong></div>
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 20, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e8edf2', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 20 }}>{getImg(reviews[activeReview])}</span>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '20px 18px', border: '1px solid #e8edf2', minHeight: 180 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#E8F1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }} aria-hidden>{getImg(review)}</div>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>{reviews[activeReview].name}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{reviews[activeReview].tag || t('home.testimonials.verifiedPatient', 'Verified Patient')}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{review.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{review.tag || t('home.testimonials.verifiedPatient', 'Verified Patient')}</div>
                 </div>
               </div>
-              <div style={{ fontSize: 14, letterSpacing: 2 }}>{'⭐'.repeat(reviews[activeReview].rating)}</div>
+              <div style={{ fontSize: 13, color: '#F59E0B' }} aria-label={`${review.rating} stars`}>{'★'.repeat(review.rating || 5)}</div>
             </div>
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: '#1a1a1a', fontStyle: 'italic', marginBottom: 14 }}>"{reviews[activeReview].text}"</p>
+            <p style={{ fontSize: 14, lineHeight: 1.7, color: '#334155', margin: '0 0 14px' }}>&ldquo;{review.text}&rdquo;</p>
             <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
               {reviews.map((_, i) => (
-                <button key={i} onClick={() => setActiveReview(i)} style={{ width: i === activeReview ? 24 : 8, height: 8, borderRadius: 4, border: 'none', background: i === activeReview ? '#1866C9' : '#d0d5dd', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
+                <button key={i} type="button" aria-label={`Review ${i + 1}`} onClick={() => setActiveReview(i)} style={{ width: i === activeReview ? 22 : 8, height: 8, borderRadius: 4, border: 'none', background: i === activeReview ? '#1866C9' : '#d0d5dd', cursor: 'pointer', transition: 'all 0.25s', padding: 0 }} />
               ))}
             </div>
           </div>
         </div>
 
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>{t('home.testimonials.patientMoments', '📸 Patient Moments')}</h3>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-          {photos.map(p => (
-            <div key={p.emoji} style={{ flex: 1, minWidth: 100, background: '#fff', borderRadius: 14, padding: '14px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
-              <div style={{ fontSize: 36, marginBottom: 4 }}>{p.emoji}</div>
-              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)' }}>{p.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="videos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
-          {videos.map(v => (
-            <div key={v.name} style={{ background: 'linear-gradient(135deg, #1866C9, #0F4A96)', borderRadius: 16, padding: '20px 16px', color: '#fff', cursor: 'pointer', transition: 'all 0.2s' }}
-              className="video-card">
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, fontSize: 18 }}>▶</div>
-              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{v.title}</div>
-              <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>{v.name}, {v.location}</div>
-              <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10, marginTop: 4 }}>{v.topic}</div>
-            </div>
-          ))}
-        </div>
-
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>{t('home.testimonials.successStories', '🏆 Success Stories')}</h3>
-        <div className="stories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 24 }}>
-          {stories.map(s => (
-            <div key={s.title} style={{ background: '#fff', borderRadius: 16, padding: '18px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2', borderLeft: `4px solid ${s.color}` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <span style={{ fontSize: 24 }}>{s.icon}</span>
-                <h4 style={{ fontSize: 13, fontWeight: 700 }}>{s.title}</h4>
-              </div>
-              <div style={{ fontSize: 11, lineHeight: 1.8 }}>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#dc2626' }}>⬤</span> {t('home.testimonials.before', 'Before')}: {s.before}</div>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}><span style={{ color: '#20B7F5' }}>⬤</span> {t('home.testimonials.process', 'Process')}: {s.after}</div>
-                <div style={{ display: 'flex', gap: 6 }}><span style={{ color: '#16a34a' }}>⬤</span> {t('home.testimonials.result', 'Result')}: {s.result}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '24px', background: 'linear-gradient(135deg, #0F5DA8, #00D9FF)', borderRadius: 16, color: '#fff' }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>{t('home.testimonials.cta.title', 'Join Thousands of Families Who Trust Jeevan HealthCare at Home')}</h3>
+        <div className="testimonials-cta" style={{ textAlign: 'center', padding: '22px 16px', background: 'linear-gradient(135deg, #0F5DA8, #1A7AD4)', borderRadius: 16, color: '#fff' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{t('home.testimonials.cta.title', 'Join families who trust Jeevan HealthCare at Home')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '10px 24px', fontSize: 13 }}>{t('home.testimonials.cta.bookTest', '🔵 Book Health Test')}</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '10px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.testimonials.cta.upload', '📄 Upload Prescription')}</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 22px', fontSize: 13, fontWeight: 700 }}>{t('home.testimonials.cta.bookTest', 'Book Health Test')}</Link>
+            <button type="button" onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 22px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.testimonials.cta.upload', 'Upload Prescription')}</button>
           </div>
         </div>
       </div>
@@ -1032,17 +1011,20 @@ function FaqSection() {
     { question: t('home.faq.q5', 'Can I cancel or reschedule?'), answer: t('home.faq.a5', 'Yes, you can cancel or reschedule your booking up to 2 hours before the scheduled collection time.') },
   ];
   return (
-    <div className="page-section" style={{ background: '#FFFFFF' }}>
-      <div className="container" style={{ maxWidth: 700, margin: '0 auto' }}>
+    <div className="page-section home-page-section home-faq" style={{ background: '#FFFFFF' }}>
+      <div className="container" style={{ maxWidth: 720, margin: '0 auto' }}>
         <h2 className="section-title text-center">{t('home.faq.title', 'Frequently Asked Questions')}</h2>
-        <p className="section-subtitle text-center">{t('home.faq.subtitle', 'Everything you need to know')}</p>
-        <div style={{ marginTop: 16 }}>
+        <p className="section-subtitle text-center">{t('home.faq.subtitle', 'Everything you need to know about booking and home collection')}</p>
+        <div style={{ marginTop: 8 }}>
           {items.map((faq, i) => (
-            <details key={i} style={{ marginBottom: 8, border: '1px solid var(--border)', borderRadius: 8, background: '#fff', overflow: 'hidden' }}>
-              <summary style={{ padding: '12px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>{faq.question || faq.q}</summary>
-              <p style={{ padding: '0 16px 12px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{faq.answer || faq.a}</p>
+            <details key={i} style={{ marginBottom: 10, border: '1px solid #e8edf2', borderRadius: 12, background: '#fff', overflow: 'hidden' }}>
+              <summary style={{ padding: '14px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13, color: '#0f172a' }}>{faq.question || faq.q}</summary>
+              <p style={{ padding: '0 16px 14px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{faq.answer || faq.a}</p>
             </details>
           ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 18 }}>
+          <Link to="/contact" style={{ fontSize: 13, fontWeight: 600, color: '#1866C9', textDecoration: 'none' }}>{t('home.faq.moreHelp', 'Still have questions? Contact us →')}</Link>
         </div>
       </div>
     </div>
@@ -1074,22 +1056,21 @@ function NurseAtHomeSection() {
             </span>
           ))}
         </div>
-        <div className="nh-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+        <div className="home-nh-grid nh-grid">
           {cats.map(c => (
             <Link key={c.id} to={`/nurse-at-home/book?cat=${c.slug}`} style={{ textDecoration: 'none' }}>
-              <div style={{ background: '#fff', borderRadius: 16, padding: '18px 12px', textAlign: 'center', border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              <div style={{ background: '#fff', borderRadius: 16, padding: '16px 12px', textAlign: 'center', border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.15s', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 120 }}
                 className="nh-cat-card">
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{c.icon}</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>{t(`nurse.cat.${c.id}`, c.name)}</div>
-                <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.3 }}>{c.services.slice(0, 3).join(' · ')}</div>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{c.icon}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', lineHeight: 1.25 }}>{t(`nurse.cat.${c.id}`, c.name)}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.3 }}>{(c.services || []).slice(0, 2).join(' · ')}</div>
               </div>
             </Link>
           ))}
           <Link to="/nurse-at-home" style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'linear-gradient(135deg, #0D9488, #14B8A6)', borderRadius: 16, padding: '18px 12px', textAlign: 'center', boxShadow: '0 4px 16px rgba(13,148,136,0.2)', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <span style={{ fontSize: 28 }}>📋</span>
+            <div style={{ background: 'linear-gradient(135deg, #0D9488, #14B8A6)', borderRadius: 16, padding: '16px 12px', textAlign: 'center', boxShadow: '0 4px 16px rgba(13,148,136,0.2)', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 120 }}>
+              <span style={{ fontSize: 26 }} aria-hidden>📋</span>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{t('home.nurseAtHome.viewAll', 'View All Services')}</div>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)' }}>→</span>
             </div>
           </Link>
         </div>
@@ -1107,55 +1088,40 @@ function NurseAtHomeSection() {
 
 function WhyChooseJeevan() {
   const t = useT();
+  // Keep top 6 benefits — less wall of cards on mobile
   const features = [
-    { icon: '🏅', title: t('home.whyChoose.feature.NABL.title', 'NABL Certified Labs'), desc: t('home.whyChoose.feature.NABL.desc', 'Advanced testing facilities following strict quality standards for accurate and reliable results.'), badge: t('home.whyChoose.feature.NABL.badge', 'Quality Assured Reports') },
-    { icon: '🩺', title: t('home.whyChoose.feature.phlebotomists.title', 'Expert Phlebotomists'), desc: t('home.whyChoose.feature.phlebotomists.desc', 'Trained healthcare professionals ensuring safe, hygienic, and painless sample collection.'), badge: t('home.whyChoose.feature.phlebotomists.badge', 'Trained Professionals') },
-    { icon: '🏠', title: t('home.whyChoose.feature.homeCollection.title', 'Convenient Home Collection'), desc: t('home.whyChoose.feature.homeCollection.desc', 'Book lab tests from your home without waiting in queues or visiting diagnostic centers.'), badge: t('home.whyChoose.feature.homeCollection.badge', 'Available 7 Days a Week') },
-    { icon: '💰', title: t('home.whyChoose.feature.pricing.title', 'Affordable Pricing'), desc: t('home.whyChoose.feature.pricing.desc', 'Transparent pricing with quality diagnostics at competitive rates. No hidden charges.'), badge: t('home.whyChoose.feature.pricing.badge', 'No Hidden Charges') },
-    { icon: '📱', title: t('home.whyChoose.feature.digitalReports.title', 'Digital Reports'), desc: t('home.whyChoose.feature.digitalReports.desc', 'Receive secure reports online anytime through WhatsApp, email, or patient dashboard.'), badge: t('home.whyChoose.feature.digitalReports.badge', 'Anytime Access') },
-    { icon: '👨‍⚕️', title: t('home.whyChoose.feature.doctorConsult.title', 'Doctor Consultation'), desc: t('home.whyChoose.feature.doctorConsult.desc', 'Get expert medical guidance and understand your health reports better.'), badge: t('home.whyChoose.feature.doctorConsult.badge', 'Expert Medical Support') },
-    { icon: '👨‍👩‍👧', title: t('home.whyChoose.feature.familyCare.title', 'Complete Family Care'), desc: t('home.whyChoose.feature.familyCare.desc', 'Manage healthcare needs for parents, children, and loved ones under one platform.'), badge: t('home.whyChoose.feature.familyCare.badge', 'Family Health Records') },
-    { icon: '🛡️', title: t('home.whyChoose.feature.safety.title', 'Safe & Hygienic Collection'), desc: t('home.whyChoose.feature.safety.desc', 'Strict safety protocols with sterile equipment and infection control practices.'), badge: t('home.whyChoose.feature.safety.badge', 'Safety First') },
+    { icon: '🏅', title: t('home.whyChoose.feature.NABL.title', 'NABL Certified Labs'), desc: t('home.whyChoose.feature.NABL.short', 'Accurate reports from quality-controlled partner labs.'), badge: t('home.whyChoose.feature.NABL.badge', 'Quality Assured') },
+    { icon: '🏠', title: t('home.whyChoose.feature.homeCollection.title', 'Free Home Collection'), desc: t('home.whyChoose.feature.homeCollection.short', 'Book online — trained phlebotomists come to you.'), badge: t('home.whyChoose.feature.homeCollection.badge', '7 Days a Week') },
+    { icon: '⏱️', title: t('home.whyChoose.feature.digitalReports.title', 'Reports in 24 Hours'), desc: t('home.whyChoose.feature.digitalReports.short', 'Digital reports on WhatsApp, email & dashboard.'), badge: t('home.whyChoose.feature.digitalReports.badge', 'Anytime Access') },
+    { icon: '💰', title: t('home.whyChoose.feature.pricing.title', 'Transparent Pricing'), desc: t('home.whyChoose.feature.pricing.short', 'Clear rates with no hidden collection charges.'), badge: t('home.whyChoose.feature.pricing.badge', 'No Hidden Fees') },
+    { icon: '👨‍⚕️', title: t('home.whyChoose.feature.doctorConsult.title', 'Doctor Support'), desc: t('home.whyChoose.feature.doctorConsult.short', 'Understand results with expert medical guidance.'), badge: t('home.whyChoose.feature.doctorConsult.badge', 'Expert Support') },
+    { icon: '🛡️', title: t('home.whyChoose.feature.safety.title', 'Safe & Hygienic'), desc: t('home.whyChoose.feature.safety.short', 'Sterile kits and strict collection protocols.'), badge: t('home.whyChoose.feature.safety.badge', 'Safety First') },
   ];
   return (
-    <div className="page-section" style={{ background: '#FFFFFF' }}>
+    <div className="page-section home-page-section" style={{ background: '#FFFFFF' }}>
       <div className="container">
-        <div className="grid-4" style={{ gap: 12, marginBottom: 20 }}>
-          {[
-            { label: t('home.whyChoose.stat.years', '10+ Years'), sub: t('home.whyChoose.stat.experience', 'Experience') },
-            { label: t('home.whyChoose.stat.collections', '2 Lakh+'), sub: t('home.whyChoose.stat.homeCollections', 'Home Collections') },
-            { label: t('home.whyChoose.stat.corporate', '500+'), sub: t('home.whyChoose.stat.corporateClients', 'Corporate Clients') },
-            { label: t('home.whyChoose.stat.tests', '2000+'), sub: t('home.whyChoose.stat.diagnosticTests', 'Diagnostic Tests') },
-          ].map(s => (
-            <div key={s.label} style={{ background: '#fff', borderRadius: 14, padding: '16px', textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#1866C9', marginBottom: 2 }}>{s.label}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.sub}</div>
-            </div>
-          ))}
-        </div>
-        <h2 className="section-title text-center">{t('home.whyChoose.sectionTitle', 'Why Thousands of Families Trust Jeevan HealthCare at Home')}</h2>
-        <p className="section-subtitle text-center">{t('home.whyChoose.sectionSubtitle', 'Reliable diagnostics, expert healthcare professionals, and convenient home healthcare services designed around your family\'s needs.')}</p>
-        <div className="grid-4" style={{ gap: 14, marginTop: 20 }}>
+        <h2 className="section-title text-center">{t('home.whyChoose.sectionTitle', 'Why families choose Jeevan')}</h2>
+        <p className="section-subtitle text-center">{t('home.whyChoose.sectionSubtitle', 'Reliable diagnostics and home healthcare — designed around your family.')}</p>
+        <div className="home-why-grid" style={{ marginTop: 8 }}>
           {features.map(f => (
             <div key={f.title} className="trust-feature-card" style={{
-              background: '#fff', borderRadius: 20, padding: '24px 18px', textAlign: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)', border: '1px solid #e8edf2',
-              transition: 'all 0.2s',
+              background: '#fff', borderRadius: 16, padding: '18px 16px', textAlign: 'left',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.04)', border: '1px solid #e8edf2',
             }}>
-              <div style={{ fontSize: 48, marginBottom: 12, lineHeight: 1 }}>{f.icon}</div>
-              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: '#1a1a1a' }}>{f.title}</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>{f.desc}</p>
+              <div style={{ fontSize: 28, marginBottom: 10, lineHeight: 1 }} aria-hidden>{f.icon}</div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 6, color: '#0f172a' }}>{f.title}</h3>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 10 }}>{f.desc}</p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#f0fdf4', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
                 ✔ {f.badge}
               </div>
             </div>
           ))}
         </div>
-          <div style={{ textAlign: 'center', marginTop: 32, padding: '28px', background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', borderRadius: 20, color: '#fff' }}>
-          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{t('home.whyChoose.cta.title', 'Experience Trusted Healthcare at Your Doorstep')}</h3>
+        <div className="why-cta-section" style={{ textAlign: 'center', marginTop: 28, padding: '24px 18px', background: 'linear-gradient(135deg, #0F5DA8, #20B7F5)', borderRadius: 16, color: '#fff' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>{t('home.whyChoose.cta.title', 'Experience trusted healthcare at your doorstep')}</h3>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 28px', fontSize: 14 }}>{t('home.whyChoose.cta.bookTest', '🔵 Book Health Test Now')}</Link>
-            <button onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 28px', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.whyChoose.cta.upload', '📄 Upload Prescription')}</button>
+            <Link to="/diagnostics" className="btn btn-lg" style={{ background: '#FF3B30', border: 'none', color: '#fff', padding: '12px 24px', fontSize: 13, fontWeight: 700 }}>{t('home.whyChoose.cta.bookTest', 'Book Health Test')}</Link>
+            <button type="button" onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-lg" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 24px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t('home.whyChoose.cta.upload', 'Upload Prescription')}</button>
           </div>
         </div>
       </div>
