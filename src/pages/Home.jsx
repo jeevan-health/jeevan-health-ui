@@ -42,29 +42,199 @@ export default function Home() {
       <HealthLibrarySection />
       <FaqSection />
       <style>{`
-        .home-hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 36px; align-items: center; max-width: 1100px; margin: 0 auto; }
+        /* ── Home hero redesign (beats global .hero rules) ── */
+        .hero.home-hero {
+          position: relative; z-index: 30; overflow: visible;
+          text-align: left; color: #fff;
+          background: linear-gradient(145deg, #0B4F96 0%, #0F5DA8 28%, #1866C9 62%, #1A7AD4 100%);
+          padding: 52px 16px 56px;
+        }
+        .hero.home-hero::before {
+          content: ''; position: absolute; inset: 0; pointer-events: none;
+          background:
+            radial-gradient(ellipse 55% 70% at 100% 0%, rgba(0, 217, 255, 0.18) 0%, transparent 55%),
+            radial-gradient(ellipse 40% 50% at 0% 100%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+        }
+        .hero.home-hero::after {
+          content: ''; position: absolute; right: -80px; top: -60px; width: 320px; height: 320px;
+          border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); pointer-events: none;
+        }
+        .home-hero-grid {
+          display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px;
+          align-items: center; max-width: 1120px; margin: 0 auto; position: relative; z-index: 2;
+        }
+        .home-hero-copy { min-width: 0; position: relative; z-index: 2; }
+        .home-hero-stats {
+          display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
+          margin-bottom: 20px;
+        }
+        .home-hero-stat {
+          display: flex; flex-direction: column; gap: 2px;
+          padding: 10px 12px; border-radius: 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.14);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          min-width: 0;
+        }
+        .home-hero-stat-icon { font-size: 16px; line-height: 1; margin-bottom: 2px; }
+        .home-hero-stat-label {
+          font-size: 13px; font-weight: 800; color: #fff; letter-spacing: -0.2px;
+          line-height: 1.2;
+        }
+        .home-hero-stat-sub {
+          font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.72);
+          line-height: 1.25;
+        }
+        .home-hero-eyebrow {
+          display: inline-flex; align-items: center; gap: 6px;
+          font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+          color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.16); border-radius: 999px;
+          padding: 5px 12px; margin-bottom: 14px;
+        }
+        .home-hero-eyebrow-dot {
+          width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
+          box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);
+        }
+        .hero.home-hero h1 {
+          font-size: clamp(26px, 3.6vw, 40px); font-weight: 800; color: #fff;
+          line-height: 1.18; margin: 0 0 12px; letter-spacing: -0.6px;
+          max-width: 16em; text-align: left;
+        }
+        .hero.home-hero .home-hero-sub {
+          font-size: 15px; color: rgba(255,255,255,0.88); margin: 0 0 22px;
+          line-height: 1.65; max-width: 46ch; opacity: 1;
+          text-align: left; margin-left: 0; margin-right: 0;
+        }
+        .home-hero-ctas {
+          display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+        }
+        .home-hero-cta-primary {
+          background: #FF3B30 !important; border: none !important; color: #fff !important;
+          font-size: 14px !important; font-weight: 700 !important;
+          padding: 12px 22px !important; min-height: 48px; border-radius: 12px !important;
+          box-shadow: 0 8px 20px rgba(255, 59, 48, 0.35);
+        }
+        .home-hero-cta-primary:hover { filter: brightness(1.05); }
+        .home-hero-cta-secondary {
+          color: #fff !important; border: 1.5px solid rgba(255,255,255,0.55) !important;
+          background: rgba(255,255,255,0.1) !important;
+          font-size: 14px !important; font-weight: 600 !important;
+          padding: 12px 18px !important; min-height: 48px; border-radius: 12px !important;
+          display: inline-flex; align-items: center; gap: 6px;
+          cursor: pointer; font-family: inherit;
+        }
+        .home-hero-cta-secondary:hover { background: rgba(255,255,255,0.16) !important; }
+        .home-hero-cta-tertiary {
+          color: rgba(255,255,255,0.95) !important;
+          border: 1px solid rgba(255,255,255,0.28) !important;
+          background: transparent !important;
+          font-size: 13px !important; font-weight: 600 !important;
+          padding: 10px 16px !important; min-height: 44px; border-radius: 12px !important;
+          display: inline-flex; align-items: center;
+        }
+        .home-hero-cta-tertiary:hover { background: rgba(255,255,255,0.08) !important; }
+        .home-hero-search {
+          margin-bottom: 18px; max-width: 520px; position: relative; z-index: 50; overflow: visible;
+        }
+        .home-hero-search .smart-search-root > div:first-child {
+          border-radius: 14px !important; border-width: 0 !important;
+          box-shadow: 0 10px 28px rgba(8, 40, 80, 0.22);
+        }
+        .home-hero-proof {
+          display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;
+          background: rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 999px; padding: 8px 14px 8px 10px;
+        }
+        .home-hero-stars { display: flex; gap: 1px; }
+        .home-hero-stars span { font-size: 13px; color: #FFD54F; line-height: 1; }
+        .home-hero-rating { font-size: 13px; font-weight: 800; color: #fff; }
+        .home-hero-rating-label { font-size: 12px; color: rgba(255,255,255,0.78); font-weight: 500; }
+        .home-hero-proof-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.22); }
+        .home-hero-side {
+          display: flex; flex-direction: column; gap: 10px;
+        }
+        .home-hero-feature {
+          display: flex; align-items: center; gap: 12px;
+          padding: 13px 14px; border-radius: 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.12);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          transition: background 0.15s, transform 0.15s, border-color 0.15s;
+          text-decoration: none;
+        }
+        .home-hero-feature:hover {
+          background: rgba(255,255,255,0.16);
+          border-color: rgba(255,255,255,0.22);
+          transform: translateY(-1px);
+        }
+        .home-hero-feature-icon {
+          width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center; font-size: 18px;
+          background: rgba(255,255,255,0.14);
+          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+        .home-hero-feature-body { flex: 1; min-width: 0; }
+        .home-hero-feature-label { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.25; }
+        .home-hero-feature-desc { font-size: 11px; color: rgba(255,255,255,0.72); line-height: 1.35; margin-top: 2px; }
+        .home-hero-feature-arrow { color: rgba(255,255,255,0.45); font-size: 16px; flex-shrink: 0; }
+
         .home-popular-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: stretch; }
         .home-cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
         .home-section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
         .home-section-head .section-title { margin: 0; }
         .home-section-head .section-subtitle { margin: 4px 0 0; }
+
         @media (max-width: 900px) {
-          .home-hero-grid { grid-template-columns: 1fr; gap: 24px; }
+          .hero.home-hero { padding: 40px 16px 44px; }
+          .home-hero-grid { grid-template-columns: 1fr; gap: 22px; }
+          .hero.home-hero h1 { max-width: none; font-size: clamp(24px, 5.5vw, 32px); }
           .home-hero-side { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
           .home-popular-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
+          .hero.home-hero { padding: 32px 14px 36px; }
+          .home-hero-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+          .home-hero-stat { padding: 10px 12px; border-radius: 12px; }
+          .home-hero-stat-label { font-size: 14px; }
+          .hero.home-hero .home-hero-sub { font-size: 14px; margin-bottom: 16px; }
+          .home-hero-ctas { gap: 8px; margin-bottom: 14px; }
+          .home-hero-cta-primary,
+          .home-hero-cta-secondary { flex: 1 1 calc(50% - 4px); justify-content: center; min-height: 46px; }
+          .home-hero-cta-tertiary { flex: 1 1 100%; justify-content: center; min-height: 42px; }
+          .home-hero-search { max-width: none; margin-bottom: 14px; }
+          .home-hero-search .smart-search-root > div:first-child { border-radius: 12px !important; }
+          .home-hero-proof { width: 100%; justify-content: center; border-radius: 12px; padding: 10px 12px; }
+          .home-hero-side { grid-template-columns: 1fr 1fr; }
+          .home-hero-feature { padding: 12px; border-radius: 12px; }
+          .home-hero-feature-icon { width: 36px; height: 36px; border-radius: 10px; font-size: 16px; }
+          .home-hero-feature-arrow { display: none; }
           .hero-search { border-radius: 12px !important; }
           .home-qa-mobile { display: block !important; padding: 0 12px; margin-top: -8px; }
-          .home-hero-side { grid-template-columns: 1fr; }
         }
         @media (max-width: 600px) {
+          .hero.home-hero { padding: 28px 12px 32px; }
+          .hero.home-hero h1 { font-size: 22px; letter-spacing: -0.4px; }
+          .hero.home-hero .home-hero-sub { font-size: 13px; line-height: 1.55; }
+          .home-hero-eyebrow { font-size: 10px; margin-bottom: 12px; }
+          .home-hero-stat-label { font-size: 13px; }
+          .home-hero-stat-sub { font-size: 10px; }
+          .home-hero-cta-primary, .home-hero-cta-secondary { font-size: 13px !important; padding: 11px 14px !important; }
           .trust-strip-inner { gap: 4px !important; }
           .trust-strip-inner span { font-size: 10px !important; padding: 3px 8px !important; }
           .home-qa-mobile { padding: 0 8px; }
           .home-cat-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
         }
         @media (max-width: 480px) {
+          .hero.home-hero { padding: 24px 12px 28px; }
+          .hero.home-hero h1 { font-size: 20px; }
+          .home-hero-stats { gap: 6px; }
+          .home-hero-stat { padding: 9px 10px; }
+          .home-hero-feature-desc { display: none; }
+          .home-hero-feature { justify-content: flex-start; }
+          .home-hero-feature-label { font-size: 12px; }
           .home-popular-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
           .why-choose-grid { grid-template-columns: 1fr !important; }
           .why-cta-section { padding: 20px 16px !important; }
@@ -82,12 +252,19 @@ function HeroSection() {
   const hero = useCmsStore(s => s.content?.hero);
   const h = hero || {};
   if (h.active === false) return null;
-  const statBadges = h.statBadges || [
-    { icon: '🔬', label: t('home.hero.statBadges.tests', '5000+ Tests'), sublabel: '' },
-    { icon: '🚚', label: t('home.hero.statBadges.freeCollection', 'Free Home Collection'), sublabel: '' },
-    { icon: '🏥', label: t('home.hero.statBadges.labs', 'NABL Certified Labs'), sublabel: '' },
-    { icon: '⏱️', label: t('home.hero.statBadges.reports', 'Reports in 24 Hours'), sublabel: '' },
+
+  const defaultStats = [
+    { icon: '🧪', label: '5000+', sublabel: t('home.hero.statBadges.testsSub', 'Tests') },
+    { icon: '🏠', label: t('home.hero.statBadges.freeHome', 'Free Home'), sublabel: t('home.hero.statBadges.collection', 'Collection') },
+    { icon: '🏅', label: t('home.hero.statBadges.nabl', 'NABL Certified'), sublabel: t('home.hero.statBadges.labs', 'Labs') },
+    { icon: '⏱️', label: t('home.hero.statBadges.reportsIn', 'Reports in'), sublabel: t('home.hero.statBadges.hours', '24 Hours') },
   ];
+  const statBadges = (Array.isArray(h.statBadges) && h.statBadges.length > 0 ? h.statBadges : defaultStats).map((s, i) => ({
+    icon: s.icon || defaultStats[i]?.icon || '🔬',
+    label: s.label || defaultStats[i]?.label || '',
+    sublabel: s.sublabel || defaultStats[i]?.sublabel || '',
+  }));
+
   // Map CMS icons (often missing path) → real public routes
   const FEATURE_ROUTE_MAP = {
     family: { path: '/health-packages', desc: 'Book tests & packages for your family', color: '#7c3aed' },
@@ -126,63 +303,91 @@ function HeroSection() {
       color: f.color || mapped.color || '#1866C9',
     };
   });
-  const headingRaw = h.heading || t('home.hero.heading', 'Book Lab Tests<br />At Home');
+
+  const headingRaw = h.heading || t('home.hero.heading', 'Your Health, Our Priority — Trusted Diagnostics at Your Doorstep');
+  // Prefer a cleaner break on em-dash for long CMS titles
   const headingHtml = String(headingRaw).includes('<')
     ? String(headingRaw)
-    : String(headingRaw).replace(/\n/g, '<br />');
+    : String(headingRaw)
+      .replace(/\s*[—–]\s*/g, '<br />')
+      .replace(/\n/g, '<br />');
+
+  const bgStyle = h.backgroundImage
+    ? { backgroundImage: `linear-gradient(145deg, rgba(11,79,150,0.88) 0%, rgba(15,93,168,0.82) 40%, rgba(26,122,212,0.78) 100%), url(${h.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : undefined;
 
   return (
-    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : 'linear-gradient(135deg, #0F5DA8 0%, #1866C9 55%, #1A7AD4 100%)', padding: '44px 16px 52px', overflow: 'visible', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', zIndex: 30 }}>
+    <section className="hero home-hero" style={bgStyle} aria-label={t('home.hero.aria', 'Book lab tests at home')}>
       <div className="container home-hero-grid">
-        <div style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
-            {statBadges.map(s => (
-              <span key={s.label} style={{ background: 'rgba(255,255,255,0.14)', padding: '5px 11px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#fff', display: 'inline-flex', alignItems: 'center', gap: 5, border: '1px solid rgba(255,255,255,0.12)' }}>
-                <span aria-hidden>{s.icon}</span> {s.label}
-              </span>
+        <div className="home-hero-copy">
+          <div className="home-hero-eyebrow">
+            <span className="home-hero-eyebrow-dot" aria-hidden />
+            {t('home.hero.eyebrow', 'Trusted diagnostics at your doorstep')}
+          </div>
+
+          <div className="home-hero-stats" role="list" aria-label={t('home.hero.statsAria', 'Key highlights')}>
+            {statBadges.map((s) => (
+              <div key={`${s.label}-${s.sublabel}`} className="home-hero-stat" role="listitem">
+                <span className="home-hero-stat-icon" aria-hidden>{s.icon}</span>
+                <span className="home-hero-stat-label">{s.label}</span>
+                {s.sublabel ? <span className="home-hero-stat-sub">{s.sublabel}</span> : null}
+              </div>
             ))}
           </div>
-          <h1
-            style={{ fontSize: 'clamp(26px, 4vw, 36px)', fontWeight: 800, color: '#fff', lineHeight: 1.18, margin: '0 0 10px', letterSpacing: -0.5 }}
-            dangerouslySetInnerHTML={{ __html: headingHtml }}
-          />
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.88)', marginBottom: 20, lineHeight: 1.65, maxWidth: 480 }}>
-            {h.subheading || t('home.hero.subheading', "India's trusted diagnostics platform. Free home collection by trained phlebotomists. NABL-certified labs. Digital reports you can share.")}
+
+          <h1 dangerouslySetInnerHTML={{ __html: headingHtml }} />
+          <p className="home-hero-sub">
+            {h.subheading || t('home.hero.subheading', 'Book lab tests from home with free sample collection. 5000+ tests, NABL certified labs, reports in 24 hours.')}
           </p>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
-            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg" style={{ background: '#FF3B30', border: 'none', fontSize: 14, padding: '12px 24px', minHeight: 46 }}>{h.ctaText || t('home.hero.cta', 'Book Lab Tests')}</Link>
-            <button type="button" onClick={() => useUploadModal.getState().setOpen(true)} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,0.55)', borderWidth: 1.5, fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', cursor: 'pointer', fontFamily: 'inherit', minHeight: 46 }}>{h.ctaSecondaryText || t('home.hero.ctaSecondary', 'Upload Prescription')}</button>
-            <Link to={h.ctaTertiaryLink || '/health-packages'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.95)', borderColor: 'rgba(255,255,255,0.28)', fontSize: 13, display: 'inline-flex', alignItems: 'center', minHeight: 42 }}>{h.ctaTertiaryText || t('home.hero.ctaTertiary', 'Health Packages')}</Link>
+
+          <div className="home-hero-ctas">
+            <Link to={h.ctaLink || '/diagnostics'} className="btn btn-primary btn-lg home-hero-cta-primary">
+              {h.ctaText || t('home.hero.cta', 'Book Lab Tests')}
+            </Link>
+            <button
+              type="button"
+              onClick={() => useUploadModal.getState().setOpen(true)}
+              className="btn btn-outline btn-lg home-hero-cta-secondary"
+            >
+              {h.ctaSecondaryText || t('home.hero.ctaSecondary', 'Upload Prescription')}
+            </button>
+            <Link to={h.ctaTertiaryLink || '/health-packages'} className="btn btn-outline home-hero-cta-tertiary">
+              {h.ctaTertiaryText || t('home.hero.ctaTertiary', 'Book Health Package')}
+            </Link>
           </div>
-          <div className="hero-search-slot" style={{ marginBottom: 18, maxWidth: 480, position: 'relative', zIndex: 50, overflow: 'visible' }}>
-            <SmartSearch placeholder={t('home.hero.searchPlaceholder', '🔍 Search tests, symptoms, diseases...')} />
+
+          <div className="home-hero-search hero-search-slot">
+            <SmartSearch placeholder={t('home.hero.searchPlaceholder', 'Search tests, symptoms, diseases...')} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: 1 }} aria-label="4.9 stars">
-              {[1, 2, 3, 4, 5].map(i => <span key={i} style={{ fontSize: 14, color: '#FFD54F' }}>★</span>)}
+
+          <div className="home-hero-proof">
+            <div className="home-hero-stars" aria-label={`${h.rating || '4.9'} stars`}>
+              {[1, 2, 3, 4, 5].map((i) => <span key={i}>★</span>)}
             </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{h.rating || '4.9'}</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{h.ratingLabel || t('home.hero.ratingLabel', '50,000+ Happy Patients')}</span>
+            <span className="home-hero-rating">{h.rating || '4.9'}</span>
+            <span className="home-hero-proof-sep" aria-hidden />
+            <span className="home-hero-rating-label">
+              {h.ratingLabel || t('home.hero.ratingLabel', '50,000+ Happy Patients')}
+            </span>
           </div>
         </div>
-        <div className="home-hero-side" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {featureIcons.map(f => (
-            <Link key={f.label} to={f.path || '/diagnostics'} style={{ textDecoration: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', transition: 'background 0.15s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.16)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.label}</div>
-                  {f.desc ? <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.35 }}>{f.desc}</div> : null}
-                </div>
-                <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 16, flexShrink: 0 }}>→</span>
+
+        <div className="home-hero-side" aria-label={t('home.hero.servicesAria', 'Popular services')}>
+          {featureIcons.map((f) => (
+            <Link key={f.label} to={f.path || '/diagnostics'} className="home-hero-feature">
+              <div className="home-hero-feature-icon" style={{ boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 0 2px ${f.color}33` }}>
+                {f.icon}
               </div>
+              <div className="home-hero-feature-body">
+                <div className="home-hero-feature-label">{f.label}</div>
+                {f.desc ? <div className="home-hero-feature-desc">{f.desc}</div> : null}
+              </div>
+              <span className="home-hero-feature-arrow" aria-hidden>→</span>
             </Link>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
