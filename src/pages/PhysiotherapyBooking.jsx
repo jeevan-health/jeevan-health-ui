@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { useToast } from '../components/Toast';
+import useAuthStore from '../stores/authStore';
+import * as physioService from '../services/physioService';
 import {
   physioCategories, therapists, physioPackages, painLevels,
   bodyParts, previousTreatments, painDurations, treatmentModes, STORAGE_KEYS,
@@ -63,7 +65,10 @@ export default function PhysiotherapyBooking() {
   const t = useT();
   const toast = useToast();
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
 
+  const [apiPackages, setApiPackages] = useState([]);
+  const [catalogSource, setCatalogSource] = useState('static');
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
     conditions: [],
@@ -78,6 +83,37 @@ export default function PhysiotherapyBooking() {
     paymentMethod: '',
   });
   const [confirmed, setConfirmed] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: res } = await physioService.listPackages();
+        const list = (res.packages || []).map(p => ({
+          id: p.slug || p.id,
+          slug: p.slug,
+          apiId: p.id,
+          name: p.name,
+          sessions: p.sessions,
+          price: Number(p.price) || 0,
+          originalPrice: Number(p.originalPrice) || Number(p.price) || 0,
+          description: p.description || '',
+          popular: !!p.popular,
+          includes: p.description ? [p.description] : [],
+          api: true,
+        })).filter(p => p.slug !== 'pay-per-session'); // pay-per-session is a UI toggle
+        if (!cancelled && list.length > 0) {
+          setApiPackages(list);
+          setCatalogSource('api');
+        }
+      } catch {
+        if (!cancelled) setCatalogSource('static');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const packageCatalog = catalogSource === 'api' && apiPackages.length > 0 ? apiPackages : physioPackages;
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -123,28 +159,91 @@ export default function PhysiotherapyBooking() {
   const totalAmount = data.payPerSession ? 599 : (data.package?.price || 0);
   const whatsappNumber = '918978933399';
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!validateStep(6)) return;
+    if (!isAuthenticated) {
+      toast(t('physio.booking.loginRequired', 'Please sign in to confirm your physiotherapy booking.'), 'error');
+      navigate('/signup', { state: { from: '/physiotherapy/book' } });
+      return;
+    }
     setProcessing(true);
-    setTimeout(() => {
-      const booking = {
-        id: 'JPH-' + Date.now().toString(36).toUpperCase(),
-        ...data,
-        therapistName: data.therapist?.name || '',
-        packageName: data.payPerSession ? 'Pay Per Session' : (data.package?.name || ''),
-        sessions: data.payPerSession ? 1 : (data.package?.sessions || 0),
-        totalAmount,
+    const payload = {
+      packageId: data.package?.apiId,
+      packageSlug: data.payPerSession ? 'pay-per-session' : (data.package?.slug || data.package?.id),
+      packageName: data.payPerSession ? 'Pay Per Session' : (data.package?.name || ''),
+      packagePrice: totalAmount,
+      sessions: data.payPerSession ? 1 : (data.package?.sessions || 1),
+      payPerSession: !!data.payPerSession,
+      conditions: data.conditions || [],
+      treatmentMode: data.mode,
+      therapistName: data.therapist?.name || 'Auto-assigned',
+      patientName: data.patientName,
+      patientPhone: data.patientMobile,
+      patientAge: data.patientAge,
+      patientGender: data.patientGender,
+      patientLocation: data.patientLocation,
+      preferredDate: data.preferredDate,
+      preferredTime: data.preferredTime,
+      medicalCondition: data.medicalCondition,
+      painLocation: data.painLocation,
+      painLevel: data.painLevel,
+      painDuration: data.painDuration ? `${data.painDuration} ${data.painUnit || ''}`.trim() : '',
+      paymentMethod: data.paymentMethod,
+      totalAmount,
+    };
+    try {
+      const { data: booking } = await physioService.createBooking(payload);
+      const confirmedBooking = {
+        id: booking.publicId || `JPH-${booking.id}`,
+        apiId: booking.id,
+        patientName: booking.patientName,
+        therapistName: booking.therapistName,
+        packageName: booking.packageName,
+        sessions: booking.sessions,
+        preferredDate: booking.preferredDate,
+        preferredTime: booking.preferredTime,
+        totalAmount: booking.totalAmount,
         modeLabel: treatmentModes.find(m => m.id === data.mode)?.label || data.mode,
-        createdAt: new Date().toISOString(),
-        status: 'Confirmed',
+        conditions: booking.conditions,
+        status: booking.status === 'confirmed' ? 'Confirmed' : booking.status,
+        createdAt: booking.createdAt,
+        paymentMethod: booking.paymentMethod,
+        api: true,
       };
-      const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
-      bookings.push(booking);
-      localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
-      setConfirmed(booking);
+      try {
+        const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
+        bookings.push({ ...data, ...confirmedBooking, serviceName: confirmedBooking.packageName });
+        localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+      } catch { /* ignore */ }
+      setConfirmed(confirmedBooking);
       toast(t('physio.booking.confirmed', 'Physiotherapy booking confirmed!'), 'success');
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || t('physio.booking.failed', 'Booking failed. Please try again.');
+      toast(msg, 'error');
+      if (!err?.response) {
+        const booking = {
+          id: 'JPH-LOCAL-' + Date.now().toString(36).toUpperCase(),
+          ...data,
+          therapistName: data.therapist?.name || '',
+          packageName: data.payPerSession ? 'Pay Per Session' : (data.package?.name || ''),
+          sessions: data.payPerSession ? 1 : (data.package?.sessions || 0),
+          totalAmount,
+          modeLabel: treatmentModes.find(m => m.id === data.mode)?.label || data.mode,
+          createdAt: new Date().toISOString(),
+          status: 'Confirmed',
+          localOnly: true,
+        };
+        try {
+          const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
+          bookings.push(booking);
+          localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+        } catch { /* ignore */ }
+        setConfirmed(booking);
+        toast(t('physio.booking.localFallback', 'Saved locally — will sync when API is available.'), 'error');
+      }
+    } finally {
       setProcessing(false);
-    }, 1500);
+    }
   };
 
   const getWALink = (booking) => {
@@ -438,8 +537,8 @@ export default function PhysiotherapyBooking() {
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: '#0f172a' }}>{t('physio.select.package', 'Select a Package')}</h3>
             <p style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>{t('physio.package.or.payper', 'Choose a package or pay per session')}</p>
             <div style={{ display: 'grid', gap: 10 }}>
-              {physioPackages.map(pkg => (
-                <button key={pkg.id} onClick={() => { update('package', pkg); update('payPerSession', false); }}
+              {packageCatalog.map(pkg => (
+                <button key={pkg.id || pkg.slug} onClick={() => { update('package', pkg); update('payPerSession', false); }}
                   style={{ padding: 16, borderRadius: 12, border: data.package?.id === pkg.id && !data.payPerSession ? '2px solid #0D9488' : '1px solid #e2e8f0', background: data.package?.id === pkg.id && !data.payPerSession ? '#f0fdfa' : '#fff', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', position: 'relative' }}>
                   {pkg.popular && <span style={{ position: 'absolute', top: 8, right: 8, fontSize: 10, padding: '2px 10px', borderRadius: 10, background: '#0D9488', color: '#fff', fontWeight: 700 }}>{t('physio.popular', 'Popular')}</span>}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -448,14 +547,16 @@ export default function PhysiotherapyBooking() {
                       <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
                         {pkg.isMonthly ? t('physio.monthly', 'Monthly Plan') : `${pkg.sessions} ${t('physio.sessions.lower', 'sessions')}`}
                       </div>
-                      <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: '#475569', lineHeight: 1.7 }}>
-                        {pkg.includes.map((inc, ii) => <li key={ii}>{inc}</li>)}
-                      </ul>
+                      {(pkg.includes?.length > 0 || pkg.description) && (
+                        <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: '#475569', lineHeight: 1.7 }}>
+                          {(pkg.includes?.length ? pkg.includes : [pkg.description]).filter(Boolean).map((inc, ii) => <li key={ii}>{inc}</li>)}
+                        </ul>
+                      )}
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 18, fontWeight: 800, color: '#0D9488' }}>₹{pkg.price}</div>
-                      {pkg.originalPrice && <div style={{ fontSize: 11, color: '#94a3b8', textDecoration: 'line-through' }}>₹{pkg.originalPrice}</div>}
-                      {pkg.originalPrice && <div style={{ fontSize: 10, color: '#dc2626', fontWeight: 600 }}>{Math.round((1 - pkg.price / pkg.originalPrice) * 100)}% {t('physio.off', 'OFF')}</div>}
+                      {pkg.originalPrice > pkg.price && <div style={{ fontSize: 11, color: '#94a3b8', textDecoration: 'line-through' }}>₹{pkg.originalPrice}</div>}
+                      {pkg.originalPrice > pkg.price && <div style={{ fontSize: 10, color: '#dc2626', fontWeight: 600 }}>{Math.round((1 - pkg.price / pkg.originalPrice) * 100)}% {t('physio.off', 'OFF')}</div>}
                     </div>
                   </div>
                 </button>

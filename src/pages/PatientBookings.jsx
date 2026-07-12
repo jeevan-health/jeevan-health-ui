@@ -5,6 +5,7 @@ import EmptyState from '../components/EmptyState';
 import * as doctorService from '../services/doctorService';
 import * as diagnosticsService from '../services/diagnosticsService';
 import * as nursingService from '../services/nursingService';
+import * as physioService from '../services/physioService';
 import useAuthStore from '../stores/authStore';
 
 const BOOKING_SOURCES = [
@@ -16,6 +17,7 @@ const BOOKING_SOURCES = [
 const DOCTOR_SOURCE = { type: 'consultation', icon: '🩺', color: '#1866C9', labelKey: 'consultation', route: '/consult-doctor' };
 const DIAG_SOURCE = { type: 'diagnostics', icon: '🔬', color: '#0d9488', labelKey: 'diagnostics', route: '/diagnostics' };
 const NURSING_SOURCE = { type: 'nursing', icon: '👩‍⚕️', color: '#7C3AED', labelKey: 'nursing', route: '/nurse-at-home' };
+const PHYSIO_SOURCE = { type: 'physiotherapy', icon: '💪', color: '#059669', labelKey: 'physiotherapy', route: '/physiotherapy' };
 
 function mapApiAppointment(a) {
   const statusRaw = (a.status || 'scheduled').toLowerCase();
@@ -89,6 +91,29 @@ function mapApiNursing(b) {
     source: NURSING_SOURCE,
     api: true,
     apiKind: 'nursing',
+  };
+}
+
+function mapApiPhysio(b) {
+  const statusRaw = (b.status || 'confirmed').toLowerCase();
+  let status = 'upcoming';
+  if (['pending', 'confirmed', 'assigned', 'in_progress'].includes(statusRaw)) status = 'upcoming';
+  if (statusRaw === 'completed') status = 'completed';
+  if (statusRaw === 'cancelled') status = 'cancelled';
+  return {
+    id: b.publicId || String(b.id),
+    apiId: b.id,
+    type: 'physiotherapy',
+    serviceName: b.packageName || 'Physiotherapy',
+    patientName: b.patientName || '—',
+    date: b.preferredDate || '',
+    time: b.preferredTime || '',
+    amount: Number(b.totalAmount) || 0,
+    status,
+    rawStatus: b.status || statusRaw,
+    source: PHYSIO_SOURCE,
+    api: true,
+    apiKind: 'physio',
   };
 }
 
@@ -182,7 +207,8 @@ export default function PatientBookings() {
     const all = [];
     // Local-only sources: vaccination + physio still mock; nursing local used as offline fallback only
     BOOKING_SOURCES.forEach(src => {
-      if (src.type === 'nursing' && isAuthenticated) return; // prefer API list when signed in
+      // Prefer API for nursing + physio when signed in
+      if (isAuthenticated && (src.type === 'nursing' || src.type === 'physiotherapy')) return;
       try {
         const data = JSON.parse(localStorage.getItem(src.key) || '[]');
         data.forEach(b => all.push(normalizeBooking(b, src)));
@@ -207,10 +233,20 @@ export default function PatientBookings() {
           try { all.push(mapApiNursing(b)); } catch { /* skip */ }
         });
       } catch {
-        // Fall back to local nursing mirror if API down
         try {
           const data = JSON.parse(localStorage.getItem('jh_nursing_bookings') || '[]');
           data.forEach(b => all.push(normalizeBooking(b, NURSING_SOURCE)));
+        } catch { /* ignore */ }
+      }
+      try {
+        const { data } = await physioService.getMyBookings();
+        (data.bookings || []).forEach(b => {
+          try { all.push(mapApiPhysio(b)); } catch { /* skip */ }
+        });
+      } catch {
+        try {
+          const data = JSON.parse(localStorage.getItem('jh_physio_bookings') || '[]');
+          data.forEach(b => all.push(normalizeBooking(b, PHYSIO_SOURCE)));
         } catch { /* ignore */ }
       }
     }
