@@ -168,7 +168,12 @@ export default function Dashboard() {
   }, [searchParams]);
   const [comingSoon, setComingSoon] = useState(null);
   const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
-  useEffect(() => { fetchDashboard(); }, []);
+  const fetchFamily = useAuthStore(s => s.fetchFamily);
+  const authFamily = useAuthStore(s => s.family);
+  const addFamilyApi = useAuthStore(s => s.addFamilyMember);
+  const updateFamilyApi = useAuthStore(s => s.updateFamilyMember);
+  const deleteFamilyApi = useAuthStore(s => s.deleteFamilyMember);
+  useEffect(() => { fetchDashboard(); fetchFamily(); }, []);
 
   useEffect(() => { if (comingSoon) { const t = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(t); } }, [comingSoon]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
@@ -213,7 +218,7 @@ export default function Dashboard() {
   const logout = useAuthStore(s => s.logout);
   const p = { ...store.profile, name: authUser?.name || store.profile.name, phone: authUser?.phone || store.profile.phone };
   const reports = store.reports;
-  const family = store.family;
+  const family = (authFamily && authFamily.length > 0) ? authFamily : store.family;
   const upcoming = store.upcomingBookings;
   const appointments = store.appointments;
   const invoices = store.invoices;
@@ -227,12 +232,15 @@ export default function Dashboard() {
     return computeHealthScore(store.healthData, store.reports, bonus);
   }, [store.healthData, store.reports, store.profile.healthScore]);
 
-  const addFamily = () => {
+  const addFamily = async () => {
     if (!familyForm.name || !familyForm.relation || !familyForm.age) return;
+    const payload = { ...familyForm, age: parseInt(familyForm.age, 10), bloodGroup: '--', lastCheckup: 'N/A', abhaId: '', gender: familyForm.gender || 'Not specified' };
     if (editingFamily) {
-      store.updateFamilyMember(editingFamily, { ...familyForm, age: parseInt(familyForm.age) });
+      await updateFamilyApi(editingFamily, payload);
+      store.updateFamilyMember(editingFamily, payload);
     } else {
-      store.addFamilyMember({ ...familyForm, age: parseInt(familyForm.age), bloodGroup: '--', lastCheckup: 'N/A', abhaId: '', gender: familyForm.gender || 'Not specified' });
+      const created = await addFamilyApi(payload);
+      if (created) store.addFamilyMember(created);
     }
     setFamilyForm({ name: '', relation: '', age: '', gender: '' });
     setShowFamilyModal(false);
@@ -686,7 +694,7 @@ export default function Dashboard() {
                     <button className="btn btn-outline btn-sm" onClick={() => setShowRecordsMember(m)} style={{ fontSize: 10, padding: '4px 8px' }}>{t('dashboard.family.records', '📋 Records')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => navigate('/diagnostics')} style={{ fontSize: 10, padding: '4px 8px' }}>{t('dashboard.family.bookTest', '🧪 Book Test')}</button>
                     <button className="btn btn-outline btn-sm" onClick={() => openFamilyEdit(m)} style={{ fontSize: 10, padding: '4px 8px', color: '#1866C9' }}>{t('dashboard.family.edit', '✏️ Edit')}</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => { if (window.confirm(`${t('dashboard.family.removeConfirm', 'Remove')} ${m.name}?`)) store.removeFamilyMember(m.id); }} style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}>{t('dashboard.family.remove', '🗑 Remove')}</button>
+                    <button className="btn btn-outline btn-sm" onClick={async () => { if (window.confirm(`${t('dashboard.family.removeConfirm', 'Remove')} ${m.name}?`)) { await deleteFamilyApi(m.id); store.removeFamilyMember(m.id); } }} style={{ fontSize: 10, padding: '4px 8px', color: '#dc2626', borderColor: '#fecaca' }}>{t('dashboard.family.remove', '🗑 Remove')}</button>
                   </div>
               </div>
             ))}

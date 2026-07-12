@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('jh_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -23,12 +23,15 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) throw new Error('No refresh token');
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
           { refreshToken }
         );
 
         localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('jh_token', data.accessToken);
+        if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
         api.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
 
@@ -36,6 +39,7 @@ api.interceptors.response.use(
       } catch {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('jh_token');
         window.location.href = '/signup';
       }
     }

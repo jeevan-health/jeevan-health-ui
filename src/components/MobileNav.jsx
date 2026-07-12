@@ -35,10 +35,12 @@ export default function MobileNav() {
   }, [open]);
 
   const handleTouchStart = (e) => {
-    if (e.touches[0].clientX < 60) touchStartX.current = e.touches[0].clientX;
+    // When drawer is open, allow swipe-to-close from anywhere inside it
+    touchStartX.current = e.touches[0].clientX;
   };
 
   const handleTouchMove = (e) => {
+    if (!open) return;
     const dx = e.touches[0].clientX - touchStartX.current;
     if (dx < 0 && drawerRef.current) {
       drawerRef.current.style.transform = `translateX(${Math.max(-280, dx)}px)`;
@@ -46,6 +48,7 @@ export default function MobileNav() {
   };
 
   const handleTouchEnd = (e) => {
+    if (!open) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (dx < -60) setOpen(false);
     if (drawerRef.current) drawerRef.current.style.transform = '';

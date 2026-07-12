@@ -3,6 +3,7 @@ import { seedTests, ensureLoaded, subscribe } from '../../data/seedData';
 import useAdminStore from '../../stores/adminStore';
 import { generateAllTestsData } from '../../utils/generateTestData';
 import { useT } from '../../i18n/LanguageProvider';
+import * as adminService from '../../services/adminService';
 
 const STORAGE_KEY = 'jeevan_testMaster';
 const CATEGORIES = ['Hematology', 'Diabetes', 'Thyroid', 'Cardiac', 'Vitamins', 'Full Body', 'Anemia', 'Fever', 'Cancer', 'Hormones', 'Allergy', 'Arthritis', 'Pregnancy', 'Liver', 'STD', 'Kidney'];
@@ -133,17 +134,51 @@ export default function AdminTestMaster() {
     window.scrollTo(0, 0);
   };
 
-  const handleSave = () => {
-    const id = editingId || Date.now();
+  const handleSave = async () => {
     const data = { ...form };
     data.price = Number(data.offerPrice) || Number(data.mrp) || 0;
     data.preparation_instructions = data.preparation;
     data.fasting_required = data.fastingRequired;
     data.report_time = data.reportTime;
     if (!data.name) { alert(t('admin.test_master.name_required', 'Test name is required')); return; }
-    persist(id, data);
-    setShowForm(false);
-    setEditingId(null);
+
+    const corePayload = {
+      name: data.name,
+      category: data.category || null,
+      subcategory: data.subcategory || null,
+      description: data.shortDescription || data.longDescription || data.description || null,
+      preparation_instructions: data.preparation_instructions || null,
+      price: data.price,
+      report_time: data.report_time || null,
+      fasting_required: !!data.fasting_required,
+      home_collection: data.homeCollection !== false,
+      in_stock: data.status !== 'Inactive',
+    };
+
+    try {
+      if (editingId && catalog.find(t => String(t.id) === String(editingId))) {
+        await adminService.updateTest(editingId, corePayload);
+        persist(editingId, data);
+      } else if (editingId) {
+        persist(editingId, data);
+      } else {
+        const { data: created } = await adminService.createTest(corePayload);
+        const newId = created.id;
+        persist(newId, { ...data, id: newId });
+        // Refresh catalog from API
+        await ensureLoaded();
+      }
+      setShowForm(false);
+      setEditingId(null);
+      forceUpdate(n => n + 1);
+    } catch (err) {
+      // Fall back to local persist so admin work is not blocked
+      const id = editingId || Date.now();
+      persist(id, data);
+      setShowForm(false);
+      setEditingId(null);
+      console.warn('Test save to API failed, saved locally:', err?.response?.data || err.message);
+    }
   };
 
   const handleNew = () => {
@@ -153,12 +188,20 @@ export default function AdminTestMaster() {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!confirm(t('admin.test_master.delete_confirm', 'Delete this test?'))) return;
+    try {
+      if (catalog.find(t => String(t.id) === String(id))) {
+        await adminService.deleteTest(id);
+      }
+    } catch (err) {
+      console.warn('Test delete API failed:', err?.response?.data || err.message);
+    }
     const next = { ...extendedData };
     delete next[id];
     setExtendedData(next);
     saveData(next);
+    forceUpdate(n => n + 1);
   };
 
   const handleDuplicate = (test) => {

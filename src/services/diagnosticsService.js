@@ -10,6 +10,7 @@ export const placeDiagnosticOrder = (data) => api.post('/diagnostics/orders', da
 export const scheduleCollection = (id, data) => api.put(`/diagnostics/orders/${id}/schedule`, data);
 export const getDiagnosticOrders = () => api.get('/diagnostics/orders');
 export const getDiagnosticOrder = (id) => api.get(`/diagnostics/orders/${id}`);
+export const cancelDiagnosticOrder = (id) => api.put(`/diagnostics/orders/${id}/cancel`);
 
 export const getTestResults = (orderId) => api.get(`/diagnostics/results/${orderId}`);
 export const getAllTestResults = () => api.get('/diagnostics/results');

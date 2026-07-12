@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import useCartStore from '../stores/cartStore';
 import useDashboardStore from '../stores/dashboardStore';
+import useAuthStore from '../stores/authStore';
 import { seedTests } from '../data/seedData';
+import * as diagnosticsService from '../services/diagnosticsService';
 import PhysioCrossSell from '../components/PhysioCrossSell';
 import VaccineCrossSell from '../components/VaccineCrossSell';
 
@@ -47,6 +49,8 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { items, coupon, discount, getTotal, clearCart } = useCartStore();
   const family = useDashboardStore(s => s.family);
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
   const { subtotal, discount: discAmt, total } = getTotal();
 
   const [step, setStep] = useState(0);
@@ -140,42 +144,78 @@ export default function Checkout() {
     setProcessing(true);
     setError('');
 
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 2000));
+    if (!isAuthenticated) {
+      setProcessing(false);
+      navigate('/signup', { state: { from: '/checkout' } });
+      return;
+    }
 
-    const orderId = `JH${Date.now().toString(36).toUpperCase()}`;
-    const booking = {
-      id: `BK${Date.now().toString(36).toUpperCase()}`,
-      orderId,
-      items: itemDetails,
-      patient: selectedPatient,
-      address,
-      date: fmtDateFull(selectedDate),
-      time: TIME_SLOTS.find(s => s.value === selectedSlot)?.label,
-      total,
-      paymentMethod,
-      status: 'Confirmed',
-      createdAt: new Date().toISOString(),
-    };
+    if (!items.length) {
+      setError(t('checkout.error.emptyCart', 'Your cart is empty.'));
+      setProcessing(false);
+      return;
+    }
 
-    setOrderPlaced(booking);
-    clearCart();
-    setProcessing(false);
+    const slotLabel = TIME_SLOTS.find(s => s.value === selectedSlot)?.label || selectedSlot;
+    const collectionDate = selectedDate instanceof Date
+      ? selectedDate.toISOString().slice(0, 10)
+      : String(selectedDate).slice(0, 10);
 
-    // Add to dashboard bookings
-    const store = useDashboardStore.getState();
-    const newBooking = {
-      id: booking.id,
-      test: itemDetails.map(i => i.name).join(' + '),
-      date: fmtDateFull(selectedDate),
-      time: TIME_SLOTS.find(s => s.value === selectedSlot)?.label,
-      location: t('checkout.homeCollection', 'Home Collection'),
-      status: 'Confirmed',
-    };
-    useDashboardStore.setState({ upcomingBookings: [...store.upcomingBookings, newBooking] });
+    const tests = itemDetails.map(i => ({
+      id: i.id,
+      name: i.name,
+      price: Number(i.offerPrice || i.price) || 0,
+      quantity: i.qty || 1,
+    }));
 
-    // Auto-redirect to dashboard after brief confirmation
-    setTimeout(() => navigate('/dashboard'), 3000);
+    try {
+      const { data: order } = await diagnosticsService.placeDiagnosticOrder({
+        tests,
+        totalAmount: total,
+        collectionDate,
+        collectionTime: slotLabel,
+        collectionAddress: {
+          ...address,
+          patient: selectedPatient,
+          paymentMethod,
+        },
+        notes: selectedPatient
+          ? `Patient: ${selectedPatient.name || selectedPatient}${selectedPatient.age ? `, Age: ${selectedPatient.age}` : ''}${coupon ? `; Coupon: ${coupon}` : ''}`
+          : (coupon ? `Coupon: ${coupon}` : ''),
+      });
+
+      const orderId = order.id || order.orderId;
+      const booking = {
+        id: orderId,
+        orderId,
+        items: itemDetails,
+        patient: selectedPatient,
+        address,
+        date: fmtDateFull(selectedDate),
+        time: slotLabel,
+        total: Number(order.total_amount ?? order.totalAmount ?? total),
+        paymentMethod,
+        status: order.status || 'pending',
+        createdAt: order.created_at || order.createdAt || new Date().toISOString(),
+      };
+
+      setOrderPlaced(booking);
+      clearCart();
+      try { await fetchDashboard?.(); } catch { /* non-blocking */ }
+      setTimeout(() => navigate('/my-orders'), 2500);
+    } catch (err) {
+      const msg = err?.response?.data?.message
+        || err?.response?.data?.error
+        || (err?.response?.status === 401
+          ? t('checkout.error.auth', 'Please sign in to place your order.')
+          : t('checkout.error.failed', 'Failed to place order. Please try again.'));
+      setError(msg);
+      if (err?.response?.status === 401) {
+        navigate('/signup', { state: { from: '/checkout' } });
+      }
+    } finally {
+      setProcessing(false);
+    }
   };
 
   // If cart is empty and no order just placed

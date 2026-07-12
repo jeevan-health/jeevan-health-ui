@@ -88,7 +88,7 @@ export default function ConsultDoctor() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+        <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
           {filtered.map(d => (
             <div key={d.id} style={card} onClick={() => navigate(`/book-appointment/${d.id}`)}>
               <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>

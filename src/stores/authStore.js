@@ -27,6 +27,64 @@ function clearTokens() {
   localStorage.removeItem('jh_token');
 }
 
+function mapFamilyFromApi(m) {
+  if (!m) return null;
+  const relationMap = {
+    spouse: 'Spouse', child: 'Child', parent: 'Parent', sibling: 'Sibling', other: 'Other',
+  };
+  const genderMap = { male: 'Male', female: 'Female', other: 'Other' };
+  const rel = (m.relation || '').toLowerCase();
+  const gen = (m.gender || '').toLowerCase();
+  let age = m.age;
+  if (age == null && m.dob) {
+    try {
+      const birth = new Date(m.dob);
+      const today = new Date();
+      age = today.getFullYear() - birth.getFullYear();
+      const md = today.getMonth() - birth.getMonth();
+      if (md < 0 || (md === 0 && today.getDate() < birth.getDate())) age -= 1;
+    } catch { age = ''; }
+  }
+  return {
+    id: m.id,
+    name: m.name,
+    relation: relationMap[rel] || m.relation || 'Other',
+    gender: genderMap[gen] || m.gender || '',
+    age: age ?? '',
+    dob: m.dob || null,
+    bloodGroup: m.bloodGroup || '--',
+    lastCheckup: m.lastCheckup || 'N/A',
+    abhaId: m.abhaId || '',
+    address: m.address || {},
+  };
+}
+
+function mapRelationToApi(relation) {
+  const r = (relation || '').toLowerCase();
+  if (['spouse', 'wife', 'husband'].includes(r)) return 'spouse';
+  if (['child', 'son', 'daughter'].includes(r)) return 'child';
+  if (['parent', 'father', 'mother'].includes(r)) return 'parent';
+  if (r === 'sibling') return 'sibling';
+  return 'other';
+}
+
+function mapGenderToApi(gender) {
+  const g = (gender || '').toLowerCase();
+  if (g === 'male' || g === 'm') return 'male';
+  if (g === 'female' || g === 'f') return 'female';
+  if (g) return 'other';
+  return undefined;
+}
+
+function ageToDob(age) {
+  if (age == null || age === '') return null;
+  const n = parseInt(age, 10);
+  if (isNaN(n) || n < 0 || n > 120) return null;
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - n);
+  return d.toISOString().slice(0, 10);
+}
+
 const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: !!(localStorage.getItem('jh_token') || localStorage.getItem('accessToken')),
@@ -43,7 +101,7 @@ const useAuthStore = create((set, get) => ({
   login: async (phone) => {
     set({ isLoading: true });
     try {
-      const { data } = await authService.sendOtp(phone, 'phone');
+      await authService.sendOtp(phone, 'phone');
       localStorage.setItem('jh_user_phone', phone);
       set({ isLoading: false });
       return true;
@@ -64,6 +122,7 @@ const useAuthStore = create((set, get) => ({
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
       useAuditStore.getState().log('login', `User verified OTP and logged in: ${user.name} (${phone})`, 'auth');
+      get().fetchFamily();
       return true;
     } catch {
       set({ isLoading: false });
@@ -81,8 +140,9 @@ const useAuthStore = create((set, get) => ({
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
       useAuditStore.getState().log('login', `User logged in via Google: ${user.name} (${user.email})`, 'auth');
+      get().fetchFamily();
       return true;
-    } catch (err) {
+    } catch {
       set({ isLoading: false });
       return false;
     }
@@ -96,6 +156,15 @@ const useAuthStore = create((set, get) => ({
       const enriched = { ...data, role: data.role || ADMINS[data.phone] || ADMINS[data.email] || 'user' };
       localStorage.setItem('jh_user', JSON.stringify(enriched));
       set({ user: enriched, isAuthenticated: true });
+
+      const addr = data.address;
+      if (addr && typeof addr === 'object') {
+        if (Array.isArray(addr.list)) {
+          set({ addresses: addr.list });
+        } else if (addr.addressLine || addr.line1 || addr.city) {
+          set({ addresses: [{ id: 'primary', ...addr }] });
+        }
+      }
     } catch {
       const stored = localStorage.getItem('jh_user');
       if (stored) {
@@ -108,16 +177,90 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  addFamilyMember: (member) => {
-    const fam = [...get().family, { ...member, id: Date.now().toString() }];
+  updateProfile: async (updates) => {
+    const { data } = await authService.updateProfile(updates);
+    const enriched = { ...data, role: data.role || get().user?.role || 'user' };
+    localStorage.setItem('jh_user', JSON.stringify(enriched));
+    set({ user: enriched });
+    return data;
+  },
+
+  fetchFamily: async () => {
+    try {
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('jh_token');
+      if (!token) return;
+      const { data } = await authService.getFamilyMembers();
+      const list = (Array.isArray(data) ? data : []).map(mapFamilyFromApi).filter(Boolean);
+      set({ family: list });
+      localStorage.setItem('jh_family', JSON.stringify(list));
+    } catch {
+      const fam = localStorage.getItem('jh_family');
+      if (fam) {
+        try { set({ family: JSON.parse(fam) }); } catch { /* noop */ }
+      }
+    }
+  },
+
+  addFamilyMember: async (member) => {
+    try {
+      const payload = {
+        name: member.name,
+        relation: mapRelationToApi(member.relation),
+        gender: mapGenderToApi(member.gender),
+        dob: member.dob || ageToDob(member.age),
+      };
+      const { data } = await authService.addFamilyMember(payload);
+      const mapped = mapFamilyFromApi(data);
+      const fam = [...get().family, mapped];
+      set({ family: fam });
+      localStorage.setItem('jh_family', JSON.stringify(fam));
+      return mapped;
+    } catch {
+      const fam = [...get().family, { ...member, id: Date.now().toString() }];
+      set({ family: fam });
+      localStorage.setItem('jh_family', JSON.stringify(fam));
+      return fam[fam.length - 1];
+    }
+  },
+
+  updateFamilyMember: async (id, updates) => {
+    try {
+      const payload = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.relation !== undefined) payload.relation = mapRelationToApi(updates.relation);
+      if (updates.gender !== undefined) payload.gender = mapGenderToApi(updates.gender);
+      if (updates.age !== undefined || updates.dob !== undefined) {
+        payload.dob = updates.dob || ageToDob(updates.age);
+      }
+      const { data } = await authService.updateFamilyMember(id, payload);
+      const mapped = mapFamilyFromApi(data);
+      const fam = get().family.map(m => String(m.id) === String(id) ? mapped : m);
+      set({ family: fam });
+      localStorage.setItem('jh_family', JSON.stringify(fam));
+      return mapped;
+    } catch {
+      const fam = get().family.map(m => String(m.id) === String(id) ? { ...m, ...updates } : m);
+      set({ family: fam });
+      localStorage.setItem('jh_family', JSON.stringify(fam));
+    }
+  },
+
+  deleteFamilyMember: async (id) => {
+    try {
+      await authService.deleteFamilyMember(id);
+    } catch { /* still remove locally */ }
+    const fam = get().family.filter(m => String(m.id) !== String(id));
     set({ family: fam });
     localStorage.setItem('jh_family', JSON.stringify(fam));
   },
 
-  addAddress: (addr) => {
-    const addrs = [...get().addresses, { ...addr, id: Date.now().toString() }];
+  addAddress: async (addr) => {
+    const addrs = [...get().addresses, { ...addr, id: addr.id || Date.now().toString() }];
     set({ addresses: addrs });
     localStorage.setItem('jh_addresses', JSON.stringify(addrs));
+    try {
+      await authService.updateProfile({ address: { list: addrs } });
+    } catch { /* offline ok */ }
   },
 
   logout: () => {
@@ -126,10 +269,9 @@ const useAuthStore = create((set, get) => ({
     clearTokens();
     localStorage.removeItem('jh_user');
     localStorage.removeItem('jh_user_phone');
-    set({ user: null, isAuthenticated: false });
+    set({ user: null, isAuthenticated: false, family: [], addresses: [] });
   },
 
-  // Admin helpers
   getUsers: () => loadUsers(),
 
   updateUserRole: (userId, role) => {
@@ -142,7 +284,7 @@ const useAuthStore = create((set, get) => ({
   deleteUser: (userId) => {
     const users = loadUsers();
     const u = users.find(x => x.id === userId);
-    saveUsers(users.filter(u => u.id !== userId));
+    saveUsers(users.filter(x => x.id !== userId));
     useAuditStore.getState().log('delete', `User deleted: ${u?.name || u?.phone || userId}`, 'users');
   },
 
@@ -172,11 +314,11 @@ if (stored) {
 }
 const fam = localStorage.getItem('jh_family');
 if (fam) {
-  try { useAuthStore.getState().family = JSON.parse(fam); } catch { /* noop */ }
+  try { useAuthStore.setState({ family: JSON.parse(fam) }); } catch { /* noop */ }
 }
 const addrs = localStorage.getItem('jh_addresses');
 if (addrs) {
-  try { useAuthStore.getState().addresses = JSON.parse(addrs); } catch { /* noop */ }
+  try { useAuthStore.setState({ addresses: JSON.parse(addrs) }); } catch { /* noop */ }
 }
 
 export default useAuthStore;

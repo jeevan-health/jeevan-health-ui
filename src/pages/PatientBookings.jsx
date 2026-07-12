@@ -2,12 +2,70 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import EmptyState from '../components/EmptyState';
+import * as doctorService from '../services/doctorService';
+import * as diagnosticsService from '../services/diagnosticsService';
+import useAuthStore from '../stores/authStore';
 
 const BOOKING_SOURCES = [
   { key: 'jh_nursing_bookings', type: 'nursing', icon: '👩‍⚕️', color: '#7C3AED', labelKey: 'nursing', route: '/nurse-at-home' },
   { key: 'jh_vaccination_bookings', type: 'vaccination', icon: '💉', color: '#2563EB', labelKey: 'vaccination', route: '/vaccination' },
   { key: 'jh_physio_bookings', type: 'physiotherapy', icon: '💪', color: '#059669', labelKey: 'physiotherapy', route: '/physiotherapy' },
 ];
+
+const DOCTOR_SOURCE = { type: 'consultation', icon: '🩺', color: '#1866C9', labelKey: 'consultation', route: '/consult-doctor' };
+const DIAG_SOURCE = { type: 'diagnostics', icon: '🔬', color: '#0d9488', labelKey: 'diagnostics', route: '/diagnostics' };
+
+function mapApiAppointment(a) {
+  const statusRaw = (a.status || 'scheduled').toLowerCase();
+  let status = statusRaw;
+  if (['scheduled', 'confirmed', 'in_progress'].includes(statusRaw)) status = 'upcoming';
+  else if (statusRaw === 'completed') status = 'completed';
+  else if (statusRaw === 'cancelled') status = 'cancelled';
+  return {
+    id: String(a.id),
+    type: 'consultation',
+    serviceName: a.doctor_name || a.doctorName || 'Doctor Consultation',
+    patientName: a.patient_name || a.patientName || '—',
+    date: a.appointment_date || a.appointmentDate || '',
+    time: a.time_slot || a.timeSlot || '',
+    amount: Number(a.fees) || 0,
+    status,
+    rawStatus: a.status || statusRaw,
+    source: DOCTOR_SOURCE,
+    api: true,
+    apiKind: 'appointment',
+  };
+}
+
+function mapApiDiagOrder(o) {
+  const statusRaw = (o.status || 'pending').toLowerCase();
+  let status = 'pending';
+  if (['pending', 'confirmed', 'sample_collected', 'processing'].includes(statusRaw)) {
+    status = statusRaw === 'pending' ? 'pending' : 'upcoming';
+  }
+  if (['results_ready', 'completed'].includes(statusRaw)) status = 'completed';
+  if (statusRaw === 'cancelled') status = 'cancelled';
+  let tests = o.tests;
+  if (typeof tests === 'string') {
+    try { tests = JSON.parse(tests || '[]'); } catch { tests = []; }
+  }
+  if (!Array.isArray(tests)) tests = [];
+  const testNames = tests.map(t => t.name || t).join(', ') || 'Diagnostic Tests';
+  return {
+    id: String(o.id),
+    type: 'diagnostics',
+    serviceName: testNames,
+    patientName: o.collection_address?.fullName || o.collectionAddress?.fullName || '—',
+    date: o.collection_date || o.collectionDate || (o.created_at || o.createdAt || '').toString().slice(0, 10),
+    time: o.collection_time || o.collectionTime || '',
+    amount: Number(o.total_amount ?? o.totalAmount) || 0,
+    status,
+    rawStatus: o.status || statusRaw,
+    source: DIAG_SOURCE,
+    api: true,
+    apiKind: 'diagnostic',
+  };
+}
 
 const STATUS_ORDER = ['upcoming', 'pending', 'completed', 'cancelled'];
 
@@ -75,7 +133,9 @@ const RESCHEDULE_REASONS = [
 
 export default function PatientBookings() {
   const t = useT();
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const [allBookings, setAllBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -92,7 +152,8 @@ export default function PatientBookings() {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
-  useEffect(() => {
+  const loadBookings = async () => {
+    setLoading(true);
     const all = [];
     BOOKING_SOURCES.forEach(src => {
       try {
@@ -100,9 +161,29 @@ export default function PatientBookings() {
         data.forEach(b => all.push(normalizeBooking(b, src)));
       } catch { /* ignore */ }
     });
+
+    if (isAuthenticated) {
+      try {
+        const { data } = await doctorService.getMyAppointments();
+        (Array.isArray(data) ? data : []).forEach(a => all.push(mapApiAppointment(a)));
+      } catch { /* ignore */ }
+      try {
+        const { data } = await diagnosticsService.getDiagnosticOrders();
+        const list = Array.isArray(data) ? data : (data?.orders || []);
+        list.forEach(o => {
+          try { all.push(mapApiDiagOrder(o)); } catch { /* skip */ }
+        });
+      } catch { /* ignore */ }
+    }
+
     all.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
     setAllBookings(all);
-  }, []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadBookings();
+  }, [isAuthenticated]);
 
   const filtered = useMemo(() => {
     return allBookings.filter(b => {
@@ -151,19 +232,46 @@ export default function PatientBookings() {
     } catch { showToast(t('error', 'Error rescheduling. Please try again.')); }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    const booking = allBookings.find(b => b.id === cancelId);
+    if (!booking) return;
+
+    if (booking.api && booking.apiKind === 'appointment') {
+      try {
+        await doctorService.cancelAppointment(booking.id);
+        setAllBookings(all => all.map(b => b.id === cancelId && b.type === booking.type ? { ...b, status: 'cancelled', rawStatus: 'cancelled' } : b));
+        setCancelId(null);
+        setCancelReason('');
+        showToast(t('patient.booking.cancelled', 'Booking cancelled.'));
+      } catch {
+        showToast(t('error', 'Error cancelling. Please try again.'));
+      }
+      return;
+    }
+
+    if (booking.api && booking.apiKind === 'diagnostic') {
+      try {
+        await diagnosticsService.cancelDiagnosticOrder(booking.id);
+        setAllBookings(all => all.map(b => b.id === cancelId && b.type === booking.type ? { ...b, status: 'cancelled', rawStatus: 'cancelled' } : b));
+        setCancelId(null);
+        setCancelReason('');
+        showToast(t('patient.booking.cancelled', 'Booking cancelled.'));
+      } catch {
+        showToast(t('error', 'Error cancelling. Please try again.'));
+      }
+      return;
+    }
+
     const keyMap = {
       nursing: 'jh_nursing_bookings',
       vaccination: 'jh_vaccination_bookings',
       physiotherapy: 'jh_physio_bookings',
     };
-    const booking = allBookings.find(b => b.id === cancelId);
-    if (!booking) return;
     const key = keyMap[booking.type];
     try {
       const data = JSON.parse(localStorage.getItem(key) || '[]');
       const updated = data.map(b => {
-        if (b.id === cancelId) return { ...b, status: 'Cancelled', cancelReason, cancelledAt: new Date().toISOString() };
+        if (String(b.id) === String(cancelId)) return { ...b, status: 'Cancelled', cancelReason, cancelledAt: new Date().toISOString() };
         return b;
       });
       localStorage.setItem(key, JSON.stringify(updated));
@@ -221,6 +329,8 @@ export default function PatientBookings() {
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
           style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #d0d5dd', fontSize: 11, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
           <option value="all">{t('patient.filter.all', 'All Services')}</option>
+          <option value="consultation">🩺 {t('consultation', 'Consultation')}</option>
+          <option value="diagnostics">🔬 {t('diagnostics', 'Diagnostics')}</option>
           {BOOKING_SOURCES.map(s => <option key={s.type} value={s.type}>{s.icon} {t(s.labelKey)}</option>)}
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
@@ -231,7 +341,9 @@ export default function PatientBookings() {
       </div>
 
       {/* Booking List */}
-      {filtered.length === 0 ? (
+      {loading ? (
+        <p style={{ textAlign: 'center', color: '#64748b', padding: 40 }}>{t('patient.loading', 'Loading bookings…')}</p>
+      ) : filtered.length === 0 ? (
           <EmptyState icon="📋" title="No bookings found" message="You haven't placed any orders yet. Browse our services to get started." action={{ label: 'Browse Services', onClick: () => window.location.href = '/services' }} />
       ) : (
         <div style={{ display: 'grid', gap: 10 }}>
@@ -255,12 +367,14 @@ export default function PatientBookings() {
                 <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>
                   📅 {b.date || 'TBD'} {b.time ? `· 🕐 ${b.time}` : ''}
                 </div>
-                {b.status === 'upcoming' && (
+                {(b.status === 'upcoming' || b.status === 'pending') && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
-                    <button onClick={() => { setRescheduleId(b.id); setRescheduleDate(''); setRescheduleTime(''); setRescheduleReason('') }}
-                      style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #2563eb', background: '#eff6ff', color: '#2563eb', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
-                      📅 {t('patient.reschedule', 'Reschedule')}
-                    </button>
+                    {!b.api && (
+                      <button onClick={() => { setRescheduleId(b.id); setRescheduleDate(''); setRescheduleTime(''); setRescheduleReason('') }}
+                        style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #2563eb', background: '#eff6ff', color: '#2563eb', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
+                        📅 {t('patient.reschedule', 'Reschedule')}
+                      </button>
+                    )}
                     <button onClick={() => { setCancelId(b.id); setCancelReason('') }}
                       style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #dc2626', background: '#fef2f2', color: '#dc2626', cursor: 'pointer', fontSize: 11, fontWeight: 600, fontFamily: 'inherit' }}>
                       ✕ {t('patient.cancel', 'Cancel')}
