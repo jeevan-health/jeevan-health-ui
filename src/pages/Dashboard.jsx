@@ -830,6 +830,28 @@ export default function Dashboard() {
 
         {/* ===== INVOICES ===== */}
         <Section id="invoices" title={t('dashboard.section.invoices', 'Invoices & Payments')} icon="📄" active={activeSection}>
+          {/* Tracked follow-up (not urgent): real PDF tax invoices / receipts — see AGENTS.md Known follow-ups */}
+          <div
+            role="note"
+            style={{
+              display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12, padding: '12px 14px',
+              borderRadius: 12, border: '1px solid #fde68a', background: '#FFFBEB',
+            }}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1.2, flexShrink: 0 }} aria-hidden>📌</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 2 }}>
+                {t('dashboard.invoices.todoTitle', 'To fix later — PDF invoices')}
+              </div>
+              <div style={{ fontSize: 12, color: '#a16207', lineHeight: 1.5 }}>
+                {t(
+                  'dashboard.invoices.todoBody',
+                  'Invoice / receipt download currently saves a plain-text file. Need proper GST tax invoices & payment receipts as PDF (branded layout, line items, GSTIN, legal footer), plus backend storage and re-download from this list.'
+                )}
+              </div>
+            </div>
+          </div>
+
           {invoices.length === 0 ? (
             <EmptyCard
               icon="📄"
@@ -848,23 +870,28 @@ export default function Dashboard() {
                     {inv.id} · {inv.date}
                   </div>
                   {inv.gst && <div style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 2 }}>{inv.gst}</div>}
+                  <div style={{ fontSize: 10, color: '#b45309', marginTop: 4 }}>
+                    {t('dashboard.invoices.pdfPending', 'Download is temporary (.txt) — PDF invoice pending')}
+                  </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#1866C9' }}>₹{inv.amount}</div>
                   <Badge variant="green">{t('dashboard.invoices.paid', 'Paid ✅')}</Badge>
-                  <button className="btn btn-outline btn-sm" onClick={() => {
-                    const text = `Jeevan HealthCare at Home\nTax Invoice\n\nInvoice No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount: ₹${inv.amount}\nStatus: Paid\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThank you for choosing Jeevan HealthCare at Home!`;
+                  <button type="button" className="btn btn-outline btn-sm" title={t('dashboard.invoices.txtOnlyHint', 'Temporary text download — PDF coming later')} onClick={() => {
+                    // TODO(invoices): replace with real PDF tax invoice generation + API file URL
+                    const text = `Jeevan HealthCare at Home\nTax Invoice\n\nInvoice No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount: ₹${inv.amount}\nStatus: Paid\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThank you for choosing Jeevan HealthCare at Home!\n\n[NOTE: Placeholder text invoice — PDF GST invoice not yet implemented]`;
                     const blob = new Blob([text], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
                     const el = document.createElement('a'); el.href = url; el.download = `Invoice_${inv.id}.txt`; el.click(); URL.revokeObjectURL(url);
                   }}>{t('dashboard.invoices.invoice', '📄 Invoice')}</button>
-                  <button className="btn btn-outline btn-sm" onClick={() => {
-                    const text = `Jeevan HealthCare at Home\nPayment Receipt\n\nReceipt No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount Paid: ₹${inv.amount}\nPayment Method: Online\nStatus: Paid ✅\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThis is a computer-generated receipt.`;
+                  <button type="button" className="btn btn-outline btn-sm" title={t('dashboard.invoices.txtOnlyHint', 'Temporary text download — PDF coming later')} onClick={() => {
+                    // TODO(invoices): replace with real PDF payment receipt
+                    const text = `Jeevan HealthCare at Home\nPayment Receipt\n\nReceipt No: ${inv.id}\nDate: ${inv.date}\nPackage: ${inv.package}\nAmount Paid: ₹${inv.amount}\nPayment Method: Online\nStatus: Paid ✅\n${inv.gst ? `\n${inv.gst}` : ''}\n\nThis is a computer-generated receipt.\n\n[NOTE: Placeholder text receipt — PDF not yet implemented]`;
                     const blob = new Blob([text], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);
                     const el = document.createElement('a'); el.href = url; el.download = `Receipt_${inv.id}.txt`; el.click(); URL.revokeObjectURL(url);
                   }}>{t('dashboard.invoices.receipt', '🧾 Receipt')}</button>
-                  <button className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.invoices.rebook', '🔄 Re-book')}</button>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.invoices.rebook', '🔄 Re-book')}</button>
                 </div>
               </div>
             ))}

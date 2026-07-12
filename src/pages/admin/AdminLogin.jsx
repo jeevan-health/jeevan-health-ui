@@ -145,9 +145,16 @@ export default function AdminLogin() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'linear-gradient(135deg, #FFFFFF 0%, #F3FAFF 40%, #E8F6FF 100%)', fontFamily: "'Inter', system-ui, sans-serif" }}>
-      {/* Left Panel — Branding */}
-      <div style={{
+    <div className="admin-login-page" style={{ minHeight: '100vh', display: 'flex', background: 'linear-gradient(135deg, #FFFFFF 0%, #F3FAFF 40%, #E8F6FF 100%)', fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <style>{`
+        @media (max-width: 900px) {
+          .admin-login-brand { display: none !important; }
+          .admin-login-form-wrap { padding: 16px 16px 32px !important; }
+          .admin-login-page { flex-direction: column !important; }
+        }
+      `}</style>
+      {/* Left Panel — Branding (desktop only) */}
+      <div className="admin-login-brand" style={{
         flex: '0 0 420px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         padding: '48px 40px', background: 'linear-gradient(135deg, #0F5DA8 0%, #1A7AD4 40%, #20B7F5 100%)',
         position: 'relative', overflow: 'hidden',
@@ -207,12 +214,13 @@ export default function AdminLogin() {
       </div>
 
       {/* Right Panel — Login */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div className="admin-login-form-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ width: '100%', maxWidth: 420, margin: '0 auto' }}>
 
           {/* Welcome */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 26, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>{t('admin.login.welcome_back', 'Welcome Back')} <span style={{ fontSize: 26 }}>👋</span></div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1866C9', marginBottom: 8 }}>Jeevan Admin</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>{t('admin.login.welcome_back', 'Welcome Back')}</div>
             <div style={{ fontSize: 14, color: '#64748B' }}>{t('admin.login.sign_in_prompt', 'Sign in to Jeevan HealthCare at Home Admin Portal')}</div>
           </div>
 

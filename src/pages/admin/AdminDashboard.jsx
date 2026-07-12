@@ -67,16 +67,16 @@ export default function AdminDashboard() {
   const tableCellStyle = { padding: '10px 12px', color: '#0f172a', fontSize: 13 };
 
   return (
-    <div>
+    <div className="admin-dashboard">
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
+      <div className="admin-dash-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 148px), 1fr))', gap: 12, marginBottom: 20 }}>
         {cards.map(c => (
-          <div key={c.label} style={{ background: '#fff', borderRadius: 12, padding: '18px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{c.icon}</div>
-              <div>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>{c.value}</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{c.label}</div>
+          <div key={c.label} style={{ background: '#fff', borderRadius: 12, padding: '14px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{c.icon}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>{c.value}</div>
+                <div style={{ fontSize: 10, color: '#64748b', marginTop: 2, lineHeight: 1.3 }}>{c.label}</div>
               </div>
             </div>
           </div>
@@ -84,27 +84,36 @@ export default function AdminDashboard() {
       </div>
 
       {/* Diagnostics Revenue + Status */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
-        <div style={sectionStyle}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#0f172a' }}>{t('admin.dashboard.revenue.overview', 'Revenue Overview')}</h3>
-          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-            <div><div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenueMonth || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.this.month', 'This Month')}</div></div>
-            <div><div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenueToday || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.today', 'Today')}</div></div>
-            <div><div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenue || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.all.time', 'All Time')}</div></div>
+      <div className="admin-dash-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+        <div style={{ ...sectionStyle, padding: 16 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#0f172a' }}>{t('admin.dashboard.revenue.overview', 'Revenue Overview')}</h3>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <div><div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenueMonth || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.this.month', 'This Month')}</div></div>
+            <div><div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenueToday || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.today', 'Today')}</div></div>
+            <div><div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>₹{(analytics.revenue || 0).toLocaleString()}</div><div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.dashboard.all.time', 'All Time')}</div></div>
           </div>
         </div>
-        <div style={sectionStyle}>
-          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#0f172a' }}>{t('admin.dashboard.orders.status', 'Orders by Status')}</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-            {Object.entries(analytics.ordersByStatus || {}).map(([status, count]) => (
-              <div key={status} style={{ padding: '8px 14px', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>{count}</div>
+        <div style={{ ...sectionStyle, padding: 16 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#0f172a' }}>{t('admin.dashboard.orders.status', 'Orders by Status')}</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {Object.keys(analytics.ordersByStatus || {}).length === 0 ? (
+              <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{t('admin.dashboard.noOrderStatus', 'No order status data yet.')}</p>
+            ) : Object.entries(analytics.ordersByStatus || {}).map(([status, count]) => (
+              <div key={status} style={{ padding: '8px 12px', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{count}</div>
                 <div style={{ fontSize: 10, color: '#64748b', textTransform: 'capitalize' }}>{status.replace(/_/g, ' ')}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-dash-split { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .admin-dash-stats { gap: 8px !important; margin-bottom: 16px !important; }
+        }
+      `}</style>
 
       {/* Physiotherapy Section */}
       <div style={{ ...sectionStyle, marginBottom: 24, borderLeft: '4px solid #0D9488' }}>

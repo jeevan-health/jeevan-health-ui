@@ -30,6 +30,8 @@ export default function ThemeToggle({ style }) {
         @media (max-width: 768px) {
           .theme-fab { display: none !important; }
         }
+        /* Admin shell has its own chrome — keep FAB out of the way */
+        body:has(.admin-shell) .theme-fab { display: none !important; }
       `}</style>
     </button>
   );
