@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import useDoctorsStore, { SPECIALTIES, DAYS } from '../../stores/doctorsStore';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { SPECIALTIES, DAYS } from '../../stores/doctorsStore';
+import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
 
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
@@ -7,56 +8,138 @@ const sectionCard = { background: '#fff', borderRadius: 12, padding: 20, border:
 
 const MODES = ['online', 'clinic', 'home'];
 
+const emptyForm = () => ({
+  name: '', phone: '', email: '', specializations: [], qualifications: '', experience: '', consultationFee: '',
+  availableDays: [], availableTimeSlots: [], consultationModes: [], bio: '', image: '',
+});
+
+/**
+ * Live Neon doctors via GET/POST/PUT/DELETE /admin/doctors.
+ * Public consult-doctor list uses the same doctors table.
+ */
 export default function AdminDoctors() {
   const t = useT();
-  const MODE_LABELS = { online: t('admin.doctors.online', '🖥️ Online'), clinic: t('admin.doctors.clinic', '🏥 Clinic'), home: t('admin.doctors.home_visit', '🏠 Home Visit') };
-  const doctors = useDoctorsStore(s => s.doctors);
-  const addDoctor = useDoctorsStore(s => s.addDoctor);
-  const updateDoctor = useDoctorsStore(s => s.updateDoctor);
-  const deleteDoctor = useDoctorsStore(s => s.deleteDoctor);
+  const MODE_LABELS = {
+    online: t('admin.doctors.online', '🖥️ Online'),
+    clinic: t('admin.doctors.clinic', '🏥 Clinic'),
+    home: t('admin.doctors.home_visit', '🏠 Home Visit'),
+  };
+
+  const [doctors, setDoctors] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const [search, setSearch] = useState('');
   const [specFilter, setSpecFilter] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [viewDr, setViewDr] = useState(null);
+  const [form, setForm] = useState(emptyForm);
 
-  const [form, setForm] = useState({
-    name: '', phone: '', email: '', specializations: [], qualifications: '', experience: '', consultationFee: '',
-    availableDays: [], availableTimeSlots: [], consultationModes: [], bio: '', image: '',
-  });
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await adminService.listDoctors({
+        search: search || undefined,
+        specialty: specFilter || undefined,
+        limit: 200,
+      });
+      setDoctors(data.doctors || []);
+      setTotal(data.total ?? (data.doctors || []).length);
+    } catch (err) {
+      setError(err?.response?.data?.error || t('admin.doctors.loadError', 'Failed to load doctors. Deploy API with /admin/doctors routes.'));
+      setDoctors([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, specFilter, t]);
 
-  const resetForm = () => setForm({
-    name: '', phone: '', email: '', specializations: [], qualifications: '', experience: '', consultationFee: '',
-    availableDays: [], availableTimeSlots: [], consultationModes: [], bio: '', image: '',
-  });
+  useEffect(() => {
+    const tmr = setTimeout(load, search ? 300 : 0);
+    return () => clearTimeout(tmr);
+  }, [load, search]);
 
-  const filtered = useMemo(() => {
-    let d = doctors;
-    if (search) { const q = search.toLowerCase(); d = d.filter(x => (x.name + x.phone + x.email + (x.specializations || []).join(' ')).toLowerCase().includes(q)); }
-    if (specFilter) d = d.filter(x => (x.specializations || []).includes(specFilter));
-    return d;
-  }, [doctors, search, specFilter]);
+  const resetForm = () => setForm(emptyForm());
 
-  const handleSave = () => {
-    if (!form.name) return;
-    const data = { ...form, qualifications: form.qualifications.split('\n').filter(Boolean), experience: Number(form.experience) || 0, consultationFee: Number(form.consultationFee) || 0 };
-    if (editingId) { updateDoctor(editingId, data); setEditingId(null); }
-    else addDoctor(data);
-    setShowAdd(false);
-    resetForm();
+  const handleSave = async () => {
+    if (!form.name?.trim()) return;
+    setSaving(true);
+    setError('');
+    const payload = {
+      name: form.name.trim(),
+      phone: form.phone,
+      email: form.email,
+      specializations: form.specializations || [],
+      qualifications: form.qualifications.split('\n').map(s => s.trim()).filter(Boolean),
+      experience: Number(form.experience) || 0,
+      consultationFee: Number(form.consultationFee) || 0,
+      availableDays: form.availableDays || [],
+      availableTimeSlots: form.availableTimeSlots || [],
+      consultationModes: form.consultationModes || [],
+      bio: form.bio,
+      about: form.bio,
+      image: form.image || null,
+    };
+    try {
+      if (editingId) {
+        await adminService.updateDoctor(editingId, payload);
+      } else {
+        await adminService.createDoctor(payload);
+      }
+      setShowAdd(false);
+      setEditingId(null);
+      resetForm();
+      await load();
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Save failed');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (d) => {
     setEditingId(d.id);
     setForm({
-      name: d.name, phone: d.phone || '', email: d.email || '',
-      specializations: d.specializations || [], qualifications: (d.qualifications || []).join('\n'),
-      experience: String(d.experience || ''), consultationFee: String(d.consultationFee || ''),
-      availableDays: d.availableDays || [], availableTimeSlots: d.availableTimeSlots || [],
-      consultationModes: d.consultationModes || [], bio: d.bio || '', image: d.image || '',
+      name: d.name || '',
+      phone: d.phone || '',
+      email: d.email || '',
+      specializations: d.specializations || (d.specialty ? [d.specialty] : []),
+      qualifications: (d.qualifications || []).join('\n'),
+      experience: String(d.experience || ''),
+      consultationFee: String(d.consultationFee ?? d.fees ?? ''),
+      availableDays: d.availableDays || [],
+      availableTimeSlots: d.availableTimeSlots || [],
+      consultationModes: d.consultationModes || [],
+      bio: d.bio || d.about || '',
+      image: d.image || '',
     });
     setShowAdd(true);
+  };
+
+  const toggleActive = async (d) => {
+    try {
+      await adminService.updateDoctor(d.id, { isActive: !d.isActive });
+      await load();
+      if (viewDr?.id === d.id) {
+        setViewDr({ ...d, isActive: !d.isActive, isAvailable: !d.isActive });
+      }
+    } catch (err) {
+      alert(err?.response?.data?.error || 'Update failed');
+    }
+  };
+
+  const handleDelete = async (d) => {
+    if (!confirm(`${t('admin.doctors.delete_confirm', 'Delete')} ${d.name}?`)) return;
+    try {
+      await adminService.deleteDoctor(d.id);
+      if (viewDr?.id === d.id) setViewDr(null);
+      await load();
+    } catch (err) {
+      alert(err?.response?.data?.error || 'Delete failed');
+    }
   };
 
   const toggleArrayField = (field, value) => {
@@ -64,18 +147,24 @@ export default function AdminDoctors() {
     setForm({ ...form, [field]: arr.includes(value) ? arr.filter(x => x !== value) : [...arr, value] });
   };
 
-  const allSpecs = [...new Set([...SPECIALTIES, ...doctors.flatMap(d => d.specializations || [])])];
+  const allSpecs = useMemo(
+    () => [...new Set([...SPECIALTIES, ...doctors.flatMap(d => d.specializations || [])])],
+    [doctors]
+  );
 
-  // Detail view
   if (viewDr) {
     const d = viewDr;
     return (
       <div>
-        <button onClick={() => setViewDr(null)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b', marginBottom: 16 }}>{t('admin.doctors.back', '← Back to Doctors')}</button>
+        <button type="button" onClick={() => setViewDr(null)} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b', marginBottom: 16 }}>
+          {t('admin.doctors.back', '← Back to Doctors')}
+        </button>
         <div style={sectionCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #1A7AD4)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 700, flexShrink: 0 }}>{(d.name || '?')[0]}</div>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #1A7AD4)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 700, flexShrink: 0 }}>
+                {(d.name || '?')[0]}
+              </div>
               <div>
                 <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 2px', color: '#0f172a' }}>{d.name}</h2>
                 <div style={{ fontSize: 12, color: '#64748b' }}>
@@ -85,13 +174,15 @@ export default function AdminDoctors() {
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>₹{d.consultationFee}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>₹{d.consultationFee ?? d.fees}</div>
               <div style={{ fontSize: 11, color: '#64748b' }}>{t('admin.doctors.consultation_fee', 'Consultation Fee')}</div>
-              <button onClick={() => { handleEdit(d); setViewDr(null); }} style={{ marginTop: 8, padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.doctors.edit', 'Edit')}</button>
+              <button type="button" onClick={() => { handleEdit(d); setViewDr(null); }} style={{ marginTop: 8, padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>
+                {t('admin.doctors.edit', 'Edit')}
+              </button>
             </div>
           </div>
         </div>
-        <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }}>
+        <div style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr 1fr' }} className="admin-doc-detail-grid">
           <div style={sectionCard}>
             <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 10px' }}>📅 {t('admin.doctors.availability', 'Availability')}</h4>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -116,37 +207,55 @@ export default function AdminDoctors() {
             </div>
           </div>
         </div>
-        {d.bio && (
+        {(d.bio || d.about) && (
           <div style={sectionCard}>
             <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }}>📝 {t('admin.doctors.bio', 'Bio')}</h4>
-            <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.6 }}>{d.bio}</p>
+            <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.6 }}>{d.bio || d.about}</p>
           </div>
         )}
+        <style>{`@media (max-width: 640px) { .admin-doc-detail-grid { grid-template-columns: 1fr !important; } }`}</style>
       </div>
     );
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>🩺 {t('admin.doctors.title', 'Doctors')} ({doctors.length})</div>
-        <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>🩺 {t('admin.doctors.title', 'Doctors')} ({total})</div>
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748b' }}>
+            {t('admin.doctors.liveHint', 'Live Neon data — same catalog as patient Consult Doctor.')}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <input value={search} onChange={e => setSearch(e.target.value)} style={{ ...inputStyle, width: 200, fontSize: 12 }} placeholder={t('admin.doctors.search_placeholder', '🔍 Search...')} />
           <select value={specFilter} onChange={e => setSpecFilter(e.target.value)} style={{ ...inputStyle, width: 160, fontSize: 12 }}>
             <option value="">{t('admin.doctors.all_specialties', 'All Specialties')}</option>
             {allSpecs.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600 }}>+ {t('admin.doctors.add_doctor', 'Add Doctor')}</button>
+          <button type="button" onClick={load} className="btn btn-outline btn-sm" style={{ minHeight: 40 }}>Refresh</button>
+          <button type="button" onClick={() => { setEditingId(null); resetForm(); setShowAdd(true); }} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600, minHeight: 40 }}>
+            + {t('admin.doctors.add_doctor', 'Add Doctor')}
+          </button>
         </div>
       </div>
 
-      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>{t('admin.doctors.no_doctors', 'No doctors found.')}</p>}
-      {filtered.map(d => (
+      {error && (
+        <div style={{ padding: 12, borderRadius: 10, background: '#FEF2F2', color: '#b91c1c', fontSize: 13, marginBottom: 12 }}>{error}</div>
+      )}
+      {loading && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>Loading…</div>}
+      {!loading && doctors.length === 0 && (
+        <p style={{ textAlign: 'center', color: '#64748b', fontSize: 13, padding: 40 }}>{t('admin.doctors.no_doctors', 'No doctors found.')}</p>
+      )}
+
+      {!loading && doctors.map(d => (
         <div key={d.id} style={sectionCard}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, cursor: 'pointer' }} onClick={() => setViewDr(d)}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #1A7AD4)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 700, flexShrink: 0 }}>{(d.name || '?')[0]}</div>
-              <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={() => setViewDr(d)} onKeyDown={e => e.key === 'Enter' && setViewDr(d)} role="button" tabIndex={0}>
+              <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg, #1866C9, #1A7AD4)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 700, flexShrink: 0 }}>
+                {(d.name || '?')[0]}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 600, fontSize: 14, color: '#0f172a' }}>{d.name}</span>
                   {!d.isActive && <span style={{ fontSize: 9, fontWeight: 700, color: '#fff', background: '#64748b', padding: '1px 6px', borderRadius: 3 }}>{t('admin.doctors.inactive', 'Inactive')}</span>}
@@ -154,23 +263,33 @@ export default function AdminDoctors() {
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>
                   {(d.specializations || []).join(', ')} | {(d.qualifications || []).join(', ')} | {d.experience}{t('admin.doctors.yrs', 'yrs')}
                 </div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>₹{d.consultationFee} {t('admin.doctors.fee', 'fee')}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>₹{d.consultationFee ?? d.fees} {t('admin.doctors.fee', 'fee')}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-              <button onClick={() => updateDoctor(d.id, { isActive: !d.isActive })} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: d.isActive ? '#f59e0b' : '#22c55e' }}>{d.isActive ? t('admin.doctors.deactivate', 'Deactivate') : t('admin.doctors.activate', 'Activate')}</button>
-              <button onClick={() => { handleEdit(d); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>{t('admin.doctors.edit', 'Edit')}</button>
-              <button onClick={() => setViewDr(d)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.doctors.view', 'View')}</button>
-              <button onClick={() => { if (confirm(`${t('admin.doctors.delete_confirm', 'Delete')} ${d.name}?`)) deleteDoctor(d.id); }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>{t('admin.doctors.del', 'Del')}</button>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button type="button" onClick={() => toggleActive(d)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: d.isActive ? '#f59e0b' : '#22c55e' }}>
+                {d.isActive ? t('admin.doctors.deactivate', 'Deactivate') : t('admin.doctors.activate', 'Activate')}
+              </button>
+              <button type="button" onClick={() => handleEdit(d)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#3b82f6' }}>
+                {t('admin.doctors.edit', 'Edit')}
+              </button>
+              <button type="button" onClick={() => setViewDr(d)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#64748b' }}>
+                {t('admin.doctors.view', 'View')}
+              </button>
+              <button type="button" onClick={() => handleDelete(d)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', color: '#ef4444' }}>
+                {t('admin.doctors.del', 'Del')}
+              </button>
             </div>
           </div>
         </div>
       ))}
 
       {showAdd && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflowY: 'auto' }}>
-            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{editingId ? t('admin.doctors.edit_doctor', 'Edit Doctor') : t('admin.doctors.add_doctor', 'Add Doctor')}</h4>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 12 }} onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: 520, maxWidth: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
+            <h4 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
+              {editingId ? t('admin.doctors.edit_doctor', 'Edit Doctor') : t('admin.doctors.add_doctor', 'Add Doctor')}
+            </h4>
             <div style={{ display: 'grid', gap: 10, gridTemplateColumns: '1fr 1fr' }}>
               <input placeholder={t('admin.doctors.full_name_req', 'Full Name *')} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inputStyle} />
               <input placeholder={t('admin.doctors.phone', 'Phone')} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
@@ -182,30 +301,32 @@ export default function AdminDoctors() {
             <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginTop: 10, marginBottom: 4 }}>{t('admin.doctors.specializations', 'Specializations (tap to toggle)')}</label>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
               {allSpecs.map(s => (
-                <button key={s} onClick={() => toggleArrayField('specializations', s)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: (form.specializations || []).includes(s) ? '#1866C9' : '#f1f5f9', color: (form.specializations || []).includes(s) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: (form.specializations || []).includes(s) ? 600 : 400 }}>{s}</button>
+                <button type="button" key={s} onClick={() => toggleArrayField('specializations', s)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: (form.specializations || []).includes(s) ? '#1866C9' : '#f1f5f9', color: (form.specializations || []).includes(s) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: (form.specializations || []).includes(s) ? 600 : 400 }}>{s}</button>
               ))}
             </div>
             <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('admin.doctors.available_days', 'Available Days')}</label>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
               {DAYS.map(day => (
-                <button key={day} onClick={() => toggleArrayField('availableDays', day)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: (form.availableDays || []).includes(day) ? '#22c55e' : '#f1f5f9', color: (form.availableDays || []).includes(day) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: (form.availableDays || []).includes(day) ? 600 : 400 }}>{day.slice(0, 3)}</button>
+                <button type="button" key={day} onClick={() => toggleArrayField('availableDays', day)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: (form.availableDays || []).includes(day) ? '#22c55e' : '#f1f5f9', color: (form.availableDays || []).includes(day) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: (form.availableDays || []).includes(day) ? 600 : 400 }}>{day.slice(0, 3)}</button>
               ))}
             </div>
             <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('admin.doctors.consultation_modes', 'Consultation Modes')}</label>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
               {MODES.map(m => (
-                <button key={m} onClick={() => toggleArrayField('consultationModes', m)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: (form.consultationModes || []).includes(m) ? '#8b5cf6' : '#f1f5f9', color: (form.consultationModes || []).includes(m) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: (form.consultationModes || []).includes(m) ? 600 : 400 }}>{MODE_LABELS[m]}</button>
+                <button type="button" key={m} onClick={() => toggleArrayField('consultationModes', m)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: (form.consultationModes || []).includes(m) ? '#8b5cf6' : '#f1f5f9', color: (form.consultationModes || []).includes(m) ? '#fff' : '#64748b', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: (form.consultationModes || []).includes(m) ? 600 : 400 }}>{MODE_LABELS[m]}</button>
               ))}
             </div>
             <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('admin.doctors.time_slots', 'Time Slots (one per line)')}</label>
-            <textarea rows={2} placeholder="9:00 AM - 11:00 AM&#10;4:00 PM - 6:00 PM" value={(form.availableTimeSlots || []).join('\n')} onChange={e => setForm({ ...form, availableTimeSlots: e.target.value.split('\n').filter(Boolean) })} style={{ ...inputStyle, resize: 'vertical', marginBottom: 10 }} />
+            <textarea rows={2} placeholder={'9:00 AM - 11:00 AM\n4:00 PM - 6:00 PM'} value={(form.availableTimeSlots || []).join('\n')} onChange={e => setForm({ ...form, availableTimeSlots: e.target.value.split('\n').filter(Boolean) })} style={{ ...inputStyle, resize: 'vertical', marginBottom: 10 }} />
             <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('admin.doctors.qualifications', 'Qualifications (one per line)')}</label>
-            <textarea rows={2} placeholder="MBBS&#10;MD - General Medicine" value={form.qualifications} onChange={e => setForm({ ...form, qualifications: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginBottom: 10 }} />
+            <textarea rows={2} placeholder={'MBBS\nMD - General Medicine'} value={form.qualifications} onChange={e => setForm({ ...form, qualifications: e.target.value })} style={{ ...inputStyle, resize: 'vertical', marginBottom: 10 }} />
             <label style={{ fontSize: 11, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('admin.doctors.bio', 'Bio')}</label>
             <textarea rows={3} placeholder={t('admin.doctors.bio_placeholder', 'Short professional bio...')} value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} />
             <div style={{ marginTop: 16, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.doctors.cancel', 'Cancel')}</button>
-              <button onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>{editingId ? t('admin.doctors.update', 'Update') : t('admin.doctors.add_doctor', 'Add Doctor')}</button>
+              <button type="button" onClick={() => { setShowAdd(false); setEditingId(null); resetForm(); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#64748b' }}>{t('admin.doctors.cancel', 'Cancel')}</button>
+              <button type="button" disabled={saving} onClick={handleSave} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0f172a', cursor: saving ? 'wait' : 'pointer', fontSize: 12, fontFamily: 'inherit', color: '#fff', fontWeight: 600 }}>
+                {saving ? '…' : (editingId ? t('admin.doctors.update', 'Update') : t('admin.doctors.add_doctor', 'Add Doctor'))}
+              </button>
             </div>
           </div>
         </div>
