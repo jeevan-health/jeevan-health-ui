@@ -3,8 +3,8 @@ import api from './api';
 export const sendOtp = (identifier, type = 'phone') =>
   api.post('/auth/send-otp', { identifier, type });
 
-export const verifyOtp = (identifier, code) =>
-  api.post('/auth/verify-otp', { identifier, code });
+export const verifyOtp = (identifier, code, type) =>
+  api.post('/auth/verify-otp', { identifier, code, ...(type ? { type } : {}) });
 
 export const signup = (email, password) =>
   api.post('/auth/signup', { email, password });

@@ -106,7 +106,7 @@ export default function AdminLogin() {
     if (otp.length < 4) { setError(t('admin.login.err_enter_otp', 'Enter the OTP')); return; }
     setError('');
     setLoading(true);
-    const ok = await verifyOtp(phone, otp);
+    const ok = await verifyOtp(phone, otp, 'phone');
     setLoading(false);
     if (!ok) { setError(t('admin.login.err_invalid_otp', 'Invalid OTP. Try again.')); return; }
     const user = useAuthStore.getState().user;

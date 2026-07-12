@@ -98,30 +98,42 @@ const useAuthStore = create((set, get) => ({
     registerUser(enriched);
   },
 
-  login: async (phone) => {
+  /** Send OTP — type: 'phone' | 'email' */
+  login: async (identifier, type = 'phone') => {
     set({ isLoading: true });
     try {
-      await authService.sendOtp(phone, 'phone');
-      localStorage.setItem('jh_user_phone', phone);
+      const { data } = await authService.sendOtp(identifier, type);
+      if (type === 'phone') localStorage.setItem('jh_user_phone', data.identifier || identifier);
+      if (type === 'email') localStorage.setItem('jh_user_email', data.identifier || identifier);
       set({ isLoading: false });
-      return true;
-    } catch {
+      return { ok: true, data };
+    } catch (err) {
       set({ isLoading: false });
-      return false;
+      return {
+        ok: false,
+        error: err?.response?.data?.error || err?.response?.data?.message || 'Failed to send OTP',
+        retryAfter: err?.response?.data?.retryAfter,
+      };
     }
   },
 
-  verifyOtp: async (phone, otp) => {
+  /** Verify OTP for phone or email identifier */
+  verifyOtp: async (identifier, otp, type) => {
     set({ isLoading: true });
     try {
-      const { data } = await authService.verifyOtp(phone, otp);
+      const { data } = await authService.verifyOtp(identifier, otp, type);
       const { user, accessToken, refreshToken } = data;
       localStorage.setItem('jh_user', JSON.stringify(user));
-      localStorage.setItem('jh_user_phone', phone);
+      if (user?.phone) localStorage.setItem('jh_user_phone', user.phone);
+      if (user?.email) localStorage.setItem('jh_user_email', user.email);
       setTokens(accessToken, refreshToken);
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
-      useAuditStore.getState().log('login', `User verified OTP and logged in: ${user.name} (${phone})`, 'auth');
+      useAuditStore.getState().log(
+        'login',
+        `User verified OTP: ${user.name || user.phone || user.email}`,
+        'auth'
+      );
       get().fetchFamily();
       return true;
     } catch {
