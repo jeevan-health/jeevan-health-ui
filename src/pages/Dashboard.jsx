@@ -9,6 +9,8 @@ import useDailyActivityStore from '../stores/dailyActivityStore';
 import HealthToolsGrid from '../components/healthTools/HealthToolsGrid';
 import PhysioCrossSell from '../components/PhysioCrossSell';
 import VaccineCrossSell from '../components/VaccineCrossSell';
+import * as labReportService from '../services/labReportService';
+import { subscribeWebPush } from '../lib/pwa';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -206,6 +208,8 @@ export default function Dashboard() {
 
   const [comingSoon, setComingSoon] = useState(null);
   const [showMoreNav, setShowMoreNav] = useState(false);
+  const [labReports, setLabReports] = useState([]);
+  const [labReportsLoading, setLabReportsLoading] = useState(false);
   const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
   const dashLoading = useDashboardStore(s => s.loading);
   const fetchFamily = useAuthStore(s => s.fetchFamily);
@@ -214,6 +218,19 @@ export default function Dashboard() {
   const updateFamilyApi = useAuthStore(s => s.updateFamilyMember);
   const deleteFamilyApi = useAuthStore(s => s.deleteFamilyMember);
   useEffect(() => { fetchDashboard(); fetchFamily(); }, []);
+
+  useEffect(() => {
+    if (activeSection !== 'reports') return undefined;
+    let cancelled = false;
+    setLabReportsLoading(true);
+    labReportService.getMyReports()
+      .then(({ data }) => {
+        if (!cancelled) setLabReports(data.reports || []);
+      })
+      .catch(() => { if (!cancelled) setLabReports([]); })
+      .finally(() => { if (!cancelled) setLabReportsLoading(false); });
+    return () => { cancelled = true; };
+  }, [activeSection]);
 
   useEffect(() => { if (comingSoon) { const timer = setTimeout(() => setComingSoon(null), 2500); return () => clearTimeout(timer); } }, [comingSoon]);
   const [showFamilyModal, setShowFamilyModal] = useState(false);
@@ -710,7 +727,77 @@ export default function Dashboard() {
         <Section id="reports" title={t('dashboard.section.reports', 'My Reports')} icon="🧪" active={activeSection}
           action={<button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/diagnostics')}>{t('dashboard.bookNewTest', '+ Book New Test')}</button>}
         >
-          {reports.length === 0 ? (
+          {/* Camp lab PDF reports (real Neon + email) */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+              <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{t('dashboard.labPdfs', '📄 Lab report PDFs')}</h3>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={async () => {
+                  try {
+                    const res = await subscribeWebPush({
+                      getVapidKey: async () => {
+                        const { data } = await labReportService.getVapidPublicKey();
+                        return data.publicKey || null;
+                      },
+                      saveSubscription: async (sub) => { await labReportService.savePushSubscription(sub); },
+                    });
+                    if (res.ok) alert(t('dashboard.pushOn', 'Notifications enabled'));
+                    else alert(t('dashboard.pushFail', 'Could not enable notifications (browser permission or server VAPID)'));
+                  } catch {
+                    alert(t('dashboard.pushFail', 'Could not enable notifications'));
+                  }
+                }}
+              >
+                🔔 {t('dashboard.enablePush', 'Enable alerts')}
+              </button>
+            </div>
+            {labReportsLoading && <p style={{ fontSize: 12, color: '#94a3b8' }}>Loading…</p>}
+            {!labReportsLoading && labReports.length === 0 && (
+              <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 8px' }}>
+                {t('dashboard.noLabPdfs', 'Camp / lab PDF reports will appear here when the lab uploads them. You will also get email + push.')}
+              </p>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {labReports.map(r => (
+                <div key={r.id} className="card" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13 }}>{r.testName}</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>
+                      {r.createdAt ? new Date(r.createdAt).toLocaleString('en-IN') : ''} · {r.fileName || 'report.pdf'}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={async () => {
+                      try {
+                        const { data } = await labReportService.downloadMyReport(r.id);
+                        const b64 = data.pdfBase64;
+                        const byteChars = atob(b64);
+                        const bytes = new Uint8Array(byteChars.length);
+                        for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+                        const blob = new Blob([bytes], { type: data.mimeType || 'application/pdf' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = data.fileName || 'lab-report.pdf';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      } catch {
+                        alert(t('dashboard.downloadFail', 'Download failed'));
+                      }
+                    }}
+                  >
+                    📥 PDF
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {reports.length === 0 && labReports.length === 0 ? (
             <EmptyCard
               icon="🧪"
               title={t('dashboard.noReportsTitle', 'No reports yet')}
@@ -718,7 +805,7 @@ export default function Dashboard() {
               ctaLabel={t('dashboard.bookTestBtn', 'Book a Test')}
               onCta={() => navigate('/diagnostics')}
             />
-          ) : (
+          ) : reports.length === 0 ? null : (
           <>
           <div className="report-search-bar" style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'nowrap', alignItems: 'center', width: '100%' }}>
             <input placeholder={t('dashboard.reports.searchPlaceholder', 'Search by test name...')} className="input" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)' }} value={reportSearch} onChange={e => setReportSearch(e.target.value)} />

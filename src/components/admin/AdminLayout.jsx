@@ -29,6 +29,14 @@ const NAV_GROUPS = [
     ],
   },
   {
+    id: 'camp',
+    title: 'Camp diagnostics',
+    items: [
+      { path: '/admin/camp-qr', label: 'admin.layout.camp_qr', fallback: 'Camp QR', icon: '📱' },
+      { path: '/admin/lab-reports', label: 'admin.layout.lab_reports', fallback: 'Lab reports', icon: '📄' },
+    ],
+  },
+  {
     id: 'services',
     title: 'Home services',
     items: [

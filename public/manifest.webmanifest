@@ -1,0 +1,26 @@
+{
+  "name": "Jeevan HealthCare",
+  "short_name": "Jeevan",
+  "description": "Lab reports, bookings and healthcare at home — Jeevan HealthCare",
+  "start_url": "/dashboard?tab=reports",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F0F7FF",
+  "theme_color": "#0B5DA8",
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

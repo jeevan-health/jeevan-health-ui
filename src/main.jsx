@@ -5,10 +5,12 @@ import './lib/preserve-icons.js'
 import './data/initGlobals.js'
 import { initAnalytics } from './lib/analytics.js'
 import { enableLazyImages } from './utils/enableLazyImages.js'
+import { initPwa } from './lib/pwa.js'
 import App from './App.jsx'
 
 initAnalytics();
 enableLazyImages();
+initPwa();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
