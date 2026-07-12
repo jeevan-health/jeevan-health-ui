@@ -156,16 +156,17 @@ export default function CampRegister() {
           ? 'App ready'
           : 'App installed');
       } else if (steps.install?.reason === 'ios_manual') {
-        parts.push('On iPhone: Share → Add to Home Screen');
+        parts.push('On iPhone: tap Share → Add to Home Screen, then open the app icon');
       } else if (steps.install?.reason === 'not_available') {
-        // Chromium sometimes delays beforeinstallprompt — keep trying visibility
         if (installReady) {
-          parts.push('Install cancelled — try again');
+          parts.push('Install cancelled — tap the button again');
         } else {
-          parts.push('Install will appear when Chrome offers it — tap again in a moment, or use browser menu → Install app');
+          parts.push(
+            'Native install not offered yet. On Android Chrome: menu (⋮) → Install app / Add to Home screen. Then open the icon and allow notifications.'
+          );
         }
       } else if (steps.install?.outcome === 'dismissed') {
-        parts.push('Install skipped');
+        parts.push('Install skipped — you can still enable notifications below');
       }
 
       if (steps.push?.ok) {
@@ -334,7 +335,19 @@ export default function CampRegister() {
 
                 {isIosSafari() && !isStandalonePwa() && (
                   <p style={{ fontSize: 11, color: '#b45309', background: '#fffbeb', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
-                    iPhone: after tapping below, if install does not open, use <strong>Share → Add to Home Screen</strong>, then open the app and allow notifications.
+                    <strong>iPhone:</strong> Safari only. Tap the button, then if needed use <strong>Share → Add to Home Screen</strong>. Open the new home-screen icon, then allow notifications.
+                  </p>
+                )}
+
+                {!isIosSafari() && !isStandalonePwa() && !installReady && (
+                  <p style={{ fontSize: 11, color: '#475569', background: '#F8FAFC', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
+                    Tap the button — Chrome will show an install dialog when ready (may take a few seconds on first visit). Use <strong>Android Chrome</strong> for the best install experience.
+                  </p>
+                )}
+
+                {installReady && !isStandalonePwa() && (
+                  <p style={{ fontSize: 11, color: '#166534', background: '#f0fdf4', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
+                    Ready to install — tap the button for the install popup.
                   </p>
                 )}
 
@@ -346,14 +359,12 @@ export default function CampRegister() {
                   style={{ minHeight: 50, fontWeight: 700, fontSize: 15 }}
                 >
                   {setupBusy
-                    ? 'Setting up…'
+                    ? (installReady ? 'Opening install…' : 'Preparing install…')
                     : setupDone
                       ? '✓ App ready — notifications on'
                       : isStandalonePwa()
                         ? '🔔 Enable report notifications'
-                        : installReady
-                          ? '📲 Install app & enable alerts'
-                          : '📲 Install app & enable alerts'}
+                        : '📲 Install app & enable alerts'}
                 </button>
 
                 {setupMsg && (

@@ -1,6 +1,12 @@
 /* Jeevan HealthCare service worker — PWA install + push */
-const CACHE = 'jeevan-shell-v1';
-const SHELL = ['/', '/manifest.webmanifest', '/logo.png', '/favicon.png'];
+const CACHE = 'jeevan-shell-v2';
+const SHELL = [
+  '/',
+  '/manifest.webmanifest',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/favicon.png',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

@@ -1,18 +1,29 @@
 /**
  * PWA install + service worker + web push helpers
+ *
+ * Install only works when:
+ * - HTTPS
+ * - Valid web app manifest (served as JSON, not SPA HTML)
+ * - Service worker registered
+ * - Icons 192 + 512
+ * - Chrome/Edge fires `beforeinstallprompt` (not available on iOS Safari)
  */
 
 let deferredInstallPrompt = null;
 const installListeners = new Set();
+let swRegistrationPromise = null;
 
 export function initPwa() {
   if (typeof window === 'undefined') return;
 
-  // Capture as early as possible so Install button can call prompt()
+  // Capture install event as early as possible
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
     installListeners.forEach((fn) => fn(true));
+    try {
+      window.dispatchEvent(new CustomEvent('jeevan-pwa-installable'));
+    } catch { /* ignore */ }
   });
 
   window.addEventListener('appinstalled', () => {
@@ -21,15 +32,22 @@ export function initPwa() {
   });
 
   if ('serviceWorker' in navigator) {
-    // Register immediately (not only on load) so install criteria can be met sooner
-    const register = () => {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
+    swRegistrationPromise = navigator.serviceWorker
+      .register('/sw.js', { scope: '/' })
+      .then((reg) => {
+        // Nudge update so new SW activates after deploy
+        try { reg.update(); } catch { /* ignore */ }
+        return reg;
+      })
+      .catch((err) => {
         console.warn('SW register failed', err);
+        return null;
       });
-    };
-    if (document.readyState === 'complete') register();
-    else window.addEventListener('load', register);
   }
+}
+
+export function getSwRegistration() {
+  return swRegistrationPromise || Promise.resolve(null);
 }
 
 export function canInstallPwa() {
@@ -43,9 +61,41 @@ export function onInstallAvailability(fn) {
 }
 
 /**
+ * Wait briefly for Chrome to become installable (SW + manifest criteria).
+ * Returns true if native install prompt is available.
+ */
+export async function waitForInstallPrompt(timeoutMs = 8000) {
+  if (deferredInstallPrompt) return true;
+  if (isStandalonePwa()) return false;
+
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (val) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      window.removeEventListener('beforeinstallprompt', onPrompt);
+      resolve(val);
+    };
+    const onPrompt = () => finish(true);
+    window.addEventListener('beforeinstallprompt', onPrompt);
+    const timer = setTimeout(() => finish(!!deferredInstallPrompt), timeoutMs);
+
+    // Ensure SW is registered — helps installability
+    getSwRegistration().then(() => {
+      if (deferredInstallPrompt) finish(true);
+    });
+  });
+}
+
+/**
  * Trigger native install dialog when browser has offered beforeinstallprompt.
  */
 export async function promptInstallPwa() {
+  if (!deferredInstallPrompt) {
+    // One more chance: wait a bit after SW is ready
+    await waitForInstallPrompt(2500);
+  }
   if (!deferredInstallPrompt) {
     return { ok: false, reason: 'not_available' };
   }
@@ -77,6 +127,12 @@ export function isIosSafari() {
   return iOS && webkit && notChrome;
 }
 
+export function isAndroidChrome() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /Android/i.test(ua) && /Chrome/i.test(ua) && !/EdgA|OPR|SamsungBrowser/i.test(ua);
+}
+
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -88,12 +144,13 @@ function urlBase64ToUint8Array(base64String) {
 
 /**
  * Subscribe current browser for Web Push (requires logged-in API calls).
- * @param {{ getVapidKey: () => Promise<string|null>, saveSubscription: (sub: PushSubscriptionJSON) => Promise<void> }} api
  */
 export async function subscribeWebPush(api) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return { ok: false, reason: 'unsupported' };
   }
+  // Ensure SW is ready first
+  await getSwRegistration();
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
     return { ok: false, reason: 'denied' };
@@ -114,23 +171,25 @@ export async function subscribeWebPush(api) {
 }
 
 /**
- * One-tap camp flow: try native install, then request notification permission + push.
- * Always attempts push after install attempt (accepted, dismissed, or already installed).
+ * One-tap camp flow: wait for installability → native install → notifications.
  */
-export async function installAndEnablePush(api) {
+export async function installAndEnablePush(api, { waitMs = 8000 } = {}) {
   const steps = { install: null, push: null };
 
   if (isStandalonePwa()) {
     steps.install = { ok: true, reason: 'already_installed' };
-  } else if (canInstallPwa()) {
-    steps.install = await promptInstallPwa();
   } else if (isIosSafari()) {
     steps.install = { ok: false, reason: 'ios_manual' };
   } else {
-    steps.install = { ok: false, reason: 'not_available' };
+    // Wait for Chrome to evaluate manifest + SW (often 1–5s after first visit)
+    const ready = canInstallPwa() || await waitForInstallPrompt(waitMs);
+    if (ready && canInstallPwa()) {
+      steps.install = await promptInstallPwa();
+    } else {
+      steps.install = { ok: false, reason: 'not_available' };
+    }
   }
 
-  // Small delay so install dialog doesn't fight notification prompt
   await new Promise((r) => setTimeout(r, steps.install?.ok ? 400 : 100));
 
   try {

@@ -365,10 +365,16 @@ function isNoindex(pathname) {
 }
 
 function isStaticAsset(pathname) {
-  return /\.(js|css|png|svg|ico|json|woff2?|ttf|eot|webp|jpg|jpeg|gif|pdf)$/i.test(pathname)
+  // PWA: /manifest.webmanifest MUST be served as a real file (not SPA HTML).
+  // Without this, Chrome never fires beforeinstallprompt and Install does nothing.
+  return /\.(js|css|png|svg|ico|json|webmanifest|woff2?|ttf|eot|webp|jpg|jpeg|gif|pdf|map|txt|xml)$/i.test(pathname)
     || pathname.startsWith('/assets/')
     || pathname.startsWith('/favicon')
-    || pathname.startsWith('/logo.');
+    || pathname.startsWith('/logo.')
+    || pathname.startsWith('/icons/')
+    || pathname === '/sw.js'
+    || pathname === '/manifest.webmanifest'
+    || pathname === '/manifest.json';
 }
 
 function escapeHtml(str) {
