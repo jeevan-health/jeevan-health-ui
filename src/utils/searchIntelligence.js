@@ -64,6 +64,18 @@ function levenshtein(a, b) {
   return dp[m][n];
 }
 
+/** Resolve alias entry to a live Neon test (by id first, then name/aliases). */
+function resolveAliasTest(entry, key) {
+  if (!entry) return null;
+  let test = tests.find(t => t.id === entry.id || String(t.id) === String(entry.id));
+  if (test) return test;
+  const candidates = [key, ...(entry.aliases || [])].map(normalize).filter(Boolean);
+  return tests.find(t => {
+    const n = normalize(t.name);
+    return candidates.some(c => n === c || n.includes(c) || c.includes(n));
+  }) || null;
+}
+
 export function searchTests(query) {
   const q = normalize(query);
   if (!q) return [];
@@ -72,7 +84,7 @@ export function searchTests(query) {
 
   const aliasEntry = aliasMap[q];
   if (aliasEntry) {
-    const test = tests.find(t => t.id === aliasEntry.id);
+    const test = resolveAliasTest(aliasEntry, q);
     if (test && !seen.has(test.id)) {
       seen.add(test.id);
       results.push({ test, aliases: aliasEntry.aliases, matchType: 'exact', diseases: aliasEntry.diseases, symptoms: aliasEntry.symptoms, related: aliasEntry.related });
@@ -80,12 +92,11 @@ export function searchTests(query) {
   }
 
   for (const [key, entry] of Object.entries(aliasMap)) {
-    if (seen.has(entry.id)) continue;
     const allNames = [key, ...entry.aliases, ...entry.misspellings];
     const match = allNames.some(name => normalize(name) === q || normalize(name).includes(q) || q.includes(normalize(name)));
     if (match) {
-      const test = tests.find(t => t.id === entry.id);
-      if (test) {
+      const test = resolveAliasTest(entry, key);
+      if (test && !seen.has(test.id)) {
         seen.add(test.id);
         results.push({ test, aliases: entry.aliases, matchType: 'alias', diseases: entry.diseases, symptoms: entry.symptoms, related: entry.related });
       }
@@ -125,7 +136,7 @@ export function searchTests(query) {
     }
   }
 
-  return results.slice(0, 10);
+  return results.slice(0, 20);
 }
 
 export const symptomList = Object.keys(symptomToTests);

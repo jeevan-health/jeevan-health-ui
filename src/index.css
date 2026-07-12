@@ -134,8 +134,9 @@ a { color: inherit; text-decoration: none; }
 input, select, textarea, button { font-family: inherit; }
 img { max-width: 100%; height: auto; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; width: 100%; box-sizing: border-box; }
-.page-section { padding: 24px 0; width: 100%; max-width: 100%; overflow-x: hidden; }
-.page-content { min-height: calc(100vh - var(--header-height)); padding-bottom: 80px; width: 100%; max-width: 100%; overflow-x: hidden; }
+/* overflow-x only so sticky/search dropdowns are not clipped vertically */
+.page-section { padding: 24px 0; width: 100%; max-width: 100%; overflow-x: clip; overflow-y: visible; }
+.page-content { min-height: calc(100vh - var(--header-height)); padding-bottom: 80px; width: 100%; max-width: 100%; overflow-x: clip; overflow-y: visible; }
 
 .btn { padding: 10px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(24, 102, 201, 0.3); }
@@ -187,7 +188,9 @@ img { max-width: 100%; height: auto; }
 .site-header { background: #fff; border-bottom: 1px solid var(--border); min-height: var(--header-height); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; align-items: stretch; }
 .header-inner { max-width: 1200px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .hdr-desktop { width: 100%; }
-.hdr-mobile-search { display: none; width: 100%; max-width: 100%; overflow: hidden; }
+.hdr-mobile-search { display: none; width: 100%; max-width: 100%; overflow: visible; position: relative; z-index: 10040; }
+.hdr-search-wrap { position: relative; z-index: 10040; overflow: visible; }
+.smart-search-root { isolation: isolate; }
 .header-logo { display: flex; align-items: center; gap: 8px; }
 .header-logo img { height: 38px; }
 .header-logo span { font-size: 18px; font-weight: 800; color: var(--primary); }
@@ -242,7 +245,8 @@ img { max-width: 100%; height: auto; }
 .step.completed { background: var(--secondary); }
 
 /* Hero */
-.hero { background: linear-gradient(135deg, #1866C9 0%, #00D9FF 100%); color: #fff; padding: 60px 16px; text-align: center; position: relative; overflow: hidden; }
+/* overflow-x only — overflow:hidden clips SmartSearch dropdown below the hero */
+.hero { background: linear-gradient(135deg, #1866C9 0%, #00D9FF 100%); color: #fff; padding: 60px 16px; text-align: center; position: relative; overflow-x: clip; overflow-y: visible; z-index: 20; }
 .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
 .hero p { font-size: 15px; opacity: 0.85; margin-bottom: 24px; max-width: 600px; margin-left: auto; margin-right: auto; }
 .hero-search { max-width: 500px; margin: 0 auto; display: flex; background: #fff; border-radius: var(--radius-md); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }

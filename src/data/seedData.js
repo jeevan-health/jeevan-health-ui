@@ -28,32 +28,39 @@ export async function ensureLoaded() {
   if (loading) return new Promise(resolve => waiters.push(resolve));
   loading = true;
   try {
-    const [testsRes, catsRes] = await Promise.all([
-      api.get('/diagnostics/tests/search', { params: { limit: 1000 } }),
-      api.get('/diagnostics/tests/categories'),
-    ]);
+    const testsRes = await api.get('/diagnostics/tests/search', { params: { limit: 2000, page: 1 } });
     const rawTests = testsRes.data.tests || testsRes.data || [];
     const tests = (Array.isArray(rawTests) ? rawTests : []).map(t => ({
       ...t,
       price: Number(t.price) || 0,
-      mrp: Number(t.mrp) || Number(t.price) * 2 || 0,
+      mrp: Number(t.mrp) || Math.round((Number(t.price) || 0) * 1.8) || 0,
       offerPrice: Number(t.offerPrice) || Number(t.price) || 0,
     }));
     cached.tests = tests;
     seedTests.splice(0, seedTests.length, ...tests);
 
-    const rawCats = catsRes.data.categories || catsRes.data || [];
-    const cats = Array.isArray(rawCats) ? rawCats.map(c => {
-      const n = typeof c === 'string' ? c : (c.name || c.category || '');
-      const style = CATEGORY_STYLES[n] || CATEGORY_STYLES[c?.id] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
-      const id = typeof c === 'string' ? makeSlug(c) : (c.id || c.slug || makeSlug(n));
-      return { name: n, id, slug: id, tests: tests.filter(t => t.category === n), description: (typeof c === 'string' ? '' : (c.description || '')), ...style };
-    }) : [];
+    // Build categories from actual test rows (covers every Neon category, not only /categories API)
+    const catNames = [...new Set(tests.map(t => t.category).filter(Boolean))];
+    const cats = catNames.map(n => {
+      const style = CATEGORY_STYLES[n] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
+      const id = makeSlug(n);
+      const catTests = tests.filter(t => t.category === n);
+      return {
+        name: n,
+        id,
+        slug: id,
+        tests: catTests,
+        count: catTests.length,
+        description: `${catTests.length} tests available`,
+        ...style,
+      };
+    }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
     cached.categories = cats;
     _catItems.splice(0, _catItems.length, ...cats);
   } catch {
     cached.tests = [];
     cached.categories = [];
+    _catItems.splice(0, _catItems.length);
   } finally {
     loading = false;
     notifyAll();
@@ -75,7 +82,71 @@ const CATEGORY_STYLES = {
   'Cancer': { icon: '🎗️', color: '#be185d', bg: '#fce7f3' },
   'Kidney': { icon: '🫘', color: '#ca8a04', bg: '#fef9c3' },
   'Liver': { icon: '🫁', color: '#16a34a', bg: '#bbf7d0' },
+  'Infections': { icon: '🦠', color: '#b45309', bg: '#fef3c7' },
+  'Infection': { icon: '🦠', color: '#b45309', bg: '#fef3c7' },
+  'Radiology': { icon: '📷', color: '#0369a1', bg: '#e0f2fe' },
+  'Immunology': { icon: '🛡️', color: '#6d28d9', bg: '#ede9fe' },
+  'Gastroenterology': { icon: '🫀', color: '#c2410c', bg: '#ffedd5' },
+  'Pregnancy': { icon: '🤰', color: '#db2777', bg: '#fce7f3' },
+  'STD': { icon: '🔬', color: '#9f1239', bg: '#ffe4e6' },
+  'Bone': { icon: '🦴', color: '#57534e', bg: '#f5f5f4' },
+  'Urine': { icon: '💧', color: '#0e7490', bg: '#cffafe' },
 };
+
+/** Well-known popular tests — fuzzy match against Neon names */
+const POPULAR_TEST_QUERIES = [
+  'Complete Blood Count',
+  'CBC',
+  'HbA1c',
+  'Thyroid Profile',
+  'Lipid Profile',
+  'Vitamin D',
+  'Vitamin B12',
+  'Liver Function',
+  'Kidney Function',
+  'Fasting Blood',
+  'Iron Studies',
+  'Urine Routine',
+];
+
+/** Find popular tests from loaded catalog (name-based, resilient to Neon naming). */
+export function getPopularTests(limit = 8) {
+  const all = cached.tests || seedTests || [];
+  if (!all.length) return [];
+  const picked = [];
+  const seen = new Set();
+  for (const q of POPULAR_TEST_QUERIES) {
+    if (picked.length >= limit) break;
+    const ql = q.toLowerCase();
+    const hit = all.find(t => {
+      if (seen.has(t.id)) return false;
+      const n = (t.name || '').toLowerCase();
+      return n === ql || n.includes(ql) || ql.includes(n);
+    });
+    if (hit) {
+      seen.add(hit.id);
+      picked.push(hit);
+    }
+  }
+  // Fill remaining with other tests if catalog short on matches
+  if (picked.length < limit) {
+    for (const t of all) {
+      if (picked.length >= limit) break;
+      if (!seen.has(t.id)) {
+        seen.add(t.id);
+        picked.push(t);
+      }
+    }
+  }
+  return picked;
+}
+
+/** Categories sorted by test count (largest first). */
+export function getCategoriesSorted(limit) {
+  const list = [...(cached.categories || _catItems)];
+  list.sort((a, b) => (b.count || b.tests?.length || 0) - (a.count || a.tests?.length || 0));
+  return limit ? list.slice(0, limit) : list;
+}
 
 export function categoryMeta(slug) {
   if (!slug) return null;

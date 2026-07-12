@@ -76,16 +76,27 @@ export default function SmartSearch({ placeholder, onSearch, autoFocus, value: e
   const slugify = (name) => name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%' }}>
+    <div ref={ref} className="smart-search-root" style={{ position: 'relative', width: '100%', zIndex: open ? 10050 : 1 }}>
       <div style={{ display: 'flex', border: '2px solid #d0d5dd', borderRadius: 10, overflow: 'hidden', background: '#fff', transition: 'border-color 0.2s' }}>
         <input type="text" value={query} onChange={e => handleChange(e.target.value)}
           onKeyDown={handleKey} onFocus={() => query.trim() && setOpen(true)} autoFocus={autoFocus}
           placeholder={placeholder || t('smartSearch.placeholder', '🔍 Search tests, symptoms, diseases...')}
-          style={{ flex: 1, border: 'none', padding: '9px 8px 9px 12px', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
-        {query && <button onClick={() => { handleChange(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
+          style={{ flex: 1, border: 'none', padding: '9px 8px 9px 12px', fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
+          autoComplete="off"
+        />
+        {query && <button type="button" onClick={() => { handleChange(''); setOpen(false); }} style={{ background: 'none', border: 'none', padding: '0 10px', cursor: 'pointer', fontSize: 16, color: '#999' }}>✕</button>}
       </div>
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #e8edf2', zIndex: 9999, maxHeight: 420, overflow: 'auto' }}>
+        <div
+          className="smart-search-dropdown"
+          style={{
+            position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+            background: '#fff', borderRadius: 12,
+            boxShadow: '0 12px 40px rgba(0,0,0,0.18)', border: '1px solid #e8edf2',
+            zIndex: 10060, maxHeight: 'min(420px, 60vh)', overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
           <div style={{ display: 'flex', borderBottom: '1px solid #e8edf2', padding: '6px 8px', gap: 4, background: '#fafafa', position: 'sticky', top: 0, zIndex: 1 }}>
               {[
                 { key: 'all', label: `${t('smartSearch.filterAll', 'All')} (${results.length + pkgResults.length})` },

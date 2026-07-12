@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
-import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
+import { seedTests, subscribe, ensureLoaded, getPopularTests, getCategoriesSorted, makeSlug } from '../data/seedData';
 import { packageList } from '../data/healthPackages';
 import SmartSearch from '../components/layout/SmartSearch';
 import useCmsStore from '../stores/cmsStore';
@@ -12,18 +12,20 @@ export default function Home() {
   const t = useT();
   const [, forceUpdate] = useState(0);
   useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
-  const popular = seedTests.slice(0, 8);
+  // Prefer well-known popular names from Neon catalog (not first alphabetical rows)
+  const popular = getPopularTests(8);
   const pkgs = packageList.slice(0, 4);
   const cms = useCmsStore();
   const featured = cms.content?.healthPackages?.featured || [];
+  const liveCategories = getCategoriesSorted(15);
 
   return (
     <div>
       <HeroSection />
       <TrustStrip />
       <QuickActions />
-      <PopularTests popular={popular} />
-      <CategoriesSection />
+      <PopularTests popular={popular} catalogCount={seedTests.length} />
+      <CategoriesSection liveCategories={liveCategories} />
       <PackagesSection pkgs={pkgs} featured={featured} />
       <NurseAtHomeSection />
       <WhyChooseJeevan />
@@ -80,9 +82,9 @@ function HeroSection() {
     { icon: '💉', label: t('home.hero.features.vaccination', 'Vaccination at Home'), desc: t('home.hero.features.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
   ];
   return (
-    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : '#0F5DA8', padding: '40px 16px 48px', overflow: 'hidden', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="hero" style={{ background: h.backgroundImage ? `url(${h.backgroundImage})` : '#0F5DA8', padding: '40px 16px 48px', overflow: 'visible', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', zIndex: 30 }}>
       <div className="container" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
-        <div>
+        <div style={{ position: 'relative', zIndex: 2, minWidth: 0 }}>
           <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
             {statBadges.map(s => (
               <span key={s.label} style={{ background: 'rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -103,7 +105,7 @@ function HeroSection() {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
             <Link to={h.ctaTertiaryLink || '/services'} className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.3)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>{h.ctaTertiaryText || t('home.hero.ctaTertiary', '📦 Book Health Package')}</Link>
           </div>
-          <div style={{ marginBottom: 20, maxWidth: 480 }}>
+          <div className="hero-search-slot" style={{ marginBottom: 20, maxWidth: 480, position: 'relative', zIndex: 50, overflow: 'visible' }}>
             <SmartSearch placeholder={t('home.hero.searchPlaceholder', '🔍 Search tests, symptoms, diseases...')} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -273,22 +275,34 @@ function QuickActions() {
   );
 }
 
-function PopularTests({ popular }) {
+function PopularTests({ popular, catalogCount = 0 }) {
   const tr = useT();
-  const catIcons = { Hematology: '🩸', Diabetes: '🩸', Thyroid: '🦋', Cardiac: '❤️', Vitamins: '💊', Fever: '🌡️', 'Full Body': '🧬', Anemia: '🩸', Hormones: '🧪', Arthritis: '🦴', Pregnancy: '🤰', Cancer: '🎗️', STD: '🔬', Allergy: '🤧', Liver: '🫁' };
+  const catIcons = { Hematology: '🩸', Diabetes: '🩸', Thyroid: '🦋', Cardiac: '❤️', Vitamins: '💊', Fever: '🌡️', 'Full Body': '🧬', Anemia: '🩸', Hormones: '🧪', Arthritis: '🦴', Pregnancy: '🤰', Cancer: '🎗️', STD: '🔬', Allergy: '🤧', Liver: '🫁', Infections: '🦠', Radiology: '📷', Immunology: '🛡️', Kidney: '🫘' };
   const badges = [tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked'), tr('home.popularTests.badge.recommended', 'Recommended'), tr('home.popularTests.badge.trending', 'Trending'), tr('home.popularTests.badge.mostBooked', 'Most Booked')];
   const badgeColors = { Trending: '#dc2626', 'Most Booked': '#16a34a', Recommended: '#7c3aed' };
   return (
-    <div className="page-section" style={{ background: '#FFFFFF' }}>
+    <div className="page-section" style={{ background: '#FFFFFF', position: 'relative', zIndex: 1 }}>
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
           <div>
             <h2 className="section-title" style={{ margin: 0 }}>{tr('home.popularTests.title', 'Popular Tests')}</h2>
-            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>{tr('home.popularTests.subtitle', 'Most booked diagnostic tests')}</p>
+            <p className="section-subtitle" style={{ margin: '4px 0 0' }}>
+              {tr('home.popularTests.subtitle', 'Most booked diagnostic tests')}
+              {catalogCount > 0 && (
+                <span style={{ marginLeft: 8, fontWeight: 600, color: '#1866C9' }}>
+                  · {catalogCount}+ {tr('home.popularTests.inCatalog', 'tests available')}
+                </span>
+              )}
+            </p>
           </div>
-          <Link to="/diagnostics" className="btn btn-outline" style={{ fontSize: 12 }}>{tr('home.popularTests.viewAll', 'View All Tests →')}</Link>
+          <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12 }}>{tr('home.popularTests.viewAll', 'View All Tests →')}</Link>
         </div>
-        <div className="grid-4" style={{ gap: 14 }}>
+        {popular.length === 0 && (
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', padding: 24 }}>
+            {tr('home.popularTests.loading', 'Loading tests from catalog…')}
+          </p>
+        )}
+        <div className="grid-4 popular-test-grid" style={{ gap: 14 }}>
           {popular.map((test, i) => {
             const slug = test.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
             const mrp = test.mrp || Math.round(test.price * 2.2);
@@ -334,25 +348,35 @@ function PopularTests({ popular }) {
   );
 }
 
-function CategoriesSection() {
+function CategoriesSection({ liveCategories = [] }) {
   const t = useT();
-  const cats = [
-    { icon: '🩸', label: t('home.categories.diabetes', 'Diabetes'), cat: 'Diabetes' },
-    { icon: '❤️', label: t('home.categories.heart', 'Heart'), cat: 'Cardiac' },
-    { icon: '🫘', label: t('home.categories.kidney', 'Kidney'), cat: 'Full Body' },
-    { icon: '🫁', label: t('home.categories.liver', 'Liver'), cat: 'Liver' },
-    { icon: '💊', label: t('home.categories.vitamin', 'Vitamin'), cat: 'Vitamins' },
-    { icon: '🧪', label: t('home.categories.hormones', 'Hormones'), cat: 'Hormones' },
-    { icon: '🩸', label: t('home.categories.anemia', 'Anemia'), cat: 'Anemia' },
-    { icon: '🦴', label: t('home.categories.arthritis', 'Arthritis'), cat: 'Arthritis' },
-    { icon: '🤰', label: t('home.categories.pregnancy', 'Pregnancy'), cat: 'Pregnancy' },
-    { icon: '🎗️', label: t('home.categories.cancerScreening', 'Cancer Screening'), cat: 'Cancer' },
-    { icon: '🤧', label: t('home.categories.allergy', 'Allergy'), cat: 'Allergy' },
-    { icon: '🌡️', label: t('home.categories.fever', 'Fever'), cat: 'Fever' },
-    { icon: '🦠', label: t('home.categories.infection', 'Infection'), cat: 'STD' },
-    { icon: '🦋', label: t('home.categories.thyroid', 'Thyroid'), cat: 'Thyroid' },
-    { icon: '🧬', label: t('home.categories.fullBody', 'Full Body'), cat: 'Full Body' },
+  // Prefer live Neon categories (with counts); fall back to static marketing list
+  const fallback = [
+    { icon: '🩸', label: t('home.categories.diabetes', 'Diabetes'), cat: 'Diabetes', slug: 'diabetes' },
+    { icon: '❤️', label: t('home.categories.heart', 'Heart'), cat: 'Cardiac', slug: 'cardiac' },
+    { icon: '🫘', label: t('home.categories.kidney', 'Kidney'), cat: 'Kidney', slug: 'kidney' },
+    { icon: '🫁', label: t('home.categories.liver', 'Liver'), cat: 'Liver', slug: 'liver' },
+    { icon: '💊', label: t('home.categories.vitamin', 'Vitamin'), cat: 'Vitamins', slug: 'vitamins' },
+    { icon: '🧪', label: t('home.categories.hormones', 'Hormones'), cat: 'Hormones', slug: 'hormones' },
+    { icon: '🩸', label: t('home.categories.anemia', 'Anemia'), cat: 'Anemia', slug: 'anemia' },
+    { icon: '🦴', label: t('home.categories.arthritis', 'Arthritis'), cat: 'Arthritis', slug: 'arthritis' },
+    { icon: '🤰', label: t('home.categories.pregnancy', 'Pregnancy'), cat: 'Pregnancy', slug: 'pregnancy' },
+    { icon: '🎗️', label: t('home.categories.cancerScreening', 'Cancer Screening'), cat: 'Cancer', slug: 'cancer' },
+    { icon: '🤧', label: t('home.categories.allergy', 'Allergy'), cat: 'Allergy', slug: 'allergy' },
+    { icon: '🌡️', label: t('home.categories.fever', 'Fever'), cat: 'Fever', slug: 'fever' },
+    { icon: '🦠', label: t('home.categories.infection', 'Infection'), cat: 'Infections', slug: 'infections' },
+    { icon: '🦋', label: t('home.categories.thyroid', 'Thyroid'), cat: 'Thyroid', slug: 'thyroid' },
+    { icon: '🧬', label: t('home.categories.fullBody', 'Full Body'), cat: 'Full Body', slug: 'full-body' },
   ];
+  const cats = liveCategories.length > 0
+    ? liveCategories.map(c => ({
+        icon: c.icon || '🔬',
+        label: c.name,
+        cat: c.name,
+        slug: c.slug || c.id || makeSlug(c.name),
+        count: c.count || c.tests?.length || 0,
+      }))
+    : fallback;
   return (
     <div className="page-section" style={{ background: '#00D9FF' }}>
       <div className="container">
@@ -360,7 +384,7 @@ function CategoriesSection() {
       <p className="section-subtitle">{t('home.categories.subtitle', 'Find the right test by health concern')}</p>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
         {cats.map(c => (
-          <Link key={c.cat} to={`/diagnostics?cat=${c.cat}`}
+          <Link key={c.slug || c.cat} to={`/tests/${c.slug || makeSlug(c.cat)}`}
             style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
               padding: '14px 16px', borderRadius: 12, textDecoration: 'none',
@@ -371,8 +395,16 @@ function CategoriesSection() {
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8edf2'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}>
             <span style={{ fontSize: 28 }}>{c.icon}</span>
             <span style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', textAlign: 'center', lineHeight: 1.2 }}>{c.label}</span>
+            {c.count > 0 && (
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#1866C9' }}>{c.count} tests</span>
+            )}
           </Link>
         ))}
+      </div>
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <Link to="/tests/all" className="btn btn-outline" style={{ fontSize: 12, background: '#fff' }}>
+          {t('home.categories.viewAll', 'View All Tests →')}
+        </Link>
       </div>
     </div>
     </div>
