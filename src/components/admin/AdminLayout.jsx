@@ -115,11 +115,15 @@ export default function AdminLayout() {
           </div>
           {!collapsed && (
             <div style={{ display: 'flex', gap: 4 }}>
-              <button onClick={() => navigate('/dashboard')} style={{
+              <button
+                type="button"
+                onClick={() => window.open('/', '_blank', 'noopener,noreferrer')}
+                title={t('admin.layout.preview_site_hint', 'Opens public site in a new tab (you stay in admin)')}
+                style={{
                 flex: 1, padding: '6px 0', background: '#fff', border: '1px solid #e2e8f0',
                 color: '#475569', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontFamily: 'inherit',
               }}>{t('admin.layout.site', 'Site')}</button>
-              <button onClick={() => { logout(); navigate('/admin/login'); }} style={{
+              <button type="button" onClick={() => { logout(); navigate('/admin/login', { replace: true }); }} style={{
                 flex: 1, padding: '6px 0', background: '#fff', border: '1px solid #fecaca',
                 color: '#ef4444', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontFamily: 'inherit',
               }}>{t('admin.layout.logout', 'Logout')}</button>
@@ -140,7 +144,14 @@ export default function AdminLayout() {
             {getLabel(NAV_ITEMS.find(i => isActive(i)) || NAV_ITEMS[0]) || t('admin.layout.adminTitle', 'Admin')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: '#64748b' }}>
-            <Link to="/" style={{ color: '#1866C9', textDecoration: 'none' }}>{t('admin.layout.back_to_site', '← Back to Site')}</Link>
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#1866C9', textDecoration: 'none' }}
+            >
+              {t('admin.layout.preview_site', 'Preview site ↗')}
+            </a>
           </div>
         </div>
         <div style={{ padding: 24 }}>

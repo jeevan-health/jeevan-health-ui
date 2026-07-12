@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import ScrollToTop from './components/layout/ScrollToTop';
@@ -13,6 +13,13 @@ import { ToastProvider } from './components/Toast';
 import LoadingSpinner from './components/LoadingSpinner';
 import PageTransition from './components/PageTransition';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import {
+  isAdminRole,
+  isFieldRole,
+  isAdminHostname,
+  isAdminPath,
+  FIELD_ROLE_PATHS,
+} from './utils/authRoles';
 import ThemeToggle from './components/ThemeToggle';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -188,38 +195,67 @@ const ContentSEO = lazy(() => import('./pages/role/ContentSEO'));
 const EmergCoordCases = lazy(() => import('./pages/role/EmergCoordCases'));
 const EmergCoordStaff = lazy(() => import('./pages/role/EmergCoordStaff'));
 
-// Role → URL path mapping for redirects
-const ROLE_PATH = {
-  phlebotomist: '/phlebotomist', doctor: '/doctor', nurse: '/nurse',
-  caregiver: '/caregiver', physiotherapist: '/physio', radiologist: '/radiology',
-  pharmacy: '/pharmacy', emergency: '/emergency', dispatch: '/dispatch',
-  corporate: '/corporate', training_officer: '/training', it_support: '/it-support',
-  call_center: '/call-center', sales_marketing: '/sales', finance: '/finance',
-  bi_analyst: '/analytics', qa_compliance: '/qa', inventory: '/inventory',
-  telemedicine: '/telemedicine', legal: '/legal', marketing_content: '/content',
-  emergency_coordinator: '/emergency-coordinator',
-};
-
-// All non-admin field roles
-const FIELD_ROLES = Object.keys(ROLE_PATH);
-
+/**
+ * Auth required. Admins always sent to /admin.
+ * Field portals use this (field user stays; no redirect loop).
+ */
 function Protected({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   const user = useAuthStore(s => s.user);
-  if (!isAuth) return <Navigate to="/signup" />;
+  if (!isAuth) return <Navigate to="/signup" replace />;
   const role = user?.role || 'user';
-  if (ROLE_PATH[role]) return <Navigate to={ROLE_PATH[role]} />;
-  if (role === 'super_admin' || role === 'admin' || role === 'staff') return <Navigate to="/admin" />;
+  if (isAdminRole(role)) return <Navigate to="/admin" replace />;
   return children;
 }
 
+/** Patient-only: dashboard, orders, checkout — no admin or field staff. */
+function PatientOnly({ children }) {
+  const isAuth = useAuthStore(s => s.isAuthenticated);
+  const user = useAuthStore(s => s.user);
+  if (!isAuth) return <Navigate to="/signup" replace />;
+  const role = user?.role || 'user';
+  if (isAdminRole(role)) return <Navigate to="/admin" replace />;
+  if (isFieldRole(role)) return <Navigate to={FIELD_ROLE_PATHS[role]} replace />;
+  return children;
+}
+
+/** Admin shell: only admin | super_admin (matches API adminAuth). */
 function AdminGuard({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
   const user = useAuthStore(s => s.user);
-  if (!isAuth) return <Navigate to="/admin/login" />;
+  if (!isAuth) return <Navigate to="/admin/login" replace />;
   const role = user?.role || 'user';
-  if (role === 'user') return <Navigate to="/dashboard" />;
-  if (ROLE_PATH[role]) return <Navigate to={ROLE_PATH[role]} />;
+  if (isAdminRole(role)) return children;
+  if (isFieldRole(role)) return <Navigate to={FIELD_ROLE_PATHS[role]} replace />;
+  // Patients (and staff without admin role) cannot use admin UI
+  return <Navigate to="/dashboard" replace />;
+}
+
+/**
+ * Host-aware gate for admin.jeevanhealthcare.com (same SPA, no second app).
+ * On admin host: force /admin/* ; public marketing paths redirect into admin.
+ */
+function HostGate({ children }) {
+  const location = useLocation();
+  if (!isAdminHostname()) return children;
+
+  const path = location.pathname;
+  // Allow admin login + admin app only on admin host
+  if (isAdminPath(path)) return children;
+  // Everything else on admin host → admin home (or login via AdminGuard)
+  return <Navigate to="/admin" replace />;
+}
+
+/** If already an admin, keep them out of patient signup as a landing page. */
+function PatientAuthGate({ children }) {
+  const isAuth = useAuthStore(s => s.isAuthenticated);
+  const user = useAuthStore(s => s.user);
+  if (isAuth && isAdminRole(user?.role)) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isAuth && isFieldRole(user?.role)) {
+    return <Navigate to={FIELD_ROLE_PATHS[user.role]} replace />;
+  }
   return children;
 }
 
@@ -258,6 +294,7 @@ export default function App() {
       <ThemeToggle />
       <Suspense fallback={<Loading />}>
         <PageTransition>
+        <HostGate>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
@@ -267,8 +304,8 @@ export default function App() {
             <Route path="/health-packages" element={<HealthPackages />} />
             <Route path="/services" element={<Services />} />
             <Route path="/package/:slug" element={<PackageDetail />} />
-            <Route path="/my-orders" element={<Protected><MyTestOrders /></Protected>} />
-            <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+            <Route path="/my-orders" element={<PatientOnly><MyTestOrders /></PatientOnly>} />
+            <Route path="/dashboard" element={<PatientOnly><Dashboard /></PatientOnly>} />
             <Route path="/my-bookings" element={<PatientBookings />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
@@ -334,7 +371,7 @@ export default function App() {
             <Route path="/health-library" element={<HealthLibrary />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/checkout" element={<Protected><Checkout /></Protected>} />
+            <Route path="/checkout" element={<PatientOnly><Checkout /></PatientOnly>} />
             <Route path="/consult-doctor" element={<ConsultDoctor />} />
             <Route path="/book-appointment/:doctorId" element={<BookAppointment />} />
             <Route path="/policy/:slug" element={<PolicyPage />} />
@@ -344,7 +381,7 @@ export default function App() {
             <Route path="/test-info/:slug" element={<TestInfoPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup" element={<PatientAuthGate><Signup /></PatientAuthGate>} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding-staff" element={<StaffOnboarding />} />
           <Route path="/onboarding-doctor" element={<DoctorOnboarding />} />
@@ -510,6 +547,7 @@ export default function App() {
             <Route path="staff" element={<EmergCoordStaff />} />
           </Route>
         </Routes>
+        </HostGate>
         </PageTransition>
       </Suspense>
       </LanguageProvider>

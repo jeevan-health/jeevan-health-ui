@@ -4,10 +4,7 @@ import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 import GoogleSignIn from '../components/GoogleSignIn';
 import { sendOtp as sendOtpApi } from '../services/authService';
-
-function roleRedirect(role) {
-  return role !== 'user' ? '/admin' : '/dashboard';
-}
+import { getPostLoginPath } from '../utils/authRoles';
 
 export default function Signup() {
   const t = useT();
@@ -43,7 +40,7 @@ export default function Signup() {
     setLoading(true);
     const ok = await verifyOtp(phone, otp);
     setLoading(false);
-    if (ok) navigate(roleRedirect(useAuthStore.getState().user?.role), { replace: true });
+    if (ok) navigate(getPostLoginPath(useAuthStore.getState().user?.role), { replace: true });
     else setError(t('signup.error.invalidOtp', 'Invalid OTP. Try again.'));
   }
 

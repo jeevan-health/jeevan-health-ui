@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import { useT } from '../i18n/LanguageProvider';
 import api from '../services/api';
+import { getPostLoginPath } from '../utils/authRoles';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -65,7 +66,7 @@ export default function GoogleSignIn({ onError }) {
       localStorage.setItem('jh_user', JSON.stringify(user));
 
       setUser(user);
-      navigate('/dashboard');
+      navigate(getPostLoginPath(user?.role), { replace: true });
     } catch (err) {
       if (onError) onError(t('googleSignIn.failed', 'Google Sign-In failed. Please try again.'));
     }

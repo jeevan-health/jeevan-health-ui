@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore';
 import { useT } from '../../i18n/LanguageProvider';
 import { sendOtp as sendOtpApi, login as emailLoginApi } from '../../services/authService';
+import { isAdminRole, getPostLoginPath } from '../../utils/authRoles';
 
 export default function AdminLogin() {
   const t = useT();
@@ -37,7 +38,11 @@ export default function AdminLogin() {
     const stored = localStorage.getItem('jh_last_login');
     if (stored) { try { setLastLogin(JSON.parse(stored)); } catch {} }
     const user = useAuthStore.getState().user;
-    if (user && user.role !== 'user') navigate('/admin', { replace: true });
+    if (user && isAdminRole(user.role)) navigate('/admin', { replace: true });
+    else if (user && useAuthStore.getState().isAuthenticated) {
+      // Logged-in non-admin should not sit on admin login
+      navigate(getPostLoginPath(user.role), { replace: true });
+    }
   }, []);
 
   function trackLogin(user) {
@@ -60,9 +65,9 @@ export default function AdminLogin() {
       const { data } = await emailLoginApi(email, password);
       const { user, accessToken, refreshToken } = data;
       const role = user?.role || 'user';
-      if (role === 'user') {
+      if (!isAdminRole(role)) {
         setLoading(false);
-        setError(t('admin.login.err_no_admin_access', 'This account does not have admin access.'));
+        setError(t('admin.login.err_no_admin_access', 'This account does not have admin access. Use the patient login instead.'));
         return;
       }
       localStorage.setItem('accessToken', accessToken);
@@ -105,7 +110,12 @@ export default function AdminLogin() {
     setLoading(false);
     if (!ok) { setError(t('admin.login.err_invalid_otp', 'Invalid OTP. Try again.')); return; }
     const user = useAuthStore.getState().user;
-    if (user?.role === 'user') { setError(t('admin.login.err_no_admin_access', 'This account does not have admin access.')); return; }
+    if (!isAdminRole(user?.role)) {
+      setError(t('admin.login.err_no_admin_access', 'This account does not have admin access. Use the patient login instead.'));
+      // Clear accidental patient session from admin login attempt
+      useAuthStore.getState().logout?.();
+      return;
+    }
     trackLogin(user);
     setShowWelcome(true);
     setTimeout(() => navigate('/admin', { replace: true }), 2000);
