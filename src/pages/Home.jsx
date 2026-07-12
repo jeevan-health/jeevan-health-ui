@@ -82,14 +82,44 @@ function HeroSection() {
     { icon: '🏥', label: t('home.hero.statBadges.labs', 'NABL Certified Labs'), sublabel: '' },
     { icon: '⏱️', label: t('home.hero.statBadges.reports', 'Reports in 24 Hours'), sublabel: '' },
   ];
-  const featureIcons = h.featureIcons || [
-    { icon: '👪', label: t('home.hero.features.consultation', 'Doctor Consultation'), desc: t('home.hero.features.consultationDesc', 'Consult top doctors from home'), path: '/consult-doctor', color: '#7c3aed' },
-    { icon: '🔬', label: t('home.hero.features.diagnostics', 'Diagnostics'), desc: t('home.hero.features.diagnosticsDesc', '5000+ lab tests at your doorstep'), path: '/diagnostics', color: '#0F5DA8' },
-    { icon: '💊', label: t('home.hero.features.pharmacy', 'Pharmacy'), desc: t('home.hero.features.pharmacyDesc', 'Medicines delivered to your home'), path: '/contact', color: '#e65100' },
-    { icon: '👩‍⚕️', label: t('home.hero.features.nursing', 'Nursing'), desc: t('home.hero.features.nursingDesc', 'Skilled nursing care at home'), path: '/nurse-at-home', color: '#0891b2' },
-    { icon: '🏋️', label: t('home.hero.features.physiotherapy', 'Physiotherapy'), desc: t('home.hero.features.physiotherapyDesc', 'Recover with expert physiotherapists'), path: '/physiotherapy', color: '#16a34a' },
-    { icon: '💉', label: t('home.hero.features.vaccination', 'Vaccination at Home'), desc: t('home.hero.features.vaccinationDesc', 'Vaccination for all age groups & travel'), path: '/vaccination', color: '#dc2626' },
+  // Map CMS icons (often missing path) → real public routes
+  const FEATURE_ROUTE_MAP = {
+    family: { path: '/health-packages', desc: 'Book tests & packages for your family', color: '#7c3aed' },
+    doctor: { path: '/consult-doctor', desc: 'Consult top doctors online or at home', color: '#1866C9' },
+    'doctor consultation': { path: '/consult-doctor', desc: 'Consult top doctors online or at home', color: '#1866C9' },
+    phlebotomist: { path: '/diagnostics', desc: 'Free home sample collection', color: '#0d9488' },
+    'senior citizen': { path: '/package/senior-citizen', desc: 'Special packages for age 60+', color: '#c2410c' },
+    senior: { path: '/package/senior-citizen', desc: 'Special packages for age 60+', color: '#c2410c' },
+    diagnostics: { path: '/diagnostics', desc: '5000+ lab tests at your doorstep', color: '#0F5DA8' },
+    nursing: { path: '/nurse-at-home', desc: 'Skilled nursing care at home', color: '#0891b2' },
+    physiotherapy: { path: '/physiotherapy', desc: 'Recover with expert physiotherapists', color: '#16a34a' },
+    vaccination: { path: '/vaccination', desc: 'Vaccination for all age groups & travel', color: '#dc2626' },
+    pharmacy: { path: '/contact', desc: 'Medicines delivered to your home', color: '#e65100' },
+  };
+
+  const defaultFeatures = [
+    { icon: '👪', label: 'Family', desc: 'Book tests & packages for your family', path: '/health-packages', color: '#7c3aed' },
+    { icon: '🩺', label: 'Doctor', desc: 'Consult top doctors online or at home', path: '/consult-doctor', color: '#1866C9' },
+    { icon: '💉', label: 'Phlebotomist', desc: 'Free home sample collection', path: '/diagnostics', color: '#0d9488' },
+    { icon: '👴', label: 'Senior Citizen', desc: 'Special packages for age 60+', path: '/package/senior-citizen', color: '#c2410c' },
   ];
+
+  const featureIcons = (Array.isArray(h.featureIcons) && h.featureIcons.length > 0 ? h.featureIcons : defaultFeatures).map(f => {
+    const key = String(f.label || '').toLowerCase().trim();
+    const mapped = FEATURE_ROUTE_MAP[key] || {};
+    // Never use staff portals for marketing tiles
+    let path = f.path || f.link || mapped.path || '/diagnostics';
+    if (path.startsWith('/phlebotomist') || path.startsWith('/admin') || path === '/book-appointment') {
+      path = mapped.path || '/diagnostics';
+    }
+    return {
+      icon: f.icon || '🔬',
+      label: f.label || 'Service',
+      desc: f.desc || f.description || mapped.desc || '',
+      path,
+      color: f.color || mapped.color || '#1866C9',
+    };
+  });
   const headingRaw = h.heading || t('home.hero.heading', 'Book Lab Tests<br />At Home');
   const headingHtml = String(headingRaw).includes('<')
     ? String(headingRaw)
@@ -131,14 +161,14 @@ function HeroSection() {
         </div>
         <div className="home-hero-side" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {featureIcons.map(f => (
-            <Link key={f.label} to={f.path} style={{ textDecoration: 'none' }}>
+            <Link key={f.label} to={f.path || '/diagnostics'} style={{ textDecoration: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', background: 'rgba(255,255,255,0.1)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', transition: 'background 0.15s' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.16)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}>
                 <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{f.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.label}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.35 }}>{f.desc}</div>
+                  {f.desc ? <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.35 }}>{f.desc}</div> : null}
                 </div>
                 <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 16, flexShrink: 0 }}>→</span>
               </div>

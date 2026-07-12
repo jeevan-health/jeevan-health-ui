@@ -25,10 +25,11 @@ const defaults = {
       { icon: '⏱️', label: 'Reports in', sublabel: '24 Hours' },
     ],
     featureIcons: [
-      { icon: '👪', label: 'Family' },
-      { icon: '🩺', label: 'Doctor' },
-      { icon: '💉', label: 'Phlebotomist' },
-      { icon: '👴', label: 'Senior Citizen' },
+      // Public marketing destinations (not staff portals)
+      { icon: '👪', label: 'Family', desc: 'Book tests & packages for your family', path: '/health-packages', color: '#7c3aed' },
+      { icon: '🩺', label: 'Doctor', desc: 'Consult top doctors online or at home', path: '/consult-doctor', color: '#1866C9' },
+      { icon: '💉', label: 'Phlebotomist', desc: 'Free home sample collection', path: '/diagnostics', color: '#0d9488' },
+      { icon: '👴', label: 'Senior Citizen', desc: 'Special packages for age 60+', path: '/package/senior-citizen', color: '#c2410c' },
     ],
     active: true,
   },
@@ -47,9 +48,9 @@ const defaults = {
   services: [
     { id: 'doctor-consultation', icon: '🩺', label: 'Doctor Consultation', description: 'Consult top doctors from home', color: '#3B82F6', link: '/consult-doctor', active: true },
     { id: 'diagnostics', icon: '🔬', label: 'Diagnostics', description: '5000+ lab tests at your doorstep', color: '#10B981', link: '/diagnostics', active: true },
-    { id: 'pharmacy', icon: '💊', label: 'Pharmacy', description: 'Medicines delivered to your home', color: '#F59E0B', link: '/services/pharmacy', active: true },
-    { id: 'nursing', icon: '👩‍⚕️', label: 'Nursing', description: 'Skilled nursing care at home', color: '#8B5CF6', link: '/services/nursing', active: true },
-    { id: 'physiotherapy', icon: '🏋️', label: 'Physiotherapy', description: 'Recover with expert physiotherapists', color: '#EC4899', link: '/services/physiotherapy', active: true },
+    { id: 'pharmacy', icon: '💊', label: 'Pharmacy', description: 'Medicines delivered to your home', color: '#F59E0B', link: '/contact', active: true },
+    { id: 'nursing', icon: '👩‍⚕️', label: 'Nursing', description: 'Skilled nursing care at home', color: '#8B5CF6', link: '/nurse-at-home', active: true },
+    { id: 'physiotherapy', icon: '🏋️', label: 'Physiotherapy', description: 'Recover with expert physiotherapists', color: '#EC4899', link: '/physiotherapy', active: true },
     { id: 'vaccination', icon: '💉', label: 'Vaccination at Home', description: 'Vaccination for all age groups & travel', color: '#2563eb', link: '/vaccination', active: true },
   ],
   servicesPage: {
@@ -64,12 +65,12 @@ const defaults = {
     quickActions: [
       { icon: 'Stethoscope', label: 'Doctor Consultation', desc: 'Consult top doctors from home', path: '/consult-doctor', color: '#1866C9', tag: 'Available' },
       { icon: 'Flask', label: 'Lab Tests', desc: '1000+ tests at home, up to 60% off', path: '/diagnostics', color: '#22C55E', tag: 'Popular' },
-      { icon: 'Heart', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/services', color: '#e53935', tag: 'Save 60%' },
-      { icon: 'Pill', label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/pharmacy', color: '#7c3aed', tag: 'Express' },
-      { icon: 'User', label: 'Nursing Care', desc: 'Trained nurses at home', path: '/book-appointment', color: '#0891b2', tag: 'New' },
-      { icon: 'Heart', label: 'Physiotherapy', desc: 'Rehab & recovery at home', path: '/book-appointment', color: '#059669', tag: 'Book' },
-      { icon: 'Syringe', label: 'Vaccination', desc: 'All age groups & travel', path: '/book-appointment', color: '#2563eb', tag: 'Home' },
-      { icon: 'Monitor', label: 'Medical Equipment', desc: 'Rent or buy', path: '/book-appointment', color: '#e65100', tag: 'Rent' },
+      { icon: 'Heart', label: 'Health Packages', desc: 'Full body, diabetes, cardiac & more', path: '/health-packages', color: '#e53935', tag: 'Save 60%' },
+      { icon: 'Pill', label: 'Pharmacy', desc: 'Medicines delivered in 2 hrs', path: '/contact', color: '#7c3aed', tag: 'Express' },
+      { icon: 'User', label: 'Nursing Care', desc: 'Trained nurses at home', path: '/nurse-at-home', color: '#0891b2', tag: 'New' },
+      { icon: 'Heart', label: 'Physiotherapy', desc: 'Rehab & recovery at home', path: '/physiotherapy', color: '#059669', tag: 'Book' },
+      { icon: 'Syringe', label: 'Vaccination', desc: 'All age groups & travel', path: '/vaccination', color: '#2563eb', tag: 'Home' },
+      { icon: 'Monitor', label: 'Medical Equipment', desc: 'Rent or buy', path: '/medical-equipment', color: '#e65100', tag: 'Rent' },
     ],
     categories: [
       { title: 'Home Healthcare Services', color: '#1866C9', items: ['Doctor Consultation at Home', 'Medicine Delivery at Home', 'Lab Tests & Diagnostics at Home', 'X-Ray, ECG, EEG at Home', 'Nursing Care at Home', 'Caregiver Services (Elderly/Patient Care) at Home', 'Physiotherapy at Home', 'Vaccination at Home (All Age Groups & Travel Vaccines)', 'Medical Equipment Rental & Sales', 'Home ICU Setup & Monitoring'] },
