@@ -30,6 +30,10 @@ const ACCOUNT_ITEMS = [
   { to: '/dashboard?tab=profile', labelKey: 'nav.myProfile', label: 'Profile & Settings', icon: '👤' },
 ];
 
+/** Must sit above .mobile-bottom-bar (z-index: 9999) */
+const Z_OVERLAY = 10050;
+const Z_DRAWER = 10051;
+
 export default function MobileNav() {
   const open = useMobileNavStore(s => s.open);
   const setOpen = useMobileNavStore(s => s.setOpen);
@@ -44,7 +48,12 @@ export default function MobileNav() {
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    // Hide bottom tab bar while menu is open so nothing covers Logout
+    document.body.classList.toggle('mobile-nav-open', open);
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('mobile-nav-open');
+    };
   }, [open]);
 
   // Close drawer on route change
@@ -60,7 +69,7 @@ export default function MobileNav() {
     if (!open) return;
     const dx = e.touches[0].clientX - touchStartX.current;
     if (dx < 0 && drawerRef.current) {
-      drawerRef.current.style.transform = `translateX(${Math.max(-280, dx)}px)`;
+      drawerRef.current.style.transform = `translateX(${Math.max(-300, dx)}px)`;
     }
   };
 
@@ -103,14 +112,34 @@ export default function MobileNav() {
     minHeight: 48,
   });
 
+  const logoutBtnStyle = {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: '13px 14px',
+    borderRadius: 12,
+    border: '1.5px solid #fecaca',
+    background: '#FEF2F2',
+    color: '#dc2626',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    minHeight: 48,
+    WebkitTapHighlightColor: 'transparent',
+    boxSizing: 'border-box',
+  };
+
   return (
     <>
       <div
         onClick={close}
         aria-hidden={!open}
         style={{
-          position: 'fixed', inset: 0, zIndex: 9997,
-          background: 'rgba(15, 23, 42, 0.45)',
+          position: 'fixed', inset: 0, zIndex: Z_OVERLAY,
+          background: 'rgba(15, 23, 42, 0.5)',
           opacity: open ? 1 : 0,
           pointerEvents: open ? 'auto' : 'none',
           transition: 'opacity 0.25s',
@@ -125,14 +154,16 @@ export default function MobileNav() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 9998,
+          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: Z_DRAWER,
           width: 300, maxWidth: '86vw',
           background: '#fff',
           transform: open ? 'translateX(0)' : 'translateX(-100%)',
           transition: open ? 'transform 0.25s ease' : 'transform 0.2s ease-in',
-          boxShadow: open ? '4px 0 28px rgba(15, 23, 42, 0.18)' : 'none',
+          boxShadow: open ? '4px 0 28px rgba(15, 23, 42, 0.2)' : 'none',
           display: 'flex', flexDirection: 'column',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          // Keep drawer above bottom safe area; logout sits in flex footer inside
+          height: '100dvh',
+          maxHeight: '100dvh',
         }}
       >
         {/* Header */}
@@ -163,7 +194,7 @@ export default function MobileNav() {
         </div>
 
         {/* Scrollable body */}
-        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {/* Account card */}
           <div style={{ padding: '14px 14px 8px' }}>
             {isAuthenticated ? (
@@ -180,7 +211,7 @@ export default function MobileNav() {
                   }}>
                     {initial}
                   </div>
-                  <div style={{ minWidth: 0 }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {displayName}
                     </div>
@@ -189,7 +220,7 @@ export default function MobileNav() {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
                   {ACCOUNT_ITEMS.slice(0, 2).map(item => (
                     <Link
                       key={item.to}
@@ -208,6 +239,20 @@ export default function MobileNav() {
                     </Link>
                   ))}
                 </div>
+                {/* Logout right under account actions — always visible without scrolling */}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  style={{
+                    ...logoutBtnStyle,
+                    background: 'rgba(255,255,255,0.95)',
+                    border: 'none',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                  }}
+                >
+                  <span aria-hidden>🚪</span>
+                  {t('nav.logout', 'Logout')}
+                </button>
               </div>
             ) : (
               <div style={{
@@ -271,7 +316,7 @@ export default function MobileNav() {
           </nav>
 
           {/* Support strip */}
-          <div style={{ padding: '14px 16px 20px', display: 'flex', gap: 8 }}>
+          <div style={{ padding: '14px 16px 12px', display: 'flex', gap: 8 }}>
             <a
               href="tel:+919700104108"
               style={{
@@ -299,26 +344,17 @@ export default function MobileNav() {
           </div>
         </div>
 
-        {/* Sticky logout / login footer — always visible without scrolling */}
+        {/* Sticky footer Logout — always on screen, above bottom bar */}
         <div style={{
           flexShrink: 0,
           borderTop: '1px solid #e8edf2',
           padding: '12px 14px',
+          paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))',
           background: '#fff',
-          boxShadow: '0 -4px 16px rgba(15, 23, 42, 0.04)',
+          boxShadow: '0 -6px 20px rgba(15, 23, 42, 0.08)',
         }}>
           {isAuthenticated ? (
-            <button
-              type="button"
-              onClick={handleLogout}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                padding: '12px 14px', borderRadius: 12, border: '1.5px solid #fecaca',
-                background: '#FEF2F2', color: '#dc2626', fontSize: 14, fontWeight: 700,
-                cursor: 'pointer', fontFamily: 'inherit', minHeight: 48,
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
+            <button type="button" onClick={handleLogout} style={logoutBtnStyle}>
               <span aria-hidden>🚪</span>
               {t('nav.logout', 'Logout')}
             </button>
@@ -327,10 +363,11 @@ export default function MobileNav() {
               to="/signup"
               onClick={close}
               style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                padding: '12px 14px', borderRadius: 12, border: 'none',
-                background: '#1866C9', color: '#fff', fontSize: 14, fontWeight: 700,
-                textDecoration: 'none', minHeight: 48, boxSizing: 'border-box',
+                ...logoutBtnStyle,
+                background: '#1866C9',
+                border: 'none',
+                color: '#fff',
+                textDecoration: 'none',
               }}
             >
               {t('nav.loginSignup', 'Login / Sign Up')}

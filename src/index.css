@@ -225,8 +225,10 @@ img { max-width: 100%; height: auto; }
 .footer-col a:hover { color: #fff; }
 .footer-bottom { text-align: center; padding-top: 20px; margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; }
 
-/* Mobile Bottom Bar */
-.mobile-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(226,232,240,0.5); height: 64px; align-items: center; justify-content: space-around; padding: 0 4px; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -2px 12px rgba(0,0,0,0.06); }
+/* Mobile Bottom Bar — keep z-index BELOW MobileNav drawer (10050+) */
+.mobile-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000; background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(226,232,240,0.5); height: 64px; align-items: center; justify-content: space-around; padding: 0 4px; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -2px 12px rgba(0,0,0,0.06); }
+/* Hide tab bar while hamburger menu is open so it never covers Logout */
+body.mobile-nav-open .mobile-bottom-bar { display: none !important; }
 .mbb-item { display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 10px; color: #8E8E93; padding: 4px 0; border-radius: 12px; font-weight: 500; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: color 0.15s; background: none; border: none; cursor: pointer; font-family: inherit; min-height: 44px; justify-content: center; position: relative; }
 .mbb-item:active { transform: scale(0.95); }
 .mbb-item.active { color: var(--primary) !important; font-weight: 600; }
