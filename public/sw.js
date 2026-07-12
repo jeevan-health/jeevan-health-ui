@@ -1,5 +1,5 @@
 /* Jeevan HealthCare service worker — PWA install + push */
-const CACHE = 'jeevan-shell-v2';
+const CACHE = 'jeevan-shell-v3';
 const SHELL = [
   '/',
   '/manifest.webmanifest',

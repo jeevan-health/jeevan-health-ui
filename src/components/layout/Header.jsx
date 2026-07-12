@@ -6,6 +6,8 @@ import SmartSearch from './SmartSearch';
 import { useT } from '../../i18n/LanguageProvider';
 import { useMobileNavStore } from '../MobileNav';
 import { useTheme } from '../../context/ThemeContext';
+import InstallAppButton from '../InstallAppButton';
+import useSettingsStore from '../../stores/settingsStore';
 
 export default function Header() {
   const t = useT();
@@ -14,6 +16,7 @@ export default function Header() {
   const { isDark, toggle: toggleTheme } = useTheme();
   const menuOpen = useMobileNavStore(s => s.open);
   const toggleMenu = useMobileNavStore(s => s.toggle);
+  const reportsOnly = useSettingsStore(s => s.reportsOnly);
   const isDiagnostics = location.pathname === '/diagnostics' || location.pathname.startsWith('/test/') || location.pathname.startsWith('/tests/') || location.pathname.startsWith('/health-packages') || location.pathname.startsWith('/package/');
   const count = useCartStore(s => s.getCount());
   const setCartOpen = useCartStore(s => s.setCartOpen);
@@ -69,18 +72,24 @@ export default function Header() {
             <span className="hdr-label">{t('header.whatsapp', 'WhatsApp')}</span>
           </a>
 
-          <Link to="/consult-doctor" className="hdr-btn hdr-consult" title={t('header.consultTitle', 'Consult Doctor')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span className="hdr-label">{t('header.consult', 'Consult')}</span>
-          </Link>
+          <InstallAppButton variant="header" />
 
-          <button onClick={() => setCartOpen(true)} className="hdr-btn hdr-cart" title={t('header.cartTitle', 'Cart')}>
-            <div className="hdr-cart-icon-wrap">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-              {count > 0 && <span className="cart-count-badge">{count > 9 ? '9+' : count}</span>}
-            </div>
-            <span className="hdr-label">{t('header.cart', 'Cart')}</span>
-          </button>
+          {!reportsOnly && (
+            <Link to="/consult-doctor" className="hdr-btn hdr-consult" title={t('header.consultTitle', 'Consult Doctor')}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span className="hdr-label">{t('header.consult', 'Consult')}</span>
+            </Link>
+          )}
+
+          {!reportsOnly && (
+            <button onClick={() => setCartOpen(true)} className="hdr-btn hdr-cart" title={t('header.cartTitle', 'Cart')}>
+              <div className="hdr-cart-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                {count > 0 && <span className="cart-count-badge">{count > 9 ? '9+' : count}</span>}
+              </div>
+              <span className="hdr-label">{t('header.cart', 'Cart')}</span>
+            </button>
+          )}
 
           {isAuthenticated ? (
             <Link to="/dashboard" className="hdr-btn hdr-profile" title={t('header.dashboardTitle', 'Dashboard')}>

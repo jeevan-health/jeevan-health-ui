@@ -6,6 +6,7 @@ import AnalyticsTracker from './components/AnalyticsTracker';
 import ChatBotWidget from './components/ChatBotWidget';
 import LeadCapturePopup from './components/LeadCapturePopup';
 import useAuthStore from './stores/authStore';
+import useSettingsStore from './stores/settingsStore';
 import AdminLayout from './components/admin/AdminLayout';
 import RoleLayout from './components/role/RoleLayout';
 import { LanguageProvider } from './i18n/LanguageProvider';
@@ -21,6 +22,7 @@ import {
   FIELD_ROLE_PATHS,
 } from './utils/authRoles';
 import ThemeToggle from './components/ThemeToggle';
+import ReportsOnlyGuard from './components/ReportsOnlyGuard';
 
 const Home = lazy(() => import('./pages/Home'));
 const Diagnostics = lazy(() => import('./pages/Diagnostics'));
@@ -79,6 +81,7 @@ const AdminLabReports = lazy(() => import('./pages/admin/AdminLabReports'));
 const AdminCampQr = lazy(() => import('./pages/admin/AdminCampQr'));
 const AdminCamps = lazy(() => import('./pages/admin/AdminCamps'));
 const AdminCampDetail = lazy(() => import('./pages/admin/AdminCampDetail'));
+const AdminLaunchSettings = lazy(() => import('./pages/admin/AdminLaunchSettings'));
 const CampRegister = lazy(() => import('./pages/CampRegister'));
 const AdminStaffOnboarding = lazy(() => import('./pages/admin/AdminStaffOnboarding'));
 const AdminDoctorOnboarding = lazy(() => import('./pages/admin/AdminDoctorOnboarding'));
@@ -286,10 +289,20 @@ function NotFound() {
 export default function App() {
   const fetchProfile = useAuthStore(s => s.fetchProfile);
   const isAuth = useAuthStore(s => s.isAuthenticated);
+  const fetchPublicSettings = useSettingsStore(s => s.fetchPublic);
+  const fetchMyAccess = useSettingsStore(s => s.fetchMyAccess);
+  const resetSettings = useSettingsStore(s => s.reset);
 
   useEffect(() => {
-    if (isAuth) fetchProfile();
-  }, []);
+    fetchPublicSettings();
+    if (isAuth) {
+      fetchProfile();
+      fetchMyAccess();
+    } else {
+      resetSettings();
+      fetchPublicSettings();
+    }
+  }, [isAuth]);
 
   return (
     <ThemeProvider>
@@ -304,6 +317,7 @@ export default function App() {
       <Suspense fallback={<Loading />}>
         <PageTransition>
         <HostGate>
+        <ReportsOnlyGuard>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
@@ -418,6 +432,7 @@ export default function App() {
             <Route path="lab-reports" element={<AdminLabReports />} />
             <Route path="camps" element={<AdminCamps />} />
             <Route path="camps/:id" element={<AdminCampDetail />} />
+            <Route path="launch" element={<AdminLaunchSettings />} />
             <Route path="camp-qr" element={<AdminCampQr />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
             <Route path="doctor-onboarding" element={<AdminDoctorOnboarding />} />
@@ -566,6 +581,7 @@ export default function App() {
             <Route path="staff" element={<EmergCoordStaff />} />
           </Route>
         </Routes>
+        </ReportsOnlyGuard>
         </HostGate>
         </PageTransition>
       </Suspense>

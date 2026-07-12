@@ -8,6 +8,7 @@ import MobileNav from '../MobileNav';
 import useAuthStore from '../../stores/authStore';
 import useUploadModal from '../../stores/uploadModalStore';
 import useCartStore from '../../stores/cartStore';
+import useSettingsStore from '../../stores/settingsStore';
 import SEOMeta from './SEOMeta';
 import { useT } from '../../i18n/LanguageProvider';
 
@@ -15,16 +16,24 @@ export default function Layout() {
   const t = useT();
   const loc = useLocation();
   const isAuth = useAuthStore(s => s.isAuthenticated);
+  const reportsOnly = useSettingsStore(s => s.reportsOnly);
   const params = new URLSearchParams(loc.search);
 
   // 5 tabs — less cramped on small phones; Doctor is in hamburger + header
-  const navItems = [
-    { to: '/', icon: '🏠', label: t('layout.navHome', 'Home'), match: '/' },
-    { to: '/diagnostics', icon: '🔬', label: t('layout.navTests', 'Tests'), match: '/diagnostics' },
-    { to: isAuth ? '/dashboard?tab=bookings' : '/signup', icon: '📅', label: t('layout.navBookings', 'Bookings'), match: '/dashboard', tab: 'bookings' },
-    { to: isAuth ? '/dashboard?tab=health' : '/signup', icon: '💚', label: t('layout.navHealth', 'Health'), match: '/dashboard', tab: 'health' },
-    { to: isAuth ? '/dashboard?tab=profile' : '/signup', icon: '👤', label: t('layout.navProfile', 'Profile'), match: '/dashboard', tab: 'profile' },
-  ];
+  // Camp soft-launch: reports-only users get Reports instead of Tests/Bookings
+  const navItems = reportsOnly
+    ? [
+      { to: '/', icon: '🏠', label: t('layout.navHome', 'Home'), match: '/' },
+      { to: isAuth ? '/dashboard?tab=reports' : '/signup', icon: '📄', label: t('layout.navReports', 'Reports'), match: '/dashboard', tab: 'reports' },
+      { to: isAuth ? '/dashboard?tab=profile' : '/signup', icon: '👤', label: t('layout.navProfile', 'Profile'), match: '/dashboard', tab: 'profile' },
+    ]
+    : [
+      { to: '/', icon: '🏠', label: t('layout.navHome', 'Home'), match: '/' },
+      { to: '/diagnostics', icon: '🔬', label: t('layout.navTests', 'Tests'), match: '/diagnostics' },
+      { to: isAuth ? '/dashboard?tab=bookings' : '/signup', icon: '📅', label: t('layout.navBookings', 'Bookings'), match: '/dashboard', tab: 'bookings' },
+      { to: isAuth ? '/dashboard?tab=health' : '/signup', icon: '💚', label: t('layout.navHealth', 'Health'), match: '/dashboard', tab: 'health' },
+      { to: isAuth ? '/dashboard?tab=profile' : '/signup', icon: '👤', label: t('layout.navProfile', 'Profile'), match: '/dashboard', tab: 'profile' },
+    ];
 
   const isActiveTab = (item) => {
     if (item.to === '/') return loc.pathname === '/';

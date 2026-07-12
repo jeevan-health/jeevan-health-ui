@@ -34,6 +34,7 @@ const NAV_GROUPS = [
     items: [
       { path: '/admin/camps', label: 'admin.layout.camps', fallback: 'Camps', icon: '🏕️' },
       { path: '/admin/lab-reports', label: 'admin.layout.lab_reports', fallback: 'Lab reports', icon: '📄' },
+      { path: '/admin/launch', label: 'admin.layout.launch', fallback: 'App launch', icon: '🚀' },
     ],
   },
   {

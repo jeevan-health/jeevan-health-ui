@@ -11,6 +11,8 @@ import PhysioCrossSell from '../components/PhysioCrossSell';
 import VaccineCrossSell from '../components/VaccineCrossSell';
 import * as labReportService from '../services/labReportService';
 import { subscribeWebPush } from '../lib/pwa';
+import InstallAppButton from '../components/InstallAppButton';
+import FeatureGateBanner from '../components/FeatureGateBanner';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -362,6 +364,10 @@ export default function Dashboard() {
       {/* Main */}
       <main className="dash-main">
         <div className="dash-main-inner">
+        <FeatureGateBanner />
+        <div style={{ marginBottom: 12 }}>
+          <InstallAppButton variant="card" />
+        </div>
 
         {/* ===== HEADER ===== */}
         <div className="dash-header-wrap" style={{ marginBottom: activeSection === 'overview' ? 16 : 10 }}>
