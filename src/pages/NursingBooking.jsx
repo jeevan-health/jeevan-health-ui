@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { useToast } from '../components/Toast';
+import useAuthStore from '../stores/authStore';
+import * as nursingService from '../services/nursingService';
 import {
   nursingCategories, nursingServices, nurseLevels, nurses, nursingPackages, STORAGE_KEYS,
 } from '../data/nursingData';
@@ -39,9 +41,12 @@ export default function NursingBooking() {
   const t = useT();
   const toast = useToast();
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const [searchParams] = useSearchParams();
   const preSlug = searchParams.get('service');
 
+  const [apiServices, setApiServices] = useState([]);
+  const [catalogSource, setCatalogSource] = useState('static'); // 'api' | 'static'
   const [step, setStep] = useState(preSlug ? 1 : 0);
   const [catFilter, setCatFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all');
@@ -58,14 +63,50 @@ export default function NursingBooking() {
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: res } = await nursingService.listServices();
+        const list = (res.services || []).map(s => ({
+          id: s.id,
+          slug: s.slug,
+          category: s.category,
+          name: s.name,
+          price: Number(s.price) || 0,
+          originalPrice: Number(s.originalPrice) || Number(s.price) || 0,
+          duration: s.duration || '',
+          description: s.description || '',
+          nurseLevel: s.nurseLevel || '',
+          popular: !!s.popular,
+          api: true,
+        }));
+        if (!cancelled && list.length > 0) {
+          setApiServices(list);
+          setCatalogSource('api');
+          if (preSlug) {
+            const found = list.find(s => s.slug === preSlug);
+            if (found) setData(d => ({ ...d, service: found }));
+          }
+        }
+      } catch {
+        // Keep static catalog fallback — honest hybrid until API is up
+        if (!cancelled) setCatalogSource('static');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [preSlug]);
+
   const update = (key, val) => {
     setData(d => ({ ...d, [key]: val }));
     setErrors(e => ({ ...e, [key]: null }));
   };
 
+  const catalog = catalogSource === 'api' && apiServices.length > 0 ? apiServices : nursingServices;
+
   const filteredServices = catFilter === 'all'
-    ? nursingServices
-    : nursingServices.filter(s => s.category === catFilter);
+    ? catalog
+    : catalog.filter(s => s.category === catFilter);
 
   const filteredNurses = data.service
     ? nurses.filter(n => {
@@ -112,39 +153,92 @@ export default function NursingBooking() {
   };
   const prev = () => setStep(s => Math.max(s - 1, 0));
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!validateStep(3)) return;
+    if (!isAuthenticated) {
+      toast(t('nursing.booking.loginRequired', 'Please sign in to confirm your nursing booking.'), 'error');
+      navigate('/signup', { state: { from: '/nursing-care/book' } });
+      return;
+    }
     setProcessing(true);
-    setTimeout(() => {
-      const booking = {
-        id: 'NUR-' + Date.now().toString(36).toUpperCase(),
-        serviceName: data.service?.name || '',
-        servicePrice: data.service?.price || 0,
-        serviceDuration: data.service?.duration || '',
-        nurseName: data.noPreference ? 'Auto-assigned' : (data.nurse?.name || ''),
-        nurseLevel: data.nurse?.level || '',
-        patientName: data.patientName,
-        patientPhone: data.patientPhone,
-        patientEmail: data.patientEmail,
-        patientAddress: data.patientAddress,
-        patientAge: data.patientAge,
-        patientGender: data.patientGender,
-        medicalNotes: data.medicalNotes || '',
-        preferredDate: data.preferredDate,
-        preferredTime: data.preferredTime,
-        duration: data.duration || data.service?.duration || '',
-        urgency: data.urgency,
-        totalAmount,
-        status: 'Confirmed',
-        createdAt: new Date().toISOString(),
+    const payload = {
+      serviceId: data.service?.api ? data.service.id : undefined,
+      serviceSlug: data.service?.slug,
+      serviceName: data.service?.name || '',
+      servicePrice: data.service?.price || 0,
+      nurseName: data.noPreference ? 'Auto-assigned' : (data.nurse?.name || 'Auto-assigned'),
+      nurseLevel: data.nurse?.level || data.service?.nurseLevel || '',
+      patientName: data.patientName,
+      patientPhone: data.patientPhone,
+      patientEmail: data.patientEmail,
+      patientAddress: data.patientAddress,
+      patientAge: data.patientAge,
+      patientGender: data.patientGender,
+      medicalNotes: data.medicalNotes || '',
+      preferredDate: data.preferredDate,
+      preferredTime: data.preferredTime,
+      duration: data.duration || data.service?.duration || '',
+      urgency: data.urgency,
+      totalAmount,
+    };
+    try {
+      const { data: booking } = await nursingService.createBooking(payload);
+      const confirmedBooking = {
+        id: booking.publicId || `NUR-${booking.id}`,
+        apiId: booking.id,
+        serviceName: booking.serviceName,
+        servicePrice: booking.servicePrice,
+        serviceDuration: booking.duration || data.service?.duration || '',
+        nurseName: booking.nurseName,
+        nurseLevel: booking.nurseLevel || '',
+        patientName: booking.patientName,
+        patientPhone: booking.patientPhone,
+        patientEmail: booking.patientEmail,
+        patientAddress: booking.patientAddress,
+        patientAge: booking.patientAge,
+        patientGender: booking.patientGender,
+        medicalNotes: booking.medicalNotes || '',
+        preferredDate: booking.preferredDate,
+        preferredTime: booking.preferredTime,
+        duration: booking.duration,
+        urgency: booking.urgency,
+        totalAmount: booking.totalAmount,
+        status: booking.status === 'confirmed' ? 'Confirmed' : booking.status,
+        createdAt: booking.createdAt,
+        api: true,
       };
-      const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
-      bookings.push(booking);
-      localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
-      setConfirmed(booking);
+      // Mirror to localStorage for offline list pages that still read jh_nursing_bookings
+      try {
+        const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
+        bookings.push(confirmedBooking);
+        localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+      } catch { /* ignore */ }
+      setConfirmed(confirmedBooking);
       toast(t('nursing.booking.confirmed', 'Nursing booking confirmed!'), 'success');
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || t('nursing.booking.failed', 'Booking failed. Please try again.');
+      toast(msg, 'error');
+      // Fallback local-only only if API is completely unreachable — mark as local
+      if (!err?.response) {
+        const booking = {
+          id: 'NUR-LOCAL-' + Date.now().toString(36).toUpperCase(),
+          ...payload,
+          serviceDuration: payload.duration,
+          status: 'Confirmed',
+          createdAt: new Date().toISOString(),
+          localOnly: true,
+        };
+        try {
+          const bookings = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKINGS) || '[]');
+          bookings.push(booking);
+          localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+        } catch { /* ignore */ }
+        setConfirmed(booking);
+        toast(t('nursing.booking.localFallback', 'Saved locally — will sync when API is available.'), 'error');
+      }
+    } finally {
       setProcessing(false);
-    }, 1500);
+    }
   };
 
   const getWALink = (booking) => {

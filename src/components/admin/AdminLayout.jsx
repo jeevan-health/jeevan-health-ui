@@ -32,7 +32,8 @@ const NAV_GROUPS = [
     title: 'Home services',
     items: [
       { path: '/admin/collection', label: 'admin.layout.phlebotomists', fallback: 'Phlebotomists', icon: '🚑' },
-      { path: '/admin/nursing', label: 'admin.layout.nursing', fallback: 'Nursing Care', icon: '👩‍⚕️' },
+      { path: '/admin/nursing-bookings', label: 'admin.layout.nursing_bookings', fallback: 'Nursing Bookings', icon: '👩‍⚕️' },
+      { path: '/admin/nursing', label: 'admin.layout.nursing', fallback: 'Nursing Tools', icon: '🩹' },
       { path: '/admin/physiotherapy', label: 'admin.layout.physiotherapy', fallback: 'Physiotherapy', icon: '🦴' },
       { path: '/admin/vaccination', label: 'admin.layout.vaccination', fallback: 'Vaccination', icon: '💉' },
     ],

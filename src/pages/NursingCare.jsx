@@ -43,15 +43,18 @@ export default function NursingCare() {
   const handleQuickSubmit = (e) => {
     e.preventDefault();
     if (!quickForm.category || !quickForm.pincode) return;
-    const bookings = JSON.parse(localStorage.getItem('jh_nursing_bookings') || '[]');
-    bookings.push({
-      ...quickForm,
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      status: 'Quick Request',
-      source: 'quick-booking-widget',
-    });
-    localStorage.setItem('jh_nursing_bookings', JSON.stringify(bookings));
+    // Honest: widget is a lead capture only — full booking is /nursing-care/book (API when signed in)
+    try {
+      const leads = JSON.parse(localStorage.getItem('jh_nurse_leads') || '[]');
+      leads.push({
+        ...quickForm,
+        id: Date.now(),
+        createdAt: new Date().toISOString(),
+        status: 'lead',
+        source: 'quick-booking-widget',
+      });
+      localStorage.setItem('jh_nurse_leads', JSON.stringify(leads));
+    } catch { /* ignore */ }
     setQuickSubmitted(true);
     setTimeout(() => {
       setQuickSubmitted(false);
