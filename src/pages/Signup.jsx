@@ -70,8 +70,15 @@ export default function Signup() {
         setDevOtp('');
       }
       setSentTo(data.identifier || identifier);
-      if (data.channel === 'console') {
-        setChannelHint(t('signup.otp.consoleHint', 'Delivery is in console/dev mode — use the code shown below or server logs.'));
+      if (data.emailFailed || data.provider === 'console-fallback') {
+        setChannelHint(
+          (data.warning
+            ? `Email was NOT sent (${data.warning}). `
+            : 'Email was NOT sent (provider error). ')
+          + 'Using on-screen code so you are not locked out. Fix Brevo API key / From email on Render.'
+        );
+      } else if (data.channel === 'console') {
+        setChannelHint(t('signup.otp.consoleHint', 'Delivery is in console/dev mode — use the code shown below or server logs. EMAIL_PROVIDER is not set to brevo (or key missing).'));
       } else if (data.channel === 'email') {
         setChannelHint(t('signup.otp.emailHint', 'Check your inbox (and spam) for the login code.'));
       } else {
