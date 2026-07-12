@@ -467,7 +467,13 @@ export default {
     try {
       if (isStaticAsset(pathname) || pathname === '/robots.txt' || pathname === '/sitemap.xml') {
         const assetResp = await env.ASSETS.fetch(request);
-        if (assetResp.status === 404) {
+        const assetType = assetResp.headers.get('content-type') || '';
+        // A missing asset can be served back as index.html (text/html) by the
+        // SPA fallback. Returning HTML for a .js/.css request causes a hard
+        // MIME-type failure in the browser ("Expected a JavaScript-or-Wasm
+        // module script but the server responded with a MIME type of text/html").
+        // Treat both a 404 and any HTML response as "not found" for assets.
+        if (assetResp.status === 404 || assetType.includes('text/html')) {
           return new Response('Not Found', { status: 404, headers: { 'content-type': 'text/plain' } });
         }
         return assetResp;
@@ -485,6 +491,9 @@ export default {
       return new Response(modified, {
         headers: {
           'content-type': 'text/html;charset=UTF-8',
+          // Never let the HTML (which references hashed chunks) be cached
+          // stale — always revalidate so new deploys are picked up.
+          'cache-control': 'public, max-age=0, must-revalidate',
         },
       });
     } catch (err) {
