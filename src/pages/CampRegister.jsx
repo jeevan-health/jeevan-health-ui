@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 import { sendOtp as sendOtpApi } from '../services/authService';
@@ -7,20 +7,27 @@ import { getPostLoginPath } from '../utils/authRoles';
 import {
   canInstallPwa,
   onInstallAvailability,
-  promptInstallPwa,
   isStandalonePwa,
-  subscribeWebPush,
+  isIosSafari,
+  installAndEnablePush,
 } from '../lib/pwa';
 import * as labReportService from '../services/labReportService';
+import * as campService from '../services/campService';
 
 /**
- * Camp patient flow: register with email OTP → install PWA → enable notifications.
- * Staff shows /admin/camp-qr which points here.
+ * Camp patient flow: register with email OTP → join camp → install PWA → notifications.
+ * Route: /camp or /camp/:slug
  */
 export default function CampRegister() {
   const t = useT();
   const navigate = useNavigate();
+  const { slug } = useParams();
   const { verifyOtp, isAuthenticated, user } = useAuthStore();
+
+  const [camp, setCamp] = useState(null);
+  const [campLoading, setCampLoading] = useState(!!slug);
+  const [campError, setCampError] = useState('');
+  const [joined, setJoined] = useState(false);
 
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -30,15 +37,56 @@ export default function CampRegister() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [installReady, setInstallReady] = useState(false);
-  const [pushStatus, setPushStatus] = useState('');
+  const [setupBusy, setSetupBusy] = useState(false);
+  const [setupDone, setSetupDone] = useState(false);
+  const [setupMsg, setSetupMsg] = useState('');
 
   useEffect(() => onInstallAvailability(setInstallReady), []);
 
   useEffect(() => {
+    if (!slug) {
+      setCamp(null);
+      setCampLoading(false);
+      return undefined;
+    }
+    let cancelled = false;
+    setCampLoading(true);
+    campService.getPublicCamp(slug)
+      .then(({ data }) => {
+        if (!cancelled) {
+          setCamp(data.camp);
+          setCampError('');
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setCamp(null);
+          setCampError(err?.response?.data?.error || 'Camp not found');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setCampLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  const joinIfNeeded = useCallback(async () => {
+    if (!slug || !isAuthenticated) return;
+    try {
+      await campService.joinCamp(slug);
+      setJoined(true);
+    } catch (err) {
+      console.warn('camp join failed', err?.response?.data || err.message);
+      // Don't block UX — user is still registered as a customer
+    }
+  }, [slug, isAuthenticated]);
+
+  useEffect(() => {
     if (isAuthenticated && user?.email) {
       setStep(3);
+      joinIfNeeded();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, joinIfNeeded]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -76,52 +124,116 @@ export default function CampRegister() {
       return;
     }
     setStep(3);
+    // join after tokens are in store
+    setTimeout(() => joinIfNeeded(), 50);
   };
 
-  const handleInstall = async () => {
-    const res = await promptInstallPwa();
-    if (!res.ok && res.reason === 'not_available') {
-      setError(t('camp.install.manual', 'Use browser menu → “Add to Home Screen” / Install app'));
-    }
+  const pushApi = {
+    getVapidKey: async () => {
+      const { data } = await labReportService.getVapidPublicKey();
+      return data.publicKey || null;
+    },
+    saveSubscription: async (sub) => {
+      await labReportService.savePushSubscription(sub);
+    },
   };
 
-  const handleEnablePush = async () => {
-    setPushStatus('');
+  /**
+   * Primary CTA: install app (native prompt) then enable notifications.
+   */
+  const handleInstallAndNotify = async () => {
     setError('');
+    setSetupMsg('');
+    setSetupBusy(true);
     try {
-      const res = await subscribeWebPush({
-        getVapidKey: async () => {
-          const { data } = await labReportService.getVapidPublicKey();
-          return data.publicKey || null;
-        },
-        saveSubscription: async (sub) => {
-          await labReportService.savePushSubscription(sub);
-        },
-      });
-      if (res.ok) setPushStatus(t('camp.push.ok', 'Notifications enabled — we will alert you when your report is ready.'));
-      else if (res.reason === 'denied') setError(t('camp.push.denied', 'Notifications blocked. Enable them in browser settings.'));
-      else if (res.reason === 'no_vapid') setError(t('camp.push.novapid', 'Push not configured on server yet (VAPID keys). Email reports still work.'));
-      else setError(t('camp.push.unsupported', 'Push not supported on this device/browser.'));
+      if (slug) await joinIfNeeded();
+
+      const steps = await installAndEnablePush(pushApi);
+      const parts = [];
+
+      if (steps.install?.ok || steps.install?.reason === 'already_installed') {
+        parts.push(isStandalonePwa() || steps.install?.reason === 'already_installed'
+          ? 'App ready'
+          : 'App installed');
+      } else if (steps.install?.reason === 'ios_manual') {
+        parts.push('On iPhone: Share → Add to Home Screen');
+      } else if (steps.install?.reason === 'not_available') {
+        // Chromium sometimes delays beforeinstallprompt — keep trying visibility
+        if (installReady) {
+          parts.push('Install cancelled — try again');
+        } else {
+          parts.push('Install will appear when Chrome offers it — tap again in a moment, or use browser menu → Install app');
+        }
+      } else if (steps.install?.outcome === 'dismissed') {
+        parts.push('Install skipped');
+      }
+
+      if (steps.push?.ok) {
+        parts.push('Notifications on');
+        setSetupDone(true);
+      } else if (steps.push?.reason === 'denied') {
+        setError(t('camp.push.denied', 'Notifications blocked. Enable them in browser settings.'));
+      } else if (steps.push?.reason === 'no_vapid') {
+        parts.push('Push not configured yet (email reports still work)');
+      } else if (steps.push?.reason === 'unsupported') {
+        parts.push('Push not supported on this browser');
+      }
+
+      setSetupMsg(parts.filter(Boolean).join(' · '));
     } catch (err) {
-      setError(err?.response?.data?.error || 'Could not enable notifications');
+      setError(err?.response?.data?.error || err.message || 'Setup failed');
+    } finally {
+      setSetupBusy(false);
     }
   };
+
+  const title = camp?.name || t('camp.title', 'Camp registration');
+  const headline = camp?.headline || t('camp.sub', 'Register with email · Install app · Get report alerts');
+
+  if (campLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F7FF' }}>
+        <p style={{ color: '#64748b' }}>Loading camp…</p>
+      </div>
+    );
+  }
+
+  if (slug && campError) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F7FF', padding: 24 }}>
+        <div style={{ background: '#fff', borderRadius: 16, padding: 24, maxWidth: 400, textAlign: 'center' }}>
+          <div style={{ fontSize: 36, marginBottom: 8 }}>🏕️</div>
+          <h1 style={{ fontSize: 18, margin: '0 0 8px' }}>Camp not available</h1>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 16px' }}>{campError}</p>
+          <Link to="/" className="btn btn-primary">Go home</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #0F5DA8 0%, #1A7AD4 35%, #F0F7FF 35%)', padding: '24px 16px 48px' }}>
       <div style={{ maxWidth: 420, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', color: '#fff', marginBottom: 20 }}>
-          <img src="/logo.png" alt="" style={{ height: 48, marginBottom: 8 }} onError={e => { e.target.style.display = 'none'; }} />
-          <h1 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px' }}>{t('camp.title', 'Camp registration')}</h1>
-          <p style={{ margin: 0, fontSize: 13, opacity: 0.92 }}>
-            {t('camp.sub', 'Register with email · Install app · Get report alerts')}
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 14, marginBottom: 10 }}>
+            <img src="/logo.png" alt="Jeevan" style={{ height: 44 }} onError={(e) => { e.target.style.display = 'none'; }} />
+            {camp?.companyLogo && (
+              <>
+                <span style={{ opacity: 0.5, fontSize: 18 }}>|</span>
+                <img src={camp.companyLogo} alt="" style={{ height: 44, maxWidth: 100, objectFit: 'contain', background: '#fff', borderRadius: 8, padding: 4 }} />
+              </>
+            )}
+          </div>
+          <h1 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 6px' }}>{title}</h1>
+          <p style={{ margin: 0, fontSize: 13, opacity: 0.92 }}>{headline}</p>
+          {camp?.location && (
+            <p style={{ margin: '6px 0 0', fontSize: 12, opacity: 0.85 }}>📍 {camp.location}</p>
+          )}
         </div>
 
         <div style={{ background: '#fff', borderRadius: 16, padding: 22, boxShadow: '0 12px 40px rgba(15,23,42,0.12)' }}>
-          {/* Steps */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 18 }}>
-            {['Email', 'OTP', 'Install'].map((label, i) => (
+            {['Email', 'OTP', 'App'].map((label, i) => (
               <div key={label} style={{ flex: 1, textAlign: 'center' }}>
                 <div style={{
                   height: 4, borderRadius: 4, marginBottom: 6,
@@ -148,7 +260,7 @@ export default function CampRegister() {
                 className="input"
                 autoComplete="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
                 style={{ width: '100%', marginBottom: 14 }}
@@ -175,7 +287,7 @@ export default function CampRegister() {
                 className="input"
                 autoComplete="one-time-code"
                 value={otp}
-                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="6-digit OTP"
                 required
                 style={{ width: '100%', marginBottom: 14 }}
@@ -199,47 +311,60 @@ export default function CampRegister() {
                 <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>
                   {user?.email || sentTo || email}
                 </p>
+                {slug && (
+                  <p style={{ fontSize: 12, color: '#16a34a', margin: '8px 0 0', fontWeight: 600 }}>
+                    {joined ? `Joined ${camp?.name || 'camp'} ✓` : camp?.name ? `Linking to ${camp.name}…` : ''}
+                  </p>
+                )}
               </div>
 
-              {!isStandalonePwa() && (
-                <div style={{ padding: 14, borderRadius: 12, background: '#F0F7FF', border: '1px solid #dbeafe', marginBottom: 12 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>📱 {t('camp.install.title', 'Install the app')}</div>
-                  <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 10px', lineHeight: 1.45 }}>
-                    {t('camp.install.help', 'Install Jeevan on your home screen to get report notifications and open reports quickly.')}
-                  </p>
-                  {installReady ? (
-                    <button type="button" className="btn btn-primary btn-block" onClick={handleInstall} style={{ minHeight: 46 }}>
-                      {t('camp.install.cta', 'Install app')}
-                    </button>
-                  ) : (
-                    <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>
-                      {t('camp.install.manual2', 'Browser menu → Add to Home Screen / Install app')}
-                    </p>
-                  )}
+              <div style={{ padding: 16, borderRadius: 12, background: 'linear-gradient(135deg, #F0F7FF, #f0fdf4)', border: '1px solid #dbeafe', marginBottom: 12 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
+                  📱 {t('camp.setup.title', 'Install app & get alerts')}
                 </div>
-              )}
-
-              {isStandalonePwa() && (
-                <p style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, textAlign: 'center', marginBottom: 12 }}>
-                  App installed ✓
+                <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px', lineHeight: 1.5 }}>
+                  {t('camp.setup.help', 'One tap installs Jeevan on your phone and turns on report notifications.')}
                 </p>
-              )}
 
-              <div style={{ padding: 14, borderRadius: 12, background: '#f0fdf4', border: '1px solid #bbf7d0', marginBottom: 12 }}>
-                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>🔔 {t('camp.push.title', 'Report alerts')}</div>
-                <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 10px' }}>
-                  {t('camp.push.help', 'Allow notifications so we can tell you when your lab report is ready.')}
-                </p>
-                <button type="button" className="btn btn-outline btn-block" onClick={handleEnablePush} style={{ minHeight: 44 }}>
-                  {t('camp.push.cta', 'Enable notifications')}
+                {isStandalonePwa() ? (
+                  <p style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, margin: '0 0 10px' }}>
+                    Running as installed app ✓
+                  </p>
+                ) : null}
+
+                {isIosSafari() && !isStandalonePwa() && (
+                  <p style={{ fontSize: 11, color: '#b45309', background: '#fffbeb', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
+                    iPhone: after tapping below, if install does not open, use <strong>Share → Add to Home Screen</strong>, then open the app and allow notifications.
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="btn btn-primary btn-block"
+                  onClick={handleInstallAndNotify}
+                  disabled={setupBusy}
+                  style={{ minHeight: 50, fontWeight: 700, fontSize: 15 }}
+                >
+                  {setupBusy
+                    ? 'Setting up…'
+                    : setupDone
+                      ? '✓ App ready — notifications on'
+                      : isStandalonePwa()
+                        ? '🔔 Enable report notifications'
+                        : installReady
+                          ? '📲 Install app & enable alerts'
+                          : '📲 Install app & enable alerts'}
                 </button>
-                {pushStatus && <p style={{ fontSize: 12, color: '#166534', margin: '10px 0 0' }}>{pushStatus}</p>}
+
+                {setupMsg && (
+                  <p style={{ fontSize: 12, color: '#166534', margin: '10px 0 0', lineHeight: 1.4 }}>{setupMsg}</p>
+                )}
               </div>
 
               <button
                 type="button"
-                className="btn btn-primary btn-block"
-                style={{ minHeight: 48 }}
+                className="btn btn-outline btn-block"
+                style={{ minHeight: 46 }}
                 onClick={() => navigate(getPostLoginPath(user?.role) || '/dashboard?tab=reports')}
               >
                 {t('camp.openDashboard', 'Open my reports')}

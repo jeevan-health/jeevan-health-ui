@@ -8,6 +8,7 @@ const installListeners = new Set();
 export function initPwa() {
   if (typeof window === 'undefined') return;
 
+  // Capture as early as possible so Install button can call prompt()
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
@@ -20,11 +21,14 @@ export function initPwa() {
   });
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    // Register immediately (not only on load) so install criteria can be met sooner
+    const register = () => {
       navigator.serviceWorker.register('/sw.js').catch((err) => {
         console.warn('SW register failed', err);
       });
-    });
+    };
+    if (document.readyState === 'complete') register();
+    else window.addEventListener('load', register);
   }
 }
 
@@ -38,15 +42,22 @@ export function onInstallAvailability(fn) {
   return () => installListeners.delete(fn);
 }
 
+/**
+ * Trigger native install dialog when browser has offered beforeinstallprompt.
+ */
 export async function promptInstallPwa() {
   if (!deferredInstallPrompt) {
     return { ok: false, reason: 'not_available' };
   }
-  deferredInstallPrompt.prompt();
-  const choice = await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  installListeners.forEach((fn) => fn(false));
-  return { ok: choice.outcome === 'accepted', outcome: choice.outcome };
+  try {
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installListeners.forEach((fn) => fn(false));
+    return { ok: choice.outcome === 'accepted', outcome: choice.outcome };
+  } catch (err) {
+    return { ok: false, reason: 'error', error: err?.message };
+  }
 }
 
 export function isStandalonePwa() {
@@ -55,6 +66,15 @@ export function isStandalonePwa() {
     window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true
   );
+}
+
+export function isIosSafari() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const webkit = /WebKit/.test(ua);
+  const notChrome = !/CriOS|FxiOS|EdgiOS/.test(ua);
+  return iOS && webkit && notChrome;
 }
 
 function urlBase64ToUint8Array(base64String) {
@@ -91,4 +111,33 @@ export async function subscribeWebPush(api) {
   }
   await api.saveSubscription(sub.toJSON());
   return { ok: true, subscription: sub.toJSON() };
+}
+
+/**
+ * One-tap camp flow: try native install, then request notification permission + push.
+ * Always attempts push after install attempt (accepted, dismissed, or already installed).
+ */
+export async function installAndEnablePush(api) {
+  const steps = { install: null, push: null };
+
+  if (isStandalonePwa()) {
+    steps.install = { ok: true, reason: 'already_installed' };
+  } else if (canInstallPwa()) {
+    steps.install = await promptInstallPwa();
+  } else if (isIosSafari()) {
+    steps.install = { ok: false, reason: 'ios_manual' };
+  } else {
+    steps.install = { ok: false, reason: 'not_available' };
+  }
+
+  // Small delay so install dialog doesn't fight notification prompt
+  await new Promise((r) => setTimeout(r, steps.install?.ok ? 400 : 100));
+
+  try {
+    steps.push = await subscribeWebPush(api);
+  } catch (err) {
+    steps.push = { ok: false, reason: 'error', error: err?.message };
+  }
+
+  return steps;
 }

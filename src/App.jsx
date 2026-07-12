@@ -77,6 +77,8 @@ const AdminDoctors = lazy(() => import('./pages/admin/AdminDoctors'));
 const AdminMedicines = lazy(() => import('./pages/admin/AdminMedicines'));
 const AdminLabReports = lazy(() => import('./pages/admin/AdminLabReports'));
 const AdminCampQr = lazy(() => import('./pages/admin/AdminCampQr'));
+const AdminCamps = lazy(() => import('./pages/admin/AdminCamps'));
+const AdminCampDetail = lazy(() => import('./pages/admin/AdminCampDetail'));
 const CampRegister = lazy(() => import('./pages/CampRegister'));
 const AdminStaffOnboarding = lazy(() => import('./pages/admin/AdminStaffOnboarding'));
 const AdminDoctorOnboarding = lazy(() => import('./pages/admin/AdminDoctorOnboarding'));
@@ -390,6 +392,7 @@ export default function App() {
           </Route>
           <Route path="/signup" element={<PatientAuthGate><Signup /></PatientAuthGate>} />
           <Route path="/camp" element={<CampRegister />} />
+          <Route path="/camp/:slug" element={<CampRegister />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding-staff" element={<StaffOnboarding />} />
           <Route path="/onboarding-doctor" element={<DoctorOnboarding />} />
@@ -413,6 +416,8 @@ export default function App() {
             <Route path="doctors" element={<AdminDoctors />} />
             <Route path="medicines" element={<AdminMedicines />} />
             <Route path="lab-reports" element={<AdminLabReports />} />
+            <Route path="camps" element={<AdminCamps />} />
+            <Route path="camps/:id" element={<AdminCampDetail />} />
             <Route path="camp-qr" element={<AdminCampQr />} />
             <Route path="staff-onboarding" element={<AdminStaffOnboarding />} />
             <Route path="doctor-onboarding" element={<AdminDoctorOnboarding />} />

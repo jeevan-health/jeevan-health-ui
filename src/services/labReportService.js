@@ -1,7 +1,9 @@
 import api from './api';
 
-export const searchPatients = (q) =>
-  api.get('/lab-reports/admin/patients', { params: { q } });
+export const searchPatients = (q, campId) =>
+  api.get('/lab-reports/admin/patients', {
+    params: { q, ...(campId ? { campId } : {}) },
+  });
 
 export const listAdminReports = (params = {}) =>
   api.get('/lab-reports/admin', { params });
