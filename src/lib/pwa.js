@@ -1,12 +1,10 @@
 /**
  * PWA install + service worker + web push helpers
  *
- * Install only works when:
- * - HTTPS
- * - Valid web app manifest (served as JSON, not SPA HTML)
- * - Service worker registered
- * - Icons 192 + 512
- * - Chrome/Edge fires `beforeinstallprompt` (not available on iOS Safari)
+ * Real-world camp note:
+ * - Native install dialog ONLY on Chromium after beforeinstallprompt
+ * - iOS Safari: Add to Home Screen only (no API)
+ * - Camera / WhatsApp / Instagram in-app browsers: almost never installable — open Chrome
  */
 
 let deferredInstallPrompt = null;
@@ -16,7 +14,6 @@ let swRegistrationPromise = null;
 export function initPwa() {
   if (typeof window === 'undefined') return;
 
-  // Capture install event as early as possible
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
@@ -35,7 +32,6 @@ export function initPwa() {
     swRegistrationPromise = navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
       .then((reg) => {
-        // Nudge update so new SW activates after deploy
         try { reg.update(); } catch { /* ignore */ }
         return reg;
       })
@@ -60,11 +56,7 @@ export function onInstallAvailability(fn) {
   return () => installListeners.delete(fn);
 }
 
-/**
- * Wait briefly for Chrome to become installable (SW + manifest criteria).
- * Returns true if native install prompt is available.
- */
-export async function waitForInstallPrompt(timeoutMs = 8000) {
+export async function waitForInstallPrompt(timeoutMs = 12000) {
   if (deferredInstallPrompt) return true;
   if (isStandalonePwa()) return false;
 
@@ -80,21 +72,15 @@ export async function waitForInstallPrompt(timeoutMs = 8000) {
     const onPrompt = () => finish(true);
     window.addEventListener('beforeinstallprompt', onPrompt);
     const timer = setTimeout(() => finish(!!deferredInstallPrompt), timeoutMs);
-
-    // Ensure SW is registered — helps installability
     getSwRegistration().then(() => {
       if (deferredInstallPrompt) finish(true);
     });
   });
 }
 
-/**
- * Trigger native install dialog when browser has offered beforeinstallprompt.
- */
 export async function promptInstallPwa() {
   if (!deferredInstallPrompt) {
-    // One more chance: wait a bit after SW is ready
-    await waitForInstallPrompt(2500);
+    await waitForInstallPrompt(3000);
   }
   if (!deferredInstallPrompt) {
     return { ok: false, reason: 'not_available' };
@@ -118,19 +104,125 @@ export function isStandalonePwa() {
   );
 }
 
-export function isIosSafari() {
+export function isIos() {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent || '';
-  const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return /iPad|iPhone|iPod/.test(ua)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+export function isIosSafari() {
+  if (!isIos()) return false;
+  const ua = navigator.userAgent || '';
   const webkit = /WebKit/.test(ua);
-  const notChrome = !/CriOS|FxiOS|EdgiOS/.test(ua);
-  return iOS && webkit && notChrome;
+  const notOther = !/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
+  return webkit && notOther;
+}
+
+export function isAndroid() {
+  return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
 }
 
 export function isAndroidChrome() {
+  if (!isAndroid()) return false;
+  const ua = navigator.userAgent || '';
+  return /Chrome/i.test(ua) && !/EdgA|OPR|SamsungBrowser|UCBrowser|YaBrowser/i.test(ua);
+}
+
+/** WhatsApp / Instagram / Facebook / etc. — PWA install almost never works here */
+export function isInAppBrowser() {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent || '';
-  return /Android/i.test(ua) && /Chrome/i.test(ua) && !/EdgA|OPR|SamsungBrowser/i.test(ua);
+  if (/FBAN|FBAV|FB_IAB|Instagram|Line\/|LinkedInApp|Twitter|MicroMessenger|Snapchat|Pinterest|TikTok|Bytedance|musical_ly|GSA\/|WhatsApp/i.test(ua)) {
+    return true;
+  }
+  // Android WebView
+  if (isAndroid() && /(\bwv\b|; wv\)|Version\/[\d.]+.*Chrome\/[.0-9]* Mobile)/i.test(ua) && !/Chrome\/[.0-9]+ Mobile Safari/i.test(ua)) {
+    // many WebViews still claim Chrome — wv token is the signal
+    if (/\bwv\b/.test(ua)) return true;
+  }
+  return false;
+}
+
+/**
+ * Best install strategy for current browser (for camp UX).
+ * @returns {{
+ *   mode: 'standalone'|'native'|'open_chrome'|'ios_guide'|'android_guide'|'desktop_guide',
+ *   canNativeInstall: boolean,
+ *   label: string,
+ *   hint: string
+ * }}
+ */
+export function getInstallStrategy() {
+  if (isStandalonePwa()) {
+    return {
+      mode: 'standalone',
+      canNativeInstall: false,
+      label: 'Enable report alerts',
+      hint: 'App is installed. Turn on notifications so we can tell you when the lab report is ready.',
+    };
+  }
+  if (isInAppBrowser()) {
+    return {
+      mode: 'open_chrome',
+      canNativeInstall: false,
+      label: isAndroid() ? 'Open in Chrome' : 'Open in Safari / Chrome',
+      hint: 'You opened this inside another app. Install works best in Chrome (Android) or Safari (iPhone).',
+    };
+  }
+  if (isIos()) {
+    return {
+      mode: 'ios_guide',
+      canNativeInstall: false,
+      label: 'Add Jeevan to Home Screen',
+      hint: 'On iPhone, apps are added from the Share menu (Apple does not allow a direct install button).',
+    };
+  }
+  if (canInstallPwa()) {
+    return {
+      mode: 'native',
+      canNativeInstall: true,
+      label: 'Install Jeevan app',
+      hint: 'One tap installs Jeevan on your phone like a normal app.',
+    };
+  }
+  if (isAndroid()) {
+    return {
+      mode: 'android_guide',
+      canNativeInstall: false,
+      label: 'Add Jeevan to Home Screen',
+      hint: 'Pin Jeevan to your home screen so reports open in one tap.',
+    };
+  }
+  return {
+    mode: 'desktop_guide',
+    canNativeInstall: false,
+    label: 'Install Jeevan',
+    hint: 'Install from the browser menu, or continue on your phone for the best camp experience.',
+  };
+}
+
+/**
+ * Open current page in system Chrome (Android Intent). Critical when QR opens in-app WebView.
+ */
+export function openInSystemBrowser() {
+  if (typeof window === 'undefined') return { ok: false };
+  const href = window.location.href;
+  if (isAndroid()) {
+    const withoutScheme = href.replace(/^https?:\/\//i, '');
+    const intentUrl =
+      `intent://${withoutScheme}#Intent;scheme=https;package=com.android.chrome;`
+      + `S.browser_fallback_url=${encodeURIComponent(href)};end`;
+    window.location.href = intentUrl;
+    return { ok: true, method: 'android_intent' };
+  }
+  // iOS / desktop — try opening in new window; user may need to use "Open in Safari"
+  try {
+    window.open(href, '_blank', 'noopener,noreferrer');
+    return { ok: true, method: 'window_open' };
+  } catch {
+    return { ok: false };
+  }
 }
 
 function urlBase64ToUint8Array(base64String) {
@@ -142,14 +234,10 @@ function urlBase64ToUint8Array(base64String) {
   return arr;
 }
 
-/**
- * Subscribe current browser for Web Push (requires logged-in API calls).
- */
 export async function subscribeWebPush(api) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return { ok: false, reason: 'unsupported' };
   }
-  // Ensure SW is ready first
   await getSwRegistration();
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
@@ -171,31 +259,38 @@ export async function subscribeWebPush(api) {
 }
 
 /**
- * One-tap camp flow: wait for installability → native install → notifications.
+ * Smart camp install: try native prompt when available; never treat guides as "failure".
  */
-export async function installAndEnablePush(api, { waitMs = 8000 } = {}) {
-  const steps = { install: null, push: null };
+export async function installAndEnablePush(api, { waitMs = 10000 } = {}) {
+  const steps = { install: null, push: null, strategy: getInstallStrategy() };
 
   if (isStandalonePwa()) {
     steps.install = { ok: true, reason: 'already_installed' };
-  } else if (isIosSafari()) {
-    steps.install = { ok: false, reason: 'ios_manual' };
+  } else if (steps.strategy.mode === 'open_chrome') {
+    steps.install = { ok: false, reason: 'in_app_browser' };
+  } else if (steps.strategy.mode === 'ios_guide') {
+    steps.install = { ok: false, reason: 'ios_guide' };
   } else {
-    // Wait for Chrome to evaluate manifest + SW (often 1–5s after first visit)
     const ready = canInstallPwa() || await waitForInstallPrompt(waitMs);
     if (ready && canInstallPwa()) {
       steps.install = await promptInstallPwa();
+      steps.strategy = getInstallStrategy();
+    } else if (isAndroid()) {
+      steps.install = { ok: false, reason: 'android_guide' };
     } else {
-      steps.install = { ok: false, reason: 'not_available' };
+      steps.install = { ok: false, reason: 'desktop_guide' };
     }
   }
 
-  await new Promise((r) => setTimeout(r, steps.install?.ok ? 400 : 100));
-
-  try {
-    steps.push = await subscribeWebPush(api);
-  } catch (err) {
-    steps.push = { ok: false, reason: 'error', error: err?.message };
+  // Only request push after install attempt (or if already installed / guides shown)
+  const skipPush = steps.install?.reason === 'in_app_browser';
+  if (!skipPush) {
+    await new Promise((r) => setTimeout(r, steps.install?.ok ? 350 : 80));
+    try {
+      steps.push = await subscribeWebPush(api);
+    } catch (err) {
+      steps.push = { ok: false, reason: 'error', error: err?.message };
+    }
   }
 
   return steps;

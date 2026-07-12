@@ -4,15 +4,9 @@ import { useT } from '../i18n/LanguageProvider';
 import useAuthStore from '../stores/authStore';
 import { sendOtp as sendOtpApi } from '../services/authService';
 import { getPostLoginPath } from '../utils/authRoles';
-import {
-  canInstallPwa,
-  onInstallAvailability,
-  isStandalonePwa,
-  isIosSafari,
-  installAndEnablePush,
-} from '../lib/pwa';
 import * as labReportService from '../services/labReportService';
 import * as campService from '../services/campService';
+import CampInstallPanel from '../components/CampInstallPanel';
 
 /**
  * Camp patient flow: register with email OTP → join camp → install PWA → notifications.
@@ -36,13 +30,6 @@ export default function CampRegister() {
   const [devOtp, setDevOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [installReady, setInstallReady] = useState(false);
-  const [setupBusy, setSetupBusy] = useState(false);
-  const [setupDone, setSetupDone] = useState(false);
-  const [setupMsg, setSetupMsg] = useState('');
-
-  useEffect(() => onInstallAvailability(setInstallReady), []);
-
   useEffect(() => {
     if (!slug) {
       setCamp(null);
@@ -136,56 +123,6 @@ export default function CampRegister() {
     saveSubscription: async (sub) => {
       await labReportService.savePushSubscription(sub);
     },
-  };
-
-  /**
-   * Primary CTA: install app (native prompt) then enable notifications.
-   */
-  const handleInstallAndNotify = async () => {
-    setError('');
-    setSetupMsg('');
-    setSetupBusy(true);
-    try {
-      if (slug) await joinIfNeeded();
-
-      const steps = await installAndEnablePush(pushApi);
-      const parts = [];
-
-      if (steps.install?.ok || steps.install?.reason === 'already_installed') {
-        parts.push(isStandalonePwa() || steps.install?.reason === 'already_installed'
-          ? 'App ready'
-          : 'App installed');
-      } else if (steps.install?.reason === 'ios_manual') {
-        parts.push('On iPhone: tap Share → Add to Home Screen, then open the app icon');
-      } else if (steps.install?.reason === 'not_available') {
-        if (installReady) {
-          parts.push('Install cancelled — tap the button again');
-        } else {
-          parts.push(
-            'Native install not offered yet. On Android Chrome: menu (⋮) → Install app / Add to Home screen. Then open the icon and allow notifications.'
-          );
-        }
-      } else if (steps.install?.outcome === 'dismissed') {
-        parts.push('Install skipped — you can still enable notifications below');
-      }
-
-      if (steps.push?.ok) {
-        parts.push('Notifications on');
-        setSetupDone(true);
-      } else if (steps.push?.reason === 'denied') {
-        setError(t('camp.push.denied', 'Notifications blocked. Enable them in browser settings.'));
-      } else if (steps.push?.reason === 'no_vapid') {
-        parts.push('Push not configured yet (email reports still work)');
-      } else if (steps.push?.reason === 'unsupported') {
-        parts.push('Push not supported on this browser');
-      }
-
-      setSetupMsg(parts.filter(Boolean).join(' · '));
-    } catch (err) {
-      setError(err?.response?.data?.error || err.message || 'Setup failed');
-    } finally {
-      setSetupBusy(false);
-    }
   };
 
   const title = camp?.name || t('camp.title', 'Camp registration');
@@ -319,57 +256,11 @@ export default function CampRegister() {
                 )}
               </div>
 
-              <div style={{ padding: 16, borderRadius: 12, background: 'linear-gradient(135deg, #F0F7FF, #f0fdf4)', border: '1px solid #dbeafe', marginBottom: 12 }}>
-                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 6 }}>
-                  📱 {t('camp.setup.title', 'Install app & get alerts')}
-                </div>
-                <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px', lineHeight: 1.5 }}>
-                  {t('camp.setup.help', 'One tap installs Jeevan on your phone and turns on report notifications.')}
-                </p>
-
-                {isStandalonePwa() ? (
-                  <p style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, margin: '0 0 10px' }}>
-                    Running as installed app ✓
-                  </p>
-                ) : null}
-
-                {isIosSafari() && !isStandalonePwa() && (
-                  <p style={{ fontSize: 11, color: '#b45309', background: '#fffbeb', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
-                    <strong>iPhone:</strong> Safari only. Tap the button, then if needed use <strong>Share → Add to Home Screen</strong>. Open the new home-screen icon, then allow notifications.
-                  </p>
-                )}
-
-                {!isIosSafari() && !isStandalonePwa() && !installReady && (
-                  <p style={{ fontSize: 11, color: '#475569', background: '#F8FAFC', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
-                    Tap the button — Chrome will show an install dialog when ready (may take a few seconds on first visit). Use <strong>Android Chrome</strong> for the best install experience.
-                  </p>
-                )}
-
-                {installReady && !isStandalonePwa() && (
-                  <p style={{ fontSize: 11, color: '#166534', background: '#f0fdf4', padding: 8, borderRadius: 8, marginBottom: 10, lineHeight: 1.4 }}>
-                    Ready to install — tap the button for the install popup.
-                  </p>
-                )}
-
-                <button
-                  type="button"
-                  className="btn btn-primary btn-block"
-                  onClick={handleInstallAndNotify}
-                  disabled={setupBusy}
-                  style={{ minHeight: 50, fontWeight: 700, fontSize: 15 }}
-                >
-                  {setupBusy
-                    ? (installReady ? 'Opening install…' : 'Preparing install…')
-                    : setupDone
-                      ? '✓ App ready — notifications on'
-                      : isStandalonePwa()
-                        ? '🔔 Enable report notifications'
-                        : '📲 Install app & enable alerts'}
-                </button>
-
-                {setupMsg && (
-                  <p style={{ fontSize: 12, color: '#166534', margin: '10px 0 0', lineHeight: 1.4 }}>{setupMsg}</p>
-                )}
+              <div style={{ marginBottom: 12 }}>
+                <CampInstallPanel
+                  pushApi={pushApi}
+                  onDone={() => { if (slug) joinIfNeeded(); }}
+                />
               </div>
 
               <button
