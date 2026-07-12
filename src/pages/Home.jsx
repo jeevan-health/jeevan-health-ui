@@ -3,7 +3,7 @@ import { useT } from '../i18n/LanguageProvider';
 import { Link } from 'react-router-dom';
 import useUploadModal from '../stores/uploadModalStore';
 import { seedTests, subscribe, ensureLoaded, getPopularTests, getCategoriesSorted, makeSlug } from '../data/seedData';
-import { packageList } from '../data/healthPackages';
+import { packageList, ensurePackagesLoaded, subscribePackages } from '../data/healthPackages';
 import SmartSearch from '../components/layout/SmartSearch';
 import TestCard from '../components/TestCard';
 import useCmsStore from '../stores/cmsStore';
@@ -12,7 +12,13 @@ import { nursingCategories, nurses, nursingServices } from '../data/nursingData'
 export default function Home() {
   const t = useT();
   const [, forceUpdate] = useState(0);
-  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
+  useEffect(() => {
+    ensureLoaded();
+    ensurePackagesLoaded();
+    const unsub1 = subscribe(() => forceUpdate(n => n + 1));
+    const unsub2 = subscribePackages(() => forceUpdate(n => n + 1));
+    return () => { unsub1(); unsub2(); };
+  }, []);
   // Prefer well-known popular names from Neon catalog (not first alphabetical rows)
   const popular = getPopularTests(8);
   const pkgs = packageList.slice(0, 4);

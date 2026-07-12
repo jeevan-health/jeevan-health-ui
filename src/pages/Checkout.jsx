@@ -166,7 +166,16 @@ export default function Checkout() {
       name: i.name,
       price: Number(i.offerPrice || i.price) || 0,
       quantity: i.qty || 1,
+      type: i.type || 'test',
+      testCount: i.testCount,
     }));
+
+    const hasPackage = itemDetails.some(i => i.type === 'package');
+    const notesParts = [
+      selectedPatient ? `Patient: ${selectedPatient.name || selectedPatient}${selectedPatient.age ? `, Age: ${selectedPatient.age}` : ''}` : '',
+      coupon ? `Coupon: ${coupon}` : '',
+      hasPackage ? `Includes package order(s)` : '',
+    ].filter(Boolean);
 
     try {
       const { data: order } = await diagnosticsService.placeDiagnosticOrder({
@@ -179,9 +188,7 @@ export default function Checkout() {
           patient: selectedPatient,
           paymentMethod,
         },
-        notes: selectedPatient
-          ? `Patient: ${selectedPatient.name || selectedPatient}${selectedPatient.age ? `, Age: ${selectedPatient.age}` : ''}${coupon ? `; Coupon: ${coupon}` : ''}`
-          : (coupon ? `Coupon: ${coupon}` : ''),
+        notes: notesParts.join(' | '),
       });
 
       const orderId = order.id || order.orderId;

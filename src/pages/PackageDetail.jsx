@@ -2,7 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useCartStore from '../stores/cartStore';
 import useUploadModal from '../stores/uploadModalStore';
-import { getPackageBySlug, packageList } from '../data/healthPackages';
+import { getPackageBySlug, packageList, ensurePackagesLoaded, subscribePackages } from '../data/healthPackages';
 import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
 import { makeSlug } from '../data/seedData';
 import { useT } from '../i18n/LanguageProvider';
@@ -39,7 +39,13 @@ function Tag({ label, color, bg }) {
 export default function PackageDetail() {
   const t = useT();
   const [, forceUpdate] = useState(0);
-  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
+  useEffect(() => {
+    ensureLoaded();
+    ensurePackagesLoaded();
+    const unsub1 = subscribe(() => forceUpdate(n => n + 1));
+    const unsub2 = subscribePackages(() => forceUpdate(n => n + 1));
+    return () => { unsub1(); unsub2(); };
+  }, []);
   const { slug } = useParams();
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
@@ -53,8 +59,10 @@ export default function PackageDetail() {
     if (found) {
       setPkg(found);
       document.title = `${found.name} | ${t('packageDetail.siteName', 'Jeevan HealthCare at Home')}`;
+    } else {
+      setPkg(null);
     }
-  }, [slug]);
+  }, [slug, packageList.length, t]);
 
   if (!pkg) {
     return (
@@ -124,9 +132,13 @@ export default function PackageDetail() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-            <button onClick={() => {
-              if (inCart) removeItem(pkg.id, 'package');
-              else addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' });
+            <button type="button" onClick={() => {
+              if (inCart) {
+                removeItem(pkg.id, 'package');
+              } else {
+                addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package', testCount: pkg.testCount });
+                navigate('/checkout');
+              }
             }} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 13, fontWeight: 700, padding: '10px 24px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)' }}>
               {inCart ? t('packageDetail.inCart', '✓ In Cart') : t('packageDetail.bookNow', '📋 Book Now')}
             </button>
@@ -282,9 +294,13 @@ export default function PackageDetail() {
           </div>
         </div>
         <a href="tel:+919700104108" style={{ width: 40, height: 40, borderRadius: '50%', background: '#1866C9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, textDecoration: 'none', color: '#fff', fontSize: 18 }}>📞</a>
-        <button onClick={() => {
-          if (inCart) removeItem(pkg.id, 'package');
-          else addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' });
+        <button type="button" onClick={() => {
+          if (inCart) {
+            removeItem(pkg.id, 'package');
+          } else {
+            addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package', testCount: pkg.testCount });
+            navigate('/checkout');
+          }
         }} className="btn btn-primary" style={{ background: '#FF3B30', border: 'none', fontSize: 12, fontWeight: 700, padding: '10px 20px', boxShadow: '0 4px 14px rgba(255,59,48,0.3)', whiteSpace: 'nowrap' }}>
           {inCart ? t('packageDetail.inCart', '✓ In Cart') : t('packageDetail.bookNow', '📋 Book Now')}
         </button>

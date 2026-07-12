@@ -1,42 +1,69 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { packageList } from '../data/healthPackages';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { packageList, ensurePackagesLoaded, subscribePackages } from '../data/healthPackages';
 import useCartStore from '../stores/cartStore';
 import useCmsStore from '../stores/cmsStore';
 import { useT } from '../i18n/LanguageProvider';
 
 export default function HealthPackages() {
   const t = useT();
+  const navigate = useNavigate();
   const addItem = useCartStore(s => s.addItem);
   const cmsContent = useCmsStore(s => s.content);
   const [selectedTarget, setSelectedTarget] = useState('');
+  const [, forceUpdate] = useState(0);
 
-  const targets = [...new Set(packageList.map(p => p.target.split('|')[0].trim()))];
+  useEffect(() => {
+    ensurePackagesLoaded();
+    return subscribePackages(() => forceUpdate((n) => n + 1));
+  }, []);
+
+  const targets = useMemo(
+    () => [...new Set(packageList.map(p => (p.target || '').split('|')[0].trim()).filter(Boolean))],
+    [packageList.length]
+  );
 
   const results = useMemo(() => {
     if (!selectedTarget) return packageList;
-    return packageList.filter(p => p.target.includes(selectedTarget));
-  }, [selectedTarget]);
+    return packageList.filter(p => (p.target || '').includes(selectedTarget));
+  }, [selectedTarget, packageList.length]);
 
   const hero = cmsContent.healthPackages || {};
+
+  const bookPackage = (pkg) => {
+    addItem({
+      id: pkg.id || pkg.slug,
+      name: pkg.name,
+      price: pkg.mrp,
+      offerPrice: pkg.offerPrice,
+      type: 'package',
+      testCount: pkg.testCount,
+    });
+    navigate('/checkout');
+  };
 
   return (
     <div>
       <div style={{ background: 'linear-gradient(135deg, #0b3b2c 0%, #1a6b4a 100%)', padding: '32px 0 36px' }}>
         <div className="container">
           <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 700, margin: '0 0 6px' }}>{hero.pageTitle || t('healthPackages.pageTitle', 'Health Packages')}</h1>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '0 0 16px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, margin: '0 0 8px' }}>
             {hero.pageSubtitle || t('healthPackages.pageSubtitle', 'Curated health checkup packages for every need — comprehensive screening at the best price')}
           </p>
+          {packageList.length > 0 && (
+            <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: 600, margin: '0 0 16px' }}>
+              {packageList.length} {t('healthPackages.liveCount', 'packages available')}
+            </p>
+          )}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button onClick={() => setSelectedTarget('')}
+            <button type="button" onClick={() => setSelectedTarget('')}
               style={{ padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${!selectedTarget ? '#4ade80' : 'rgba(255,255,255,0.3)'}`, background: !selectedTarget ? '#4ade80' : 'rgba(255,255,255,0.15)', color: !selectedTarget ? '#0b3b2c' : '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
               {t('healthPackages.allPackages', 'All Packages')}
             </button>
-            {targets.map(t => (
-              <button key={t} onClick={() => setSelectedTarget(t)}
-                style={{ padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${selectedTarget === t ? '#4ade80' : 'rgba(255,255,255,0.3)'}`, background: selectedTarget === t ? '#4ade80' : 'rgba(255,255,255,0.15)', color: selectedTarget === t ? '#0b3b2c' : '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
-                {t}
+            {targets.map(tg => (
+              <button type="button" key={tg} onClick={() => setSelectedTarget(tg)}
+                style={{ padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 600, border: `1px solid ${selectedTarget === tg ? '#4ade80' : 'rgba(255,255,255,0.3)'}`, background: selectedTarget === tg ? '#4ade80' : 'rgba(255,255,255,0.15)', color: selectedTarget === tg ? '#0b3b2c' : '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
+                {tg}
               </button>
             ))}
           </div>
@@ -44,6 +71,11 @@ export default function HealthPackages() {
       </div>
 
       <div className="page-section container" style={{ paddingTop: 24 }}>
+        {packageList.length === 0 && (
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 40 }}>
+            {t('healthPackages.loading', 'Loading packages…')}
+          </p>
+        )}
         <div className="pkg-grid">
           {results.map(pkg => (
             <div key={pkg.id} className="pkg-card" style={{ borderTop: `4px solid ${pkg.color}` }}>
@@ -69,23 +101,23 @@ export default function HealthPackages() {
                 </div>
 
                 <div className="pkg-tests-preview">
-                  {pkg.testsIncluded.slice(0, 5).map((t, i) => (
-                    <span key={i} className="pkg-test-tag">✓ {t}</span>
+                  {(pkg.testsIncluded || []).slice(0, 5).map((tn, i) => (
+                    <span key={i} className="pkg-test-tag">✓ {tn}</span>
                   ))}
-                  {pkg.testsIncluded.length > 5 && (
-                    <span className="pkg-test-tag pkg-test-more">+{pkg.testsIncluded.length - 5} {t('healthPackages.more', 'more')}</span>
+                  {(pkg.testsIncluded || []).length > 5 && (
+                    <span className="pkg-test-tag pkg-test-more">+{(pkg.testsIncluded || []).length - 5} {t('healthPackages.more', 'more')}</span>
                   )}
                 </div>
 
                 <div className="pkg-footer">
                   <div>
-                    <span className="pkg-mrp">{t('healthPackages.mrp', 'MRP')}: ₹{pkg.mrp.toLocaleString()}</span>
-                    <div className="pkg-price">₹{pkg.offerPrice.toLocaleString()}</div>
-                    <div className="pkg-discount">{pkg.discount}% {t('healthPackages.off', 'OFF')}</div>
+                    <span className="pkg-mrp">{t('healthPackages.mrp', 'MRP')}: ₹{(pkg.mrp || 0).toLocaleString()}</span>
+                    <div className="pkg-price">₹{(pkg.offerPrice || 0).toLocaleString()}</div>
+                    {pkg.discount > 0 && <div className="pkg-discount">{pkg.discount}% {t('healthPackages.off', 'OFF')}</div>}
                   </div>
                   <div className="pkg-actions">
-                    <Link to={`/package/${pkg.id}`} className="btn btn-outline btn-sm">{t('healthPackages.viewDetails', 'View Details')}</Link>
-                    <button onClick={() => { addItem({ id: pkg.id, name: pkg.name, price: pkg.mrp, offerPrice: pkg.offerPrice, type: 'package' }); }} className="btn btn-primary btn-sm">{t('healthPackages.bookNow', 'Book Now')}</button>
+                    <Link to={`/package/${pkg.id || pkg.slug}`} className="btn btn-outline btn-sm">{t('healthPackages.viewDetails', 'View Details')}</Link>
+                    <button type="button" onClick={() => bookPackage(pkg)} className="btn btn-primary btn-sm">{t('healthPackages.bookNow', 'Book Now')}</button>
                   </div>
                 </div>
               </div>
