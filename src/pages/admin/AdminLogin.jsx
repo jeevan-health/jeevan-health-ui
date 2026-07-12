@@ -92,7 +92,14 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       const { data } = await sendOtpApi(phone, 'phone');
-      if (data.code) { console.log('%c🔑 OTP: ' + data.code, 'background:#0f172a;color:#fbbf24;font-size:14px;padding:4px 8px;border-radius:4px;'); setDevOtp(data.code); }
+      // Keep on-screen OTP whenever API returns it (console delivery / expose flag).
+      // Do not remove — needed until real SMS is live so admin is never locked out.
+      if (data.code) {
+        console.log('%c🔑 OTP: ' + data.code, 'background:#0f172a;color:#fbbf24;font-size:14px;padding:4px 8px;border-radius:4px;');
+        setDevOtp(data.code);
+      } else {
+        setDevOtp('');
+      }
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.error || t('admin.login.err_send_otp', 'Failed to send OTP. Try again.'));
@@ -317,7 +324,15 @@ export default function AdminLogin() {
               <form onSubmit={handleVerify}>
                 <label style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, display: 'block', color: '#334155' }}>{t('admin.login.enter_otp', 'Enter OTP')}</label>
                 <p style={{ fontSize: 12, color: '#64748B', marginBottom: 8 }}>{t('admin.login.otp_sent_to', 'OTP sent to')} +91 {phone}</p>
-                {devOtp && <p style={{ fontSize: 11, color: '#f59e0b', marginBottom: 8, background: '#fffbeb', padding: '4px 8px', borderRadius: 4 }}>Dev OTP: <strong>{devOtp}</strong></p>}
+                {devOtp && (
+                  <div style={{ fontSize: 12, color: '#92400e', marginBottom: 10, background: '#fffbeb', padding: '10px 12px', borderRadius: 8, border: '1px solid #fde68a' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 4 }}>On-screen OTP (console delivery)</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: 4, color: '#0f172a' }}>{devOtp}</div>
+                    <div style={{ fontSize: 10, marginTop: 4, color: '#b45309' }}>
+                      Shown while SMS is not configured so you cannot get locked out of admin.
+                    </div>
+                  </div>
+                )}
                 <input type="text" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder={t('admin.login.enter_6_digit_otp', 'Enter 6-digit OTP')}
                   style={{ width: '100%', padding: '11px 14px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0F172A', fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 20, textAlign: 'center', letterSpacing: 8, transition: 'all 0.15s' }}
