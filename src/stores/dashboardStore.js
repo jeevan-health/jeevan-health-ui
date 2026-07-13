@@ -297,13 +297,15 @@ const useDashboardStore = create((set, get) => ({
       set({
         profile: {
           name: profile?.name || '',
+          // keep id for multi-tab safety checks if present
+          id: profile?.id,
           greeting: '',
           lastCheckup: lastReportDate || lastAppointmentDate || '',
           healthScore: null,
           phone: profile?.phone || '',
           email: profile?.email || '',
-          bloodGroup: '',
-          dob: '',
+          bloodGroup: profile?.bloodGroup || profile?.blood_group || '',
+          dob: profile?.dob ? String(profile.dob).slice(0, 10) : '',
           gender: profile?.gender || '',
         },
         upcomingBookings,

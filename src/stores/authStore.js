@@ -15,16 +15,23 @@ function registerUser(user) {
   saveUsers(users);
 }
 
-function setTokens(accessToken, refreshToken) {
+function setTokens(accessToken, refreshToken, userId) {
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
   localStorage.setItem('jh_token', accessToken);
+  if (userId != null) localStorage.setItem('jh_auth_uid', String(userId));
 }
 
 function clearTokens() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('jh_token');
+  localStorage.removeItem('jh_auth_uid');
+}
+
+/** Bound session user id — detects multi-tab login swaps */
+function getSessionUserId() {
+  return localStorage.getItem('jh_auth_uid');
 }
 
 function mapFamilyFromApi(m) {
@@ -93,7 +100,14 @@ const useAuthStore = create((set, get) => ({
   addresses: [],
 
   setUser: (user) => {
-    const enriched = { ...user, role: user.role || (ADMINS[user.phone] || ADMINS[user.email]) || 'user' };
+    const enriched = {
+      ...user,
+      role: user.role || (ADMINS[user.phone] || ADMINS[user.email]) || 'user',
+      bloodGroup: user.bloodGroup || user.blood_group || user.bloodGroup || '',
+      dob: user.dob || '',
+      gender: user.gender || '',
+    };
+    if (enriched.id != null) localStorage.setItem('jh_auth_uid', String(enriched.id));
     set({ user: enriched, isAuthenticated: true });
     registerUser(enriched);
   },
@@ -126,7 +140,8 @@ const useAuthStore = create((set, get) => ({
       localStorage.setItem('jh_user', JSON.stringify(user));
       if (user?.phone) localStorage.setItem('jh_user_phone', user.phone);
       if (user?.email) localStorage.setItem('jh_user_email', user.email);
-      setTokens(accessToken, refreshToken);
+      setTokens(accessToken, refreshToken, user?.id);
+      localStorage.setItem('jh_user', JSON.stringify(user));
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
       useAuditStore.getState().log(
@@ -148,7 +163,7 @@ const useAuthStore = create((set, get) => ({
       const { data } = await authService.googleLogin(credential);
       const { user, accessToken, refreshToken } = data;
       localStorage.setItem('jh_user', JSON.stringify(user));
-      setTokens(accessToken, refreshToken);
+      setTokens(accessToken, refreshToken, user?.id);
       set({ user, isAuthenticated: true, isLoading: false });
       registerUser(user);
       useAuditStore.getState().log('login', `User logged in via Google: ${user.name} (${user.email})`, 'auth');
@@ -190,11 +205,56 @@ const useAuthStore = create((set, get) => ({
   },
 
   updateProfile: async (updates) => {
-    const { data } = await authService.updateProfile(updates);
-    const enriched = { ...data, role: data.role || get().user?.role || 'user' };
+    // Guard multi-tab: only update the session that owns this store user
+    const sessionUid = getSessionUserId();
+    const currentId = get().user?.id;
+    if (sessionUid && currentId != null && String(sessionUid) !== String(currentId)) {
+      const err = new Error('Session changed in another tab. Please refresh and try again.');
+      err.code = 'SESSION_MISMATCH';
+      throw err;
+    }
+
+    // Never send role / id from client body for elevation
+    const payload = {
+      name: updates.name,
+      phone: updates.phone,
+      email: updates.email,
+      dob: updates.dob || null,
+      gender: updates.gender,
+      bloodGroup: updates.bloodGroup || updates.blood_group || null,
+    };
+    const { data } = await authService.updateProfile(payload);
+    const enriched = {
+      ...get().user,
+      ...data,
+      role: data.role || get().user?.role || 'user',
+      bloodGroup: data.bloodGroup || data.blood_group || '',
+    };
+    if (enriched.id != null) localStorage.setItem('jh_auth_uid', String(enriched.id));
     localStorage.setItem('jh_user', JSON.stringify(enriched));
     set({ user: enriched });
-    return data;
+    return enriched;
+  },
+
+  /** Sync auth when another tab logs in / out (shared localStorage). */
+  hydrateFromStorage: () => {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('jh_token');
+    if (!token) {
+      set({ user: null, isAuthenticated: false, family: [], addresses: [] });
+      return;
+    }
+    try {
+      const stored = localStorage.getItem('jh_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const enriched = {
+          ...parsed,
+          role: parsed.role || ADMINS[parsed.phone] || ADMINS[parsed.email] || 'user',
+        };
+        if (parsed.id != null) localStorage.setItem('jh_auth_uid', String(parsed.id));
+        set({ user: enriched, isAuthenticated: true });
+      }
+    } catch { /* ignore */ }
   },
 
   fetchFamily: async () => {
@@ -331,6 +391,31 @@ if (fam) {
 const addrs = localStorage.getItem('jh_addresses');
 if (addrs) {
   try { useAuthStore.setState({ addresses: JSON.parse(addrs) }); } catch { /* noop */ }
+}
+
+// Multi-tab: when admin logs in tab A and patient in tab B, tokens are shared.
+// Rehydrate (or clear) so UI never edits the wrong account silently.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (!e.key) return;
+    if (['accessToken', 'jh_token', 'jh_user', 'refreshToken', 'jh_auth_uid'].includes(e.key)) {
+      useAuthStore.getState().hydrateFromStorage();
+      // Hard refresh if identity flipped mid-session on this tab
+      const uid = localStorage.getItem('jh_auth_uid');
+      const cur = useAuthStore.getState().user?.id;
+      if (uid && cur != null && String(uid) !== String(cur)) {
+        window.location.reload();
+      }
+      if (!localStorage.getItem('jh_token') && !localStorage.getItem('accessToken')) {
+        // Logged out in another tab
+        if (window.location.pathname.startsWith('/admin')) {
+          window.location.href = '/admin/login';
+        } else if (window.location.pathname.startsWith('/dashboard')) {
+          window.location.href = '/signup';
+        }
+      }
+    }
+  });
 }
 
 export default useAuthStore;

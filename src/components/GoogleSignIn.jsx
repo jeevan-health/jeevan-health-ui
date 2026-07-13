@@ -70,6 +70,7 @@ export default function GoogleSignIn({ onError }) {
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('jh_token', accessToken);
       localStorage.setItem('jh_user', JSON.stringify(user));
+      if (user?.id != null) localStorage.setItem('jh_auth_uid', String(user.id));
 
       setUser(user);
       // Keep overlay up until route change unmounts this page

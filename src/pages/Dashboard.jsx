@@ -15,6 +15,7 @@ import InstallAppButton from '../components/InstallAppButton';
 import FeatureGateBanner from '../components/FeatureGateBanner';
 import { confirmDialog } from '../stores/dialogStore';
 import { notify } from '../lib/toastBus';
+import { isAdminRole } from '../utils/authRoles';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -324,14 +325,66 @@ export default function Dashboard() {
   };
 
   const openProfileEdit = () => {
-    setProfileForm({ name: p.name, email: p.email, phone: p.phone, bloodGroup: p.bloodGroup, dob: p.dob, gender: p.gender });
+    // Always seed from live auth user (not stale dashboard cache)
+    const u = useAuthStore.getState().user || {};
+    setProfileForm({
+      name: u.name || p.name || '',
+      email: u.email || p.email || '',
+      phone: u.phone || p.phone || '',
+      bloodGroup: u.bloodGroup || p.bloodGroup || '',
+      dob: (u.dob || p.dob || '').toString().slice(0, 10),
+      gender: u.gender || p.gender || 'Male',
+    });
     setShowProfileModal(true);
   };
 
-  const saveProfile = () => {
-    if (!profileForm.name || !profileForm.phone) return;
-    store.updateProfile(profileForm);
-    setShowProfileModal(false);
+  const saveProfile = async () => {
+    if (!profileForm.name || !profileForm.phone) {
+      notify.warning(t('dashboard.profileModal.required', 'Name and phone are required'));
+      return;
+    }
+    // Multi-tab safety: do not save if session is no longer this patient
+    const sessionUid = localStorage.getItem('jh_auth_uid');
+    const authUser = useAuthStore.getState().user;
+    if (sessionUid && authUser?.id != null && String(sessionUid) !== String(authUser.id)) {
+      notify.error(t('dashboard.profileModal.sessionChanged', 'Your login changed in another tab. Refresh and try again.'));
+      return;
+    }
+    if (authUser && isAdminRole?.(authUser.role)) {
+      // Admins should use admin portal — never write patient form over admin account by mistake
+      notify.error(t('dashboard.profileModal.adminBlock', 'Admin accounts should be edited from the admin portal, not the patient profile form.'));
+      return;
+    }
+    try {
+      const updateProfileApi = useAuthStore.getState().updateProfile;
+      const updated = await updateProfileApi({
+        name: profileForm.name.trim(),
+        phone: profileForm.phone.replace(/\D/g, '').slice(0, 15),
+        email: profileForm.email?.trim() || '',
+        dob: profileForm.dob || null,
+        gender: profileForm.gender,
+        bloodGroup: profileForm.bloodGroup || null,
+      });
+      // Keep dashboard store display in sync with API result
+      store.updateProfile({
+        name: updated.name || profileForm.name,
+        phone: updated.phone || profileForm.phone,
+        email: updated.email || profileForm.email,
+        bloodGroup: updated.bloodGroup || profileForm.bloodGroup,
+        dob: updated.dob || profileForm.dob,
+        gender: updated.gender || profileForm.gender,
+      });
+      setShowProfileModal(false);
+      notify.success(t('dashboard.profileModal.saved', 'Profile saved'));
+      fetchDashboard();
+    } catch (err) {
+      notify.error(
+        err?.response?.data?.error
+        || err?.response?.data?.message
+        || err?.message
+        || t('dashboard.profileModal.saveFailed', 'Could not save profile')
+      );
+    }
   };
 
   const firstName = displayName !== t('dashboard.userFallback', 'there') ? displayName.split(' ')[0] : '';

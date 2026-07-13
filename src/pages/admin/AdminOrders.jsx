@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import * as adminService from '../../services/adminService';
+import * as labReportService from '../../services/labReportService';
 import { useT } from '../../i18n/LanguageProvider';
 import { notify } from '../../lib/toastBus';
 
@@ -26,14 +27,28 @@ function mapOrder(o) {
     status: o.status || 'pending',
     totalAmount: Number(o.total_amount ?? o.totalAmount) || 0,
     tests,
+    userId: o.user_id || o.userId || null,
     userName: o.user_name || o.userName || addr.fullName || addr.patient?.name || '—',
     userPhone: o.user_phone || o.userPhone || '',
+    userEmail: o.user_email || o.userEmail || '',
     collectionDate: o.collection_date || o.collectionDate || '',
     collectionTime: o.collection_time || o.collectionTime || '',
     address: addrStr || '—',
     createdAt: o.created_at || o.createdAt,
     notes: o.notes || '',
   };
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      resolve(result.includes(',') ? result.split(',')[1] : result);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function AdminOrders() {
@@ -46,6 +61,9 @@ export default function AdminOrders() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [selected, setSelected] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [reportFile, setReportFile] = useState(null);
+  const [uploadingReport, setUploadingReport] = useState(false);
+  const reportInputRef = useRef(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -91,6 +109,59 @@ export default function AdminOrders() {
       notify.error(err?.response?.data?.error || t('admin.orders.updateFailed', 'Failed to update status'));
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleUploadReport = async (order) => {
+    if (!order?.userId) {
+      notify.error('This order has no linked patient account — cannot upload report');
+      return;
+    }
+    if (!reportFile) {
+      notify.warning('Choose a PDF report first');
+      return;
+    }
+    if (reportFile.type && reportFile.type !== 'application/pdf') {
+      notify.error('Please upload a PDF file');
+      return;
+    }
+    if (reportFile.size > 8 * 1024 * 1024) {
+      notify.error('PDF must be under 8 MB');
+      return;
+    }
+    setUploadingReport(true);
+    try {
+      const pdfBase64 = await fileToBase64(reportFile);
+      const testName = order.tests.map((x) => x.name || x).filter(Boolean).join(', ')
+        || `Order #${order.id} report`;
+      const { data } = await labReportService.uploadReport({
+        userId: order.userId,
+        testName: String(testName).slice(0, 200),
+        fileName: reportFile.name || `order-${order.id}-report.pdf`,
+        mimeType: 'application/pdf',
+        pdfBase64,
+        notes: `Linked to diagnostic order #${order.id}`,
+        sendEmail: true,
+        sendPush: true,
+      });
+      // Mark order results ready if still earlier status
+      if (order.orderType === 'diagnostic' && !['completed', 'cancelled', 'results_ready'].includes(order.status)) {
+        try {
+          await adminService.updateOrderStatus(order.orderType, order.id, 'results_ready');
+        } catch { /* optional */ }
+      }
+      notify.success(
+        data.email?.sent
+          ? `Report uploaded & emailed to ${data.email.to || order.userEmail || 'patient'}`
+          : `Report uploaded (email: ${data.email?.error || 'check patient email'})`
+      );
+      setReportFile(null);
+      if (reportInputRef.current) reportInputRef.current.value = '';
+      await load();
+    } catch (err) {
+      notify.error(err?.response?.data?.error || 'Report upload failed');
+    } finally {
+      setUploadingReport(false);
     }
   };
 
@@ -282,6 +353,53 @@ export default function AdminOrders() {
             ))}
             {updatingId === selected.id && <span style={{ fontSize: 12, color: '#64748b', alignSelf: 'center' }}>Saving…</span>}
           </div>
+
+          {/* Upload lab report PDF → patient email + dashboard download */}
+          {selected.orderType === 'diagnostic' && (
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>📄 Upload lab report (PDF)</div>
+              <p style={{ margin: '0 0 10px', fontSize: 12, color: '#64748b', lineHeight: 1.45 }}>
+                Sends PDF to the patient email and shows it under their Dashboard → Reports.
+                {selected.userEmail ? ` Patient email: ${selected.userEmail}` : ' ⚠️ No email on file — patient must have email for delivery.'}
+              </p>
+              {!selected.userId && (
+                <div style={{ fontSize: 12, color: '#b91c1c', marginBottom: 8 }}>No linked user_id on this order — cannot attach report.</div>
+              )}
+              <input
+                ref={reportInputRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                onChange={(e) => setReportFile(e.target.files?.[0] || null)}
+                style={{ fontSize: 13, marginBottom: 10, width: '100%' }}
+              />
+              {reportFile && (
+                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>
+                  {reportFile.name} ({Math.round(reportFile.size / 1024)} KB)
+                </div>
+              )}
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={uploadingReport || !selected.userId}
+                onClick={() => handleUploadReport(selected)}
+                style={{ minHeight: 42 }}
+              >
+                {uploadingReport ? 'Uploading & notifying…' : 'Upload report · email PDF · notify'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mobile: report upload inside expanded card manage section is via detail hidden — show inline when selected on mobile */}
+      {selected && selected.orderType === 'diagnostic' && (
+        <div className="admin-orders-report-mobile" style={{ display: 'none', marginTop: 12, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>📄 Upload report for #{selected.id}</div>
+          <p style={{ margin: '0 0 8px', fontSize: 12, color: '#64748b' }}>{selected.userName} · {selected.userEmail || 'no email'}</p>
+          <input type="file" accept="application/pdf,.pdf" onChange={(e) => setReportFile(e.target.files?.[0] || null)} style={{ fontSize: 13, width: '100%', marginBottom: 8 }} />
+          <button type="button" className="btn btn-primary btn-block" disabled={uploadingReport || !selected.userId} onClick={() => handleUploadReport(selected)} style={{ minHeight: 44 }}>
+            {uploadingReport ? 'Uploading…' : 'Upload report PDF'}
+          </button>
         </div>
       )}
 
@@ -291,6 +409,7 @@ export default function AdminOrders() {
           .admin-orders-cards { display: flex !important; }
           .admin-orders-detail { display: none !important; }
           .admin-orders-detail-grid { grid-template-columns: 1fr !important; }
+          .admin-orders-report-mobile { display: block !important; }
         }
       `}</style>
     </div>

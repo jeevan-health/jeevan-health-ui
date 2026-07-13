@@ -596,8 +596,25 @@ export default function TestDetail() {
         }} />
       </div>
 
-      {/* ===== STICKY MOBILE BOOKING BAR ===== */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', padding: '8px 16px 12px', display: 'flex', alignItems: 'center', gap: 8, borderTop: '1px solid #eee' }}>
+      {/* Sticky mobile Book bar — sits ABOVE app bottom nav (z-index 9000, ~64px) */}
+      <div
+        className="test-detail-sticky-book"
+        style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          zIndex: 9100,
+          background: '#fff',
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.08)',
+          padding: '8px 16px 10px',
+          display: 'none',
+          alignItems: 'center',
+          gap: 8,
+          borderTop: '1px solid #eee',
+          /* Leave room for .mobile-bottom-bar + safe area */
+          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{education.abbreviation || education.fullName}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -618,6 +635,12 @@ export default function TestDetail() {
         @media (max-width: 768px) {
           .page-section { padding: 0; }
           .container { padding-left: 12px; padding-right: 12px; }
+          .test-detail-sticky-book { display: flex !important; }
+          /* Space so last content is not hidden under book bar + bottom nav */
+          .test-detail-page, .page-section { padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important; }
+        }
+        @media (min-width: 769px) {
+          .test-detail-sticky-book { display: none !important; }
         }
         table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 6px 8px; }
