@@ -1,9 +1,30 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import useUploadModal from '../../stores/uploadModalStore';
 import { useT } from '../../i18n/LanguageProvider';
 
+/** Mobile: clear bottom nav; on test pages also clear sticky Book Now bar */
+function useFabBottomOffset() {
+  const { pathname } = useLocation();
+  return useMemo(() => {
+    const onTestDetail = pathname.startsWith('/test/');
+    // bottom nav ~64px + safe-area; sticky book bar ~64px on test pages
+    if (onTestDetail) {
+      return {
+        bottom: 'calc(148px + env(safe-area-inset-bottom, 0px))',
+        helpBottom: 'calc(160px + env(safe-area-inset-bottom, 0px))',
+      };
+    }
+    return {
+      bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
+      helpBottom: 'calc(92px + env(safe-area-inset-bottom, 0px))',
+    };
+  }, [pathname]);
+}
+
 export default function FloatingActions() {
   const t = useT();
+  const { bottom, helpBottom } = useFabBottomOffset();
   const ACTIONS = [
     { icon: '💬', label: t('floating.chatWhatsApp', 'Chat on WhatsApp'), href: 'https://wa.me/919700104108', color: '#25D366', pulse: true },
     { icon: '📞', label: t('floating.callNow', 'Call Now'), href: 'tel:+919700104108', color: '#1866C9', pulse: false },
@@ -51,7 +72,26 @@ export default function FloatingActions() {
 
   return (
     <>
-      <div className="fab-container" style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, transition: 'transform 0.3s, opacity 0.3s', transform: visible ? 'translateY(0)' : 'translateY(80px)', opacity: visible ? 1 : 0 }}>
+      <div
+        className="fab-container"
+        style={{
+          position: 'fixed',
+          // Desktop default; mobile overridden by CSS + path-aware bottom
+          bottom: 24,
+          right: 24,
+          zIndex: 9200,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: 10,
+          transition: 'transform 0.3s, opacity 0.3s, bottom 0.2s',
+          transform: visible ? 'translateY(0)' : 'translateY(80px)',
+          opacity: visible ? 1 : 0,
+          // Inline CSS variable so mobile media query / path can use it
+          ['--fab-bottom']: bottom,
+          ['--fab-help-bottom']: helpBottom,
+        }}
+      >
         {showTrust && (
           <div className="fab-trust-badge" style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)', borderRadius: 12, padding: '8px 12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid #e8edf2', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, animation: 'fabFadeIn 0.3s ease' }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
@@ -87,7 +127,7 @@ export default function FloatingActions() {
 
       {showHelpPanel && (
         <div onClick={() => setShowHelpPanel(false)} style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'rgba(0,0,0,0.3)' }}>
-          <div onClick={e => e.stopPropagation()} className="fab-help-panel" style={{ position: 'fixed', bottom: 100, right: 24, background: '#fff', borderRadius: 16, padding: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', width: 240, animation: 'fabFadeIn 0.2s ease', zIndex: 9999 }}>
+          <div onClick={e => e.stopPropagation()} className="fab-help-panel" style={{ position: 'fixed', bottom: helpBottom, right: 24, background: '#fff', borderRadius: 16, padding: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', width: 240, animation: 'fabFadeIn 0.2s ease', zIndex: 9200 }}>
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#1a1a1a' }}>💬 {t('floating.needHelpPanel', 'Need Help?')}</div>
             {helpItems.map(item => (
               <a key={item.label} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', textDecoration: 'none', color: 'var(--text-body)', fontSize: 12, borderBottom: '1px solid #f5f5f5' }}>

@@ -286,12 +286,27 @@ body.mobile-nav-open .mobile-bottom-bar { display: none !important; }
   .fab-container { gap: 8px; }
 }
 @media (max-width: 768px) {
-  .fab-container { bottom: 80px !important; right: 16px !important; }
+  /* Use path-aware --fab-bottom (set on element); fallback clears bottom nav only */
+  .fab-container {
+    bottom: var(--fab-bottom, calc(80px + env(safe-area-inset-bottom, 0px))) !important;
+    right: 16px !important;
+  }
   .fab-main-btn { width: 50px; height: 50px; font-size: 22px; }
   .fab-btn { width: 42px; height: 42px; font-size: 18px; }
   .fab-label { display: flex !important; font-size: 10px !important; }
   .fab-trust-badge { display: none; }
-  .fab-help-panel { right: 16px !important; bottom: 88px !important; width: 220px !important; }
+  .fab-help-panel {
+    right: 16px !important;
+    bottom: var(--fab-help-bottom, calc(92px + env(safe-area-inset-bottom, 0px))) !important;
+    width: 220px !important;
+  }
+  /* Chatbot launcher — same clearance as FAB */
+  .jh-chat-launcher,
+  .jh-chat-minimized,
+  .jh-chat-panel {
+    bottom: var(--chat-bottom, calc(80px + env(safe-area-inset-bottom, 0px))) !important;
+    right: 16px !important;
+  }
 }
 
 @keyframes fabSlideIn {

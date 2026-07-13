@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import { trackLead } from '../lib/analytics';
 import useCrmStore from '../stores/crmStore';
@@ -91,6 +92,17 @@ function FlowStep({ step, onOption }) {
 
 export default function ChatBotWidget() {
   const t = useT();
+  const { pathname } = useLocation();
+  /** Sit above bottom nav; on test pages also above sticky Book Now + + FAB */
+  const chatBottom = useMemo(() => {
+    if (pathname.startsWith('/test/')) {
+      return 'calc(210px + env(safe-area-inset-bottom, 0px))';
+    }
+    if (pathname.startsWith('/admin')) {
+      return '24px';
+    }
+    return 'calc(140px + env(safe-area-inset-bottom, 0px))';
+  }, [pathname]);
   const saved = loadState();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(saved?.step || 'welcome');
@@ -174,10 +186,13 @@ export default function ChatBotWidget() {
   return (
     <>
       {open && !minimized && (
-        <div style={{
-          position: 'fixed', bottom: 80, right: 20, width: 340, maxHeight: 480, background: '#fff',
-          borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', zIndex: 9999,
+        <div
+          className="jh-chat-panel"
+          style={{
+          position: 'fixed', bottom: chatBottom, right: 20, width: 340, maxHeight: 480, background: '#fff',
+          borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', zIndex: 9200,
           display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'chatFadeIn 0.25s ease',
+          ['--chat-bottom']: chatBottom,
         }}>
           <div style={{
             background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', padding: '12px 14px',
@@ -290,23 +305,31 @@ export default function ChatBotWidget() {
       )}
 
       {open && minimized && (
-        <div onClick={() => setMinimized(false)} style={{
-          position: 'fixed', bottom: 80, right: 20, zIndex: 9999, cursor: 'pointer',
+        <div
+          className="jh-chat-minimized"
+          onClick={() => setMinimized(false)}
+          style={{
+          position: 'fixed', bottom: chatBottom, right: 20, zIndex: 9200, cursor: 'pointer',
           background: '#1866C9', color: '#fff', padding: '8px 14px', borderRadius: 24,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: 12, fontWeight: 600,
           fontFamily: 'inherit', animation: 'chatFadeIn 0.2s ease',
+          ['--chat-bottom']: chatBottom,
         }}>
           💬 Chat with us
         </div>
       )}
 
       {!open && (
-        <button onClick={() => { setOpen(true); setMinimized(false); }} style={{
-          position: 'fixed', bottom: 80, right: 20, zIndex: 9999,
+        <button
+          className="jh-chat-launcher"
+          onClick={() => { setOpen(true); setMinimized(false); }}
+          style={{
+          position: 'fixed', bottom: chatBottom, right: 20, zIndex: 9200,
           width: 52, height: 52, borderRadius: '50%', border: 'none', cursor: 'pointer',
           background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', fontSize: 22,
           boxShadow: '0 4px 16px rgba(24, 102, 201, 0.35)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', transition: 'transform 0.2s', fontFamily: 'inherit',
+          justifyContent: 'center', transition: 'transform 0.2s, bottom 0.2s', fontFamily: 'inherit',
+          ['--chat-bottom']: chatBottom,
         }}
         onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>
