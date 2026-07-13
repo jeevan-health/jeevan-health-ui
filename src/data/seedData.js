@@ -24,13 +24,14 @@ export function subscribe(fn) {
 export function isReady() { return ready; }
 
 export async function ensureLoaded() {
-  if (cached.tests) return;
-  if (loading) return new Promise(resolve => waiters.push(resolve));
+  // Already have rows — resolve immediately
+  if (cached.tests && cached.tests.length > 0) return cached.tests;
+  if (loading) return new Promise((resolve) => waiters.push(() => resolve(cached.tests || [])));
   loading = true;
   try {
     const testsRes = await api.get('/diagnostics/tests/search', { params: { limit: 2000, page: 1 } });
-    const rawTests = testsRes.data.tests || testsRes.data || [];
-    const tests = (Array.isArray(rawTests) ? rawTests : []).map(t => ({
+    const rawTests = testsRes.data?.tests || testsRes.data || [];
+    const tests = (Array.isArray(rawTests) ? rawTests : []).map((t) => ({
       ...t,
       price: Number(t.price) || 0,
       mrp: Number(t.mrp) || Math.round((Number(t.price) || 0) * 1.8) || 0,
@@ -40,31 +41,38 @@ export async function ensureLoaded() {
     seedTests.splice(0, seedTests.length, ...tests);
 
     // Build categories from actual test rows (covers every Neon category, not only /categories API)
-    const catNames = [...new Set(tests.map(t => t.category).filter(Boolean))];
-    const cats = catNames.map(n => {
-      const style = CATEGORY_STYLES[n] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
-      const id = makeSlug(n);
-      const catTests = tests.filter(t => t.category === n);
-      return {
-        name: n,
-        id,
-        slug: id,
-        tests: catTests,
-        count: catTests.length,
-        description: `${catTests.length} tests available`,
-        ...style,
-      };
-    }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    const catNames = [...new Set(tests.map((t) => t.category).filter(Boolean))];
+    const cats = catNames
+      .map((n) => {
+        const style = CATEGORY_STYLES[n] || { icon: '🔬', color: '#64748b', bg: '#f1f5f9' };
+        const id = makeSlug(n);
+        const catTests = tests.filter((t) => t.category === n);
+        return {
+          name: n,
+          id,
+          slug: id,
+          tests: catTests,
+          count: catTests.length,
+          description: `${catTests.length} tests available`,
+          ...style,
+        };
+      })
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
     cached.categories = cats;
     _catItems.splice(0, _catItems.length, ...cats);
   } catch {
-    cached.tests = [];
-    cached.categories = [];
-    _catItems.splice(0, _catItems.length);
+    // Leave cached.tests null on hard failure so a later call can retry
+    if (!cached.tests) {
+      cached.tests = [];
+      cached.categories = [];
+      _catItems.splice(0, _catItems.length);
+      seedTests.splice(0, seedTests.length);
+    }
   } finally {
     loading = false;
     notifyAll();
   }
+  return cached.tests || [];
 }
 
 const CATEGORY_STYLES = {
@@ -163,9 +171,15 @@ export function getCategoryBySlug(slug) {
   return categoryMeta(slug);
 }
 
+/** Canonical URL slug — used by TestCard links and getTestBySlug. Collapse doubles so "A & B" → "a-b". */
 export function makeSlug(name) {
   if (!name) return '';
-  return name.toLowerCase().replace(/[\s/]+/g, '-').replace(/[^a-z0-9-]/g, '');
+  return name
+    .toLowerCase()
+    .replace(/[\s/&+,]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 export function applyPricing(test) {

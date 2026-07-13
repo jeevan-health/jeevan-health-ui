@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getTestBySlug, getTestEducation } from '../data/testEducation';
-import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
+import { seedTests, subscribe, ensureLoaded, makeSlug } from '../data/seedData';
 import useCartStore from '../stores/cartStore';
 import useUploadModal from '../stores/uploadModalStore';
 import { useT } from '../i18n/LanguageProvider';
@@ -64,12 +64,11 @@ function Pill({ children, active, color }) {
   );
 }
 
-const slugify = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const slugify = (n) => makeSlug(n);
 
 export default function TestDetail() {
   const t = useT();
   const [, forceUpdate] = useState(0);
-  useEffect(() => { ensureLoaded(); const unsub = subscribe(() => forceUpdate(n => n + 1)); return unsub; }, []);
   const { slug } = useParams();
   const navigate = useNavigate();
   const [test, setTest] = useState(null);
@@ -77,18 +76,60 @@ export default function TestDetail() {
   const [openSections, setOpenSections] = useState({});
   const [addedRecs, setAddedRecs] = useState([]);
   const [faqFilter, setFaqFilter] = useState('all');
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
   const cartItems = useCartStore(s => s.items);
   const addItem = useCartStore(s => s.addItem);
   const removeItem = useCartStore(s => s.removeItem);
 
+  // Load catalog + re-resolve when seed/API cache updates (fixes blank "not found" race)
   useEffect(() => {
-    const found = getTestBySlug(slug);
-    if (found) {
+    let cancelled = false;
+    const apply = () => {
+      if (cancelled || !slug) return false;
+      const found = getTestBySlug(slug);
+      if (!found) return false;
       setTest(found);
       const edu = getTestEducation(found);
       setEducation(edu);
-      document.title = edu?.seo?.metaTitle || `${found.name} | ${t('testDetail.siteName', 'Jeevan HealthCare at Home')}`;
-    }
+      document.title = edu?.seo?.metaTitle || `${found.name} | Jeevan HealthCare at Home`;
+      setLoadingCatalog(false);
+      return true;
+    };
+
+    setLoadingCatalog(true);
+    setTest(null);
+    setEducation(null);
+
+    // Subscribe first so we catch catalog notify that happens during await
+    const unsub = subscribe(() => {
+      apply();
+      forceUpdate((n) => n + 1);
+    });
+
+    (async () => {
+      try {
+        await ensureLoaded();
+      } catch {
+        /* catalog empty → not found below */
+      }
+      if (cancelled) return;
+      if (!apply()) setLoadingCatalog(false);
+    })();
+
+    // Safety net if subscribe one-shot was already consumed before mount
+    const tmr = setTimeout(() => {
+      if (!cancelled) apply();
+    }, 300);
+    const tmr2 = setTimeout(() => {
+      if (!cancelled) setLoadingCatalog(false);
+    }, 4000);
+
+    return () => {
+      cancelled = true;
+      unsub();
+      clearTimeout(tmr);
+      clearTimeout(tmr2);
+    };
   }, [slug]);
 
   const inCart = test && cartItems.some(i => i.id === test.id || i.name === test.name);
@@ -112,8 +153,14 @@ export default function TestDetail() {
       <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
         <div className="container" style={{ textAlign: 'center', padding: '40px 16px' }}>
           <span style={{ fontSize: 48 }}>🔬</span>
-          <p style={{ color: '#999', marginTop: 12 }}>{t('testDetail.notFound', 'Test not found')}</p>
-          <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ marginTop: 16 }}>{t('testDetail.backToDiagnostics', 'Back to Diagnostics')}</button>
+          <p style={{ color: '#999', marginTop: 12 }}>
+            {loadingCatalog
+              ? t('testDetail.loading', 'Loading test…')
+              : t('testDetail.notFound', 'Test not found')}
+          </p>
+          {!loadingCatalog && (
+            <button onClick={() => navigate('/diagnostics')} className="btn btn-primary" style={{ marginTop: 16 }}>{t('testDetail.backToDiagnostics', 'Back to Diagnostics')}</button>
+          )}
         </div>
       </div>
     );

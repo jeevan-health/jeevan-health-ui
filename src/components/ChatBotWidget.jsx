@@ -93,9 +93,9 @@ function FlowStep({ step, onOption }) {
 export default function ChatBotWidget() {
   const t = useT();
   const { pathname } = useLocation();
-  /** Sit above bottom nav; on test pages also above sticky Book Now + + FAB */
+  /** Sit above bottom nav; on test/package pages also above sticky Book Now + + FAB */
   const chatBottom = useMemo(() => {
-    if (pathname.startsWith('/test/')) {
+    if (pathname.startsWith('/test/') || pathname.startsWith('/package/')) {
       return 'calc(210px + env(safe-area-inset-bottom, 0px))';
     }
     if (pathname.startsWith('/admin')) {
@@ -189,11 +189,22 @@ export default function ChatBotWidget() {
         <div
           className="jh-chat-panel"
           style={{
-          position: 'fixed', bottom: chatBottom, right: 20, width: 340, maxHeight: 480, background: '#fff',
-          borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', zIndex: 9200,
-          display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'chatFadeIn 0.25s ease',
-          ['--chat-bottom']: chatBottom,
-        }}>
+            position: 'fixed',
+            bottom: chatBottom,
+            right: 20,
+            width: 340,
+            maxHeight: 480,
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            zIndex: 9200,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            animation: 'chatFadeIn 0.25s ease',
+            '--chat-bottom': chatBottom,
+          }}
+        >
           <div style={{
             background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', padding: '12px 14px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
@@ -309,30 +320,56 @@ export default function ChatBotWidget() {
           className="jh-chat-minimized"
           onClick={() => setMinimized(false)}
           style={{
-          position: 'fixed', bottom: chatBottom, right: 20, zIndex: 9200, cursor: 'pointer',
-          background: '#1866C9', color: '#fff', padding: '8px 14px', borderRadius: 24,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: 12, fontWeight: 600,
-          fontFamily: 'inherit', animation: 'chatFadeIn 0.2s ease',
-          ['--chat-bottom']: chatBottom,
-        }}>
+            position: 'fixed',
+            bottom: chatBottom,
+            right: 20,
+            zIndex: 9200,
+            cursor: 'pointer',
+            background: '#1866C9',
+            color: '#fff',
+            padding: '8px 14px',
+            borderRadius: 24,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'inherit',
+            animation: 'chatFadeIn 0.2s ease',
+            '--chat-bottom': chatBottom,
+          }}
+        >
           💬 Chat with us
         </div>
       )}
 
       {!open && (
         <button
+          type="button"
           className="jh-chat-launcher"
           onClick={() => { setOpen(true); setMinimized(false); }}
           style={{
-          position: 'fixed', bottom: chatBottom, right: 20, zIndex: 9200,
-          width: 52, height: 52, borderRadius: '50%', border: 'none', cursor: 'pointer',
-          background: 'linear-gradient(135deg, #1866C9, #0F4A96)', color: '#fff', fontSize: 22,
-          boxShadow: '0 4px 16px rgba(24, 102, 201, 0.35)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', transition: 'transform 0.2s, bottom 0.2s', fontFamily: 'inherit',
-          ['--chat-bottom']: chatBottom,
-        }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>
+            position: 'fixed',
+            bottom: chatBottom,
+            right: 20,
+            zIndex: 9200,
+            width: 52,
+            height: 52,
+            borderRadius: '50%',
+            border: 'none',
+            cursor: 'pointer',
+            background: 'linear-gradient(135deg, #1866C9, #0F4A96)',
+            color: '#fff',
+            fontSize: 22,
+            boxShadow: '0 4px 16px rgba(24, 102, 201, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'transform 0.2s, bottom 0.2s',
+            fontFamily: 'inherit',
+            '--chat-bottom': chatBottom,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+        >
           💬
         </button>
       )}

@@ -1,4 +1,4 @@
-import { seedTests } from './seedData';
+import { seedTests, makeSlug } from './seedData';
 
 const testSpecs = {
   'Complete Blood Count (CBC)': {
@@ -101,10 +101,6 @@ const testSpecs = {
 
 function getSpec(test) {
   return testSpecs[test.name] || testSpecs[test.category] || {};
-}
-
-function makeSlug(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 function generateAltNames(test, spec) {
@@ -337,8 +333,45 @@ const sampleProcessSteps = [
   { step: 'Digital Report', icon: '📱', desc: 'Delivered via WhatsApp/Email/App' },
 ];
 
+/** Match catalog row by URL slug (same algorithm as TestCard / seedData.makeSlug). */
 export function getTestBySlug(slug) {
-  return seedTests.find(t => makeSlug(t.name) === slug) || null;
+  if (!slug) return null;
+  const list = seedTests || [];
+  if (!list.length) return null;
+
+  // Primary: exact match with canonical makeSlug (what navigation uses)
+  let found = list.find((t) => makeSlug(t.name) === slug);
+  if (found) return found;
+
+  // Fallback: older slug styles (pre-collapse doubles, edu-style [^a-z0-9]+)
+  const norm = (s) => String(s || '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const want = norm(slug);
+  const legacyEdu = (name) =>
+    String(name || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  const legacySeed = (name) =>
+    String(name || '')
+      .toLowerCase()
+      .replace(/[\s/]+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+  return (
+    list.find((t) => {
+      const a = makeSlug(t.name);
+      const b = legacyEdu(t.name);
+      const c = legacySeed(t.name);
+      return (
+        a === slug ||
+        b === slug ||
+        c === slug ||
+        norm(a) === want ||
+        norm(b) === want ||
+        norm(c) === want
+      );
+    }) || null
+  );
 }
 
 export function getTestEducation(test) {

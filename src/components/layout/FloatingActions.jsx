@@ -3,13 +3,13 @@ import { useLocation } from 'react-router-dom';
 import useUploadModal from '../../stores/uploadModalStore';
 import { useT } from '../../i18n/LanguageProvider';
 
-/** Mobile: clear bottom nav; on test pages also clear sticky Book Now bar */
+/** Mobile: clear bottom nav; on test/package pages also clear sticky Book Now bar */
 function useFabBottomOffset() {
   const { pathname } = useLocation();
   return useMemo(() => {
-    const onTestDetail = pathname.startsWith('/test/');
-    // bottom nav ~64px + safe-area; sticky book bar ~64px on test pages
-    if (onTestDetail) {
+    const hasStickyBook = pathname.startsWith('/test/') || pathname.startsWith('/package/');
+    // bottom nav ~64px + safe-area; sticky book bar ~64px
+    if (hasStickyBook) {
       return {
         bottom: 'calc(148px + env(safe-area-inset-bottom, 0px))',
         helpBottom: 'calc(160px + env(safe-area-inset-bottom, 0px))',
@@ -87,9 +87,9 @@ export default function FloatingActions() {
           transition: 'transform 0.3s, opacity 0.3s, bottom 0.2s',
           transform: visible ? 'translateY(0)' : 'translateY(80px)',
           opacity: visible ? 1 : 0,
-          // Inline CSS variable so mobile media query / path can use it
-          ['--fab-bottom']: bottom,
-          ['--fab-help-bottom']: helpBottom,
+          // CSS vars read by index.css @media (max-width: 768px)
+          '--fab-bottom': bottom,
+          '--fab-help-bottom': helpBottom,
         }}
       >
         {showTrust && (

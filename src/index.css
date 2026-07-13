@@ -539,7 +539,13 @@ body.mobile-nav-open .mobile-bottom-bar { display: none !important; }
 @supports (padding: env(safe-area-inset-bottom)) {
   .mobile-bottom-bar { padding-bottom: env(safe-area-inset-bottom) !important; height: calc(64px + env(safe-area-inset-bottom)) !important; }
   .page-content { padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
-  .fab-container { bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  /* Honor path-aware --fab-bottom (test/package sticky Book Now); do not hard-pin over sticky bar */
+  .fab-container { bottom: var(--fab-bottom, calc(80px + env(safe-area-inset-bottom))) !important; }
+  .jh-chat-launcher,
+  .jh-chat-minimized,
+  .jh-chat-panel {
+    bottom: var(--chat-bottom, calc(80px + env(safe-area-inset-bottom))) !important;
+  }
   .panel { padding-top: env(safe-area-inset-top); }
 }
 

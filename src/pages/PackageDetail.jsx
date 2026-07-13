@@ -4,7 +4,6 @@ import useCartStore from '../stores/cartStore';
 import useUploadModal from '../stores/uploadModalStore';
 import { getPackageBySlug, packageList, ensurePackagesLoaded, subscribePackages } from '../data/healthPackages';
 import { seedTests, subscribe, ensureLoaded } from '../data/seedData';
-import { makeSlug } from '../data/seedData';
 import { useT } from '../i18n/LanguageProvider';
 
 function Section({ icon, title, children, open, onToggle }) {
@@ -39,38 +38,74 @@ function Tag({ label, color, bg }) {
 export default function PackageDetail() {
   const t = useT();
   const [, forceUpdate] = useState(0);
-  useEffect(() => {
-    ensureLoaded();
-    ensurePackagesLoaded();
-    const unsub1 = subscribe(() => forceUpdate(n => n + 1));
-    const unsub2 = subscribePackages(() => forceUpdate(n => n + 1));
-    return () => { unsub1(); unsub2(); };
-  }, []);
   const { slug } = useParams();
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
+  const [loadingPkg, setLoadingPkg] = useState(true);
   const [openSections, setOpenSections] = useState({});
   const cartItems = useCartStore(s => s.items);
   const addItem = useCartStore(s => s.addItem);
   const removeItem = useCartStore(s => s.removeItem);
 
+  // Load packages (+ tests for inclusion prices) and re-resolve on catalog notify
   useEffect(() => {
-    const found = getPackageBySlug(slug);
-    if (found) {
+    let cancelled = false;
+    const apply = () => {
+      if (cancelled || !slug) return false;
+      const found = getPackageBySlug(slug);
+      if (!found) return false;
       setPkg(found);
-      document.title = `${found.name} | ${t('packageDetail.siteName', 'Jeevan HealthCare at Home')}`;
-    } else {
-      setPkg(null);
-    }
-  }, [slug, packageList.length, t]);
+      document.title = `${found.name} | Jeevan HealthCare at Home`;
+      setLoadingPkg(false);
+      return true;
+    };
+
+    setLoadingPkg(true);
+    setPkg(null);
+
+    const unsub1 = subscribe(() => {
+      forceUpdate((n) => n + 1);
+    });
+    const unsub2 = subscribePackages(() => {
+      apply();
+      forceUpdate((n) => n + 1);
+    });
+
+    (async () => {
+      try {
+        await Promise.all([ensurePackagesLoaded(), ensureLoaded()]);
+      } catch {
+        /* empty → not found */
+      }
+      if (cancelled) return;
+      if (!apply()) setLoadingPkg(false);
+    })();
+
+    const tmr = setTimeout(() => {
+      if (!cancelled) apply();
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      unsub1();
+      unsub2();
+      clearTimeout(tmr);
+    };
+  }, [slug]);
 
   if (!pkg) {
     return (
       <div className="page-section" style={{ background: '#f8f9fa', minHeight: '100vh' }}>
         <div className="container" style={{ textAlign: 'center', padding: '40px 16px' }}>
           <span style={{ fontSize: 48 }}>📦</span>
-          <p style={{ color: '#999', marginTop: 12 }}>{t('packageDetail.notFound', 'Package not found')}</p>
-          <button onClick={() => navigate('/health-packages')} className="btn btn-primary" style={{ marginTop: 16 }}>{t('packageDetail.viewAllPackages', 'View All Packages')}</button>
+          <p style={{ color: '#999', marginTop: 12 }}>
+            {loadingPkg
+              ? t('packageDetail.loading', 'Loading package…')
+              : t('packageDetail.notFound', 'Package not found')}
+          </p>
+          {!loadingPkg && (
+            <button onClick={() => navigate('/health-packages')} className="btn btn-primary" style={{ marginTop: 16 }}>{t('packageDetail.viewAllPackages', 'View All Packages')}</button>
+          )}
         </div>
       </div>
     );
@@ -283,8 +318,24 @@ export default function PackageDetail() {
         </div>
       </div>
 
-      {/* STICKY BAR */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999, background: '#fff', boxShadow: '0 -4px 16px rgba(0,0,0,0.08)', padding: '8px 16px 12px', display: 'flex', alignItems: 'center', gap: 8, borderTop: '1px solid #eee' }}>
+      {/* Sticky Book bar — above bottom nav (same pattern as test detail) */}
+      <div
+        className="pkg-detail-sticky-book"
+        style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          zIndex: 9100,
+          background: '#fff',
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.08)',
+          padding: '8px 16px 10px',
+          display: 'none',
+          alignItems: 'center',
+          gap: 8,
+          borderTop: '1px solid #eee',
+          bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pkg.name}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -308,8 +359,12 @@ export default function PackageDetail() {
 
       <style>{`
         @media (max-width: 768px) {
-          .page-section { padding: 0; }
+          .page-section { padding: 0; padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important; }
           .container { padding-left: 12px; padding-right: 12px; }
+          .pkg-detail-sticky-book { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .pkg-detail-sticky-book { display: none !important; }
         }
         .btn-primary { transition: all 0.2s; border-radius: 10px; cursor: pointer; font-family: inherit; }
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
