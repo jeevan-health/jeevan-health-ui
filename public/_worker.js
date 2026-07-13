@@ -467,8 +467,22 @@ export default {
     try {
       if (isStaticAsset(pathname) || pathname === '/robots.txt' || pathname === '/sitemap.xml') {
         const assetResp = await env.ASSETS.fetch(request);
-        if (assetResp.status === 404) {
-          return new Response('Not Found', { status: 404, headers: { 'content-type': 'text/plain' } });
+        const assetType = assetResp.headers.get('content-type') || '';
+        // Cloudflare SPA fallback can serve index.html (text/html) for a missing
+        // asset with a 200 status. Returning HTML for a .js/.css request causes a
+        // hard MIME-type failure ("Expected a JavaScript-or-Wasm module script but
+        // the server responded with a MIME type of text/html").
+        // Treat both a 404 and any HTML response as "not found" for assets.
+        if (assetResp.status === 404 || assetType.includes('text/html')) {
+          // Do NOT cache 404/error responses at the CDN edge — the immutable
+          // Cache-Control from _headers would otherwise poison the cache for 1y.
+          return new Response('Not Found', {
+            status: 404,
+            headers: {
+              'content-type': 'text/plain',
+              'cache-control': 'no-cache, no-store, must-revalidate',
+            },
+          });
         }
         return assetResp;
       }
@@ -485,6 +499,10 @@ export default {
       return new Response(modified, {
         headers: {
           'content-type': 'text/html;charset=UTF-8',
+          // Never cache index.html at the edge — a stale HTML page references
+          // old hashed chunk names that no longer exist, causing MIME failures.
+          // Browsers must always revalidate so new deploys take effect.
+          'cache-control': 'public, max-age=0, must-revalidate',
         },
       });
     } catch (err) {

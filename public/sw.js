@@ -1,5 +1,5 @@
 /* Jeevan HealthCare service worker — PWA install + push */
-const CACHE = 'jeevan-shell-v3';
+const CACHE = 'jeevan-shell-v4';
 const SHELL = [
   '/',
   '/manifest.webmanifest',
@@ -30,8 +30,43 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   // Never cache API
   if (url.pathname.startsWith('/api')) return;
+  // Only handle same-origin requests
+  if (url.origin !== self.location.origin) return;
+
+  // Navigations (and the root document) are network-first so the browser
+  // always receives the FRESH index.html with current hashed chunk names.
+  // A cached old index.html would reference chunks that no longer exist
+  // after a deploy, causing module/MIME load failures.
+  if (request.mode === 'navigate' || url.pathname === '/') {
+    event.respondWith(
+      fetch(request)
+        .then((resp) => {
+          const copy = resp.clone();
+          caches.open(CACHE).then((c) => c.put(request, copy));
+          return resp;
+        })
+        .catch(() => caches.match(request).then((c) => c || caches.match('/')))
+    );
+    return;
+  }
+
+  // Hashed static assets are immutable: cache-first, but NEVER cache a
+  // non-OK or HTML (error/fallback) response — that would poison the cache
+  // and reproduce the "MIME type text/html" module load failure.
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request).catch(() => caches.match('/')))
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request)
+        .then((resp) => {
+          const type = resp.headers.get('content-type') || '';
+          if (resp.ok && !type.includes('text/html')) {
+            const copy = resp.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy));
+          }
+          return resp;
+        })
+        .catch(() => caches.match('/'));
+    })
   );
 });
 
