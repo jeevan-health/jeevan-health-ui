@@ -15,7 +15,6 @@ export function initPwa() {
   if (typeof window === 'undefined') return;
 
   window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
     deferredInstallPrompt = e;
     installListeners.forEach((fn) => fn(true));
     try {
