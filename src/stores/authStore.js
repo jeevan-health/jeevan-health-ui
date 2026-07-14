@@ -180,7 +180,13 @@ const useAuthStore = create((set, get) => ({
       const token = localStorage.getItem('accessToken') || localStorage.getItem('jh_token');
       if (!token) return;
       const { data } = await authService.getProfile();
-      const enriched = { ...data, role: data.role || ADMINS[data.phone] || ADMINS[data.email] || 'user' };
+      const enriched = {
+        ...data,
+        role: data.role || ADMINS[data.phone] || ADMINS[data.email] || 'user',
+        bloodGroup: data.bloodGroup || data.blood_group || '',
+        dob: data.dob ? String(data.dob).slice(0, 10) : '',
+        gender: data.gender || '',
+      };
       localStorage.setItem('jh_user', JSON.stringify(enriched));
       set({ user: enriched, isAuthenticated: true });
 
@@ -188,19 +194,28 @@ const useAuthStore = create((set, get) => ({
       if (addr && typeof addr === 'object') {
         if (Array.isArray(addr.list)) {
           set({ addresses: addr.list });
+          localStorage.setItem('jh_addresses', JSON.stringify(addr.list));
         } else if (addr.addressLine || addr.line1 || addr.city) {
-          set({ addresses: [{ id: 'primary', ...addr }] });
+          const list = [{ id: 'primary', ...addr }];
+          set({ addresses: list });
+          localStorage.setItem('jh_addresses', JSON.stringify(list));
         }
       }
+      return enriched;
     } catch {
       const stored = localStorage.getItem('jh_user');
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          const enriched = { ...parsed, role: parsed.role || ADMINS[parsed.phone] || 'user' };
+          const enriched = {
+            ...parsed,
+            role: parsed.role || ADMINS[parsed.phone] || 'user',
+            bloodGroup: parsed.bloodGroup || parsed.blood_group || '',
+          };
           set({ user: enriched, isAuthenticated: true });
         } catch { /* noop */ }
       }
+      return null;
     }
   },
 
@@ -223,16 +238,28 @@ const useAuthStore = create((set, get) => ({
       gender: updates.gender,
       bloodGroup: updates.bloodGroup || updates.blood_group || null,
     };
+    // Allow saving address book (checkout reuse)
+    if (updates.address !== undefined) payload.address = updates.address;
+
     const { data } = await authService.updateProfile(payload);
+    const bg = data.bloodGroup || data.blood_group || updates.bloodGroup || updates.blood_group || '';
     const enriched = {
       ...get().user,
       ...data,
       role: data.role || get().user?.role || 'user',
-      bloodGroup: data.bloodGroup || data.blood_group || '',
+      bloodGroup: bg,
+      dob: data.dob || updates.dob || get().user?.dob || '',
+      gender: data.gender || updates.gender || get().user?.gender || '',
     };
     if (enriched.id != null) localStorage.setItem('jh_auth_uid', String(enriched.id));
     localStorage.setItem('jh_user', JSON.stringify(enriched));
     set({ user: enriched });
+    // Keep addresses in sync if API returned address list
+    const addr = data.address;
+    if (addr && typeof addr === 'object' && Array.isArray(addr.list)) {
+      set({ addresses: addr.list });
+      localStorage.setItem('jh_addresses', JSON.stringify(addr.list));
+    }
     return enriched;
   },
 
@@ -327,12 +354,24 @@ const useAuthStore = create((set, get) => ({
   },
 
   addAddress: async (addr) => {
-    const addrs = [...get().addresses, { ...addr, id: addr.id || Date.now().toString() }];
+    const list = get().addresses || [];
+    const key = `${(addr.addressLine || addr.line1 || '').trim().toLowerCase()}|${(addr.pincode || '').trim()}`;
+    const existingIdx = list.findIndex((a) => {
+      const k = `${(a.addressLine || a.line1 || '').trim().toLowerCase()}|${(a.pincode || '').trim()}`;
+      return k && k === key;
+    });
+    let addrs;
+    if (existingIdx >= 0) {
+      addrs = list.map((a, i) => (i === existingIdx ? { ...a, ...addr, id: a.id || addr.id } : a));
+    } else {
+      addrs = [{ ...addr, id: addr.id || `addr_${Date.now()}` }, ...list].slice(0, 5);
+    }
     set({ addresses: addrs });
     localStorage.setItem('jh_addresses', JSON.stringify(addrs));
     try {
       await authService.updateProfile({ address: { list: addrs } });
     } catch { /* offline ok */ }
+    return addrs;
   },
 
   logout: () => {

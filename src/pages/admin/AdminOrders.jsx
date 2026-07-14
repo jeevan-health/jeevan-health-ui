@@ -3,6 +3,7 @@ import * as adminService from '../../services/adminService';
 import * as labReportService from '../../services/labReportService';
 import { useT } from '../../i18n/LanguageProvider';
 import { notify } from '../../lib/toastBus';
+import { extractPatientFromOrder, formatPatientLabel } from '../../utils/orderPatient';
 
 const DIAG_STATUSES = ['pending', 'confirmed', 'sample_collected', 'processing', 'results_ready', 'completed', 'cancelled'];
 const PHARM_STATUSES = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'];
@@ -17,10 +18,19 @@ function parseTests(tests) {
 
 function mapOrder(o) {
   const tests = parseTests(o.tests || o.items);
-  const addr = o.collection_address || o.delivery_address || o.collectionAddress || {};
-  const addrStr = typeof addr === 'string'
-    ? addr
-    : [addr.addressLine, addr.city, addr.pincode, addr.fullName].filter(Boolean).join(', ');
+  let addr = o.collection_address || o.delivery_address || o.collectionAddress || {};
+  if (typeof addr === 'string') {
+    try { addr = JSON.parse(addr); } catch { addr = {}; }
+  }
+  const addrStr = [addr.addressLine, addr.city, addr.pincode].filter(Boolean).join(', ')
+    || (addr.fullName ? String(addr.fullName) : '');
+  const patient = extractPatientFromOrder({
+    ...o,
+    collection_address: addr,
+    notes: o.notes,
+  });
+  const accountName = o.user_name || o.userName || addr.fullName || '—';
+  const patientLabel = formatPatientLabel(patient, null);
   return {
     id: o.id,
     orderType: o.order_type || o.orderType || 'diagnostic',
@@ -28,9 +38,16 @@ function mapOrder(o) {
     totalAmount: Number(o.total_amount ?? o.totalAmount) || 0,
     tests,
     userId: o.user_id || o.userId || null,
-    userName: o.user_name || o.userName || addr.fullName || addr.patient?.name || '—',
+    /** Account holder who placed the order */
+    userName: accountName,
     userPhone: o.user_phone || o.userPhone || '',
     userEmail: o.user_email || o.userEmail || '',
+    /** Person the test is for */
+    patientName: patient.name || accountName,
+    patientAge: patient.age,
+    patientGender: patient.gender,
+    patientRelation: patient.relation,
+    patientLabel: patientLabel || accountName,
     collectionDate: o.collection_date || o.collectionDate || '',
     collectionTime: o.collection_time || o.collectionTime || '',
     address: addrStr || '—',
@@ -134,13 +151,18 @@ export default function AdminOrders() {
       const pdfBase64 = await fileToBase64(reportFile);
       const testName = order.tests.map((x) => x.name || x).filter(Boolean).join(', ')
         || `Order #${order.id} report`;
+      const patientBits = [
+        order.patientName ? `Patient: ${order.patientName}` : null,
+        order.patientAge != null && order.patientAge !== '' ? `Age: ${order.patientAge}` : null,
+        order.patientGender ? `Gender: ${order.patientGender}` : null,
+      ].filter(Boolean).join(', ');
       const { data } = await labReportService.uploadReport({
         userId: order.userId,
         testName: String(testName).slice(0, 200),
         fileName: reportFile.name || `order-${order.id}-report.pdf`,
         mimeType: 'application/pdf',
         pdfBase64,
-        notes: `Linked to diagnostic order #${order.id}`,
+        notes: [`Order #${order.id}`, patientBits, order.userName ? `Account: ${order.userName}` : null].filter(Boolean).join(' | '),
         sendEmail: true,
         sendPush: true,
       });
@@ -221,8 +243,10 @@ export default function AdminOrders() {
                     {(o.status || 'pending').replace(/_/g, ' ')}
                   </span>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{o.userName}</div>
-                {o.userPhone && <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{o.userPhone}</div>}
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>👤 {o.patientLabel}</div>
+                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>
+                  Account: {o.userName}{o.userPhone ? ` · ${o.userPhone}` : ''}
+                </div>
                 <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8, lineHeight: 1.4 }}>
                   {o.tests.map(x => x.name || x).join(', ') || '—'}
                 </div>
@@ -276,6 +300,7 @@ export default function AdminOrders() {
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11 }}>ID</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11 }}>Type</th>
+                <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11 }}>Account</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11 }}>Patient</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11 }}>Items</th>
                 <th style={{ textAlign: 'left', padding: '10px 14px', color: '#64748b', fontWeight: 600, fontSize: 11 }}>Amount</th>
@@ -290,10 +315,17 @@ export default function AdminOrders() {
                   <td style={{ padding: '10px 14px', fontWeight: 600, fontSize: 12 }}>#{o.id}</td>
                   <td style={{ padding: '10px 14px', fontSize: 12, textTransform: 'capitalize' }}>{o.orderType}</td>
                   <td style={{ padding: '10px 14px' }}>
-                    <div>{o.userName}</div>
+                    <div style={{ fontSize: 12 }}>{o.userName}</div>
                     {o.userPhone && <div style={{ fontSize: 11, color: '#94a3b8' }}>{o.userPhone}</div>}
                   </td>
-                  <td style={{ padding: '10px 14px', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div style={{ fontWeight: 600, fontSize: 12 }}>{o.patientName || '—'}</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>
+                      {[o.patientAge != null && o.patientAge !== '' ? `${o.patientAge} yrs` : null, o.patientGender, o.patientRelation]
+                        .filter(Boolean).join(' · ') || '—'}
+                    </div>
+                  </td>
+                  <td style={{ padding: '10px 14px', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {o.tests.map(x => x.name || x).join(', ') || '—'}
                   </td>
                   <td style={{ padding: '10px 14px', fontWeight: 600 }}>₹{o.totalAmount.toLocaleString()}</td>
@@ -321,85 +353,106 @@ export default function AdminOrders() {
         </div>
       )}
 
+      {/* Manage order — modal (desktop + mobile) so user does not scroll to page end */}
       {selected && (
-        <div className="admin-orders-detail" style={{ marginTop: 24, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20 }}>
-          <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>#{selected.id} · {selected.orderType}</h3>
-          <div className="admin-orders-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13, marginBottom: 16 }}>
-            <div><span style={{ color: '#64748b' }}>Patient:</span> <strong>{selected.userName}</strong></div>
-            <div><span style={{ color: '#64748b' }}>Amount:</span> <strong>₹{selected.totalAmount.toLocaleString()}</strong></div>
-            <div><span style={{ color: '#64748b' }}>Collection:</span> <strong>{selected.collectionDate || '—'} {selected.collectionTime || ''}</strong></div>
-            <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Address:</span> <strong>{selected.address}</strong></div>
-            <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Items:</span> <strong>{selected.tests.map(x => x.name || x).join(', ') || '—'}</strong></div>
-            {selected.notes && <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Notes:</span> {selected.notes}</div>}
-          </div>
-          <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600 }}>Update status</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {(selected.orderType === 'pharmacy' ? PHARM_STATUSES : DIAG_STATUSES).map(s => (
-              <button
-                key={s}
-                type="button"
-                disabled={updatingId === selected.id}
-                onClick={() => handleStatusChange(selected, s)}
-                style={{
-                  padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-                  cursor: 'pointer', minHeight: 40,
-                  border: selected.status === s ? '2px solid #1866C9' : '1px solid #e2e8f0',
-                  background: selected.status === s ? '#EEF2FF' : '#fff',
-                  color: selected.status === s ? '#1866C9' : '#475569',
-                }}
-              >
-                {s.replace(/_/g, ' ')}
-              </button>
-            ))}
-            {updatingId === selected.id && <span style={{ fontSize: 12, color: '#64748b', alignSelf: 'center' }}>Saving…</span>}
-          </div>
-
-          {/* Upload lab report PDF → patient email + dashboard download */}
-          {selected.orderType === 'diagnostic' && (
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>📄 Upload lab report (PDF)</div>
-              <p style={{ margin: '0 0 10px', fontSize: 12, color: '#64748b', lineHeight: 1.45 }}>
-                Sends PDF to the patient email and shows it under their Dashboard → Reports.
-                {selected.userEmail ? ` Patient email: ${selected.userEmail}` : ' ⚠️ No email on file — patient must have email for delivery.'}
-              </p>
-              {!selected.userId && (
-                <div style={{ fontSize: 12, color: '#b91c1c', marginBottom: 8 }}>No linked user_id on this order — cannot attach report.</div>
-              )}
-              <input
-                ref={reportInputRef}
-                type="file"
-                accept="application/pdf,.pdf"
-                onChange={(e) => setReportFile(e.target.files?.[0] || null)}
-                style={{ fontSize: 13, marginBottom: 10, width: '100%' }}
-              />
-              {reportFile && (
-                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>
-                  {reportFile.name} ({Math.round(reportFile.size / 1024)} KB)
+        <div
+          className="admin-orders-modal-overlay"
+          onClick={() => setSelected(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', zIndex: 10050,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+          }}
+        >
+          <div
+            className="admin-orders-detail"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 20,
+              width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.18)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 8 }}>
+              <h3 style={{ margin: 0, fontSize: 16 }}>#{selected.id} · {selected.orderType}</h3>
+              <button type="button" onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', lineHeight: 1, color: '#64748b' }} aria-label="Close">×</button>
+            </div>
+            <div className="admin-orders-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13, marginBottom: 16 }}>
+              <div>
+                <span style={{ color: '#64748b' }}>Patient (test for):</span>{' '}
+                <strong>{selected.patientLabel || selected.patientName || '—'}</strong>
+              </div>
+              <div>
+                <span style={{ color: '#64748b' }}>Account (booked by):</span>{' '}
+                <strong>{selected.userName}</strong>
+                {selected.userPhone ? <span style={{ color: '#94a3b8', fontSize: 11 }}> · {selected.userPhone}</span> : null}
+              </div>
+              <div><span style={{ color: '#64748b' }}>Amount:</span> <strong>₹{selected.totalAmount.toLocaleString()}</strong></div>
+              <div><span style={{ color: '#64748b' }}>Collection:</span> <strong>{selected.collectionDate || '—'} {selected.collectionTime || ''}</strong></div>
+              <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Address:</span> <strong>{selected.address}</strong></div>
+              <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Items:</span> <strong>{selected.tests.map(x => x.name || x).join(', ') || '—'}</strong></div>
+              {selected.notes && (
+                <div style={{ gridColumn: '1 / -1', fontSize: 12, color: '#64748b', background: '#f8fafc', padding: 8, borderRadius: 8 }}>
+                  <span style={{ fontWeight: 600 }}>Raw notes:</span> {selected.notes}
                 </div>
               )}
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={uploadingReport || !selected.userId}
-                onClick={() => handleUploadReport(selected)}
-                style={{ minHeight: 42 }}
-              >
-                {uploadingReport ? 'Uploading & notifying…' : 'Upload report · email PDF · notify'}
-              </button>
             </div>
-          )}
-        </div>
-      )}
+            <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600 }}>Update status</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {(selected.orderType === 'pharmacy' ? PHARM_STATUSES : DIAG_STATUSES).map(s => (
+                <button
+                  key={s}
+                  type="button"
+                  disabled={updatingId === selected.id}
+                  onClick={() => handleStatusChange(selected, s)}
+                  style={{
+                    padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+                    cursor: 'pointer', minHeight: 40,
+                    border: selected.status === s ? '2px solid #1866C9' : '1px solid #e2e8f0',
+                    background: selected.status === s ? '#EEF2FF' : '#fff',
+                    color: selected.status === s ? '#1866C9' : '#475569',
+                  }}
+                >
+                  {s.replace(/_/g, ' ')}
+                </button>
+              ))}
+              {updatingId === selected.id && <span style={{ fontSize: 12, color: '#64748b', alignSelf: 'center' }}>Saving…</span>}
+            </div>
 
-      {/* Mobile: report upload inside expanded card manage section is via detail hidden — show inline when selected on mobile */}
-      {selected && selected.orderType === 'diagnostic' && (
-        <div className="admin-orders-report-mobile" style={{ display: 'none', marginTop: 12, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>📄 Upload report for #{selected.id}</div>
-          <p style={{ margin: '0 0 8px', fontSize: 12, color: '#64748b' }}>{selected.userName} · {selected.userEmail || 'no email'}</p>
-          <input type="file" accept="application/pdf,.pdf" onChange={(e) => setReportFile(e.target.files?.[0] || null)} style={{ fontSize: 13, width: '100%', marginBottom: 8 }} />
-          <button type="button" className="btn btn-primary btn-block" disabled={uploadingReport || !selected.userId} onClick={() => handleUploadReport(selected)} style={{ minHeight: 44 }}>
-            {uploadingReport ? 'Uploading…' : 'Upload report PDF'}
-          </button>
+            {selected.orderType === 'diagnostic' && (
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>📄 Upload lab report (PDF)</div>
+                <p style={{ margin: '0 0 10px', fontSize: 12, color: '#64748b', lineHeight: 1.45 }}>
+                  Report is stored for the account holder and emailed to their address.
+                  Patient on report: <strong>{selected.patientLabel || selected.patientName}</strong>
+                  {selected.userEmail ? ` · Email: ${selected.userEmail}` : ' · ⚠️ No email on file'}
+                </p>
+                {!selected.userId && (
+                  <div style={{ fontSize: 12, color: '#b91c1c', marginBottom: 8 }}>No linked user_id on this order — cannot attach report.</div>
+                )}
+                <input
+                  ref={reportInputRef}
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={(e) => setReportFile(e.target.files?.[0] || null)}
+                  style={{ fontSize: 13, marginBottom: 10, width: '100%' }}
+                />
+                {reportFile && (
+                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>
+                    {reportFile.name} ({Math.round(reportFile.size / 1024)} KB)
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={uploadingReport || !selected.userId}
+                  onClick={() => handleUploadReport(selected)}
+                  style={{ minHeight: 42 }}
+                >
+                  {uploadingReport ? 'Uploading & notifying…' : 'Upload report · email PDF · notify'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -407,9 +460,7 @@ export default function AdminOrders() {
         @media (max-width: 768px) {
           .admin-orders-table { display: none !important; }
           .admin-orders-cards { display: flex !important; }
-          .admin-orders-detail { display: none !important; }
           .admin-orders-detail-grid { grid-template-columns: 1fr !important; }
-          .admin-orders-report-mobile { display: block !important; }
         }
       `}</style>
     </div>

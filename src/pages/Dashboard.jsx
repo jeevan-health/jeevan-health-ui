@@ -16,6 +16,7 @@ import FeatureGateBanner from '../components/FeatureGateBanner';
 import { confirmDialog } from '../stores/dialogStore';
 import { notify } from '../lib/toastBus';
 import { isAdminRole } from '../utils/authRoles';
+import { parseReportNotes } from '../utils/orderPatient';
 
 const STEP_LABELS = ['Personal', 'Lifestyle', 'Body', 'Family', 'Medical', 'Labs'];
 
@@ -283,12 +284,17 @@ export default function Dashboard() {
     name: authUser?.name || store.profile.name || '',
     phone: authUser?.phone || store.profile.phone || '',
     email: authUser?.email || store.profile.email || '',
+    // Prefer live auth user (updated after profile save) then dashboard cache
+    bloodGroup: authUser?.bloodGroup || authUser?.blood_group || store.profile.bloodGroup || '',
+    dob: (authUser?.dob || store.profile.dob || '').toString().slice(0, 10),
+    gender: authUser?.gender || store.profile.gender || '',
   };
   const displayName = (p.name && String(p.name).trim()) || t('dashboard.userFallback', 'there');
   const nameInitial = (p.name && String(p.name).trim().charAt(0).toUpperCase()) || 'U';
   const reports = store.reports;
   const family = (authFamily && authFamily.length > 0) ? authFamily : store.family;
   const upcoming = store.upcomingBookings;
+  const pastBookings = store.pastBookings || [];
   const appointments = store.appointments;
   const upcomingAppts = appointments.filter(a => !['Completed', 'cancelled', 'Cancelled', 'completed'].includes(a.status));
   const pastAppts = appointments.filter(a => ['Completed', 'completed'].includes(a.status));
@@ -370,12 +376,13 @@ export default function Dashboard() {
         name: updated.name || profileForm.name,
         phone: updated.phone || profileForm.phone,
         email: updated.email || profileForm.email,
-        bloodGroup: updated.bloodGroup || profileForm.bloodGroup,
+        bloodGroup: updated.bloodGroup || profileForm.bloodGroup || '',
         dob: updated.dob || profileForm.dob,
         gender: updated.gender || profileForm.gender,
       });
       setShowProfileModal(false);
       notify.success(t('dashboard.profileModal.saved', 'Profile saved'));
+      try { await useAuthStore.getState().fetchProfile?.(); } catch { /* non-blocking */ }
       fetchDashboard();
     } catch (err) {
       notify.error(
@@ -667,8 +674,9 @@ export default function Dashboard() {
           </>
         )}
 
-        {/* ===== UPCOMING BOOKINGS ===== */}
-        <Section id="bookings" title={t('dashboard.section.bookings', 'Upcoming Bookings')} icon="📅" active={activeSection}>
+        {/* ===== UPCOMING BOOKINGS + HISTORY ===== */}
+        <Section id="bookings" title={t('dashboard.section.bookings', 'Bookings')} icon="📅" active={activeSection}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#334155' }}>{t('dashboard.section.upcomingBookings', 'Upcoming Bookings')}</h3>
           {upcoming.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '36px 24px', border: '1px dashed #cbd5e1', background: '#fafbfc' }}>
               <div style={{ width: 48, height: 48, borderRadius: 12, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>📅</div>
@@ -683,6 +691,11 @@ export default function Dashboard() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 2 }}>{b.test}</div>
+                      {b.patientLabel && (
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#1866C9', marginBottom: 4 }}>
+                          👤 {b.patientLabel}
+                        </div>
+                      )}
                       <Badge variant={b.status === 'Confirmed' ? 'green' : 'yellow'}>{b.status}</Badge>
                     </div>
                     <div style={{ fontSize: 24 }}>🧪</div>
@@ -719,6 +732,36 @@ export default function Dashboard() {
               ))}
             </div>
           )}
+
+          {/* Order history (completed / results ready / cancelled) */}
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '20px 0 10px', color: '#334155' }}>{t('dashboard.section.bookingHistory', 'Booking History')}</h3>
+          {pastBookings.length === 0 ? (
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 8px' }}>
+              {t('dashboard.noHistory', 'Completed and past orders will appear here.')}
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {pastBookings.map((b) => (
+                <div key={b.id} className="card" style={{ padding: 12, borderRadius: 14, opacity: b.status === 'Cancelled' ? 0.75 : 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700 }}>{b.test}</div>
+                      {b.patientLabel && (
+                        <div style={{ fontSize: 12, color: '#1866C9', fontWeight: 600 }}>👤 {b.patientLabel}</div>
+                      )}
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                        📅 {b.date}{b.time ? ` · ${b.time}` : ''} · {b.id}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                      <Badge variant={b.status === 'Completed' || b.status === 'Results Ready' ? 'green' : b.status === 'Cancelled' ? 'orange' : 'yellow'}>{b.status}</Badge>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowBookingDetail(b)}>{t('dashboard.view', 'View')}</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           <button onClick={() => navigate('/diagnostics')} className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>{t('dashboard.bookNewTest', '+ Book New Test')}</button>
         </Section>
 
@@ -740,13 +783,29 @@ export default function Dashboard() {
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.bookingId', 'Booking ID')}</span>
                     <span style={{ fontWeight: 600 }}>{showBookingDetail.id}</span>
                   </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0', gap: 12 }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.patient', 'Patient')}</span>
+                    <span style={{ fontWeight: 600, textAlign: 'right' }}>
+                      {showBookingDetail.patientLabel
+                        || showBookingDetail.patientName
+                        || t('dashboard.bookingDetail.patientUnknown', '—')}
+                      {showBookingDetail.patientAge != null && showBookingDetail.patientAge !== '' && !showBookingDetail.patientLabel
+                        ? ` · ${showBookingDetail.patientAge} yrs` : ''}
+                    </span>
+                  </div>
+                  {showBookingDetail.patientGender && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.gender', 'Gender')}</span>
+                      <span style={{ fontWeight: 600 }}>{showBookingDetail.patientGender}</span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.date', 'Date')}</span>
                     <span style={{ fontWeight: 600 }}>{showBookingDetail.date}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.time', 'Time')}</span>
-                    <span style={{ fontWeight: 600 }}>{showBookingDetail.time}</span>
+                    <span style={{ fontWeight: 600 }}>{showBookingDetail.time || '—'}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.location', 'Location')}</span>
@@ -860,40 +919,54 @@ export default function Dashboard() {
               </p>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {labReports.map(r => (
-                <div key={r.id} className="card" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 13 }}>{r.testName}</div>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>
-                      {r.createdAt ? new Date(r.createdAt).toLocaleString('en-IN') : ''} · {r.fileName || 'report.pdf'}
+              {labReports.map(r => {
+                const meta = parseReportNotes(r.notes);
+                const patientName = r.patientName || meta.patientName || p.name || '—';
+                const patientAge = meta.patientAge;
+                const patientGender = meta.patientGender || p.gender || '';
+                const orderId = meta.orderId ? `ORD-${meta.orderId}` : (r.orderId ? `ORD-${r.orderId}` : null);
+                return (
+                  <div key={r.id} className="card" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13 }}>{r.testName}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1866C9', marginTop: 2 }}>
+                        👤 {patientName}
+                        {patientAge ? ` · ${patientAge} yrs` : ''}
+                        {patientGender ? ` · ${patientGender}` : ''}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                        {orderId ? `${orderId} · ` : ''}
+                        {r.createdAt ? new Date(r.createdAt).toLocaleString('en-IN') : ''}
+                        {r.fileName ? ` · ${r.fileName}` : ''}
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={async () => {
+                        try {
+                          const { data } = await labReportService.downloadMyReport(r.id);
+                          const b64 = data.pdfBase64;
+                          const byteChars = atob(b64);
+                          const bytes = new Uint8Array(byteChars.length);
+                          for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+                          const blob = new Blob([bytes], { type: data.mimeType || 'application/pdf' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = data.fileName || 'lab-report.pdf';
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        } catch {
+                          notify.error(t('dashboard.downloadFail', 'Download failed'));
+                        }
+                      }}
+                    >
+                      📥 PDF
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    onClick={async () => {
-                      try {
-                        const { data } = await labReportService.downloadMyReport(r.id);
-                        const b64 = data.pdfBase64;
-                        const byteChars = atob(b64);
-                        const bytes = new Uint8Array(byteChars.length);
-                        for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-                        const blob = new Blob([bytes], { type: data.mimeType || 'application/pdf' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = data.fileName || 'lab-report.pdf';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                      } catch {
-                        notify.error(t('dashboard.downloadFail', 'Download failed'));
-                      }
-                    }}
-                  >
-                    📥 PDF
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -1753,7 +1826,8 @@ export default function Dashboard() {
                   <div className="grid-2">
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('dashboard.profileModal.bloodGroup', 'Blood Group')}</label>
-                      <select className="select" value={profileForm.bloodGroup} onChange={e => setProfileForm(f => ({ ...f, bloodGroup: e.target.value }))}>
+                      <select className="select" value={profileForm.bloodGroup || ''} onChange={e => setProfileForm(f => ({ ...f, bloodGroup: e.target.value }))}>
+                        <option value="">{t('dashboard.profileModal.selectBlood', 'Select')}</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
                         <option value="B+">B+</option>

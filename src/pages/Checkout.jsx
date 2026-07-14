@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/LanguageProvider';
 import useCartStore from '../stores/cartStore';
@@ -48,10 +48,42 @@ export default function Checkout() {
   const t = useT();
   const navigate = useNavigate();
   const { items, coupon, discount, getTotal, clearCart } = useCartStore();
-  const family = useDashboardStore(s => s.family);
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const authUser = useAuthStore(s => s.user);
+  const authFamily = useAuthStore(s => s.family);
+  const authAddresses = useAuthStore(s => s.addresses);
+  const addFamilyMember = useAuthStore(s => s.addFamilyMember);
+  const fetchFamily = useAuthStore(s => s.fetchFamily);
+  const fetchProfile = useAuthStore(s => s.fetchProfile);
+  const addAddress = useAuthStore(s => s.addAddress);
   const fetchDashboard = useDashboardStore(s => s.fetchDashboard);
   const { subtotal, discount: discAmt, total } = getTotal();
+
+  const family = authFamily || [];
+
+  /** Self option for booking (account holder) */
+  const selfPatient = useMemo(() => {
+    if (!authUser) return null;
+    let age = '';
+    if (authUser.dob) {
+      try {
+        const birth = new Date(authUser.dob);
+        const today = new Date();
+        age = today.getFullYear() - birth.getFullYear();
+        const md = today.getMonth() - birth.getMonth();
+        if (md < 0 || (md === 0 && today.getDate() < birth.getDate())) age -= 1;
+      } catch { age = ''; }
+    }
+    return {
+      id: 'self',
+      name: authUser.name || 'Myself',
+      relation: 'Self',
+      age: age || '',
+      gender: authUser.gender || '',
+      bloodGroup: authUser.bloodGroup || authUser.blood_group || '--',
+      isSelf: true,
+    };
+  }, [authUser]);
 
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
@@ -61,6 +93,39 @@ export default function Checkout() {
   const [address, setAddress] = useState({
     fullName: '', phone: '', pincode: '', addressLine: '', city: 'Hyderabad', state: 'Telangana', landmark: '',
   });
+  const [savedAddrId, setSavedAddrId] = useState(null);
+
+  // Prefill address + family when checkout opens
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchFamily?.();
+    fetchProfile?.().then((profile) => {
+      const u = profile || useAuthStore.getState().user;
+      if (!u) return;
+      setAddress((prev) => {
+        if (prev.addressLine && prev.pincode) return prev;
+        const list = useAuthStore.getState().addresses || [];
+        const primary = list[0] || (u.address && typeof u.address === 'object' && !Array.isArray(u.address.list) ? u.address : null);
+        if (primary && (primary.addressLine || primary.line1)) {
+          setSavedAddrId(primary.id || 'primary');
+          return {
+            fullName: primary.fullName || u.name || '',
+            phone: primary.phone || u.phone || '',
+            pincode: primary.pincode || '',
+            addressLine: primary.addressLine || primary.line1 || '',
+            city: primary.city || 'Hyderabad',
+            state: primary.state || 'Telangana',
+            landmark: primary.landmark || '',
+          };
+        }
+        return {
+          ...prev,
+          fullName: prev.fullName || u.name || '',
+          phone: prev.phone || u.phone || '',
+        };
+      });
+    }).catch(() => {});
+  }, [isAuthenticated, fetchFamily, fetchProfile]);
 
   const detectLocation = () => {
     if (!navigator.geolocation) { setError(t('checkout.error.geolocation', 'Geolocation not supported')); return; }
@@ -171,8 +236,17 @@ export default function Checkout() {
     }));
 
     const hasPackage = itemDetails.some(i => i.type === 'package');
+    const patientPayload = selectedPatient ? {
+      id: selectedPatient.isSelf ? 'self' : selectedPatient.id,
+      name: selectedPatient.name,
+      age: selectedPatient.age ?? null,
+      gender: selectedPatient.gender || null,
+      relation: selectedPatient.relation || (selectedPatient.isSelf ? 'Self' : null),
+    } : null;
     const notesParts = [
-      selectedPatient ? `Patient: ${selectedPatient.name || selectedPatient}${selectedPatient.age ? `, Age: ${selectedPatient.age}` : ''}` : '',
+      patientPayload
+        ? `Patient: ${patientPayload.name}${patientPayload.age != null && patientPayload.age !== '' ? `, Age: ${patientPayload.age}` : ''}${patientPayload.gender ? `, Gender: ${patientPayload.gender}` : ''}`
+        : '',
       coupon ? `Coupon: ${coupon}` : '',
       hasPackage ? `Includes package order(s)` : '',
     ].filter(Boolean);
@@ -185,7 +259,7 @@ export default function Checkout() {
         collectionTime: slotLabel,
         collectionAddress: {
           ...address,
-          patient: selectedPatient,
+          patient: patientPayload,
           paymentMethod,
         },
         notes: notesParts.join(' | '),
@@ -196,7 +270,7 @@ export default function Checkout() {
         id: orderId,
         orderId,
         items: itemDetails,
-        patient: selectedPatient,
+        patient: patientPayload,
         address,
         date: fmtDateFull(selectedDate),
         time: slotLabel,
@@ -208,8 +282,21 @@ export default function Checkout() {
 
       setOrderPlaced(booking);
       clearCart();
+      // Persist address for next checkout
+      try {
+        await addAddress?.({
+          id: savedAddrId || `addr_${Date.now()}`,
+          fullName: address.fullName,
+          phone: address.phone,
+          pincode: address.pincode,
+          addressLine: address.addressLine,
+          city: address.city,
+          state: address.state,
+          landmark: address.landmark,
+        });
+      } catch { /* non-blocking */ }
       try { await fetchDashboard?.(); } catch { /* non-blocking */ }
-      setTimeout(() => navigate('/my-orders'), 2500);
+      setTimeout(() => navigate('/dashboard?tab=bookings'), 2500);
     } catch (err) {
       const msg = err?.response?.data?.message
         || err?.response?.data?.error
@@ -348,6 +435,49 @@ export default function Checkout() {
       <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--text-dark)' }}>{t('checkout.address.title', '📍 Home Collection Address')}</h3>
       <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>{t('checkout.address.subtitle', "We'll collect samples from your doorstep at the selected time.")}</p>
 
+      {/* Saved addresses (from profile / previous bookings) */}
+      {authAddresses && authAddresses.length > 0 && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>
+            {t('checkout.address.saved', 'Saved addresses')}
+          </label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {authAddresses.map((a) => {
+              const active = savedAddrId === a.id;
+              const line = a.addressLine || a.line1 || '';
+              return (
+                <button
+                  key={a.id || line}
+                  type="button"
+                  onClick={() => {
+                    setSavedAddrId(a.id || 'primary');
+                    setAddress({
+                      fullName: a.fullName || authUser?.name || address.fullName,
+                      phone: a.phone || authUser?.phone || address.phone,
+                      pincode: a.pincode || '',
+                      addressLine: line,
+                      city: a.city || 'Hyderabad',
+                      state: a.state || 'Telangana',
+                      landmark: a.landmark || '',
+                    });
+                  }}
+                  style={{
+                    textAlign: 'left', padding: '10px 12px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+                    border: `2px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
+                    background: active ? 'var(--primary-light)' : '#fff',
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-dark)' }}>{line || t('checkout.address.unnamed', 'Saved address')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                    {[a.city, a.pincode].filter(Boolean).join(' · ')}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Detect Location */}
       <button onClick={detectLocation} disabled={locating}
         style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1px dashed var(--primary)', background: 'var(--primary-light)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14, opacity: locating ? 0.7 : 1 }}>
@@ -402,41 +532,60 @@ export default function Checkout() {
     </div>
   );
 
+  const renderPatientRow = (m, opts = {}) => {
+    const active = !showNewPatient && selectedPatient && (
+      selectedPatient.id === m.id
+      || (m.isSelf && selectedPatient.isSelf)
+    );
+    return (
+      <div
+        key={m.id}
+        onClick={() => { setSelectedPatient(m); setShowNewPatient(false); setError(''); }}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12,
+          border: `2px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
+          background: active ? 'var(--primary-light)' : '#fff',
+          cursor: 'pointer', transition: 'all 0.2s',
+          ...opts.style,
+        }}
+      >
+        <div style={{
+          width: 40, height: 40, borderRadius: '50%', background: active ? 'var(--primary)' : '#f0f4f8',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700,
+          color: active ? '#fff' : 'var(--text-body)',
+        }}>
+          {m.isSelf ? '👤' : (m.name?.[0] || '?')}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>
+            {m.name}{m.isSelf ? ` (${t('checkout.patient.myself', 'Myself')})` : ''}
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+            {m.relation || '—'}
+            {m.age !== '' && m.age != null ? ` · ${m.age} ${t('checkout.patient.years', 'yrs')}` : ''}
+            {m.bloodGroup && m.bloodGroup !== '--' ? ` · ${m.bloodGroup}` : ''}
+          </div>
+        </div>
+        <div style={{
+          width: 20, height: 20, borderRadius: '50%', border: `2px solid ${active ? 'var(--primary)' : '#d0d5dd'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: active ? 'var(--primary)' : 'transparent',
+        }}>
+          {active && <span style={{ color: '#fff', fontSize: 11 }}>✓</span>}
+        </div>
+      </div>
+    );
+  };
+
   const renderPatient = () => (
     <div>
       <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text-dark)' }}>{t('checkout.patient.title', '👤 Select Patient')}</h3>
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>{t('checkout.patient.subtitle', 'Who is this test for? Select an existing member or add a new one.')}</p>
+      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>{t('checkout.patient.subtitle', 'Who is this test for? Select yourself, a family member, or add a new one.')}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {family.map(m => (
-          <div
-            key={m.id}
-            onClick={() => { setSelectedPatient(m); setShowNewPatient(false); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12, border: `2px solid ${selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : 'var(--border)'}`,
-              background: selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary-light)' : '#fff',
-              cursor: 'pointer', transition: 'all 0.2s',
-            }}
-          >
-            <div style={{
-              width: 40, height: 40, borderRadius: '50%', background: selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : '#f0f4f8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700,
-              color: selectedPatient?.id === m.id && !showNewPatient ? '#fff' : 'var(--text-body)',
-            }}>
-              {m.name[0]}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-dark)' }}>{m.name}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{m.relation} · {m.age} {t('checkout.patient.years', 'yrs')} · {m.bloodGroup}</div>
-            </div>
-            <div style={{
-              width: 20, height: 20, borderRadius: '50%', border: `2px solid ${selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : '#d0d5dd'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: selectedPatient?.id === m.id && !showNewPatient ? 'var(--primary)' : 'transparent',
-            }}>
-              {selectedPatient?.id === m.id && !showNewPatient && <span style={{ color: '#fff', fontSize: 11 }}>✓</span>}
-            </div>
-          </div>
-        ))}
+        {/* Myself — always first */}
+        {selfPatient && renderPatientRow(selfPatient, { style: { borderColor: selectedPatient?.isSelf && !showNewPatient ? 'var(--primary)' : '#bfdbfe' } })}
+
+        {family.map((m) => renderPatientRow(m))}
 
         {/* Add New Patient Button */}
         <div onClick={() => { setShowNewPatient(!showNewPatient); setSelectedPatient(null); }}
@@ -454,7 +603,7 @@ export default function Checkout() {
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>{t('checkout.patient.addNew', 'Add New Patient')}</div>
         </div>
 
-        {/* New Patient Form */}
+        {/* New Patient Form — saves to Family API so they appear under Family tab */}
         {showNewPatient && (
           <div style={{ padding: 14, background: '#f8f9fa', borderRadius: 12, marginTop: 4 }}>
             <div className="grid-2" style={{ marginBottom: 10 }}>
@@ -479,7 +628,6 @@ export default function Checkout() {
               <div>
                 <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{t('checkout.patient.relation', 'Relation')}</label>
                 <select className="select" value={newPatient.relation} onChange={e => setNewPatient(p => ({ ...p, relation: e.target.value }))} style={{ fontSize: 12 }}>
-                  <option value="Self">{t('checkout.patient.relationSelf', 'Self')}</option>
                   <option value="Spouse">{t('checkout.patient.relationSpouse', 'Spouse')}</option>
                   <option value="Son">{t('checkout.patient.relationSon', 'Son')}</option>
                   <option value="Daughter">{t('checkout.patient.relationDaughter', 'Daughter')}</option>
@@ -490,15 +638,36 @@ export default function Checkout() {
                 </select>
               </div>
             </div>
-            <button onClick={() => {
-              if (!newPatient.name || !newPatient.age) { setError(t('checkout.error.nameAge', 'Please enter name and age')); return; }
-              const member = { ...newPatient, age: parseInt(newPatient.age), bloodGroup: '--', lastCheckup: 'N/A', abhaId: '' };
-              useDashboardStore.getState().addFamilyMember(member);
-              setSelectedPatient({ ...member, id: `FM${Date.now()}` });
-              setShowNewPatient(false);
-              setNewPatient({ name: '', age: '', gender: 'Male', relation: 'Other' });
-              setError('');
-            }} className="btn btn-primary btn-block" style={{ fontSize: 12 }}>{t('checkout.patient.saveSelect', 'Save & Select')}</button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!newPatient.name?.trim() || !newPatient.age) {
+                  setError(t('checkout.error.nameAge', 'Please enter name and age'));
+                  return;
+                }
+                setError('');
+                const payload = {
+                  name: newPatient.name.trim(),
+                  age: parseInt(newPatient.age, 10),
+                  gender: newPatient.gender,
+                  relation: newPatient.relation || 'Other',
+                  bloodGroup: '--',
+                  lastCheckup: 'N/A',
+                  abhaId: '',
+                };
+                // Persist to family API so Family tab + future checkouts show them
+                const created = await addFamilyMember(payload);
+                const selected = created || { ...payload, id: `FM${Date.now()}` };
+                setSelectedPatient(selected);
+                setShowNewPatient(false);
+                setNewPatient({ name: '', age: '', gender: 'Male', relation: 'Other' });
+                try { useDashboardStore.getState().addFamilyMember?.(selected); } catch { /* local mirror */ }
+              }}
+              className="btn btn-primary btn-block"
+              style={{ fontSize: 12 }}
+            >
+              {t('checkout.patient.saveSelect', 'Save & Select')}
+            </button>
           </div>
         )}
       </div>

@@ -181,6 +181,7 @@ const useDashboardStore = create((set, get) => ({
   healthData: null,
   scoreHistory: [],
   upcomingBookings: [],
+  pastBookings: [],
   reports: [],
   family: [],
   invoices: [],
@@ -258,16 +259,60 @@ const useDashboardStore = create((set, get) => ({
     set({ loading: true });
     try {
       const { data } = await api.get('/user/dashboard');
-      const { profile, upcomingAppointments, upcomingOrders, recentReports } = data;
+      const { profile, upcomingAppointments, upcomingOrders, pastOrders, recentReports } = data;
 
-      const upcomingBookings = (upcomingOrders || []).map(o => ({
-        id: `ORD-${o.id}`,
-        test: ((o.tests || []).map(t => t.name || t.test_name).filter(Boolean).join(', ')) || 'Diagnostic Order',
-        date: o.collection_date ? fmt(new Date(o.collection_date)) : '',
-        time: o.collection_time || '',
-        location: o.collection_address?.address || 'Home Collection',
-        status: o.status === 'confirmed' ? 'Confirmed' : o.status === 'sample_collected' ? 'Sample Collected' : 'Pending',
-      }));
+      // Prefer structured patient on address; fall back to notes
+      const mapOrderBooking = (o, isPast = false) => {
+        let addr = o.collection_address || o.collectionAddress || {};
+        if (typeof addr === 'string') {
+          try { addr = JSON.parse(addr); } catch { addr = {}; }
+        }
+        const patient = addr.patient || null;
+        let patientName = patient?.name || null;
+        let patientAge = patient?.age ?? null;
+        let patientGender = patient?.gender || null;
+        let patientRelation = patient?.relation || null;
+        if (!patientName && o.notes) {
+          const nm = String(o.notes).match(/Patient:\s*([^|,]+)/i);
+          const ag = String(o.notes).match(/Age:\s*(\d+)/i);
+          const gn = String(o.notes).match(/Gender:\s*([^|,]+)/i);
+          if (nm) patientName = nm[1].trim();
+          if (ag) patientAge = ag[1];
+          if (gn) patientGender = gn[1].trim();
+        }
+        const statusRaw = o.status || 'pending';
+        const statusLabel = isPast
+          ? (statusRaw === 'completed' ? 'Completed'
+            : statusRaw === 'results_ready' ? 'Results Ready'
+            : statusRaw === 'cancelled' ? 'Cancelled'
+            : statusRaw.replace(/_/g, ' '))
+          : (statusRaw === 'confirmed' ? 'Confirmed'
+            : statusRaw === 'sample_collected' ? 'Sample Collected'
+            : statusRaw === 'processing' ? 'Processing'
+            : statusRaw === 'results_ready' ? 'Results Ready'
+            : 'Pending');
+        return {
+          id: `ORD-${o.id}`,
+          orderId: o.id,
+          test: ((o.tests || []).map((t) => t.name || t.test_name).filter(Boolean).join(', ')) || 'Diagnostic Order',
+          date: o.collection_date ? fmt(new Date(o.collection_date)) : (o.created_at ? fmt(new Date(o.created_at)) : ''),
+          time: o.collection_time || '',
+          location: addr.addressLine || addr.address || 'Home Collection',
+          address: [addr.addressLine, addr.city, addr.pincode].filter(Boolean).join(', '),
+          status: statusLabel,
+          statusRaw,
+          patientName,
+          patientAge,
+          patientGender,
+          patientRelation,
+          patientLabel: patientName
+            ? `${patientName}${patientAge != null && patientAge !== '' ? ` · ${patientAge} yrs` : ''}`
+            : null,
+        };
+      };
+
+      const upcomingBookings = (upcomingOrders || []).map((o) => mapOrderBooking(o, false));
+      const pastBookings = (pastOrders || []).map((o) => mapOrderBooking(o, true));
 
       const appointments = (upcomingAppointments || []).map(a => ({
         id: `APT-${a.id}`,
@@ -309,6 +354,7 @@ const useDashboardStore = create((set, get) => ({
           gender: profile?.gender || '',
         },
         upcomingBookings,
+        pastBookings,
         appointments,
         reports,
         loading: false,
