@@ -37,6 +37,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const StaffOnboarding = lazy(() => import('./pages/StaffOnboarding'));
+const PhlebotomistOnboarding = lazy(() => import('./pages/PhlebotomistOnboarding'));
 const DoctorOnboarding = lazy(() => import('./pages/DoctorOnboarding'));
 const Contact = lazy(() => import('./pages/Contact'));
 const About = lazy(() => import('./pages/About'));
@@ -411,6 +412,8 @@ export default function App() {
           <Route path="/camp/:slug" element={<CampRegister />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding-staff" element={<StaffOnboarding />} />
+          <Route path="/onboarding-phlebotomist" element={<PhlebotomistOnboarding />} />
+          <Route path="/careers/phlebotomist" element={<PhlebotomistOnboarding />} />
           <Route path="/onboarding-doctor" element={<DoctorOnboarding />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>

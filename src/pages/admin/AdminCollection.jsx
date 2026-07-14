@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getPhlebotomists, savePhlebotomist, deletePhlebotomist, getOrders } from '../../services/localOrderService';
 import { useT } from '../../i18n/LanguageProvider';
 import { confirmDialog } from '../../stores/dialogStore';
@@ -165,6 +166,14 @@ export default function AdminCollection() {
             />
           ) : (
             <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+                <Link to="/admin/staff-onboarding" style={{ fontSize: 12, color: '#0d9488', fontWeight: 600 }}>
+                  📋 Review phlebotomist applications →
+                </Link>
+                <Link to="/onboarding-phlebotomist" target="_blank" style={{ fontSize: 12, color: '#64748b' }}>
+                  Public hire form ↗
+                </Link>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
                 <input placeholder="Search name, phone, ID, area..." value={search} onChange={e => setSearch(e.target.value)}
                   style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', maxWidth: 300, flex: 1 }} />

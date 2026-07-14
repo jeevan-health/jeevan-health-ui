@@ -115,6 +115,8 @@ const resourceSections = [
   { key: 'company', label: 'Company', links: [
     { label: 'About Us', path: '/about' },
     { label: 'Careers', path: '/contact' },
+    { label: 'Join as Phlebotomist', path: '/onboarding-phlebotomist' },
+    { label: 'Join as Healthcare Pro', path: '/onboarding-staff' },
     { label: 'Corporate Services', path: '/services' },
     { label: 'Partner With Us', path: '/contact' },
     { label: 'Franchise', path: '/contact' },

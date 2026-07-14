@@ -54,7 +54,7 @@ const NAV_GROUPS = [
     id: 'ops',
     title: 'Operations',
     items: [
-      { path: '/admin/staff-onboarding', label: 'admin.layout.staff_onboarding', fallback: 'Staff Onboarding', icon: '📋' },
+      { path: '/admin/staff-onboarding', label: 'admin.layout.staff_onboarding', fallback: 'Staff / Phlebo Onboarding', icon: '📋' },
       { path: '/admin/doctor-onboarding', label: 'admin.layout.doctor_onboarding', fallback: 'Doctor Onboarding', icon: '🩺' },
       { path: '/admin/permissions', label: 'admin.layout.permissions', fallback: 'Permissions', icon: '🔐' },
       { path: '/admin/contacts', label: 'admin.layout.contacts', fallback: 'Contacts', icon: '✉️' },
