@@ -1,129 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useT } from '../../i18n/LanguageProvider';
-import useStaffStore from '../../stores/staffStore';
-import { savePhlebotomist, getPhlebotomists } from '../../services/localOrderService';
+import * as staffApplicationService from '../../services/staffApplicationService';
 import { notify } from '../../lib/toastBus';
 
 const card = { background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', marginBottom: 16 };
 const inputStyle = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff' };
 const sectionLabel = { fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, borderBottom: '1px solid #e2e8f0', paddingBottom: 6 };
 
-const SECTION_LABELS = {
-  basic: 'Basic Information',
-  qualifications: 'Educational & Professional Qualifications',
-  preferences: 'Service Preferences & Availability',
-  bank: 'Bank Details',
-  declaration: 'Declaration & Consent',
-  phleboPersonal: 'Phlebotomist — Personal',
-  phleboDocs: 'Phlebotomist — Documents & skills',
-  phleboJob: 'Phlebotomist — Job preference',
-  phleboAddress: 'Phlebotomist — Address',
-};
-
-function FileLink({ meta, label }) {
-  if (!meta?.name) return null;
-  if (meta.dataUrl) {
-    return (
-      <div style={{ fontSize: 13, padding: '5px 0', borderBottom: '1px solid #f8fafc' }}>
-        <span style={{ color: '#64748b', minWidth: 140, display: 'inline-block' }}>{label}</span>
-        <a href={meta.dataUrl} download={meta.name} style={{ color: '#0d9488', fontWeight: 600, fontSize: 12 }}>
-          📎 {meta.name}
-        </a>
-      </div>
-    );
-  }
-  return (
-    <div style={{ fontSize: 13, padding: '5px 0', borderBottom: '1px solid #f8fafc' }}>
-      <span style={{ color: '#64748b', minWidth: 140, display: 'inline-block' }}>{label}</span>
-      <span style={{ color: '#0f172a', fontWeight: 500 }}>{meta.name}{meta.note ? ` (${meta.note})` : ''}</span>
-    </div>
-  );
+function StatusBadge({ status }) {
+  const styles = {
+    new: { bg: '#fef3c7', color: '#92400e', label: 'New' },
+    reviewed: { bg: '#dbeafe', color: '#1e40af', label: 'Reviewed' },
+    shortlisted: { bg: '#dcfce7', color: '#166534', label: 'Shortlisted' },
+    rejected: { bg: '#fee2e2', color: '#991b1b', label: 'Rejected' },
+  };
+  const s = styles[status] || styles.new;
+  return <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 10, fontWeight: 600, background: s.bg, color: s.color }}>{s.label}</span>;
 }
 
-export default function AdminStaffOnboarding() {
-  const t = useT();
-  const entries = useStaffStore((s) => s.entries);
-  const updateEntry = useStaffStore((s) => s.updateEntry);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [viewEntry, setViewEntry] = useState(null);
-
-  const filtered = useMemo(() => {
-    let d = entries;
-    if (typeFilter === 'phlebotomist') d = d.filter((e) => e.applicationType === 'phlebotomist');
-    else if (typeFilter === 'staff') d = d.filter((e) => e.applicationType !== 'phlebotomist');
-    if (search) {
-      const q = search.toLowerCase();
-      d = d.filter((e) => (e.name + e.mobile + e.phone + e.email + e.role + e.id + (e.preferredLocation || '')).toLowerCase().includes(q));
-    }
-    if (statusFilter === 'new') d = d.filter((e) => !e.status || e.status === 'new');
-    else if (statusFilter === 'reviewed') d = d.filter((e) => e.status === 'reviewed');
-    else if (statusFilter === 'shortlisted') d = d.filter((e) => e.status === 'shortlisted');
-    else if (statusFilter === 'rejected') d = d.filter((e) => e.status === 'rejected');
-    return d;
-  }, [entries, search, statusFilter, typeFilter]);
-
-  const phleboCount = entries.filter((e) => e.applicationType === 'phlebotomist').length;
-
-  const updateStatus = (id, status) => {
-    const updated = updateEntry(id, { status });
-    if (viewEntry?.id === id && updated) setViewEntry(updated);
-  };
-
-  const promoteToRoster = (e) => {
-    if (e.applicationType !== 'phlebotomist') return;
-    const list = getPhlebotomists();
-    const phone = e.mobile || e.phone || '';
-    if (list.some((p) => p.phone === phone && phone)) {
-      notify.warning('A phlebotomist with this phone already exists in the roster');
-      return;
-    }
-    const autoId = 'PHB' + String(list.length + 1).padStart(5, '0');
-    const present = e.presentAddress || {};
-    savePhlebotomist({
-      id: autoId,
-      employeeId: autoId,
-      name: e.name || e.fullName,
-      phone,
-      email: e.email || '',
-      gender: e.gender || '',
-      dateOfBirth: e.dob || '',
-      qualification: e.education || e.qualification || '',
-      experience: e.workExperience || e.experience || '',
-      aadhaar: e.aadhaar || '',
-      drivingLicense: e.drivingLicense || '',
-      vehicleNumber: e.vehicleRegNo || '',
-      transportType: e.ownsTwoWheeler === 'Yes' ? 'Bike' : '',
-      areas: e.preferredLocation || e.workAreas || '',
-      preferredWorkingAreas: e.preferredLocation || '',
-      status: 'available',
-      employmentType: (e.preferredJobs || []).includes('Home Sample Collection') ? 'Full Time' : 'Part Time',
-      joiningDate: new Date().toISOString().slice(0, 10),
-      backgroundVerification: 'Pending',
-      bankAccountHolder: e.accHolder || e.name || '',
-      notes: `Onboarded from application ${e.id}. Jobs: ${(e.preferredJobs || []).join(', ')}. Vacutainer: ${e.vacutainerMethod || '—'}. Refs: ${e.references || '—'}`,
-      address: e.address || [present.house, present.street, present.area, present.district, present.state, present.pincode].filter(Boolean).join(', '),
-      onboardingId: e.id,
-      createdAt: new Date().toISOString(),
-    });
-    updateStatus(e.id, 'shortlisted');
-    notify.success(`Added ${e.name} to Phlebotomists roster (${autoId})`);
-  };
-
-  const StatusBadge = ({ status }) => {
-    const styles = {
-      new: { bg: '#fef3c7', color: '#92400e', label: 'New' },
-      reviewed: { bg: '#dbeafe', color: '#1e40af', label: 'Reviewed' },
-      shortlisted: { bg: '#dcfce7', color: '#166534', label: 'Shortlisted' },
-      rejected: { bg: '#fee2e2', color: '#991b1b', label: 'Rejected' },
-    };
-    const s = styles[status] || styles.new;
-    return <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 10, fontWeight: 600, background: s.bg, color: s.color }}>{s.label}</span>;
-  };
-
-  const TypeBadge = ({ type }) => (
+function TypeBadge({ type }) {
+  return (
     <span style={{
       padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600,
       background: type === 'phlebotomist' ? '#ccfbf1' : '#f1f5f9',
@@ -133,19 +30,125 @@ export default function AdminStaffOnboarding() {
       {type === 'phlebotomist' ? '💉 Phlebotomist' : '🩺 Staff'}
     </span>
   );
+}
 
-  // Detail view
+function Row({ label, value }) {
+  if (value == null || value === '') return null;
+  return (
+    <div style={{ fontSize: 13, padding: '5px 0', borderBottom: '1px solid #f8fafc' }}>
+      <span style={{ color: '#64748b', minWidth: 140, display: 'inline-block' }}>{label}</span>
+      <span style={{ color: '#0f172a', fontWeight: 500 }}>{value}</span>
+    </div>
+  );
+}
+
+export default function AdminStaffOnboarding() {
+  const t = useT();
+  const [entries, setEntries] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [viewEntry, setViewEntry] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await staffApplicationService.listApplications({
+        type: typeFilter === 'all' ? undefined : typeFilter,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        search: search || undefined,
+        limit: 100,
+      });
+      setEntries(data.applications || []);
+      setTotal(data.total || 0);
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Failed to load applications from server');
+      setEntries([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [typeFilter, statusFilter, search]);
+
+  useEffect(() => {
+    const tmr = setTimeout(load, search ? 300 : 0);
+    return () => clearTimeout(tmr);
+  }, [load, search]);
+
+  const openDetail = async (e) => {
+    try {
+      const { data } = await staffApplicationService.getApplication(e.id);
+      setViewEntry(data);
+    } catch {
+      setViewEntry(e);
+    }
+  };
+
+  const updateStatus = async (id, status) => {
+    setBusy(true);
+    try {
+      const { data } = await staffApplicationService.updateApplication(id, { status });
+      setViewEntry((prev) => (prev?.id === id ? { ...prev, ...data } : prev));
+      await load();
+      notify.success(`Status → ${status}`);
+    } catch (err) {
+      notify.error(err?.response?.data?.error || 'Update failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const promoteToRoster = async (e) => {
+    setBusy(true);
+    try {
+      const { data } = await staffApplicationService.promoteToPhlebotomist(e.id);
+      notify.success(
+        data.alreadyPromoted
+          ? `Already on roster as ${data.phlebotomist?.employeeId}`
+          : `Added to roster: ${data.phlebotomist?.employeeId} — ${data.phlebotomist?.name}`
+      );
+      setViewEntry((prev) => (prev ? { ...prev, ...data.application, phlebotomistId: data.phlebotomist?.id } : prev));
+      await load();
+    } catch (err) {
+      notify.error(err?.response?.data?.error || 'Could not promote to roster');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const downloadFile = async (appId, fileKey, fileName) => {
+    try {
+      const { data } = await staffApplicationService.downloadApplicationFile(appId, fileKey);
+      if (!data.dataBase64) {
+        notify.warning('File content not available');
+        return;
+      }
+      const byteChars = atob(data.dataBase64);
+      const bytes = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+      const blob = new Blob([bytes], { type: data.mimeType || 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.name || fileName || 'download';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      notify.error('Download failed');
+    }
+  };
+
   if (viewEntry) {
     const e = viewEntry;
-    const isPhlebo = e.applicationType === 'phlebotomist';
-    const Row = ({ label, value }) => (value ? (
-      <div style={{ fontSize: 13, padding: '5px 0', borderBottom: '1px solid #f8fafc' }}>
-        <span style={{ color: '#64748b', minWidth: 140, display: 'inline-block' }}>{label}</span>
-        <span style={{ color: '#0f172a', fontWeight: 500 }}>{value}</span>
-      </div>
-    ) : null);
-    const present = e.presentAddress || {};
-    const permanent = e.permanentAddress || {};
+    const d = e.data || {};
+    const isPhlebo = (e.applicationType || e.application_type) === 'phlebotomist';
+    const present = d.presentAddress || e.presentAddress || {};
+    const permanent = d.permanentAddress || e.permanentAddress || {};
+    const files = e.files || [];
 
     return (
       <div>
@@ -154,117 +157,87 @@ export default function AdminStaffOnboarding() {
           <div style={{ flex: 1 }} />
           <TypeBadge type={e.applicationType || 'staff'} />
           <StatusBadge status={e.status} />
-          <div style={{ fontSize: 12, color: '#64748b' }}>{new Date(e.submittedAt).toLocaleString()}</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>
+            #{e.id} · {e.submittedAt || e.createdAt ? new Date(e.submittedAt || e.createdAt).toLocaleString() : ''}
+          </div>
         </div>
 
-        {isPhlebo ? (
-          <>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.phleboPersonal}</div>
-              <Row label="Name" value={e.name || e.fullName} />
-              <Row label="DOB / Age" value={[e.dob, e.age ? `${e.age} yrs` : ''].filter(Boolean).join(' · ')} />
-              <Row label="Gender" value={e.gender} />
-              <Row label="Marital Status" value={e.maritalStatus} />
-              <Row label="Mobile" value={e.mobile || e.phone} />
-              <Row label="Email" value={e.email} />
-              <Row label="Aadhaar" value={e.aadhaar} />
-              <FileLink label="Aadhaar file" meta={e.aadhaarFile} />
+        <div style={card}>
+          <div style={sectionLabel}>Personal</div>
+          <Row label="Name" value={e.fullName || e.name || d.fullName} />
+          <Row label="DOB / Age" value={[e.dob || d.dob, (e.age || d.age) ? `${e.age || d.age} yrs` : ''].filter(Boolean).join(' · ')} />
+          <Row label="Gender" value={e.gender || d.gender} />
+          <Row label="Marital Status" value={e.maritalStatus || d.maritalStatus} />
+          <Row label="Mobile" value={e.phone || e.mobile || d.phone} />
+          <Row label="Email" value={e.email || d.email} />
+          <Row label="Aadhaar" value={e.aadhaar || d.aadhaar} />
+        </div>
+
+        <div style={card}>
+          <div style={sectionLabel}>Qualifications &amp; experience</div>
+          <Row label="Education" value={e.education || d.education || e.qualification} />
+          <Row label="Paramedical Reg" value={d.paramedicalRegNo || d.regNumber} />
+          <Row label="Work Experience" value={d.workExperience || d.experience || e.experience} />
+          <Row label="Vacutainer method" value={d.vacutainerMethod} />
+        </div>
+
+        <div style={card}>
+          <div style={sectionLabel}>Job preference</div>
+          <Row label="Preferred jobs" value={(d.preferredJobs || d.services || e.preferredJobs || []).join?.(', ') || (d.preferredJobs || []).toString()} />
+          <Row label="Preferred area" value={e.preferredLocation || d.preferredLocation || e.workAreas} />
+          <Row label="PIN" value={e.preferredPincode || d.preferredPincode} />
+          <Row label="Driving license" value={d.drivingLicense} />
+          <Row label="Owns 2-wheeler" value={d.ownsTwoWheeler} />
+          <Row label="Vehicle reg" value={d.vehicleRegNo} />
+          <Row label="References" value={d.references} />
+          <Row label="Feedback" value={d.feedback} />
+        </div>
+
+        <div style={card}>
+          <div style={sectionLabel}>Address</div>
+          <Row label="Present" value={[present.house, present.street, present.area, present.district, present.state, present.pincode].filter(Boolean).join(', ') || d.address || e.address} />
+          <Row label="Permanent" value={[permanent.house, permanent.street, permanent.area, permanent.district, permanent.state, permanent.pincode].filter(Boolean).join(', ')} />
+        </div>
+
+        {files.length > 0 && (
+          <div style={card}>
+            <div style={sectionLabel}>Uploaded documents (server)</div>
+            {files.map((f) => (
+              <div key={f.key || f.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #f1f5f9', fontSize: 13 }}>
+                <span>
+                  <strong style={{ textTransform: 'capitalize' }}>{f.key}</strong>
+                  {' — '}
+                  {f.name}
+                  <span style={{ color: '#94a3b8', marginLeft: 6 }}>({Math.round((f.size || 0) / 1024)} KB)</span>
+                </span>
+                {f.hasData !== false && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => downloadFile(e.id, f.key, f.name)}
+                    style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #0d9488', background: '#fff', color: '#0d9488', cursor: 'pointer', fontSize: 11, fontFamily: 'inherit', fontWeight: 600 }}
+                  >
+                    Download
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {e.phlebotomistId && (
+          <div style={{ ...card, background: '#f0fdfa', borderColor: '#99f6e4' }}>
+            <div style={{ fontSize: 13, color: '#0f766e', fontWeight: 600 }}>
+              ✓ On phlebotomist roster (id #{e.phlebotomistId})
             </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.phleboDocs}</div>
-              <Row label="Education" value={e.education || e.qualification} />
-              <FileLink label="Certificates" meta={e.certificateFile} />
-              <Row label="Paramedical Reg No" value={e.paramedicalRegNo || e.regNumber} />
-              <FileLink label="Paramedical cert" meta={e.paramedicalCertFile} />
-              <Row label="Work Experience" value={e.workExperience || e.experience} />
-              <FileLink label="Resume / CV" meta={e.resumeFile} />
-              <Row label="Vacutainer method" value={e.vacutainerMethod} />
-            </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.phleboJob}</div>
-              <Row label="Preferred jobs" value={(e.preferredJobs || e.services || []).join(', ')} />
-              <Row label="Preferred area" value={e.preferredLocation || e.workAreas} />
-              <Row label="PIN" value={e.preferredPincode || e.workPincodes} />
-              <Row label="Driving license" value={e.drivingLicense} />
-              <Row label="Owns 2-wheeler" value={e.ownsTwoWheeler} />
-              <Row label="Vehicle reg" value={e.vehicleRegNo} />
-              <Row label="References" value={e.references} />
-              <Row label="Feedback" value={e.feedback} />
-            </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.phleboAddress}</div>
-              <Row label="Present" value={[present.house, present.street, present.area, present.district, present.state, present.pincode].filter(Boolean).join(', ') || e.address} />
-              <Row label="Permanent" value={[permanent.house, permanent.street, permanent.area, permanent.district, permanent.state, permanent.pincode].filter(Boolean).join(', ')} />
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.basic}</div>
-              <Row label="Name" value={e.name} />
-              <Row label="Gender" value={e.gender} />
-              <Row label="DOB" value={e.dob} />
-              <Row label="Mobile" value={e.mobile} />
-              <Row label="Alt Phone" value={e.altPhone} />
-              <Row label="Email" value={e.email} />
-              <Row label="Address" value={e.address} />
-              <Row label="City" value={e.city} />
-              <Row label="State" value={e.state} />
-              <Row label="PIN" value={e.pincode} />
-            </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.qualifications}</div>
-              <Row label="Role" value={e.role} />
-              {e.roleOther && <Row label="Role (Other)" value={e.roleOther} />}
-              <Row label="Qualification" value={e.qualification} />
-              <Row label="Course" value={e.course} />
-              <Row label="University" value={e.university} />
-              <Row label="Year" value={e.yearPassing} />
-              <Row label="Certificate" value={e.certificate} />
-              <Row label="Council" value={e.council} />
-              {e.councilOther && <Row label="Council (Other)" value={e.councilOther} />}
-              <Row label="Reg Number" value={e.regNumber} />
-              <Row label="Certificate Upload" value={e.certificate2} />
-              <Row label="Experience" value={e.experience} />
-              <Row label="Workplaces" value={e.workplaces} />
-              <Row label="Home Care Exp" value={e.homeCare} />
-              <Row label="Exp Certificate" value={e.experienceCert} />
-              <Row label="Languages" value={(e.languages || []).join(', ')} />
-            </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.preferences}</div>
-              <Row label="Services" value={(e.services || []).join(', ')} />
-              <Row label="Engagement" value={e.engagement} />
-              <Row label="Shift" value={e.shift} />
-              <Row label="Areas" value={e.workAreas} />
-              <Row label="PIN Codes" value={e.workPincodes} />
-            </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.bank}</div>
-              <Row label="Account Holder" value={e.accHolder} />
-              <Row label="Bank Name" value={e.bankName} />
-              <Row label="IFSC" value={e.ifsc} />
-              <Row label="Account Number" value={e.accNumber} />
-              <Row label="Account Type" value={e.accType} />
-              <Row label="Cheque Upload" value={e.chequeUpload} />
-              <Row label="ID Type" value={e.idType} />
-              <Row label="ID Number" value={e.idNumber} />
-              <Row label="ID Upload" value={e.idUpload} />
-              <Row label="Photo" value={e.photo} />
-            </div>
-            <div style={card}>
-              <div style={sectionLabel}>{SECTION_LABELS.declaration}</div>
-              <Row label="Agreed" value={e.agree ? 'Yes' : 'No'} />
-              <Row label="Digital Signature" value={e.signature} />
-              <Row label="Submitted At" value={new Date(e.submittedAt).toLocaleString()} />
-            </div>
-          </>
+          </div>
         )}
 
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           {isPhlebo && (
             <button
               type="button"
+              disabled={busy}
               onClick={() => promoteToRoster(e)}
               style={{
                 padding: '8px 16px', borderRadius: 8, border: 'none', background: '#0d9488',
@@ -278,6 +251,7 @@ export default function AdminStaffOnboarding() {
             <button
               key={s}
               type="button"
+              disabled={busy}
               onClick={() => updateStatus(e.id, s)}
               style={{
                 padding: '8px 16px', borderRadius: 8, border: 'none',
@@ -291,8 +265,7 @@ export default function AdminStaffOnboarding() {
         </div>
         {isPhlebo && (
           <p style={{ fontSize: 12, color: '#64748b', marginTop: 12 }}>
-            After adding to roster, manage ops at{' '}
-            <Link to="/admin/collection" style={{ color: '#0d9488' }}>Admin → Phlebotomists</Link>
+            Roster ops also at <Link to="/admin/collection" style={{ color: '#0d9488' }}>Admin → Phlebotomists</Link>
           </p>
         )}
       </div>
@@ -304,10 +277,10 @@ export default function AdminStaffOnboarding() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>
-            {t('admin.staffOnboarding.title', '📋 Staff Onboarding')} ({entries.length})
+            {t('admin.staffOnboarding.title', '📋 Staff / Phlebo Onboarding')} ({total})
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
-            Phlebotomist applications: {phleboCount} · Public form:{' '}
+            Production queue (Neon) · Public form:{' '}
             <Link to="/onboarding-phlebotomist" target="_blank" style={{ color: '#0d9488' }}>/onboarding-phlebotomist</Link>
           </div>
         </div>
@@ -325,13 +298,27 @@ export default function AdminStaffOnboarding() {
             <option value="shortlisted">Shortlisted</option>
             <option value="rejected">Rejected</option>
           </select>
+          <button type="button" onClick={load} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>
+            Refresh
+          </button>
         </div>
       </div>
 
-      {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13, padding: 40 }}>No applications found.</p>}
+      {loading && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>Loading applications…</div>}
+      {error && !loading && <div style={{ textAlign: 'center', padding: 24, color: '#dc2626', fontSize: 13 }}>{error}</div>}
+      {!loading && !error && entries.length === 0 && (
+        <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13, padding: 40 }}>No applications yet.</p>
+      )}
 
-      {filtered.map((e) => (
-        <div key={e.id} style={{ ...card, cursor: 'pointer' }} onClick={() => setViewEntry(e)} onKeyDown={(ev) => ev.key === 'Enter' && setViewEntry(e)} role="button" tabIndex={0}>
+      {!loading && entries.map((e) => (
+        <div
+          key={e.id}
+          style={{ ...card, cursor: 'pointer' }}
+          onClick={() => openDetail(e)}
+          onKeyDown={(ev) => ev.key === 'Enter' && openDetail(e)}
+          role="button"
+          tabIndex={0}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
               <div style={{
@@ -341,26 +328,25 @@ export default function AdminStaffOnboarding() {
                 fontSize: 15, fontWeight: 700, flexShrink: 0,
               }}
               >
-                {(e.name || '?')[0]}
+                {(e.fullName || e.name || '?')[0]}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 14, color: '#0f172a', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  {e.name}
+                  {e.fullName || e.name}
                   <TypeBadge type={e.applicationType || 'staff'} />
                   <StatusBadge status={e.status} />
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>
-                  {e.role || '—'} | {e.mobile || e.phone} | {e.email}
+                  #{e.id} | {e.phone || e.mobile} | {e.email}
                 </div>
                 <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>
-                  {e.applicationType === 'phlebotomist'
-                    ? `${e.preferredLocation || e.city || '—'} · ${(e.preferredJobs || []).join(', ') || e.education || ''}`
-                    : `${e.city || ''}, ${e.state || ''} | ${e.engagement || ''} | ${e.experience || ''} exp`}
+                  {e.preferredLocation || e.education || e.role || '—'}
+                  {e.phlebotomistId ? ' · On roster' : ''}
                 </div>
               </div>
             </div>
             <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>
-              {new Date(e.submittedAt).toLocaleDateString()}
+              {e.createdAt || e.submittedAt ? new Date(e.createdAt || e.submittedAt).toLocaleDateString() : ''}
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import useStaffStore from '../stores/staffStore';
+import * as staffApplicationService from '../services/staffApplicationService';
 
 const input = {
   padding: '10px 14px', borderRadius: 8, border: '1px solid #d1d5db', fontSize: 14,
@@ -151,11 +151,11 @@ function FileField({ labelText, required, value, onChange, accept = '.pdf,.jpg,.
 }
 
 export default function PhlebotomistOnboarding() {
-  const addEntry = useStaffStore((s) => s.addEntry);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [entryId, setEntryId] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [f, setF] = useState(emptyForm);
 
   const update = (k, v) => setF((p) => ({ ...p, [k]: v }));
@@ -211,74 +211,82 @@ export default function PhlebotomistOnboarding() {
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setError('');
     if (!f.agree) {
       setError('Please confirm the declaration to submit.');
       return;
     }
-    if (!canNext() && step === 6) {
-      // re-validate all critical fields
-    }
-    const entry = addEntry({
-      applicationType: 'phlebotomist',
-      role: 'Phlebotomist (Camps & Home Collection)',
-      name: f.fullName.trim(),
-      fullName: f.fullName.trim(),
-      dob: f.dob,
-      age: f.age,
-      gender: f.gender,
-      maritalStatus: f.maritalStatus,
-      mobile: f.phone.replace(/\D/g, '').slice(0, 15),
-      phone: f.phone.replace(/\D/g, '').slice(0, 15),
-      email: f.email.trim().toLowerCase(),
-      aadhaar: f.aadhaar.replace(/\s/g, ''),
-      aadhaarFile: f.aadhaarFile,
-      education: f.education,
-      qualification: f.education,
-      certificateFile: f.certificateFile,
-      paramedicalRegNo: f.paramedicalRegNo,
-      regNumber: f.paramedicalRegNo,
-      paramedicalCertFile: f.paramedicalCertFile,
-      workExperience: f.workExperience,
-      experience: f.workExperience,
-      resumeFile: f.resumeFile,
-      vacutainerMethod: f.vacutainerMethod,
-      preferredJobs: f.preferredJobs,
-      services: f.preferredJobs,
-      preferredLocation: f.preferredLocation,
-      workAreas: f.preferredLocation,
-      preferredPincode: f.preferredPincode,
-      workPincodes: f.preferredPincode,
-      drivingLicense: f.drivingLicense,
-      ownsTwoWheeler: f.ownsTwoWheeler,
-      vehicleRegNo: f.vehicleRegNo,
-      references: f.references,
-      presentAddress: {
-        house: f.presentHouse,
-        street: f.presentStreet,
-        area: f.presentArea,
-        district: f.presentDistrict,
+    setSubmitting(true);
+    try {
+      const payload = {
+        applicationType: 'phlebotomist',
+        fullName: f.fullName.trim(),
+        name: f.fullName.trim(),
+        dob: f.dob,
+        age: f.age,
+        gender: f.gender,
+        maritalStatus: f.maritalStatus,
+        phone: f.phone.replace(/\D/g, '').slice(0, 15),
+        mobile: f.phone.replace(/\D/g, '').slice(0, 15),
+        email: f.email.trim().toLowerCase(),
+        aadhaar: f.aadhaar.replace(/\s/g, ''),
+        aadhaarFile: f.aadhaarFile,
+        education: f.education,
+        qualification: f.education,
+        certificateFile: f.certificateFile,
+        paramedicalRegNo: f.paramedicalRegNo,
+        regNumber: f.paramedicalRegNo,
+        paramedicalCertFile: f.paramedicalCertFile,
+        workExperience: f.workExperience,
+        experience: f.workExperience,
+        resumeFile: f.resumeFile,
+        vacutainerMethod: f.vacutainerMethod,
+        preferredJobs: f.preferredJobs,
+        services: f.preferredJobs,
+        preferredLocation: f.preferredLocation,
+        workAreas: f.preferredLocation,
+        preferredPincode: f.preferredPincode,
+        workPincodes: f.preferredPincode,
+        drivingLicense: f.drivingLicense,
+        ownsTwoWheeler: f.ownsTwoWheeler,
+        vehicleRegNo: f.vehicleRegNo,
+        references: f.references,
+        presentAddress: {
+          house: f.presentHouse,
+          street: f.presentStreet,
+          area: f.presentArea,
+          district: f.presentDistrict,
+          state: f.presentState,
+          pincode: f.presentPincode,
+        },
+        permanentAddress: {
+          house: f.permanentHouse,
+          street: f.permanentStreet,
+          area: f.permanentArea,
+          district: f.permanentDistrict,
+          state: f.permanentState,
+          pincode: f.permanentPincode,
+        },
+        address: [f.presentHouse, f.presentStreet, f.presentArea, f.presentDistrict, f.presentState, f.presentPincode].filter(Boolean).join(', '),
+        city: f.presentArea || f.presentDistrict,
         state: f.presentState,
         pincode: f.presentPincode,
-      },
-      permanentAddress: {
-        house: f.permanentHouse,
-        street: f.permanentStreet,
-        area: f.permanentArea,
-        district: f.permanentDistrict,
-        state: f.permanentState,
-        pincode: f.permanentPincode,
-      },
-      address: [f.presentHouse, f.presentStreet, f.presentArea, f.presentDistrict, f.presentState, f.presentPincode].filter(Boolean).join(', '),
-      city: f.presentArea || f.presentDistrict,
-      state: f.presentState,
-      pincode: f.presentPincode,
-      feedback: f.feedback,
-      status: 'new',
-    });
-    setEntryId(entry.id);
-    setSubmitted(true);
+        feedback: f.feedback,
+      };
+      const { data } = await staffApplicationService.submitPhlebotomistApplication(payload);
+      setEntryId(data.id || data.application?.id || '');
+      setSubmitted(true);
+    } catch (err) {
+      setError(
+        err?.response?.data?.error
+        || err?.response?.data?.message
+        || err?.message
+        || 'Could not submit application. Please try again.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -656,11 +664,11 @@ export default function PhlebotomistOnboarding() {
           ) : (
             <button
               type="button"
-              style={{ ...btnPrimary, opacity: f.agree ? 1 : 0.5 }}
+              style={{ ...btnPrimary, opacity: f.agree && !submitting ? 1 : 0.5 }}
               onClick={handleSubmit}
-              disabled={!f.agree}
+              disabled={!f.agree || submitting}
             >
-              Submit Application
+              {submitting ? 'Submitting…' : 'Submit Application'}
             </button>
           )}
         </div>
