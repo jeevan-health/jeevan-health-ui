@@ -222,6 +222,21 @@ function Protected({ children }) {
   return children;
 }
 
+/** Field portal: must be logged in as that role (e.g. phlebotomist). */
+function FieldRoleGuard({ role, children }) {
+  const isAuth = useAuthStore(s => s.isAuthenticated);
+  const user = useAuthStore(s => s.user);
+  if (!isAuth) return <Navigate to="/signup" replace />;
+  const r = user?.role || 'user';
+  if (isAdminRole(r)) return <Navigate to="/admin" replace />;
+  if (r !== role) {
+    // Wrong field role or patient → send them home for their role
+    if (isFieldRole(r)) return <Navigate to={FIELD_ROLE_PATHS[r]} replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+}
+
 /** Patient-only: dashboard, orders, checkout — no admin or field staff. */
 function PatientOnly({ children }) {
   const isAuth = useAuthStore(s => s.isAuthenticated);
@@ -455,7 +470,7 @@ export default function App() {
             <Route path="sales" element={<AdminSalesDashboard />} />
           </Route>
           {/* Phlebotomist Portal */}
-          <Route path="/phlebotomist" element={<Protected><RoleLayout role="phlebotomist" /></Protected>}>
+          <Route path="/phlebotomist" element={<FieldRoleGuard role="phlebotomist"><RoleLayout role="phlebotomist" /></FieldRoleGuard>}>
             <Route index element={<PhlebotomistDashboard />} />
             <Route path="collections" element={<PhlebotomistCollections />} />
             <Route path="collections/:orderId" element={<PhlebotomistCollections />} />

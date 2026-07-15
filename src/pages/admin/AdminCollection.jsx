@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getPhlebotomists, savePhlebotomist, deletePhlebotomist, getOrders } from '../../services/localOrderService';
+import * as adminService from '../../services/adminService';
 import { useT } from '../../i18n/LanguageProvider';
 import { confirmDialog } from '../../stores/dialogStore';
+import { notify } from '../../lib/toastBus';
 
 const ALL_AREAS = ['Kukatpally', 'Madhapur', 'Gachibowli', 'Hitech City', 'Banjara Hills', 'Jubilee Hills', 'Kondapur', 'Miyapur', 'Ameerpet', 'Begumpet', 'Secunderabad', 'Dilsukhnagar', 'Uppal', 'LB Nagar', 'Shamshabad', 'Patancheru', 'Nizampet', 'KPHB', 'SR Nagar', 'Panjagutta'];
 
@@ -48,9 +50,45 @@ export default function AdminCollection() {
   const [form, setForm] = useState(emptyForm());
   const [expandedSections, setExpandedSections] = useState({});
   const [selectedAreas, setSelectedAreas] = useState([]);
+  const [rosterSource, setRosterSource] = useState('api'); // api | local
+  const [loadError, setLoadError] = useState('');
 
-  const refresh = () => { setPhlebotomists(getPhlebotomists()); setOrders(getOrders()); };
-  useEffect(() => { refresh(); }, []);
+  const mapApiPhlebo = (p) => ({
+    id: p.id,
+    employeeId: p.employeeId || p.employee_id,
+    name: p.name,
+    phone: p.phone,
+    email: p.email,
+    gender: p.gender,
+    dateOfBirth: p.dateOfBirth || p.date_of_birth,
+    qualification: p.qualification,
+    experience: p.experience,
+    areas: p.areas || p.preferredWorkingAreas || '',
+    status: p.status || 'available',
+    joiningDate: p.joiningDate || p.joining_date,
+    transportType: p.transportType,
+    vehicleNumber: p.vehicleNumber,
+    userId: p.userId,
+    applicationId: p.applicationId,
+    fromApi: true,
+  });
+
+  const refresh = useCallback(async () => {
+    setLoadError('');
+    try {
+      const { data } = await adminService.listPhlebotomists({ limit: 200 });
+      const list = (data.phlebotomists || []).map(mapApiPhlebo);
+      setPhlebotomists(list);
+      setRosterSource('api');
+    } catch (err) {
+      // Fallback local only if API fails
+      setPhlebotomists(getPhlebotomists());
+      setRosterSource('local');
+      setLoadError(err?.response?.data?.error || 'Could not load Neon roster — showing local cache if any');
+    }
+    setOrders(getOrders());
+  }, []);
+  useEffect(() => { refresh(); }, [refresh]);
 
   const activeOrders = orders.filter(o => o.phlebotomist && o.status !== 'completed' && o.status !== 'cancelled');
 
@@ -173,12 +211,17 @@ export default function AdminCollection() {
                 <Link to="/onboarding-phlebotomist" target="_blank" style={{ fontSize: 12, color: '#64748b' }}>
                   Public hire form ↗
                 </Link>
+                <span style={{ fontSize: 11, color: rosterSource === 'api' ? '#059669' : '#b45309' }}>
+                  Roster: {rosterSource === 'api' ? 'Neon (production)' : 'local fallback'}
+                </span>
               </div>
+              {loadError && <div style={{ fontSize: 12, color: '#b45309', marginBottom: 8 }}>{loadError}</div>}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
                 <input placeholder="Search name, phone, ID, area..." value={search} onChange={e => setSearch(e.target.value)}
                   style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', maxWidth: 300, flex: 1 }} />
-                <button onClick={openAdd} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  + Add Phlebotomist
+                <button type="button" onClick={refresh} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>Refresh</button>
+                <button onClick={openAdd} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#0f172a', color: '#fff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }} title="Local-only draft; prefer hire form for production roster">
+                  + Local draft
                 </button>
               </div>
               {filtered.length === 0 ? (
@@ -200,9 +243,31 @@ export default function AdminCollection() {
                               <div style={{ fontSize: 11, color: '#64748b' }}>{p.employeeId || p.id} {p.gender ? `· ${p.gender}` : ''}</div>
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: 4 }}>
-                            <button onClick={(e) => { e.stopPropagation(); openEdit(p); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', fontSize: 12 }}>Edit</button>
-                            <button onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 12 }}>Del</button>
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                            {p.fromApi && (
+                              <button
+                                type="button"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    const { data } = await adminService.enablePhlebotomistLogin(p.id);
+                                    notify.success(`Login OK — OTP with phone ${data.phone || p.phone}`);
+                                    refresh();
+                                  } catch (err) {
+                                    notify.error(err?.response?.data?.error || 'Enable login failed');
+                                  }
+                                }}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0d9488', fontSize: 11, fontWeight: 600 }}
+                              >
+                                Enable login
+                              </button>
+                            )}
+                            {!p.fromApi && (
+                              <>
+                                <button onClick={(e) => { e.stopPropagation(); openEdit(p); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', fontSize: 12 }}>Edit</button>
+                                <button onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 12 }}>Del</button>
+                              </>
+                            )}
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, flexWrap: 'wrap' }}>
