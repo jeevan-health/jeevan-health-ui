@@ -53,6 +53,10 @@ function mapOrder(o) {
     address: addrStr || '—',
     createdAt: o.created_at || o.createdAt,
     notes: o.notes || '',
+    assignedPhlebotomistId: o.assigned_phlebotomist_id || o.assignedPhlebotomistId || null,
+    phlebotomistName: o.phlebotomist_name || o.phlebotomistName || null,
+    phlebotomistEmployeeId: o.phlebotomist_employee_id || null,
+    phleboStatus: o.phlebo_status || o.phleboStatus || null,
   };
 }
 
@@ -81,6 +85,15 @@ export default function AdminOrders() {
   const [reportFile, setReportFile] = useState(null);
   const [uploadingReport, setUploadingReport] = useState(false);
   const reportInputRef = useRef(null);
+  const [phlebos, setPhlebos] = useState([]);
+  const [assignId, setAssignId] = useState('');
+  const [assigning, setAssigning] = useState(false);
+
+  useEffect(() => {
+    adminService.listPhlebotomists({ limit: 100 }).then(({ data }) => {
+      setPhlebos(data.phlebotomists || []);
+    }).catch(() => setPhlebos([]));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -126,6 +139,24 @@ export default function AdminOrders() {
       notify.error(err?.response?.data?.error || t('admin.orders.updateFailed', 'Failed to update status'));
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleAssignPhlebo = async (order) => {
+    if (!assignId) {
+      notify.warning('Select a phlebotomist');
+      return;
+    }
+    setAssigning(true);
+    try {
+      const { data } = await adminService.assignDiagnosticOrder(order.id, Number(assignId));
+      notify.success(`Assigned to ${data.phlebotomistName}`);
+      setAssignId('');
+      await load();
+    } catch (err) {
+      notify.error(err?.response?.data?.error || 'Assign failed');
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -396,6 +427,42 @@ export default function AdminOrders() {
                 </div>
               )}
             </div>
+            {selected.orderType === 'diagnostic' && (
+              <div style={{ marginBottom: 16, padding: 12, background: '#f0fdfa', borderRadius: 10, border: '1px solid #99f6e4' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>🚑 Assign phlebotomist</div>
+                <div style={{ fontSize: 12, color: '#0f766e', marginBottom: 8 }}>
+                  Current: {selected.phlebotomistName
+                    ? `${selected.phlebotomistName}${selected.phlebotomistEmployeeId ? ` (${selected.phlebotomistEmployeeId})` : ''}${selected.phleboStatus ? ` · ${selected.phleboStatus}` : ''}`
+                    : 'Not assigned'}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <select
+                    value={assignId}
+                    onChange={(e) => setAssignId(e.target.value)}
+                    style={{ flex: 1, minWidth: 180, padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13 }}
+                  >
+                    <option value="">Select phlebotomist…</option>
+                    {phlebos.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name} · {p.employeeId || p.id} · {p.phone || ''}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={assigning || !assignId}
+                    onClick={() => handleAssignPhlebo(selected)}
+                    style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', fontWeight: 600, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    {assigning ? 'Assigning…' : 'Assign'}
+                  </button>
+                </div>
+                {phlebos.length === 0 && (
+                  <div style={{ fontSize: 11, color: '#b45309', marginTop: 6 }}>
+                    No roster yet — promote a hire from Staff / Phlebo Onboarding first.
+                  </div>
+                )}
+              </div>
+            )}
+
             <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600 }}>Update status</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {(selected.orderType === 'pharmacy' ? PHARM_STATUSES : DIAG_STATUSES).map(s => (

@@ -21,6 +21,15 @@ export const getOrders = (params = {}) =>
 export const updateOrderStatus = (type, id, status) =>
   api.put(`/admin/orders/${type}/${id}/status`, { status });
 
+export const listPhlebotomists = (params = {}) =>
+  api.get('/admin/phlebotomists', { params });
+
+export const assignDiagnosticOrder = (orderId, phlebotomistId) =>
+  api.post(`/admin/orders/diagnostic/${orderId}/assign`, { phlebotomistId });
+
+export const enablePhlebotomistLogin = (phlebotomistId) =>
+  api.post(`/admin/phlebotomists/${phlebotomistId}/enable-login`);
+
 export const getAppointments = (params = {}) =>
   api.get('/admin/appointments', { params });
 

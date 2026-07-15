@@ -142,6 +142,9 @@ const DiseaseCarePage = lazy(() => import('./pages/DiseaseCarePage'));
 const TestInfoPage = lazy(() => import('./pages/TestInfoPage'));
 
 const PhlebotomistDashboard = lazy(() => import('./pages/phlebotomist/PhlebotomistDashboard'));
+const PhlebotomistCollections = lazy(() => import('./pages/phlebotomist/PhlebotomistCollections'));
+const PhlebotomistRoutes = lazy(() => import('./pages/phlebotomist/PhlebotomistRoutes'));
+const PhlebotomistSchedule = lazy(() => import('./pages/phlebotomist/PhlebotomistSchedule'));
 const DoctorDashboard = lazy(() => import('./pages/doctor/DoctorDashboard'));
 const NurseDashboard = lazy(() => import('./pages/role/NurseDashboard'));
 const CaregiverDashboard = lazy(() => import('./pages/role/CaregiverDashboard'));
@@ -165,9 +168,6 @@ const ContentDashboard = lazy(() => import('./pages/role/ContentDashboard'));
 const EmergCoordDashboard = lazy(() => import('./pages/role/EmergCoordDashboard'));
 
 // Role portal sub-pages
-const PhlebotomistCollections = lazy(() => import('./pages/role/PhlebotomistCollections'));
-const PhlebotomistRoutes = lazy(() => import('./pages/role/PhlebotomistRoutes'));
-const PhlebotomistSchedule = lazy(() => import('./pages/role/PhlebotomistSchedule'));
 const DoctorAppointments = lazy(() => import('./pages/role/DoctorAppointments'));
 const DoctorPatients = lazy(() => import('./pages/role/DoctorPatients'));
 const DoctorAvailability = lazy(() => import('./pages/role/DoctorAvailability'));
@@ -458,6 +458,7 @@ export default function App() {
           <Route path="/phlebotomist" element={<Protected><RoleLayout role="phlebotomist" /></Protected>}>
             <Route index element={<PhlebotomistDashboard />} />
             <Route path="collections" element={<PhlebotomistCollections />} />
+            <Route path="collections/:orderId" element={<PhlebotomistCollections />} />
             <Route path="routes" element={<PhlebotomistRoutes />} />
             <Route path="schedule" element={<PhlebotomistSchedule />} />
           </Route>
