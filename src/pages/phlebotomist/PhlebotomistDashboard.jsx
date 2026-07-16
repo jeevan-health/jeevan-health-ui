@@ -4,7 +4,14 @@ import useAuthStore from '../../stores/authStore';
 import * as phlebotomistService from '../../services/phlebotomistService';
 import { notify } from '../../lib/toastBus';
 
-const card = { background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0', marginBottom: 12 };
+const card = {
+  background: '#fff',
+  borderRadius: 12,
+  padding: 14,
+  border: '1px solid #e2e8f0',
+  marginBottom: 10,
+  boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
+};
 
 function getGeo() {
   return new Promise((resolve) => {
@@ -65,18 +72,28 @@ export default function PhlebotomistDashboard() {
   };
 
   if (loading) {
-    return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>Loading dashboard…</div>;
+    return <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>Loading dashboard…</div>;
   }
 
   if (error) {
     return (
       <div style={{ ...card, borderColor: '#fecaca', background: '#fef2f2' }}>
         <div style={{ fontWeight: 700, color: '#b91c1c', marginBottom: 8 }}>Access issue</div>
-        <p style={{ fontSize: 13, color: '#7f1d1d', margin: '0 0 12px' }}>{error}</p>
-        <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+        <p style={{ fontSize: 13, color: '#7f1d1d', margin: '0 0 12px', lineHeight: 1.5 }}>{error}</p>
+        <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.45 }}>
           Logged in as {user?.name || user?.phone}. Admin must hire/promote you and enable phone login.
         </p>
-        <button type="button" onClick={load} style={{ marginTop: 12, padding: '8px 14px', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', cursor: 'pointer' }}>Retry</button>
+        <button
+          type="button"
+          onClick={load}
+          style={{
+            marginTop: 14, width: '100%', padding: '12px 14px', borderRadius: 10,
+            border: 'none', background: '#0d9488', color: '#fff', cursor: 'pointer',
+            fontWeight: 600, fontSize: 14, fontFamily: 'inherit', minHeight: 44,
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -86,22 +103,32 @@ export default function PhlebotomistDashboard() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-        <div>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>
-            👋 {profile?.name || user?.name || 'Phlebotomist'}
-          </h2>
-          <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
-            {profile?.employeeId || '—'} · {profile?.areas || 'Areas TBD'} · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
-          </p>
-        </div>
+      <div style={{ marginBottom: 12 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: '0 0 4px', lineHeight: 1.25 }}>
+          👋 {profile?.name || user?.name || 'Phlebotomist'}
+        </h2>
+        <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px', lineHeight: 1.4, wordBreak: 'break-word' }}>
+          {profile?.employeeId || '—'} · {profile?.areas || 'Areas TBD'} · {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+        </p>
         <button
           type="button"
           disabled={busy}
           onClick={toggleDuty}
           style={{
-            padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit',
-            background: dash?.duty?.active ? '#dc2626' : '#059669', color: '#fff',
+            width: '100%',
+            padding: '14px 18px',
+            borderRadius: 12,
+            border: 'none',
+            cursor: busy ? 'wait' : 'pointer',
+            fontWeight: 700,
+            fontSize: 15,
+            fontFamily: 'inherit',
+            background: dash?.duty?.active ? '#dc2626' : '#059669',
+            color: '#fff',
+            minHeight: 48,
+            boxShadow: dash?.duty?.active
+              ? '0 2px 8px rgba(220,38,38,0.25)'
+              : '0 2px 8px rgba(5,150,105,0.25)',
           }}
         >
           {busy ? '…' : dash?.duty?.active ? '⏹ End duty' : '▶ Start duty'}
@@ -109,51 +136,88 @@ export default function PhlebotomistDashboard() {
       </div>
 
       {dash?.duty?.active && (
-        <div style={{ ...card, background: '#ecfdf5', borderColor: '#a7f3d0', fontSize: 13, color: '#065f46' }}>
+        <div style={{ ...card, background: '#ecfdf5', borderColor: '#a7f3d0', fontSize: 13, color: '#065f46', fontWeight: 600 }}>
           Duty active since {dash.duty.startedAt ? new Date(dash.duty.startedAt).toLocaleTimeString('en-IN') : '—'}
         </div>
       )}
 
-      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', marginBottom: 16 }}>
+      <div style={{
+        display: 'grid',
+        gap: 8,
+        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+        marginBottom: 14,
+      }}
+      >
         {[
           { label: "Today's jobs", value: stats.todayTotal ?? 0, color: '#0f172a' },
           { label: 'Pending', value: stats.todayPending ?? 0, color: '#d97706' },
           { label: 'Collected', value: stats.todayCompleted ?? 0, color: '#059669' },
           { label: 'Open assigned', value: stats.assignedOpen ?? 0, color: '#2563eb' },
         ].map((s) => (
-          <div key={s.label} style={{ ...card, marginBottom: 0, textAlign: 'center' }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: '#64748b' }}>{s.label}</div>
+          <div key={s.label} style={{ ...card, marginBottom: 0, textAlign: 'center', padding: '12px 8px' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1.1 }}>{s.value}</div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 4, lineHeight: 1.2 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-        <Link to="/phlebotomist/collections" style={{ padding: '10px 14px', borderRadius: 10, background: '#0d9488', color: '#fff', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>🧪 My collections</Link>
-        <Link to="/phlebotomist/routes" style={{ padding: '10px 14px', borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0', color: '#0f172a', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>🗺️ Routes</Link>
-        <Link to="/phlebotomist/schedule" style={{ padding: '10px 14px', borderRadius: 10, background: '#fff', border: '1px solid #e2e8f0', color: '#0f172a', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>📅 Schedule</Link>
+      <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr', marginBottom: 16 }}>
+        <Link
+          to="/phlebotomist/collections"
+          style={{
+            display: 'block', textAlign: 'center', padding: '12px 14px', borderRadius: 10,
+            background: '#0d9488', color: '#fff', textDecoration: 'none', fontSize: 14,
+            fontWeight: 700, minHeight: 44, boxSizing: 'border-box', lineHeight: '20px',
+          }}
+        >
+          🧪 My collections
+        </Link>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <Link
+            to="/phlebotomist/routes"
+            style={{
+              display: 'block', textAlign: 'center', padding: '12px 10px', borderRadius: 10,
+              background: '#fff', border: '1px solid #e2e8f0', color: '#0f172a', textDecoration: 'none',
+              fontSize: 13, fontWeight: 600, minHeight: 44, boxSizing: 'border-box',
+            }}
+          >
+            🗺️ Routes
+          </Link>
+          <Link
+            to="/phlebotomist/schedule"
+            style={{
+              display: 'block', textAlign: 'center', padding: '12px 10px', borderRadius: 10,
+              background: '#fff', border: '1px solid #e2e8f0', color: '#0f172a', textDecoration: 'none',
+              fontSize: 13, fontWeight: 600, minHeight: 44, boxSizing: 'border-box',
+            }}
+          >
+            📅 Schedule
+          </Link>
+        </div>
       </div>
 
-      <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px' }}>Today&apos;s collections</h3>
+      <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>Today&apos;s collections</h3>
       {todayJobs.length === 0 && (
-        <div style={{ ...card, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>No collections scheduled for today.</div>
+        <div style={{ ...card, textAlign: 'center', color: '#94a3b8', fontSize: 13, padding: 20 }}>
+          No collections scheduled for today.
+        </div>
       )}
       {todayJobs.map((j) => (
-        <Link key={j.id} to={`/phlebotomist/collections/${j.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={card}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>{j.patientName}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{j.testLabel}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+        <Link key={j.id} to={`/phlebotomist/collections/${j.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+          <div style={{ ...card, WebkitTapHighlightColor: 'transparent' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{j.patientName}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{j.testLabel}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6, lineHeight: 1.4, wordBreak: 'break-word' }}>
                   🕘 {j.collectionTime || '—'} · 📍 {j.address}
                 </div>
               </div>
               <span style={{
-                alignSelf: 'flex-start', fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 6,
+                flexShrink: 0, fontSize: 10, fontWeight: 700, padding: '4px 8px', borderRadius: 6,
                 background: j.phleboStatus === 'sample_collected' ? '#dcfce7' : '#fef3c7',
                 color: j.phleboStatus === 'sample_collected' ? '#166534' : '#92400e',
-                textTransform: 'capitalize',
+                textTransform: 'capitalize', maxWidth: 96, textAlign: 'center', lineHeight: 1.2,
               }}
               >
                 {(j.phleboStatus || j.orderStatus || 'pending').replace(/_/g, ' ')}

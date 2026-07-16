@@ -2,42 +2,83 @@
  * Public phlebotomist hiring form — mirrors client Google Form:
  * "Now Hiring: Phlebotomists for Camps & Home Sample Collection Services"
  * Route: /onboarding-phlebotomist
+ * Mobile-first (candidates apply from phones).
  */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import * as staffApplicationService from '../services/staffApplicationService';
 
 const input = {
-  padding: '10px 14px', borderRadius: 8, border: '1px solid #d1d5db', fontSize: 14,
-  fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', background: '#fff',
+  padding: '12px 14px',
+  borderRadius: 10,
+  border: '1px solid #d1d5db',
+  fontSize: 16, // avoid iOS zoom
+  fontFamily: 'inherit',
+  width: '100%',
+  boxSizing: 'border-box',
+  background: '#fff',
+  minHeight: 44,
 };
-const label = { fontSize: 13, fontWeight: 600, color: '#1f2937', marginBottom: 4, display: 'block' };
+const label = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: '#1f2937',
+  marginBottom: 6,
+  display: 'block',
+  lineHeight: 1.3,
+};
 const req = { color: '#dc2626', marginLeft: 2 };
 const card = {
-  background: '#fff', borderRadius: 16, padding: 28, border: '1px solid #e5e7eb',
-  maxWidth: 720, margin: '0 auto',
+  background: '#fff',
+  borderRadius: 16,
+  padding: 16,
+  border: '1px solid #e5e7eb',
+  maxWidth: 720,
+  margin: '0 auto',
+  boxShadow: '0 1px 3px rgba(15,23,42,0.04)',
 };
 const btnPrimary = {
-  padding: '12px 28px', borderRadius: 8, border: 'none', background: '#0d9488',
-  color: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', fontWeight: 600,
+  padding: '12px 20px',
+  borderRadius: 10,
+  border: 'none',
+  background: '#0d9488',
+  color: '#fff',
+  cursor: 'pointer',
+  fontSize: 15,
+  fontFamily: 'inherit',
+  fontWeight: 700,
+  minHeight: 48,
 };
 const btnOutline = {
-  padding: '12px 28px', borderRadius: 8, border: '1px solid #d1d5db', background: '#fff',
-  cursor: 'pointer', fontSize: 14, fontFamily: 'inherit', color: '#374151',
+  padding: '12px 16px',
+  borderRadius: 10,
+  border: '1px solid #d1d5db',
+  background: '#fff',
+  cursor: 'pointer',
+  fontSize: 14,
+  fontFamily: 'inherit',
+  color: '#374151',
+  fontWeight: 600,
+  minHeight: 48,
 };
 const chip = (active) => ({
-  padding: '8px 14px', borderRadius: 8,
-  border: `1px solid ${active ? '#0d9488' : '#d1d5db'}`,
+  padding: '10px 14px',
+  borderRadius: 10,
+  border: `1.5px solid ${active ? '#0d9488' : '#d1d5db'}`,
   background: active ? '#0d9488' : '#fff',
   color: active ? '#fff' : '#374151',
-  cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', fontWeight: active ? 600 : 400,
+  cursor: 'pointer',
+  fontSize: 14,
+  fontFamily: 'inherit',
+  fontWeight: active ? 700 : 500,
+  minHeight: 42,
 });
 
 const STEPS = [
   { num: 1, label: 'Welcome' },
   { num: 2, label: 'Personal' },
   { num: 3, label: 'Documents' },
-  { num: 4, label: 'Skills & Job' },
+  { num: 4, label: 'Skills' },
   { num: 5, label: 'Address' },
   { num: 6, label: 'Review' },
 ];
@@ -46,7 +87,6 @@ const JOB_OPTIONS = ['Home Sample Collection', 'Sitting Job', 'Camps'];
 const EDU_OPTIONS = ['MLT', 'DMLT', 'BMLT'];
 
 const emptyForm = () => ({
-  // Personal
   fullName: '',
   dob: '',
   age: '',
@@ -54,7 +94,6 @@ const emptyForm = () => ({
   maritalStatus: '',
   phone: '',
   email: '',
-  // Docs
   aadhaar: '',
   aadhaarFile: null,
   education: '',
@@ -63,7 +102,6 @@ const emptyForm = () => ({
   paramedicalCertFile: null,
   workExperience: '',
   resumeFile: null,
-  // Skills & job
   vacutainerMethod: '',
   preferredJobs: [],
   preferredLocation: '',
@@ -72,14 +110,12 @@ const emptyForm = () => ({
   ownsTwoWheeler: '',
   vehicleRegNo: '',
   references: '',
-  // Present address
   presentHouse: '',
   presentStreet: '',
   presentArea: '',
   presentDistrict: '',
   presentState: '',
   presentPincode: '',
-  // Permanent address
   sameAsPresent: false,
   permanentHouse: '',
   permanentStreet: '',
@@ -87,12 +123,10 @@ const emptyForm = () => ({
   permanentDistrict: '',
   permanentState: '',
   permanentPincode: '',
-  // Other
   feedback: '',
   agree: false,
 });
 
-/** Store small file as { name, size, type, dataUrl } — max ~1.5MB for localStorage safety */
 async function fileToMeta(file) {
   if (!file) return null;
   const max = 1.5 * 1024 * 1024;
@@ -126,7 +160,7 @@ function FileField({ labelText, required, value, onChange, accept = '.pdf,.jpg,.
       <input
         type="file"
         accept={accept}
-        style={{ ...input, padding: 8 }}
+        style={{ ...input, padding: 10, fontSize: 14 }}
         onChange={async (e) => {
           const file = e.target.files?.[0];
           if (!file) { onChange(null); return; }
@@ -140,12 +174,12 @@ function FileField({ labelText, required, value, onChange, accept = '.pdf,.jpg,.
         }}
       />
       {value?.name && (
-        <div style={{ fontSize: 11, color: '#0d9488', marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: '#0d9488', marginTop: 6, wordBreak: 'break-all', lineHeight: 1.35 }}>
           ✓ {value.name} ({Math.round((value.size || 0) / 1024)} KB)
           {value.note ? ` — ${value.note}` : ''}
         </div>
       )}
-      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Supported: PDF, JPG, PNG · Max 10 MB</div>
+      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>PDF, JPG, PNG · Max 10 MB</div>
     </div>
   );
 }
@@ -277,6 +311,7 @@ export default function PhlebotomistOnboarding() {
       const { data } = await staffApplicationService.submitPhlebotomistApplication(payload);
       setEntryId(data.id || data.application?.id || '');
       setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setError(
         err?.response?.data?.error
@@ -289,45 +324,135 @@ export default function PhlebotomistOnboarding() {
     }
   };
 
+  const goNext = () => {
+    setError('');
+    if (step === 1 || canNext()) {
+      setStep((s) => s + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setError('Please fill all required fields on this step.');
+    }
+  };
+
+  const goPrev = () => {
+    setError('');
+    setStep((s) => s - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (submitted) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0fdfa', padding: 16 }}>
-        <div style={{ ...card, textAlign: 'center', padding: 48 }}>
-          <div style={{ fontSize: 56, marginBottom: 12 }}>✅</div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }}>Application Submitted!</h2>
+      <div style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f0fdfa',
+        padding: 16,
+        paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+      }}
+      >
+        <div style={{ ...card, textAlign: 'center', padding: 28 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>Application Submitted!</h2>
           <p style={{ fontSize: 14, color: '#64748b', margin: '0 0 8px', lineHeight: 1.6 }}>
             Thank you for applying as a Phlebotomist with Jeevan HealthCare at Home.
           </p>
-          <p style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, margin: '0 0 16px' }}>
+          <p style={{ fontSize: 14, color: '#0d9488', fontWeight: 700, margin: '0 0 16px', wordBreak: 'break-all' }}>
             Reference: {entryId}
           </p>
-          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 24px' }}>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 20px', lineHeight: 1.5 }}>
             Our team will review your application and contact you on your phone / email.
           </p>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 20 }}>
-            📞 +91 97001 04108 · 📧 care@jeevanhealthcare.com
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 20, lineHeight: 1.5 }}>
+            📞 +91 97001 04108
+            <br />
+            📧 care@jeevanhealthcare.com
           </div>
-          <Link to="/" style={{ ...btnPrimary, display: 'inline-block', textDecoration: 'none' }}>Go to Home</Link>
+          <Link to="/" style={{ ...btnPrimary, display: 'block', textDecoration: 'none', textAlign: 'center' }}>
+            Go to Home
+          </Link>
         </div>
       </div>
     );
   }
 
+  const progressPct = ((step - 1) / (STEPS.length - 1)) * 100;
+
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #f0fdfa 0%, #f9fafb 40%)', padding: '24px 16px' }}>
+    <div style={{
+      minHeight: '100dvh',
+      background: 'linear-gradient(180deg, #f0fdfa 0%, #f9fafb 40%)',
+      padding: '12px 12px 0',
+      paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
+      boxSizing: 'border-box',
+    }}
+    >
+      <style>{`
+        @media (min-width: 640px) {
+          .phlebo-hire-grid-2 { grid-template-columns: 1fr 1fr !important; }
+          .phlebo-hire-card { padding: 28px !important; }
+          .phlebo-hire-steps-desktop { display: flex !important; }
+          .phlebo-hire-steps-mobile { display: none !important; }
+        }
+        @media (max-width: 639px) {
+          .phlebo-hire-steps-desktop { display: none !important; }
+          .phlebo-hire-steps-mobile { display: block !important; }
+        }
+      `}
+      </style>
+
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: 36, marginBottom: 4 }}>💉</div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <div style={{ fontSize: 32, marginBottom: 4 }}>💉</div>
+          <h1 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: '0 0 4px', lineHeight: 1.25 }}>
             Now Hiring: Phlebotomists
           </h1>
-          <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>
-            Camps &amp; Home Sample Collection · Jeevan HealthCare at Home
+          <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+            Camps &amp; Home Sample Collection · Jeevan HealthCare
           </p>
         </div>
 
-        {/* Progress */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 24, flexWrap: 'wrap' }}>
+        {/* Mobile progress: bar + current step */}
+        <div className="phlebo-hire-steps-mobile" style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>
+              {STEPS[step - 1]?.label}
+            </span>
+            <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+              Step {step} of {STEPS.length}
+            </span>
+          </div>
+          <div style={{ height: 6, borderRadius: 999, background: '#e5e7eb', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%',
+              width: `${progressPct}%`,
+              background: '#0d9488',
+              borderRadius: 999,
+              transition: 'width 0.25s ease',
+            }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, gap: 2 }}>
+            {STEPS.map((s) => (
+              <div
+                key={s.num}
+                style={{
+                  flex: 1,
+                  height: 4,
+                  borderRadius: 2,
+                  background: step >= s.num ? '#0d9488' : '#e5e7eb',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop step labels */}
+        <div
+          className="phlebo-hire-steps-desktop"
+          style={{ display: 'none', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 24, flexWrap: 'wrap' }}
+        >
           {STEPS.map((s, i) => (
             <div key={s.num} style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{
@@ -353,22 +478,27 @@ export default function PhlebotomistOnboarding() {
           ))}
         </div>
 
-        <div style={card}>
+        <div className="phlebo-hire-card" style={card}>
           {error && (
-            <div style={{ background: '#fef2f2', color: '#b91c1c', padding: 10, borderRadius: 8, fontSize: 13, marginBottom: 12 }}>{error}</div>
+            <div style={{
+              background: '#fef2f2', color: '#b91c1c', padding: 12, borderRadius: 10,
+              fontSize: 13, marginBottom: 14, lineHeight: 1.4,
+            }}
+            >
+              {error}
+            </div>
           )}
 
-          {/* Step 1 Welcome */}
           {step === 1 && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>
+              <h2 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', margin: '0 0 12px' }}>
                 Join Our Healthcare Team
               </h2>
               <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.65, margin: '0 0 12px' }}>
                 We&apos;re looking for skilled and reliable Phlebotomists to support medical camps and home sample collections.
               </p>
               <div style={{ fontSize: 13, color: '#374151', marginBottom: 16 }}>
-                <strong style={{ display: 'block', marginBottom: 6 }}>Responsibilities include:</strong>
+                <strong style={{ display: 'block', marginBottom: 8 }}>Responsibilities include:</strong>
                 {[
                   'Performing venipuncture and specimen collection',
                   'Traveling to patient locations and camps',
@@ -376,40 +506,42 @@ export default function PhlebotomistOnboarding() {
                   'Following hygiene and infection control protocols',
                   'Handling and transporting samples securely and on time',
                 ].map((t) => (
-                  <div key={t} style={{ padding: '4px 0' }}>✅ {t}</div>
+                  <div key={t} style={{ padding: '6px 0', lineHeight: 1.4, display: 'flex', gap: 8 }}>
+                    <span style={{ flexShrink: 0 }}>✅</span>
+                    <span>{t}</span>
+                  </div>
                 ))}
               </div>
-              <div style={{ background: '#f0fdfa', borderRadius: 10, padding: 14, fontSize: 12, color: '#0f766e', marginBottom: 8 }}>
+              <div style={{ background: '#f0fdfa', borderRadius: 10, padding: 14, fontSize: 13, color: '#0f766e', marginBottom: 8, lineHeight: 1.45 }}>
                 📄 Keep ready: Aadhaar, education certificates, paramedical registration (if any), resume, driving license.
               </div>
               <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>⏱️ About 5–8 minutes · * Required fields</p>
             </div>
           )}
 
-          {/* Step 2 Personal */}
           {step === 2 && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px' }}>Personal details</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 16px' }}>Personal details</h2>
               <div style={{ display: 'grid', gap: 14 }}>
                 <div>
                   <label style={label}>Full Name <span style={req}>*</span></label>
-                  <input style={input} value={f.fullName} onChange={(e) => update('fullName', e.target.value)} placeholder="As per Aadhaar" />
+                  <input style={input} value={f.fullName} onChange={(e) => update('fullName', e.target.value)} placeholder="As per Aadhaar" autoComplete="name" />
                 </div>
-                <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
+                <div className="phlebo-hire-grid-2" style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr' }}>
                   <div>
                     <label style={label}>Date of Birth <span style={req}>*</span></label>
                     <input style={input} type="date" value={f.dob} onChange={(e) => update('dob', e.target.value)} />
                   </div>
                   <div>
                     <label style={label}>Age <span style={req}>*</span></label>
-                    <input style={input} type="number" min={18} max={70} value={f.age} onChange={(e) => update('age', e.target.value)} placeholder="Auto from DOB" />
+                    <input style={input} type="number" min={18} max={70} value={f.age} onChange={(e) => update('age', e.target.value)} placeholder="Auto from DOB" inputMode="numeric" />
                   </div>
                 </div>
                 <div>
                   <label style={label}>Gender <span style={req}>*</span></label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {['Male', 'Female'].map((g) => (
-                      <button key={g} type="button" onClick={() => update('gender', g)} style={chip(f.gender === g)}>{g}</button>
+                      <button key={g} type="button" onClick={() => update('gender', g)} style={{ ...chip(f.gender === g), flex: '1 1 40%' }}>{g}</button>
                     ))}
                   </div>
                 </div>
@@ -417,33 +549,31 @@ export default function PhlebotomistOnboarding() {
                   <label style={label}>Marital Status <span style={req}>*</span></label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {['Married', 'UN Married'].map((m) => (
-                      <button key={m} type="button" onClick={() => update('maritalStatus', m)} style={chip(f.maritalStatus === m)}>{m}</button>
+                      <button key={m} type="button" onClick={() => update('maritalStatus', m)} style={{ ...chip(f.maritalStatus === m), flex: '1 1 40%' }}>{m}</button>
                     ))}
                   </div>
                 </div>
-                <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
-                  <div>
-                    <label style={label}>Phone Number <span style={req}>*</span></label>
-                    <input style={input} type="tel" value={f.phone} onChange={(e) => update('phone', e.target.value)} placeholder="10-digit mobile" />
-                  </div>
-                  <div>
-                    <label style={label}>E-Mail ID <span style={req}>*</span></label>
-                    <input style={input} type="email" value={f.email} onChange={(e) => update('email', e.target.value)} placeholder="email@example.com" />
-                  </div>
+                <div>
+                  <label style={label}>Phone Number <span style={req}>*</span></label>
+                  <input style={input} type="tel" inputMode="tel" value={f.phone} onChange={(e) => update('phone', e.target.value)} placeholder="10-digit mobile" autoComplete="tel" />
+                </div>
+                <div>
+                  <label style={label}>E-Mail ID <span style={req}>*</span></label>
+                  <input style={input} type="email" inputMode="email" value={f.email} onChange={(e) => update('email', e.target.value)} placeholder="email@example.com" autoComplete="email" />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 3 Documents */}
           {step === 3 && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px' }}>Identity &amp; qualifications</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 16px' }}>Identity &amp; qualifications</h2>
               <div style={{ display: 'grid', gap: 14 }}>
                 <div>
                   <label style={label}>Aadhar Card Number <span style={req}>*</span></label>
                   <input
                     style={input}
+                    inputMode="numeric"
                     value={f.aadhaar}
                     onChange={(e) => update('aadhaar', e.target.value.replace(/[^\d\s]/g, '').slice(0, 14))}
                     placeholder="XXXX XXXX XXXX"
@@ -454,7 +584,7 @@ export default function PhlebotomistOnboarding() {
                   <label style={label}>Education Qualification <span style={req}>*</span></label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {EDU_OPTIONS.map((e) => (
-                      <button key={e} type="button" onClick={() => update('education', e)} style={chip(f.education === e)}>{e}</button>
+                      <button key={e} type="button" onClick={() => update('education', e)} style={{ ...chip(f.education === e), flex: '1 1 28%' }}>{e}</button>
                     ))}
                   </div>
                 </div>
@@ -467,7 +597,7 @@ export default function PhlebotomistOnboarding() {
                 <div>
                   <label style={label}>Work Experience <span style={req}>*</span></label>
                   <textarea
-                    style={{ ...input, minHeight: 72, resize: 'vertical' }}
+                    style={{ ...input, minHeight: 88, resize: 'vertical' }}
                     value={f.workExperience}
                     onChange={(e) => update('workExperience', e.target.value)}
                     placeholder="Years of experience, labs/hospitals worked, home collection if any"
@@ -478,44 +608,44 @@ export default function PhlebotomistOnboarding() {
             </div>
           )}
 
-          {/* Step 4 Skills & job */}
           {step === 4 && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px' }}>Skills &amp; job preference</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 16px' }}>Skills &amp; job preference</h2>
               <div style={{ display: 'grid', gap: 14 }}>
                 <div>
                   <label style={label}>Do you collect a sample by Vacutainer method? <span style={req}>*</span></label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {['Yes', 'No'].map((v) => (
-                      <button key={v} type="button" onClick={() => update('vacutainerMethod', v)} style={chip(f.vacutainerMethod === v)}>{v}</button>
+                      <button key={v} type="button" onClick={() => update('vacutainerMethod', v)} style={{ ...chip(f.vacutainerMethod === v), flex: 1 }}>{v}</button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label style={label}>Preferred Job <span style={req}>*</span> <span style={{ fontWeight: 400, color: '#94a3b8' }}>(select all that apply)</span></label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <label style={label}>Preferred Job <span style={req}>*</span></label>
+                  <p style={{ fontSize: 12, color: '#94a3b8', margin: '0 0 8px' }}>Select all that apply</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {JOB_OPTIONS.map((j) => (
-                      <button key={j} type="button" onClick={() => toggleJob(j)} style={chip(f.preferredJobs.includes(j))}>{j}</button>
+                      <button key={j} type="button" onClick={() => toggleJob(j)} style={{ ...chip(f.preferredJobs.includes(j)), width: '100%', textAlign: 'left' }}>{j}</button>
                     ))}
                   </div>
                 </div>
                 <div>
                   <label style={label}>Preferred Job Location (Area) <span style={req}>*</span></label>
-                  <input style={input} value={f.preferredLocation} onChange={(e) => update('preferredLocation', e.target.value)} placeholder="e.g. Madhapur, Kukatpally, Gachibowli" />
+                  <input style={input} value={f.preferredLocation} onChange={(e) => update('preferredLocation', e.target.value)} placeholder="e.g. Madhapur, Kukatpally" />
                 </div>
                 <div>
                   <label style={label}>PIN Code <span style={req}>*</span></label>
-                  <input style={input} value={f.preferredPincode} onChange={(e) => update('preferredPincode', e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Work area PIN" />
+                  <input style={input} inputMode="numeric" value={f.preferredPincode} onChange={(e) => update('preferredPincode', e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Work area PIN" />
                 </div>
                 <div>
                   <label style={label}>Driving License Number <span style={req}>*</span></label>
-                  <input style={input} value={f.drivingLicense} onChange={(e) => update('drivingLicense', e.target.value)} />
+                  <input style={input} value={f.drivingLicense} onChange={(e) => update('drivingLicense', e.target.value)} autoComplete="off" />
                 </div>
                 <div>
                   <label style={label}>Do you own a 2 wheeler <span style={req}>*</span></label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {['Yes', 'No'].map((v) => (
-                      <button key={v} type="button" onClick={() => update('ownsTwoWheeler', v)} style={chip(f.ownsTwoWheeler === v)}>{v}</button>
+                      <button key={v} type="button" onClick={() => update('ownsTwoWheeler', v)} style={{ ...chip(f.ownsTwoWheeler === v), flex: 1 }}>{v}</button>
                     ))}
                   </div>
                 </div>
@@ -526,7 +656,7 @@ export default function PhlebotomistOnboarding() {
                 <div>
                   <label style={label}>Reference 2 Members Name and Number <span style={req}>*</span></label>
                   <textarea
-                    style={{ ...input, minHeight: 72, resize: 'vertical' }}
+                    style={{ ...input, minHeight: 88, resize: 'vertical' }}
                     value={f.references}
                     onChange={(e) => update('references', e.target.value)}
                     placeholder={'1. Name — Phone\n2. Name — Phone'}
@@ -536,10 +666,9 @@ export default function PhlebotomistOnboarding() {
             </div>
           )}
 
-          {/* Step 5 Address */}
           {step === 5 && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px' }}>Address for communication</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 16px' }}>Address for communication</h2>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0d9488', margin: '0 0 10px' }}>Present address</h3>
               <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
                 <div>
@@ -554,27 +683,34 @@ export default function PhlebotomistOnboarding() {
                   <label style={label}>Area (Mandal or Ward) <span style={req}>*</span></label>
                   <input style={input} value={f.presentArea} onChange={(e) => update('presentArea', e.target.value)} />
                 </div>
-                <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
-                  <div>
-                    <label style={label}>District <span style={req}>*</span></label>
-                    <input style={input} value={f.presentDistrict} onChange={(e) => update('presentDistrict', e.target.value)} />
-                  </div>
-                  <div>
-                    <label style={label}>State <span style={req}>*</span></label>
-                    <input style={input} value={f.presentState} onChange={(e) => update('presentState', e.target.value)} />
-                  </div>
+                <div>
+                  <label style={label}>District <span style={req}>*</span></label>
+                  <input style={input} value={f.presentDistrict} onChange={(e) => update('presentDistrict', e.target.value)} />
+                </div>
+                <div>
+                  <label style={label}>State <span style={req}>*</span></label>
+                  <input style={input} value={f.presentState} onChange={(e) => update('presentState', e.target.value)} />
                 </div>
                 <div>
                   <label style={label}>PIN Code <span style={req}>*</span></label>
-                  <input style={input} value={f.presentPincode} onChange={(e) => update('presentPincode', e.target.value.replace(/\D/g, '').slice(0, 6))} />
+                  <input style={input} inputMode="numeric" value={f.presentPincode} onChange={(e) => update('presentPincode', e.target.value.replace(/\D/g, '').slice(0, 6))} />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{
+                display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12,
+                padding: 12, background: '#f8fafc', borderRadius: 10,
+              }}
+              >
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0d9488', margin: 0 }}>Permanent address</h3>
-                <label style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', marginLeft: 'auto' }}>
-                  <input type="checkbox" checked={f.sameAsPresent} onChange={(e) => update('sameAsPresent', e.target.checked)} />
-                  Same as present
+                <label style={{ fontSize: 13, color: '#374151', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', minHeight: 44 }}>
+                  <input
+                    type="checkbox"
+                    checked={f.sameAsPresent}
+                    onChange={(e) => update('sameAsPresent', e.target.checked)}
+                    style={{ width: 20, height: 20, flexShrink: 0 }}
+                  />
+                  Same as present address
                 </label>
               </div>
               <div style={{ display: 'grid', gap: 12 }}>
@@ -590,35 +726,38 @@ export default function PhlebotomistOnboarding() {
                   <label style={label}>Area (Mandal or Ward) <span style={req}>*</span></label>
                   <input style={input} value={f.permanentArea} onChange={(e) => update('permanentArea', e.target.value)} disabled={f.sameAsPresent} />
                 </div>
-                <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
-                  <div>
-                    <label style={label}>District <span style={req}>*</span></label>
-                    <input style={input} value={f.permanentDistrict} onChange={(e) => update('permanentDistrict', e.target.value)} disabled={f.sameAsPresent} />
-                  </div>
-                  <div>
-                    <label style={label}>State <span style={req}>*</span></label>
-                    <input style={input} value={f.permanentState} onChange={(e) => update('permanentState', e.target.value)} disabled={f.sameAsPresent} />
-                  </div>
+                <div>
+                  <label style={label}>District <span style={req}>*</span></label>
+                  <input style={input} value={f.permanentDistrict} onChange={(e) => update('permanentDistrict', e.target.value)} disabled={f.sameAsPresent} />
+                </div>
+                <div>
+                  <label style={label}>State <span style={req}>*</span></label>
+                  <input style={input} value={f.permanentState} onChange={(e) => update('permanentState', e.target.value)} disabled={f.sameAsPresent} />
                 </div>
                 <div>
                   <label style={label}>PIN Code <span style={req}>*</span></label>
-                  <input style={input} value={f.permanentPincode} onChange={(e) => update('permanentPincode', e.target.value.replace(/\D/g, '').slice(0, 6))} disabled={f.sameAsPresent} />
+                  <input style={input} inputMode="numeric" value={f.permanentPincode} onChange={(e) => update('permanentPincode', e.target.value.replace(/\D/g, '').slice(0, 6))} disabled={f.sameAsPresent} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 6 Review */}
           {step === 6 && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 16px' }}>Review &amp; submit</h2>
-              <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, background: '#f8fafc', borderRadius: 10, padding: 14, marginBottom: 14 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 800, margin: '0 0 16px' }}>Review &amp; submit</h2>
+              <div style={{
+                fontSize: 13, color: '#374151', lineHeight: 1.65, background: '#f8fafc',
+                borderRadius: 10, padding: 14, marginBottom: 14, wordBreak: 'break-word',
+              }}
+              >
                 <div><strong>Name:</strong> {f.fullName}</div>
-                <div><strong>Phone / Email:</strong> {f.phone} · {f.email}</div>
-                <div><strong>DOB / Age / Gender:</strong> {f.dob} · {f.age} yrs · {f.gender} · {f.maritalStatus}</div>
+                <div><strong>Phone:</strong> {f.phone}</div>
+                <div><strong>Email:</strong> {f.email}</div>
+                <div><strong>DOB / Age / Gender:</strong> {f.dob} · {f.age} yrs · {f.gender}</div>
+                <div><strong>Marital:</strong> {f.maritalStatus}</div>
                 <div><strong>Education:</strong> {f.education}</div>
                 <div><strong>Vacutainer:</strong> {f.vacutainerMethod}</div>
-                <div><strong>Preferred jobs:</strong> {(f.preferredJobs || []).join(', ')}</div>
+                <div><strong>Jobs:</strong> {(f.preferredJobs || []).join(', ')}</div>
                 <div><strong>Location:</strong> {f.preferredLocation} ({f.preferredPincode})</div>
                 <div><strong>2-wheeler:</strong> {f.ownsTwoWheeler}{f.vehicleRegNo ? ` · ${f.vehicleRegNo}` : ''}</div>
                 <div><strong>DL:</strong> {f.drivingLicense}</div>
@@ -627,14 +766,24 @@ export default function PhlebotomistOnboarding() {
               <div style={{ marginBottom: 14 }}>
                 <label style={label}>Feedback and Suggestions</label>
                 <textarea
-                  style={{ ...input, minHeight: 64, resize: 'vertical' }}
+                  style={{ ...input, minHeight: 72, resize: 'vertical' }}
                   value={f.feedback}
                   onChange={(e) => update('feedback', e.target.value)}
                   placeholder="Optional"
                 />
               </div>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: '#374151', cursor: 'pointer' }}>
-                <input type="checkbox" checked={f.agree} onChange={(e) => update('agree', e.target.checked)} style={{ marginTop: 3, width: 18, height: 18 }} />
+              <label style={{
+                display: 'flex', alignItems: 'flex-start', gap: 12, fontSize: 13,
+                color: '#374151', cursor: 'pointer', lineHeight: 1.45,
+                padding: 12, background: '#f0fdfa', borderRadius: 10,
+              }}
+              >
+                <input
+                  type="checkbox"
+                  checked={f.agree}
+                  onChange={(e) => update('agree', e.target.checked)}
+                  style={{ marginTop: 2, width: 20, height: 20, flexShrink: 0 }}
+                />
                 <span>
                   I declare that the information provided is true to the best of my knowledge. I agree to follow Jeevan HealthCare service guidelines for camps and home sample collection.
                   <span style={req}>*</span>
@@ -643,35 +792,54 @@ export default function PhlebotomistOnboarding() {
             </div>
           )}
         </div>
+      </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto' }}>
-          <button type="button" style={{ ...btnOutline, opacity: step <= 1 ? 0.4 : 1 }} onClick={() => { setError(''); setStep((s) => s - 1); }} disabled={step <= 1}>
-            ← Previous
-          </button>
-          <div style={{ fontSize: 12, color: '#64748b', alignSelf: 'center' }}>Step {step} of 6</div>
-          {step < 6 ? (
-            <button
-              type="button"
-              style={{ ...btnPrimary, opacity: step === 1 || canNext() ? 1 : 0.5 }}
-              onClick={() => {
-                setError('');
-                if (step === 1 || canNext()) setStep((s) => s + 1);
-                else setError('Please fill all required fields on this step.');
-              }}
-            >
-              Next →
-            </button>
-          ) : (
-            <button
-              type="button"
-              style={{ ...btnPrimary, opacity: f.agree && !submitting ? 1 : 0.5 }}
-              onClick={handleSubmit}
-              disabled={!f.agree || submitting}
-            >
-              {submitting ? 'Submitting…' : 'Submit Application'}
-            </button>
-          )}
+      {/* Sticky mobile-friendly action bar */}
+      <div style={{
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 40,
+        background: '#fff',
+        borderTop: '1px solid #e5e7eb',
+        padding: '10px 12px',
+        paddingBottom: 'max(10px, env(safe-area-inset-bottom, 0px))',
+        display: 'flex',
+        gap: 10,
+        alignItems: 'center',
+        boxShadow: '0 -4px 16px rgba(15,23,42,0.06)',
+      }}
+      >
+        <button
+          type="button"
+          style={{ ...btnOutline, opacity: step <= 1 ? 0.4 : 1, flex: '0 0 auto', padding: '12px 14px' }}
+          onClick={goPrev}
+          disabled={step <= 1}
+        >
+          ← Back
+        </button>
+        <div style={{ flex: 1, textAlign: 'center', fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+          {step}/{STEPS.length}
         </div>
+        {step < 6 ? (
+          <button
+            type="button"
+            style={{ ...btnPrimary, flex: '1 1 auto', maxWidth: 200, opacity: step === 1 || canNext() ? 1 : 0.7 }}
+            onClick={goNext}
+          >
+            Next →
+          </button>
+        ) : (
+          <button
+            type="button"
+            style={{ ...btnPrimary, flex: '1 1 auto', maxWidth: 220, opacity: f.agree && !submitting ? 1 : 0.5 }}
+            onClick={handleSubmit}
+            disabled={!f.agree || submitting}
+          >
+            {submitting ? 'Submitting…' : 'Submit'}
+          </button>
+        )}
       </div>
     </div>
   );
