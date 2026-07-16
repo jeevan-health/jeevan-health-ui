@@ -231,22 +231,6 @@ export default function AdminLogin() {
             <div style={{ fontSize: 14, color: '#64748B' }}>{t('admin.login.sign_in_prompt', 'Sign in to Jeevan HealthCare at Home Admin Portal')}</div>
           </div>
 
-          <div style={{
-            marginBottom: 16, padding: '10px 12px', borderRadius: 8,
-            background: '#eff6ff', border: '1px solid #bfdbfe', fontSize: 11,
-            color: '#1e40af', lineHeight: 1.45,
-          }}
-          >
-            <strong>One admin session per browser.</strong>
-            {' '}
-            Signing in here replaces patient/phlebo logins in other tabs on this site.
-            For side-by-side testing: use
-            {' '}
-            <strong>admin.jeevanhealthcare.com</strong>
-            {' '}
-            for admin and the main site (or Incognito) for patient/phlebo.
-          </div>
-
           {/* Tab Switcher */}
           <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#F1F5F9', borderRadius: 10, padding: 3 }}>
             {[
