@@ -154,6 +154,18 @@ export default function Signup() {
           </p>
         </div>
 
+        <div style={{
+          marginBottom: 14, padding: '10px 12px', borderRadius: 8,
+          background: '#fff7ed', border: '1px solid #fed7aa', fontSize: 11,
+          color: '#9a3412', lineHeight: 1.45, textAlign: 'left',
+        }}
+        >
+          <strong>One account per browser.</strong>
+          {' '}
+          Logging in here replaces any admin or staff session in other tabs of this browser.
+          To test admin + patient at once, use an Incognito window or a second browser.
+        </div>
+
         {error && (
           <div style={{ padding: '10px 14px', background: '#fee2e2', color: '#dc2626', borderRadius: 8, fontSize: 12, marginBottom: 12 }}>
             {error}

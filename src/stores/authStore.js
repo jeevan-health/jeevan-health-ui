@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import useAuditStore from './auditStore';
 import * as authService from '../services/authService';
+import { getPostLoginPath } from '../utils/authRoles';
 
 const ADMINS = { '9999999999': 'super_admin' };
+
+/** Flag for one-time banner after another tab replaced the shared session */
+export const SESSION_SWITCH_KEY = 'jh_session_switched';
 
 const loadUsers = () => { try { return JSON.parse(localStorage.getItem('jh_users') || '[]'); } catch { return []; } };
 const saveUsers = (users) => localStorage.setItem('jh_users', JSON.stringify(users));
@@ -432,27 +436,54 @@ if (addrs) {
   try { useAuthStore.setState({ addresses: JSON.parse(addrs) }); } catch { /* noop */ }
 }
 
-// Multi-tab: when admin logs in tab A and patient in tab B, tokens are shared.
-// Rehydrate (or clear) so UI never edits the wrong account silently.
+/**
+ * Multi-tab reality (same origin = one localStorage session):
+ * Admin / patient / phlebo cannot stay logged in as different people in 3 tabs.
+ * Last login wins for ALL tabs. We sync UI to that identity and route to their home
+ * so a patient tab does not silently become "admin" on /dashboard mid-click.
+ */
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
     if (!e.key) return;
-    if (['accessToken', 'jh_token', 'jh_user', 'refreshToken', 'jh_auth_uid'].includes(e.key)) {
+    if (!['accessToken', 'jh_token', 'jh_user', 'refreshToken', 'jh_auth_uid'].includes(e.key)) return;
+
+    // Logged out in another tab
+    if (!localStorage.getItem('jh_token') && !localStorage.getItem('accessToken')) {
       useAuthStore.getState().hydrateFromStorage();
-      // Hard refresh if identity flipped mid-session on this tab
-      const uid = localStorage.getItem('jh_auth_uid');
-      const cur = useAuthStore.getState().user?.id;
-      if (uid && cur != null && String(uid) !== String(cur)) {
-        window.location.reload();
+      const path = window.location.pathname || '';
+      if (path.startsWith('/admin')) {
+        window.location.replace('/admin/login');
+      } else if (
+        path.startsWith('/dashboard')
+        || path.startsWith('/phlebotomist')
+        || path.startsWith('/checkout')
+        || path.startsWith('/my-orders')
+      ) {
+        window.location.replace('/signup');
       }
-      if (!localStorage.getItem('jh_token') && !localStorage.getItem('accessToken')) {
-        // Logged out in another tab
-        if (window.location.pathname.startsWith('/admin')) {
-          window.location.href = '/admin/login';
-        } else if (window.location.pathname.startsWith('/dashboard')) {
-          window.location.href = '/signup';
-        }
-      }
+      return;
+    }
+
+    const prevUid = useAuthStore.getState().user?.id;
+    useAuthStore.getState().hydrateFromStorage();
+    const nextUid = localStorage.getItem('jh_auth_uid');
+    const nextUser = useAuthStore.getState().user;
+
+    // Identity replaced by login in another tab → jump to that role's home (clear banner once)
+    if (
+      nextUid
+      && prevUid != null
+      && String(nextUid) !== String(prevUid)
+    ) {
+      try {
+        sessionStorage.setItem(SESSION_SWITCH_KEY, JSON.stringify({
+          name: nextUser?.name || nextUser?.phone || nextUser?.email || 'another account',
+          role: nextUser?.role || 'user',
+          at: Date.now(),
+        }));
+      } catch { /* ignore */ }
+      const dest = getPostLoginPath(nextUser?.role);
+      window.location.replace(dest);
     }
   });
 }

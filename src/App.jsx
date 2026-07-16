@@ -6,6 +6,7 @@ import AnalyticsTracker from './components/AnalyticsTracker';
 import ChatBotWidget from './components/ChatBotWidget';
 import LeadCapturePopup from './components/LeadCapturePopup';
 import ConfirmDialogHost from './components/ConfirmDialogHost';
+import SessionSwitchBanner from './components/SessionSwitchBanner';
 import useAuthStore from './stores/authStore';
 import useSettingsStore from './stores/settingsStore';
 import AdminLayout from './components/admin/AdminLayout';
@@ -328,6 +329,7 @@ export default function App() {
       <AnalyticsTracker />
       <ToastProvider>
       <LanguageProvider>
+      <SessionSwitchBanner />
       <ConfirmDialogHost />
       <ChatBotWidget />
       <LeadCapturePopup />
