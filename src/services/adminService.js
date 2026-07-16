@@ -21,6 +21,13 @@ export const getOrders = (params = {}) =>
 export const updateOrderStatus = (type, id, status) =>
   api.put(`/admin/orders/${type}/${id}/status`, { status });
 
+/** Unified ops hub: diag + pharmacy + nursing + physio + vaccine + appointments */
+export const getOrderHub = (params = {}) =>
+  api.get('/admin/order-hub', { params });
+
+export const updateOrderHubStatus = (type, id, status) =>
+  api.put(`/admin/order-hub/${type}/${id}/status`, { status });
+
 export const listPhlebotomists = (params = {}) =>
   api.get('/admin/phlebotomists', { params });
 

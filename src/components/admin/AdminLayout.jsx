@@ -9,7 +9,8 @@ const NAV_GROUPS = [
     title: 'Core',
     items: [
       { path: '/admin', label: 'admin.layout.dashboard', fallback: 'Dashboard', icon: '📊', exact: true },
-      { path: '/admin/orders', label: 'admin.layout.orders', fallback: 'Orders', icon: '📋' },
+      { path: '/admin/order-hub', label: 'admin.layout.order_hub', fallback: 'Order hub', icon: '🗂️' },
+      { path: '/admin/orders', label: 'admin.layout.orders', fallback: 'Diag orders', icon: '📋' },
       { path: '/admin/bookings', label: 'admin.layout.bookings', fallback: 'Bookings', icon: '📅' },
       { path: '/admin/users', label: 'admin.layout.users', fallback: 'Users', icon: '👥' },
       { path: '/admin/patients', label: 'admin.layout.patients', fallback: 'Patients', icon: '👤' },

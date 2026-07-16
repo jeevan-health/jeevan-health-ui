@@ -67,6 +67,7 @@ const HealthToolPage = lazy(() => import('./pages/HealthToolPage'));
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminOrderHub = lazy(() => import('./pages/admin/AdminOrderHub'));
 const AdminPermissions = lazy(() => import('./pages/admin/AdminPermissions'));
 const AdminCollection = lazy(() => import('./pages/admin/AdminCollection'));
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
@@ -436,6 +437,7 @@ export default function App() {
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="orders" element={<AdminOrders />} />
+            <Route path="order-hub" element={<AdminOrderHub />} />
             <Route path="collection" element={<AdminCollection />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="users" element={<AdminUsers />} />
