@@ -215,8 +215,12 @@ export default function PhlebotomistDashboard() {
               </div>
               <span style={{
                 flexShrink: 0, fontSize: 10, fontWeight: 700, padding: '4px 8px', borderRadius: 6,
-                background: j.phleboStatus === 'sample_collected' ? '#dcfce7' : '#fef3c7',
-                color: j.phleboStatus === 'sample_collected' ? '#166534' : '#92400e',
+                background: j.phleboStatus === 'sample_collected' ? '#dcfce7'
+                  : ['failed', 'cancelled', 'sample_rejected'].includes(j.phleboStatus) ? '#fee2e2'
+                  : '#fef3c7',
+                color: j.phleboStatus === 'sample_collected' ? '#166534'
+                  : ['failed', 'cancelled', 'sample_rejected'].includes(j.phleboStatus) ? '#991b1b'
+                  : '#92400e',
                 textTransform: 'capitalize', maxWidth: 96, textAlign: 'center', lineHeight: 1.2,
               }}
               >

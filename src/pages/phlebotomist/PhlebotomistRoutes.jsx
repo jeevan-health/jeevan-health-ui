@@ -19,12 +19,16 @@ export default function PhlebotomistRoutes() {
   useEffect(() => {
     (async () => {
       try {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = phlebotomistService.todayIST();
         const { data } = await phlebotomistService.listJobs({ date: today });
         let list = data.jobs || [];
         if (list.length === 0) {
           const all = await phlebotomistService.listJobs();
-          list = (all.data.jobs || []).filter((j) => j.phleboStatus !== 'sample_collected' && j.orderStatus !== 'completed');
+          list = (all.data.jobs || []).filter((j) =>
+            !j.isTerminal
+            && j.phleboStatus !== 'sample_collected'
+            && j.orderStatus !== 'completed'
+          );
         }
         setJobs(list);
       } catch (err) {

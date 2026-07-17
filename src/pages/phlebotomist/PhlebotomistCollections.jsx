@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import * as phlebotomistService from '../../services/phlebotomistService';
 import { notify } from '../../lib/toastBus';
@@ -23,6 +23,14 @@ const field = {
   background: '#fff',
 };
 
+const label = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: '#475569',
+  display: 'block',
+  marginBottom: 6,
+};
+
 function getGeo() {
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve({});
@@ -34,6 +42,13 @@ function getGeo() {
   });
 }
 
+const statusColor = (s) => {
+  if (s === 'sample_collected') return { bg: '#dcfce7', color: '#166534' };
+  if (s === 'failed' || s === 'cancelled' || s === 'sample_rejected') return { bg: '#fee2e2', color: '#991b1b' };
+  if (s === 'patient_verified' || s === 'reached') return { bg: '#dbeafe', color: '#1e40af' };
+  return { bg: '#fef3c7', color: '#92400e' };
+};
+
 export default function PhlebotomistCollections() {
   const { orderId } = useParams();
   const navigate = useNavigate();
@@ -43,7 +58,23 @@ export default function PhlebotomistCollections() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [notes, setNotes] = useState('');
-  const [sample, setSample] = useState({ tubeType: '', barcode: '', sampleType: 'Blood' });
+
+  // Sample collect
+  const [sample, setSample] = useState({
+    tubeType: '',
+    barcode: '',
+    sampleType: 'Blood',
+    barcodeOverrideNote: '',
+  });
+
+  // H2 verification
+  const [confirmName, setConfirmName] = useState(false);
+  const [confirmIdentity, setConfirmIdentity] = useState(false);
+  const [phoneLast4, setPhoneLast4] = useState('');
+  const [typedName, setTypedName] = useState('');
+  const [fastingStatus, setFastingStatus] = useState('');
+  const [lastMealHours, setLastMealHours] = useState('');
+  const [fastingNotes, setFastingNotes] = useState('');
 
   const loadList = useCallback(async () => {
     setLoading(true);
@@ -64,6 +95,8 @@ export default function PhlebotomistCollections() {
     try {
       const { data } = await phlebotomistService.getJob(id);
       setJob(data.job);
+      // Prefill verify if already done
+      if (data.job?.lastFasting?.status) setFastingStatus(data.job.lastFasting.status);
     } catch (err) {
       setError(err?.response?.data?.error || 'Job not found');
       setJob(null);
@@ -77,8 +110,48 @@ export default function PhlebotomistCollections() {
     else loadList();
   }, [orderId, loadJob, loadList]);
 
+  const allowedNext = useMemo(() => new Set(job?.allowedNext || []), [job]);
+  const isTerminal = !!job?.isTerminal;
+
+  const validateClient = (status) => {
+    if (status === 'patient_verified') {
+      if (!confirmName) return 'Tick “Patient name matches booking”';
+      if (!confirmIdentity) return 'Tick “Identity confirmed (name/age)”';
+      if (job?.phoneLast4Hint && phoneLast4.replace(/\D/g, '').length !== 4) {
+        return 'Enter last 4 digits of patient phone';
+      }
+      if (!fastingStatus) return 'Select a fasting checklist option';
+      if (job?.fastingLikely && fastingStatus === 'not_required' && !String(fastingNotes || notes).trim()) {
+        return 'Tests may need fasting — confirm fasting OK / non-fasting, or add a note';
+      }
+    }
+    if (status === 'sample_collected') {
+      const barcode = String(sample.barcode || '').trim();
+      const override = String(sample.barcodeOverrideNote || notes || '').trim();
+      if (!barcode && override.length < 5) {
+        return 'Enter barcode, or a reason (5+ chars) if barcode unavailable';
+      }
+    }
+    if (['failed', 'sample_rejected', 'cancelled'].includes(status)) {
+      if (String(notes || '').trim().length < 3) {
+        return 'Add a short reason (min 3 characters)';
+      }
+    }
+    return null;
+  };
+
   const setStatus = async (status) => {
     if (!job) return;
+    if (!allowedNext.has(status)) {
+      notify.error(`Cannot set "${status.replace(/_/g, ' ')}" from current status`);
+      return;
+    }
+    const clientErr = validateClient(status);
+    if (clientErr) {
+      notify.error(clientErr);
+      return;
+    }
+
     setBusy(true);
     try {
       const geo = await getGeo();
@@ -86,12 +159,48 @@ export default function PhlebotomistCollections() {
         status,
         ...geo,
         notes: notes || undefined,
-        sampleData: status === 'sample_collected' ? sample : undefined,
       };
+
+      if (status === 'patient_verified') {
+        body.verification = {
+          confirmedName: true,
+          confirmedIdentity: true,
+          phoneLast4: phoneLast4.replace(/\D/g, '').slice(-4) || undefined,
+          nameMatch: typedName.trim() || undefined,
+        };
+        body.fasting = {
+          status: fastingStatus,
+          lastMealHours: lastMealHours !== '' ? Number(lastMealHours) : undefined,
+          notes: fastingNotes || notes || undefined,
+        };
+        body.sampleData = {
+          verification: body.verification,
+          fasting: body.fasting,
+        };
+      }
+
+      if (status === 'sample_collected') {
+        body.sampleData = {
+          sampleType: sample.sampleType || 'Blood',
+          tubeType: sample.tubeType || undefined,
+          barcode: sample.barcode || undefined,
+          barcodeOverrideNote: sample.barcodeOverrideNote || undefined,
+        };
+      }
+
+      if (['failed', 'sample_rejected', 'cancelled'].includes(status)) {
+        body.sampleData = {
+          failReason: notes,
+          reason: notes,
+        };
+      }
+
       const { data } = await phlebotomistService.updateJobStatus(job.id, body);
       setJob(data.job);
       notify.success(`Updated → ${status.replace(/_/g, ' ')}`);
-      setNotes('');
+      if (['failed', 'sample_rejected', 'cancelled', 'sample_collected'].includes(status)) {
+        setNotes('');
+      }
     } catch (err) {
       notify.error(err?.response?.data?.error || 'Update failed');
     } finally {
@@ -120,7 +229,12 @@ export default function PhlebotomistCollections() {
 
   // Detail view
   if (orderId && job) {
-    const statuses = phlebotomistService.JOB_STATUSES || [];
+    const sc = statusColor(job.phleboStatus);
+    const forward = (phlebotomistService.JOB_STATUSES || []).filter((s) => allowedNext.has(s.value));
+    const close = (phlebotomistService.CLOSE_STATUSES || []).filter((s) => allowedNext.has(s.value));
+    const showVerify = allowedNext.has('patient_verified') || job.phleboStatus === 'patient_verified';
+    const showSample = allowedNext.has('sample_collected') || job.phleboStatus === 'sample_collected';
+
     return (
       <div>
         <button
@@ -144,6 +258,15 @@ export default function PhlebotomistCollections() {
             {[job.patientAge != null ? `${job.patientAge} yrs` : null, job.patientGender, job.patientPhone].filter(Boolean).join(' · ')}
           </div>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#0f172a' }}>{job.testLabel}</div>
+          {job.fastingLikely && (
+            <div style={{
+              fontSize: 12, fontWeight: 600, color: '#9a3412', background: '#fff7ed',
+              border: '1px solid #fed7aa', borderRadius: 8, padding: '8px 10px', marginBottom: 10,
+            }}
+            >
+              ⚠️ Tests may require fasting — complete checklist before verify
+            </div>
+          )}
           <div style={{ fontSize: 13, color: '#64748b', marginBottom: 6 }}>
             📅 {job.collectionDate ? new Date(job.collectionDate).toLocaleDateString('en-IN') : '—'} · 🕘 {job.collectionTime || '—'}
           </div>
@@ -151,8 +274,8 @@ export default function PhlebotomistCollections() {
             📍 {job.address}
           </div>
           <div style={{
-            display: 'inline-block', fontSize: 11, fontWeight: 700, color: '#0f766e',
-            background: '#ecfdf5', padding: '4px 10px', borderRadius: 999, textTransform: 'capitalize',
+            display: 'inline-block', fontSize: 11, fontWeight: 700, color: sc.color,
+            background: sc.bg, padding: '4px 10px', borderRadius: 999, textTransform: 'capitalize',
             marginBottom: 12,
           }}
           >
@@ -189,40 +312,197 @@ export default function PhlebotomistCollections() {
           </div>
         </div>
 
-        <div style={card}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>Sample details</h3>
-          <div style={{ display: 'grid', gap: 10, marginBottom: 10 }}>
-            <input
-              placeholder="Sample type"
-              value={sample.sampleType}
-              onChange={(e) => setSample((s) => ({ ...s, sampleType: e.target.value }))}
-              style={field}
-            />
-            <input
-              placeholder="Tube type (e.g. Purple EDTA)"
-              value={sample.tubeType}
-              onChange={(e) => setSample((s) => ({ ...s, tubeType: e.target.value }))}
-              style={field}
-            />
-            <input
-              placeholder="Barcode"
-              value={sample.barcode}
-              onChange={(e) => setSample((s) => ({ ...s, barcode: e.target.value }))}
-              style={field}
-            />
-            <textarea
-              placeholder="Notes (optional)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              style={{ ...field, minHeight: 72, resize: 'vertical' }}
-            />
+        {/* H2 Patient verification + fasting — shown when next step or current */}
+        {showVerify && !isTerminal && (
+          <div style={{ ...card, borderColor: allowedNext.has('patient_verified') ? '#99f6e4' : '#e2e8f0' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: '#0f172a' }}>
+              🪪 Patient verification
+            </h3>
+            <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 12px', lineHeight: 1.4 }}>
+              Confirm identity against booking before draw. Required to mark patient verified.
+            </p>
+
+            <label style={{
+              display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10,
+              fontSize: 14, color: '#0f172a', cursor: 'pointer', lineHeight: 1.35,
+            }}
+            >
+              <input
+                type="checkbox"
+                checked={confirmName}
+                onChange={(e) => setConfirmName(e.target.checked)}
+                style={{ width: 20, height: 20, marginTop: 2, flexShrink: 0 }}
+              />
+              <span>
+                Patient name matches booking
+                <span style={{ display: 'block', fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+                  Booked as: <strong>{job.patientName}</strong>
+                </span>
+              </span>
+            </label>
+
+            <label style={{
+              display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12,
+              fontSize: 14, color: '#0f172a', cursor: 'pointer', lineHeight: 1.35,
+            }}
+            >
+              <input
+                type="checkbox"
+                checked={confirmIdentity}
+                onChange={(e) => setConfirmIdentity(e.target.checked)}
+                style={{ width: 20, height: 20, marginTop: 2, flexShrink: 0 }}
+              />
+              <span>
+                Identity confirmed (name / age / gender match person present)
+                {job.patientAge != null && (
+                  <span style={{ display: 'block', fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+                    Age on booking: {job.patientAge} yrs
+                  </span>
+                )}
+              </span>
+            </label>
+
+            {job.phoneLast4Hint && (
+              <div style={{ marginBottom: 12 }}>
+                <label style={label}>Last 4 digits of patient phone</label>
+                <input
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="e.g. 1234"
+                  value={phoneLast4}
+                  onChange={(e) => setPhoneLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  style={field}
+                  autoComplete="one-time-code"
+                />
+              </div>
+            )}
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={label}>Type patient first name (optional double-check)</label>
+              <input
+                placeholder="Optional"
+                value={typedName}
+                onChange={(e) => setTypedName(e.target.value)}
+                style={field}
+              />
+            </div>
+
+            <h4 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>
+              🍽️ Fasting checklist
+            </h4>
+            <div style={{ display: 'grid', gap: 8, marginBottom: 10 }}>
+              {(phlebotomistService.FASTING_OPTIONS || []).map((opt) => (
+                <label
+                  key={opt.value}
+                  style={{
+                    display: 'flex', gap: 10, alignItems: 'center', padding: '10px 12px',
+                    borderRadius: 10, border: fastingStatus === opt.value ? '2px solid #0d9488' : '1px solid #e2e8f0',
+                    background: fastingStatus === opt.value ? '#f0fdfa' : '#fff',
+                    cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#0f172a',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="fasting"
+                    checked={fastingStatus === opt.value}
+                    onChange={() => setFastingStatus(opt.value)}
+                    style={{ width: 18, height: 18 }}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={label}>Hours since last meal (optional)</label>
+              <input
+                inputMode="decimal"
+                placeholder="e.g. 10"
+                value={lastMealHours}
+                onChange={(e) => setLastMealHours(e.target.value)}
+                style={field}
+              />
+            </div>
+            <div>
+              <label style={label}>Fasting notes (required if “not required” on fasting-like tests)</label>
+              <textarea
+                placeholder="e.g. Doctor advised non-fasting lipid"
+                value={fastingNotes}
+                onChange={(e) => setFastingNotes(e.target.value)}
+                style={{ ...field, minHeight: 64, resize: 'vertical' }}
+              />
+            </div>
           </div>
+        )}
+
+        {/* Sample details — for collect step */}
+        {showSample && !isTerminal && (
+          <div style={card}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>Sample details</h3>
+            <div style={{ display: 'grid', gap: 10, marginBottom: 4 }}>
+              <div>
+                <label style={label}>Sample type</label>
+                <input
+                  placeholder="Blood"
+                  value={sample.sampleType}
+                  onChange={(e) => setSample((s) => ({ ...s, sampleType: e.target.value }))}
+                  style={field}
+                />
+              </div>
+              <div>
+                <label style={label}>Tube type</label>
+                <input
+                  placeholder="e.g. Purple EDTA"
+                  value={sample.tubeType}
+                  onChange={(e) => setSample((s) => ({ ...s, tubeType: e.target.value }))}
+                  style={field}
+                />
+              </div>
+              <div>
+                <label style={label}>Barcode (required unless override)</label>
+                <input
+                  placeholder="Scan or type barcode"
+                  value={sample.barcode}
+                  onChange={(e) => setSample((s) => ({ ...s, barcode: e.target.value }))}
+                  style={field}
+                  autoCapitalize="characters"
+                />
+              </div>
+              <div>
+                <label style={label}>No barcode? Reason (min 5 chars)</label>
+                <input
+                  placeholder="e.g. Label printer down — written on tube"
+                  value={sample.barcodeOverrideNote}
+                  onChange={(e) => setSample((s) => ({ ...s, barcodeOverrideNote: e.target.value }))}
+                  style={field}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notes always for fail/cancel */}
+        <div style={card}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>Notes</h3>
+          <textarea
+            placeholder="Required for failed / rejected / cancelled. Optional otherwise."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            style={{ ...field, minHeight: 72, resize: 'vertical' }}
+          />
         </div>
 
         <div style={card}>
           <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px', color: '#0f172a' }}>Update status</h3>
+          {isTerminal && (
+            <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 8px' }}>
+              This job is closed. No further field updates.
+            </p>
+          )}
+          {!isTerminal && forward.length === 0 && close.length === 0 && (
+            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>No actions available.</p>
+          )}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {statuses.map((s) => {
+            {forward.map((s) => {
               const active = job.phleboStatus === s.value;
               return (
                 <button
@@ -238,11 +518,11 @@ export default function PhlebotomistCollections() {
                     fontSize: 12,
                     fontWeight: 700,
                     fontFamily: 'inherit',
-                    background: active ? '#0d9488' : '#fff',
-                    color: active ? '#fff' : '#334155',
+                    background: active ? '#0d9488' : s.value === 'sample_collected' ? '#059669' : '#fff',
+                    color: active || s.value === 'sample_collected' ? '#fff' : '#334155',
                     minHeight: 48,
                     lineHeight: 1.25,
-                    gridColumn: s.value === 'sample_collected' || s.value === 'failed' || s.value === 'cancelled' ? '1 / -1' : undefined,
+                    gridColumn: s.value === 'sample_collected' || s.value === 'patient_verified' ? '1 / -1' : undefined,
                   }}
                 >
                   {s.label}
@@ -250,6 +530,37 @@ export default function PhlebotomistCollections() {
               );
             })}
           </div>
+          {close.length > 0 && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', margin: '14px 0 8px', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                Close job
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                {close.map((s) => (
+                  <button
+                    key={s.value}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setStatus(s.value)}
+                    style={{
+                      padding: '12px 8px',
+                      borderRadius: 10,
+                      border: '1px solid #fecaca',
+                      cursor: busy ? 'wait' : 'pointer',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      fontFamily: 'inherit',
+                      background: '#fff',
+                      color: '#b91c1c',
+                      minHeight: 44,
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {job.events?.length > 0 && (
@@ -257,7 +568,7 @@ export default function PhlebotomistCollections() {
             <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>Timeline</h3>
             {job.events.map((e) => (
               <div key={e.id} style={{ fontSize: 12, padding: '8px 0', borderBottom: '1px solid #f1f5f9', color: '#475569', lineHeight: 1.4 }}>
-                <strong style={{ textTransform: 'capitalize' }}>{e.status.replace(/_/g, ' ')}</strong>
+                <strong style={{ textTransform: 'capitalize' }}>{String(e.status || '').replace(/_/g, ' ')}</strong>
                 {' · '}
                 {e.createdAt ? new Date(e.createdAt).toLocaleString('en-IN') : ''}
                 {e.notes ? ` — ${e.notes}` : ''}
@@ -280,29 +591,32 @@ export default function PhlebotomistCollections() {
           No jobs assigned yet. Admin assigns diagnostic orders to you.
         </div>
       )}
-      {jobs.map((j) => (
-        <Link key={j.id} to={`/phlebotomist/collections/${j.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-          <div style={card}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{j.patientName}</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{j.testLabel}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
-                  ORD-{j.id} · {j.collectionDate ? new Date(j.collectionDate).toLocaleDateString('en-IN') : '—'} {j.collectionTime || ''}
+      {jobs.map((j) => {
+        const sc = statusColor(j.phleboStatus);
+        return (
+          <Link key={j.id} to={`/phlebotomist/collections/${j.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+            <div style={card}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{j.patientName}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{j.testLabel}</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                    ORD-{j.id} · {j.collectionDate ? new Date(j.collectionDate).toLocaleDateString('en-IN') : '—'} {j.collectionTime || ''}
+                  </div>
                 </div>
+                <span style={{
+                  flexShrink: 0, fontSize: 10, fontWeight: 700, textTransform: 'capitalize',
+                  color: sc.color, background: sc.bg, padding: '4px 8px', borderRadius: 6,
+                  maxWidth: 90, textAlign: 'center', lineHeight: 1.2,
+                }}
+                >
+                  {(j.phleboStatus || j.orderStatus || '').replace(/_/g, ' ')}
+                </span>
               </div>
-              <span style={{
-                flexShrink: 0, fontSize: 10, fontWeight: 700, textTransform: 'capitalize',
-                color: '#0d9488', background: '#ecfdf5', padding: '4px 8px', borderRadius: 6,
-                maxWidth: 90, textAlign: 'center', lineHeight: 1.2,
-              }}
-              >
-                {(j.phleboStatus || j.orderStatus || '').replace(/_/g, ' ')}
-              </span>
             </div>
-          </div>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }
