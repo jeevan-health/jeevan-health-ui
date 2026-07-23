@@ -51,8 +51,11 @@ function mapOrder(o) {
     if (dateStr) dateLabel = new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   } catch { /* keep raw */ }
 
+  const displayOrderId = o.display_order_id || o.displayOrderId
+    || `JHC-HYD-DIA-${String(o.id).padStart(5, '0')}`;
   return {
     id: String(o.id),
+    displayOrderId,
     test: testName,
     status,
     statusLabel: STATUS_LABELS[status] || status,
@@ -176,7 +179,7 @@ export default function MyTestOrders() {
           <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap', gap: 8 }}>
             <div style={{ flex: 1, minWidth: 200 }}>
               <p style={{ fontSize: 13, fontWeight: 600 }}>{o.test}</p>
-              <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>#{o.id} · {o.date}</p>
+              <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{o.displayOrderId || `#${o.id}`} · {o.date}</p>
               {o.collection && <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('orders.collection', 'Collection:')} {o.collection}</p>}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

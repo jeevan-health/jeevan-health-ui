@@ -4,6 +4,22 @@ import * as labReportService from '../../services/labReportService';
 import { useT } from '../../i18n/LanguageProvider';
 import { notify } from '../../lib/toastBus';
 import { extractPatientFromOrder, formatPatientLabel } from '../../utils/orderPatient';
+import { resolveDisplayOrderId } from '../../utils/orderCode';
+
+function fmtCollectionDate(raw) {
+  if (!raw) return '—';
+  try {
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return String(raw).slice(0, 10);
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
+  } catch {
+    return String(raw);
+  }
+}
+
+function money(n) {
+  return `₹${Number(n || 0).toLocaleString('en-IN')}`;
+}
 
 const DIAG_STATUSES = ['pending', 'confirmed', 'sample_collected', 'processing', 'results_ready', 'completed', 'cancelled'];
 const PHARM_STATUSES = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'];
@@ -31,11 +47,37 @@ function mapOrder(o) {
   });
   const accountName = o.user_name || o.userName || addr.fullName || '—';
   const patientLabel = formatPatientLabel(patient, null);
+  const totalAmount = Number(o.total_amount ?? o.totalAmount) || 0;
+  const grossAmount = o.gross_amount != null ? Number(o.gross_amount) : totalAmount;
+  const discountAmount = Number(o.discount_amount ?? o.discountAmount) || 0;
+  const paidAmount = Number(o.paid_amount ?? o.paidAmount) || 0;
+  const balanceAmount = o.balance_amount != null
+    ? Number(o.balance_amount)
+    : Math.max(0, totalAmount - paidAmount);
+  const paymentStatus = o.payment_status || o.paymentStatus
+    || (paidAmount >= totalAmount && totalAmount > 0 ? 'paid' : paidAmount > 0 ? 'partial' : 'pending_collection');
+  const orderType = o.order_type || o.orderType || 'diagnostic';
   return {
     id: o.id,
-    orderType: o.order_type || o.orderType || 'diagnostic',
+    displayOrderId: resolveDisplayOrderId({
+      ...o,
+      id: o.id,
+      orderType,
+      collection_address: addr,
+      city_code: o.city_code || o.cityCode,
+      service_code: o.service_code || o.serviceCode,
+      display_order_id: o.display_order_id || o.displayOrderId,
+    }, orderType),
+    orderType,
     status: o.status || 'pending',
-    totalAmount: Number(o.total_amount ?? o.totalAmount) || 0,
+    totalAmount,
+    grossAmount,
+    discountAmount,
+    couponCode: o.coupon_code || o.couponCode || null,
+    paidAmount,
+    balanceAmount,
+    paymentStatus,
+    paymentMode: o.payment_mode || o.paymentMode || addr.paymentMethod || null,
     tests,
     userId: o.user_id || o.userId || null,
     /** Account holder who placed the order */
@@ -55,8 +97,11 @@ function mapOrder(o) {
     notes: o.notes || '',
     assignedPhlebotomistId: o.assigned_phlebotomist_id || o.assignedPhlebotomistId || null,
     phlebotomistName: o.phlebotomist_name || o.phlebotomistName || null,
-    phlebotomistEmployeeId: o.phlebotomist_employee_id || null,
+    phlebotomistEmployeeId: o.phlebotomist_employee_id || o.phlebotomistEmployeeId || null,
+    phlebotomistPhone: o.phlebotomist_phone || o.phlebotomistPhone || null,
     phleboStatus: o.phlebo_status || o.phleboStatus || null,
+    assignedAt: o.assigned_at || o.assignedAt || null,
+    patientNotifiedAt: o.patient_notified_at || o.patientNotifiedAt || null,
   };
 }
 
@@ -150,7 +195,12 @@ export default function AdminOrders() {
     setAssigning(true);
     try {
       const { data } = await adminService.assignDiagnosticOrder(order.id, Number(assignId));
-      notify.success(`Assigned to ${data.phlebotomistName}`);
+      const emailNote = data.notification?.email?.sent
+        ? ' · patient notified by email'
+        : data.notification?.email?.error
+          ? ` · email: ${data.notification.email.error}`
+          : '';
+      notify.success(`Assigned to ${data.phlebotomistName}${emailNote}`);
       setAssignId('');
       await load();
     } catch (err) {
@@ -181,19 +231,31 @@ export default function AdminOrders() {
     try {
       const pdfBase64 = await fileToBase64(reportFile);
       const testName = order.tests.map((x) => x.name || x).filter(Boolean).join(', ')
-        || `Order #${order.id} report`;
+        || `${order.displayOrderId || `Order #${order.id}`} report`;
       const patientBits = [
         order.patientName ? `Patient: ${order.patientName}` : null,
         order.patientAge != null && order.patientAge !== '' ? `Age: ${order.patientAge}` : null,
         order.patientGender ? `Gender: ${order.patientGender}` : null,
+        order.patientRelation ? `Relation: ${order.patientRelation}` : null,
       ].filter(Boolean).join(', ');
       const { data } = await labReportService.uploadReport({
         userId: order.userId,
         testName: String(testName).slice(0, 200),
-        fileName: reportFile.name || `order-${order.id}-report.pdf`,
+        fileName: reportFile.name || `${order.displayOrderId || `order-${order.id}`}-report.pdf`,
         mimeType: 'application/pdf',
         pdfBase64,
-        notes: [`Order #${order.id}`, patientBits, order.userName ? `Account: ${order.userName}` : null].filter(Boolean).join(' | '),
+        notes: [
+          order.displayOrderId || `Order #${order.id}`,
+          `Order #${order.id}`,
+          patientBits,
+          order.userName ? `Account: ${order.userName}` : null,
+        ].filter(Boolean).join(' | '),
+        displayOrderId: order.displayOrderId,
+        orderId: order.id,
+        patientAge: order.patientAge,
+        patientGender: order.patientGender,
+        relationship: order.patientRelation,
+        collectionDate: fmtCollectionDate(order.collectionDate),
         sendEmail: true,
         sendPush: true,
       });
@@ -269,7 +331,10 @@ export default function AdminOrders() {
             return (
               <div key={`${o.orderType}-${o.id}`} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13 }}>#{o.id} · <span style={{ textTransform: 'capitalize', fontWeight: 500, color: '#64748b' }}>{o.orderType}</span></div>
+                  <div style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>
+                    {o.displayOrderId || `#${o.id}`}
+                    <div style={{ textTransform: 'capitalize', fontWeight: 500, color: '#64748b', fontSize: 11 }}>{o.orderType}</div>
+                  </div>
                   <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 600, background: `${statusColors[o.status] || '#94a3b8'}20`, color: statusColors[o.status] || '#475569' }}>
                     {(o.status || 'pending').replace(/_/g, ' ')}
                   </span>
@@ -282,7 +347,12 @@ export default function AdminOrders() {
                   {o.tests.map(x => x.name || x).join(', ') || '—'}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                  <strong style={{ fontSize: 14 }}>₹{o.totalAmount.toLocaleString()}</strong>
+                  <div style={{ fontSize: 12 }}>
+                    <strong style={{ fontSize: 14 }}>{money(o.totalAmount)}</strong>
+                    {o.balanceAmount > 0 && (
+                      <div style={{ color: '#b45309', fontWeight: 600 }}>Due {money(o.balanceAmount)}</div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={() => setSelected(open ? null : o)}
@@ -343,7 +413,10 @@ export default function AdminOrders() {
             <tbody>
               {orders.map(o => (
                 <tr key={`${o.orderType}-${o.id}`} style={{ borderBottom: '1px solid #f1f5f9', background: selected?.id === o.id && selected?.orderType === o.orderType ? '#f8fafc' : 'transparent' }}>
-                  <td style={{ padding: '10px 14px', fontWeight: 600, fontSize: 12 }}>#{o.id}</td>
+                  <td style={{ padding: '10px 14px', fontWeight: 600, fontSize: 11, lineHeight: 1.3 }}>
+                    <div>{o.displayOrderId || `#${o.id}`}</div>
+                    <div style={{ color: '#94a3b8', fontWeight: 500, textTransform: 'capitalize' }}>{o.orderType}</div>
+                  </td>
                   <td style={{ padding: '10px 14px', fontSize: 12, textTransform: 'capitalize' }}>{o.orderType}</td>
                   <td style={{ padding: '10px 14px' }}>
                     <div style={{ fontSize: 12 }}>{o.userName}</div>
@@ -403,8 +476,15 @@ export default function AdminOrders() {
               boxShadow: '0 20px 50px rgba(0,0,0,0.18)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 8 }}>
-              <h3 style={{ margin: 0, fontSize: 16 }}>#{selected.id} · {selected.orderType}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, gap: 8 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, letterSpacing: 0.2 }}>
+                  {selected.displayOrderId || `#${selected.id}`}
+                </h3>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, textTransform: 'capitalize' }}>
+                  {selected.orderType} order · #{selected.id}
+                </div>
+              </div>
               <button type="button" onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', lineHeight: 1, color: '#64748b' }} aria-label="Close">×</button>
             </div>
             <div className="admin-orders-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13, marginBottom: 16 }}>
@@ -417,24 +497,87 @@ export default function AdminOrders() {
                 <strong>{selected.userName}</strong>
                 {selected.userPhone ? <span style={{ color: '#94a3b8', fontSize: 11 }}> · {selected.userPhone}</span> : null}
               </div>
-              <div><span style={{ color: '#64748b' }}>Amount:</span> <strong>₹{selected.totalAmount.toLocaleString()}</strong></div>
-              <div><span style={{ color: '#64748b' }}>Collection:</span> <strong>{selected.collectionDate || '—'} {selected.collectionTime || ''}</strong></div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <span style={{ color: '#64748b' }}>Collection:</span>{' '}
+                <strong>{fmtCollectionDate(selected.collectionDate)}{selected.collectionTime ? ` · ${selected.collectionTime}` : ''}</strong>
+              </div>
               <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Address:</span> <strong>{selected.address}</strong></div>
               <div style={{ gridColumn: '1 / -1' }}><span style={{ color: '#64748b' }}>Items:</span> <strong>{selected.tests.map(x => x.name || x).join(', ') || '—'}</strong></div>
-              {selected.notes && (
-                <div style={{ gridColumn: '1 / -1', fontSize: 12, color: '#64748b', background: '#f8fafc', padding: 8, borderRadius: 8 }}>
-                  <span style={{ fontWeight: 600 }}>Raw notes:</span> {selected.notes}
+            </div>
+
+            {/* Payment details — admin / billing / phlebo visibility */}
+            <div style={{
+              marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 10,
+              border: '1px solid #e2e8f0',
+            }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, color: '#0f172a' }}>💳 Payment details</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '4px 12px', fontSize: 13 }}>
+                <span style={{ color: '#64748b' }}>Total bill amount</span>
+                <strong style={{ textAlign: 'right' }}>{money(selected.grossAmount)}</strong>
+                {selected.discountAmount > 0 && (
+                  <>
+                    <span style={{ color: '#64748b' }}>Discount{selected.couponCode ? ` (${selected.couponCode})` : ''}</span>
+                    <strong style={{ textAlign: 'right', color: '#166534' }}>− {money(selected.discountAmount)}</strong>
+                  </>
+                )}
+                <span style={{ color: '#64748b', borderTop: '1px solid #e2e8f0', paddingTop: 6 }}>Net payable</span>
+                <strong style={{ textAlign: 'right', borderTop: '1px solid #e2e8f0', paddingTop: 6 }}>{money(selected.totalAmount)}</strong>
+                <span style={{ color: '#64748b' }}>Paid</span>
+                <strong style={{ textAlign: 'right' }}>{money(selected.paidAmount)}</strong>
+                <span style={{ color: '#64748b' }}>Balance to collect</span>
+                <strong style={{ textAlign: 'right', color: selected.balanceAmount > 0 ? '#b45309' : '#166534' }}>
+                  {money(selected.balanceAmount)}
+                </strong>
+                <span style={{ color: '#64748b' }}>Payment status</span>
+                <span style={{ textAlign: 'right', fontWeight: 600, textTransform: 'capitalize' }}>
+                  {(selected.paymentStatus || 'pending_collection').replace(/_/g, ' ')}
+                </span>
+                {selected.paymentMode && (
+                  <>
+                    <span style={{ color: '#64748b' }}>Mode</span>
+                    <span style={{ textAlign: 'right', fontWeight: 600, textTransform: 'uppercase' }}>{selected.paymentMode}</span>
+                  </>
+                )}
+              </div>
+              {selected.balanceAmount > 0 && (
+                <div style={{ marginTop: 8, fontSize: 11, color: '#92400e', background: '#fffbeb', padding: '6px 8px', borderRadius: 6 }}>
+                  Collect {money(selected.balanceAmount)} at sample collection (Cash / UPI)
                 </div>
               )}
             </div>
+
             {selected.orderType === 'diagnostic' && (
               <div style={{ marginBottom: 16, padding: 12, background: '#f0fdfa', borderRadius: 10, border: '1px solid #99f6e4' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>🚑 Assign phlebotomist</div>
-                <div style={{ fontSize: 12, color: '#0f766e', marginBottom: 8 }}>
-                  Current: {selected.phlebotomistName
-                    ? `${selected.phlebotomistName}${selected.phlebotomistEmployeeId ? ` (${selected.phlebotomistEmployeeId})` : ''}${selected.phleboStatus ? ` · ${selected.phleboStatus}` : ''}`
-                    : 'Not assigned'}
-                </div>
+                {selected.phlebotomistName ? (
+                  <div style={{
+                    fontSize: 12, color: '#0f172a', marginBottom: 10, background: '#fff',
+                    border: '1px solid #ccfbf1', borderRadius: 8, padding: 10,
+                  }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 4 }}>Assigned phlebotomist details</div>
+                    <div><span style={{ color: '#64748b' }}>Name:</span> <strong>{selected.phlebotomistName}</strong></div>
+                    {selected.phlebotomistEmployeeId && (
+                      <div><span style={{ color: '#64748b' }}>Employee ID:</span> <strong>{selected.phlebotomistEmployeeId}</strong></div>
+                    )}
+                    {selected.phlebotomistPhone && (
+                      <div><span style={{ color: '#64748b' }}>Mobile:</span> <strong>{selected.phlebotomistPhone}</strong></div>
+                    )}
+                    <div><span style={{ color: '#64748b' }}>Status:</span> <strong style={{ textTransform: 'capitalize' }}>{(selected.phleboStatus || 'assigned').replace(/_/g, ' ')}</strong></div>
+                    {selected.assignedAt && (
+                      <div><span style={{ color: '#64748b' }}>Assigned:</span> {new Date(selected.assignedAt).toLocaleString('en-IN')}</div>
+                    )}
+                    <div style={{ marginTop: 4 }}>
+                      Customer notification:{' '}
+                      <strong style={{ color: selected.patientNotifiedAt ? '#166534' : '#b45309' }}>
+                        {selected.patientNotifiedAt ? '✓ Sent' : 'Pending / no email'}
+                      </strong>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: '#0f766e', marginBottom: 8 }}>Current: Not assigned</div>
+                )}
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                   <select
                     value={assignId}

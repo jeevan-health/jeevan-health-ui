@@ -291,9 +291,26 @@ const useDashboardStore = create((set, get) => ({
             : statusRaw === 'processing' ? 'Processing'
             : statusRaw === 'results_ready' ? 'Results Ready'
             : 'Pending');
+        const city = (addr.city || '').toString();
+        const cityCode = /hyderabad/i.test(city) ? 'HYD'
+          : /bengaluru|bangalore/i.test(city) ? 'BLR'
+          : /secunderabad/i.test(city) ? 'SEC'
+          : /chennai/i.test(city) ? 'CHE'
+          : /mumbai/i.test(city) ? 'MUM'
+          : /delhi/i.test(city) ? 'DEL'
+          : /pune/i.test(city) ? 'PUN'
+          : 'HYD';
+        const displayOrderId = o.display_order_id || o.displayOrderId
+          || `JHC-${cityCode}-DIA-${String(o.id).padStart(5, '0')}`;
+        const totalAmount = Number(o.total_amount ?? o.totalAmount) || 0;
+        const paidAmount = Number(o.paid_amount ?? o.paidAmount) || 0;
+        const balanceAmount = o.balance_amount != null
+          ? Number(o.balance_amount)
+          : Math.max(0, totalAmount - paidAmount);
         return {
           id: `ORD-${o.id}`,
           orderId: o.id,
+          displayOrderId,
           test: ((o.tests || []).map((t) => t.name || t.test_name).filter(Boolean).join(', ')) || 'Diagnostic Order',
           date: o.collection_date ? fmt(new Date(o.collection_date)) : (o.created_at ? fmt(new Date(o.created_at)) : ''),
           time: o.collection_time || '',
@@ -308,6 +325,14 @@ const useDashboardStore = create((set, get) => ({
           patientLabel: patientName
             ? `${patientName}${patientAge != null && patientAge !== '' ? ` · ${patientAge} yrs` : ''}`
             : null,
+          totalAmount,
+          paidAmount,
+          balanceAmount,
+          paymentStatus: o.payment_status || o.paymentStatus || null,
+          phlebotomistName: o.phlebotomist_name || o.phlebotomistName || null,
+          phlebotomistEmployeeId: o.phlebotomist_employee_id || o.phlebotomistEmployeeId || null,
+          phlebotomistPhone: o.phlebotomist_phone || o.phlebotomistPhone || null,
+          phleboStatus: o.phlebo_status || o.phleboStatus || null,
         };
       };
 

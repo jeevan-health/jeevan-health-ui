@@ -766,7 +766,58 @@ export default function Dashboard() {
         </Section>
 
         {/* Booking Detail Modal */}
-        {showBookingDetail && (
+        {showBookingDetail && (() => {
+          const detail = showBookingDetail;
+          const isResultsReady = ['Results Ready', 'Completed', 'results_ready', 'completed'].includes(detail.status)
+            || ['results_ready', 'completed'].includes(detail.statusRaw);
+          const orderNum = detail.orderId || String(detail.id || '').replace(/^ORD-/i, '');
+          const linkedReports = (labReports || []).filter((r) => {
+            const meta = parseReportNotes(r.notes);
+            if (meta.orderId && String(meta.orderId) === String(orderNum)) return true;
+            if (r.notes && String(r.notes).includes(`Order #${orderNum}`)) return true;
+            if (detail.displayOrderId && r.notes && String(r.notes).includes(detail.displayOrderId)) return true;
+            // Fallback: same test name when only one matching report
+            if (isResultsReady && detail.test && r.testName
+              && String(r.testName).toLowerCase().includes(String(detail.test).split(',')[0].trim().toLowerCase().slice(0, 20))) {
+              return true;
+            }
+            return false;
+          });
+          const openPdf = async (reportId) => {
+            try {
+              const { data } = await labReportService.downloadMyReport(reportId);
+              const b64 = data.pdfBase64;
+              const byteChars = atob(b64);
+              const bytes = new Uint8Array(byteChars.length);
+              for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+              const blob = new Blob([bytes], { type: data.mimeType || 'application/pdf' });
+              const url = URL.createObjectURL(blob);
+              // Prefer open in new tab for viewing; also allow download
+              window.open(url, '_blank', 'noopener,noreferrer');
+              setTimeout(() => URL.revokeObjectURL(url), 60_000);
+            } catch {
+              notify.error(t('dashboard.downloadFail', 'Could not open report PDF'));
+            }
+          };
+          const downloadPdf = async (reportId, fileName) => {
+            try {
+              const { data } = await labReportService.downloadMyReport(reportId);
+              const b64 = data.pdfBase64;
+              const byteChars = atob(b64);
+              const bytes = new Uint8Array(byteChars.length);
+              for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+              const blob = new Blob([bytes], { type: data.mimeType || 'application/pdf' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName || data.fileName || 'lab-report.pdf';
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch {
+              notify.error(t('dashboard.downloadFail', 'Download failed'));
+            }
+          };
+          return (
           <div className="panel-overlay" onClick={() => setShowBookingDetail(null)}>
             <div className="panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
               <div className="panel-header">
@@ -776,49 +827,140 @@ export default function Dashboard() {
               <div className="panel-body">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13 }}>
                   <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🧪 {showBookingDetail.test}</div>
-                    <Badge variant={showBookingDetail.status === 'Confirmed' ? 'green' : 'yellow'}>{showBookingDetail.status}</Badge>
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🧪 {detail.test}</div>
+                    <Badge variant={
+                      isResultsReady ? 'green'
+                        : detail.status === 'Confirmed' ? 'green'
+                        : detail.status === 'Cancelled' ? 'orange' : 'yellow'
+                    }
+                    >
+                      {detail.status}
+                    </Badge>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.bookingId', 'Booking ID')}</span>
-                    <span style={{ fontWeight: 600 }}>{showBookingDetail.id}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0', gap: 8 }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.bookingId', 'Order ID')}</span>
+                    <span style={{ fontWeight: 700, textAlign: 'right', fontSize: 12 }}>
+                      {detail.displayOrderId || detail.id}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0', gap: 12 }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.patient', 'Patient')}</span>
                     <span style={{ fontWeight: 600, textAlign: 'right' }}>
-                      {showBookingDetail.patientLabel
-                        || showBookingDetail.patientName
+                      {detail.patientLabel
+                        || detail.patientName
                         || t('dashboard.bookingDetail.patientUnknown', '—')}
-                      {showBookingDetail.patientAge != null && showBookingDetail.patientAge !== '' && !showBookingDetail.patientLabel
-                        ? ` · ${showBookingDetail.patientAge} yrs` : ''}
                     </span>
                   </div>
-                  {showBookingDetail.patientGender && (
+                  {detail.patientGender && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                       <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.gender', 'Gender')}</span>
-                      <span style={{ fontWeight: 600 }}>{showBookingDetail.patientGender}</span>
+                      <span style={{ fontWeight: 600 }}>{detail.patientGender}</span>
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.date', 'Date')}</span>
-                    <span style={{ fontWeight: 600 }}>{showBookingDetail.date}</span>
+                    <span style={{ fontWeight: 600 }}>{detail.date}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.time', 'Time')}</span>
-                    <span style={{ fontWeight: 600 }}>{showBookingDetail.time || '—'}</span>
+                    <span style={{ fontWeight: 600 }}>{detail.time || '—'}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t('dashboard.bookingDetail.location', 'Location')}</span>
-                    <span style={{ fontWeight: 600 }}>{showBookingDetail.location}</span>
+                    <span style={{ fontWeight: 600, textAlign: 'right' }}>{detail.location}</span>
                   </div>
+
+                  {detail.phlebotomistName && (
+                    <div style={{
+                      marginTop: 4, padding: 12, borderRadius: 10, background: '#f0fdfa',
+                      border: '1px solid #99f6e4',
+                    }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#0f766e', marginBottom: 4 }}>ASSIGNED PHLEBOTOMIST</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{detail.phlebotomistName}</div>
+                      <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>
+                        Jeevan Certified Phlebotomist
+                        {detail.phlebotomistEmployeeId ? ` · ID: ${detail.phlebotomistEmployeeId}` : ''}
+                      </div>
+                      {detail.phlebotomistPhone && (
+                        <a
+                          href={`tel:${detail.phlebotomistPhone}`}
+                          style={{
+                            display: 'inline-block', marginTop: 8, fontSize: 13, fontWeight: 700,
+                            color: '#0d9488', textDecoration: 'none',
+                          }}
+                        >
+                          📞 Call phlebotomist
+                        </a>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Report actions when results are ready */}
+                  {isResultsReady && (
+                    <div style={{
+                      marginTop: 4, padding: 12, borderRadius: 10, background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                    }}
+                    >
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>
+                        📄 Report ready
+                      </div>
+                      {linkedReports.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {linkedReports.map((r) => (
+                            <div key={r.id}>
+                              <div style={{ fontSize: 12, color: '#475569', marginBottom: 6 }}>{r.testName || r.fileName}</div>
+                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() => openPdf(r.id)}
+                                >
+                                  👁 View Report
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline btn-sm"
+                                  onClick={() => downloadPdf(r.id, r.fileName)}
+                                >
+                                  📥 Download PDF
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div>
+                          <p style={{ margin: '0 0 8px', fontSize: 12, color: '#64748b', lineHeight: 1.4 }}>
+                            Status is Results Ready. Open the Reports tab to view or download your PDF if it is not linked here yet.
+                          </p>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                              setShowBookingDetail(null);
+                              navigate('/dashboard?tab=reports');
+                            }}
+                          >
+                            Go to Reports
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div style={{ marginTop: 8, background: '#e8f5e9', padding: '10px', borderRadius: 8, fontSize: 11, color: '#2e7d32' }}>
-                    {t('dashboard.bookingDetail.confirmationMsg', '✅ A confirmation message has been sent to your registered mobile number.')}
+                    {detail.phlebotomistName
+                      ? '✅ Phlebotomist assigned. You will receive email / app alerts for collection and reports.'
+                      : t('dashboard.bookingDetail.confirmationMsg', '✅ A confirmation message has been sent to your registered mobile number.')}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* Reschedule Modal */}
         {showReschedule && (

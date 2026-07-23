@@ -250,12 +250,24 @@ export default function PhlebotomistCollections() {
         </button>
 
         <div style={card}>
-          <div style={{ fontSize: 11, color: '#94a3b8', letterSpacing: 0.3 }}>ORD-{job.id}</div>
+          <div style={{ fontSize: 11, color: '#94a3b8', letterSpacing: 0.3, fontWeight: 600 }}>
+            {job.displayOrderId || `ORD-${job.id}`}
+          </div>
           <h2 style={{ fontSize: 18, fontWeight: 800, margin: '4px 0 6px', color: '#0f172a', lineHeight: 1.25 }}>
             {job.patientName}
           </h2>
-          <div style={{ fontSize: 13, color: '#64748b', marginBottom: 10, lineHeight: 1.4 }}>
-            {[job.patientAge != null ? `${job.patientAge} yrs` : null, job.patientGender, job.patientPhone].filter(Boolean).join(' · ')}
+          <div style={{ fontSize: 13, color: '#64748b', marginBottom: 10, lineHeight: 1.45 }}>
+            {[
+              job.patientAge != null && job.patientAge !== '' ? `${job.patientAge} yrs` : null,
+              job.patientGender || null,
+              job.patientPhone || null,
+            ].filter(Boolean).join(' · ') || 'Age / gender not on booking'}
+            {(!job.patientAge || job.patientAge === '') && (
+              <div style={{ fontSize: 11, color: '#b45309', marginTop: 2 }}>Age not provided on booking — confirm with patient</div>
+            )}
+            {!job.patientGender && (
+              <div style={{ fontSize: 11, color: '#b45309', marginTop: 2 }}>Gender not provided — confirm with patient</div>
+            )}
           </div>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#0f172a' }}>{job.testLabel}</div>
           {job.fastingLikely && (
@@ -312,6 +324,75 @@ export default function PhlebotomistCollections() {
           </div>
         </div>
 
+        {/* Payment summary for doorstep collection */}
+        <div style={{ ...card, borderColor: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#fcd34d' : '#bbf7d0' }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>💳 Payment summary</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '4px 10px', fontSize: 13 }}>
+            <span style={{ color: '#64748b' }}>Package amount</span>
+            <strong>₹{Number(job.grossAmount ?? job.payment?.grossAmount ?? job.totalAmount || 0).toLocaleString('en-IN')}</strong>
+            {(job.discountAmount ?? job.payment?.discountAmount) > 0 && (
+              <>
+                <span style={{ color: '#64748b' }}>Discount</span>
+                <strong style={{ color: '#166534' }}>− ₹{Number(job.discountAmount ?? job.payment?.discountAmount || 0).toLocaleString('en-IN')}</strong>
+              </>
+            )}
+            <span style={{ color: '#64748b' }}>Final payable</span>
+            <strong>₹{Number(job.totalAmount || 0).toLocaleString('en-IN')}</strong>
+            <span style={{ color: '#64748b' }}>Paid</span>
+            <strong>₹{Number(job.paidAmount ?? job.payment?.paidAmount || 0).toLocaleString('en-IN')}</strong>
+            <span style={{ color: '#64748b' }}>Balance due</span>
+            <strong style={{ color: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#b45309' : '#166534' }}>
+              ₹{Number(job.balanceAmount ?? job.payment?.balanceAmount || 0).toLocaleString('en-IN')}
+            </strong>
+          </div>
+          <div style={{
+            marginTop: 10, fontSize: 12, fontWeight: 700, textTransform: 'capitalize',
+            color: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#92400e' : '#166534',
+            background: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#fffbeb' : '#f0fdf4',
+            padding: '8px 10px', borderRadius: 8,
+          }}
+          >
+            {(job.balanceAmount ?? job.payment?.balanceAmount) > 0
+              ? `Collect ₹${Number(job.balanceAmount ?? job.payment?.balanceAmount || 0).toLocaleString('en-IN')} at doorstep (Cash / UPI / Card)`
+              : '✓ Paid — no collection needed'}
+          </div>
+        </div>
+
+        {/* Sample collection plan from test/package names */}
+        {job.samplePlan?.tubesSummary?.length > 0 && (
+          <div style={card}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 6px', color: '#0f172a' }}>🧪 Sample collection plan</h3>
+            <p style={{ fontSize: 12, color: '#64748b', margin: '0 0 10px' }}>
+              Tests: {job.samplePlan.totals?.testCount || job.tests?.length || 0}
+              {' · '}Blood tubes: {job.samplePlan.totals?.bloodTubes || 0}
+              {' · '}Urine: {job.samplePlan.totals?.urineContainers || 0}
+            </p>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {job.samplePlan.tubesSummary.map((t) => (
+                <div
+                  key={t.tubeKey}
+                  style={{
+                    padding: '10px 12px', borderRadius: 10, background: '#f8fafc',
+                    border: '1px solid #e2e8f0', fontSize: 13,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, color: '#0f172a' }}>
+                    {t.container || t.tube}
+                    <span style={{ fontWeight: 600, color: '#64748b' }}> × {t.tubesNeeded || 1}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                    {t.sampleType}{t.qtyMl ? ` · ~${t.qtyMl} ml` : ''}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#475569', marginTop: 4, lineHeight: 1.35 }}>
+                    {(t.tests || []).slice(0, 6).join(', ')}
+                    {(t.tests || []).length > 6 ? ` +${t.tests.length - 6} more` : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* H2 Patient verification + fasting — shown when next step or current */}
         {showVerify && !isTerminal && (
           <div style={{ ...card, borderColor: allowedNext.has('patient_verified') ? '#99f6e4' : '#e2e8f0' }}>
@@ -354,11 +435,10 @@ export default function PhlebotomistCollections() {
               />
               <span>
                 Identity confirmed (name / age / gender match person present)
-                {job.patientAge != null && (
-                  <span style={{ display: 'block', fontSize: 12, color: '#64748b', fontWeight: 500 }}>
-                    Age on booking: {job.patientAge} yrs
-                  </span>
-                )}
+                <span style={{ display: 'block', fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+                  Age on booking: {job.patientAge != null && job.patientAge !== '' ? `${job.patientAge} yrs` : 'not provided — confirm verbally'}
+                  {job.patientGender ? ` · Gender: ${job.patientGender}` : ' · Gender: confirm verbally'}
+                </span>
               </span>
             </label>
 
@@ -601,7 +681,7 @@ export default function PhlebotomistCollections() {
                   <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{j.patientName}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{j.testLabel}</div>
                   <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
-                    ORD-{j.id} · {j.collectionDate ? new Date(j.collectionDate).toLocaleDateString('en-IN') : '—'} {j.collectionTime || ''}
+                    {j.displayOrderId || `ORD-${j.id}`} · {j.collectionDate ? new Date(j.collectionDate).toLocaleDateString('en-IN') : '—'} {j.collectionTime || ''}
                   </div>
                 </div>
                 <span style={{

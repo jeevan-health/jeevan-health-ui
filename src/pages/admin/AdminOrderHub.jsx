@@ -243,7 +243,9 @@ export default function AdminOrderHub() {
                       >
                         {badge.label}
                       </span>
-                      <span style={{ fontSize: 11, color: '#94a3b8' }}>#{item.id}</span>
+                      <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>
+                        {item.displayOrderId || item.display_order_id || `#${item.id}`}
+                      </span>
                       <span style={{
                         fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
                         background: `${statusColor[item.status] || '#64748b'}18`,

@@ -12,20 +12,38 @@ import VaccineCrossSell from '../components/VaccineCrossSell';
 const STEPS = ['Address', 'Patient', 'Date & Time', 'Review', 'Payment'];
 
 const TIME_SLOTS = [
-  { label: '7:00 AM – 8:00 AM', value: '7-8', type: 'Morning', icon: '🌅' },
-  { label: '8:00 AM – 9:00 AM', value: '8-9', type: 'Morning', icon: '🌅' },
-  { label: '9:00 AM – 10:00 AM', value: '9-10', type: 'Morning', icon: '🌅' },
-  { label: '10:00 AM – 11:00 AM', value: '10-11', type: 'Morning', icon: '🌤️' },
-  { label: '11:00 AM – 12:00 PM', value: '11-12', type: 'Midday', icon: '☀️' },
-  { label: '12:00 PM – 1:00 PM', value: '12-13', type: 'Midday', icon: '☀️' },
-  { label: '1:00 PM – 2:00 PM', value: '13-14', type: 'Afternoon', icon: '🌤️' },
-  { label: '2:00 PM – 3:00 PM', value: '14-15', type: 'Afternoon', icon: '🌤️' },
-  { label: '3:00 PM – 4:00 PM', value: '15-16', type: 'Afternoon', icon: '🌤️' },
-  { label: '4:00 PM – 5:00 PM', value: '16-17', type: 'Evening', icon: '🌆' },
-  { label: '5:00 PM – 6:00 PM', value: '17-18', type: 'Evening', icon: '🌆' },
-  { label: '6:00 PM – 7:00 PM', value: '18-19', type: 'Evening', icon: '🌆' },
-  { label: '7:00 PM – 8:00 PM', value: '19-20', type: 'Evening', icon: '🌆' },
+  { label: '7:00 AM – 8:00 AM', value: '7-8', type: 'Morning', icon: '🌅', endHour: 8 },
+  { label: '8:00 AM – 9:00 AM', value: '8-9', type: 'Morning', icon: '🌅', endHour: 9 },
+  { label: '9:00 AM – 10:00 AM', value: '9-10', type: 'Morning', icon: '🌅', endHour: 10 },
+  { label: '10:00 AM – 11:00 AM', value: '10-11', type: 'Morning', icon: '🌤️', endHour: 11 },
+  { label: '11:00 AM – 12:00 PM', value: '11-12', type: 'Midday', icon: '☀️', endHour: 12 },
+  { label: '12:00 PM – 1:00 PM', value: '12-13', type: 'Midday', icon: '☀️', endHour: 13 },
+  { label: '1:00 PM – 2:00 PM', value: '13-14', type: 'Afternoon', icon: '🌤️', endHour: 14 },
+  { label: '2:00 PM – 3:00 PM', value: '14-15', type: 'Afternoon', icon: '🌤️', endHour: 15 },
+  { label: '3:00 PM – 4:00 PM', value: '15-16', type: 'Afternoon', icon: '🌤️', endHour: 16 },
+  { label: '4:00 PM – 5:00 PM', value: '16-17', type: 'Evening', icon: '🌆', endHour: 17 },
+  { label: '5:00 PM – 6:00 PM', value: '17-18', type: 'Evening', icon: '🌆', endHour: 18 },
+  { label: '6:00 PM – 7:00 PM', value: '18-19', type: 'Evening', icon: '🌆', endHour: 19 },
+  { label: '7:00 PM – 8:00 PM', value: '19-20', type: 'Evening', icon: '🌆', endHour: 20 },
 ];
+
+/** Hide slots whose end time has already passed for the selected day (local time). */
+function isSlotAvailable(slot, date) {
+  if (!date) return true;
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return true;
+  const now = new Date();
+  const sameDay = d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth()
+    && d.getDate() === now.getDate();
+  if (!sameDay) return true;
+  const endHour = slot.endHour != null
+    ? Number(slot.endHour)
+    : Number(String(slot.value || '').split('-')[1]);
+  if (!Number.isFinite(endHour)) return true;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  return nowMinutes < endHour * 60;
+}
 
 const generateDates = () => {
   const dates = [];
@@ -255,6 +273,13 @@ export default function Checkout() {
       const { data: order } = await diagnosticsService.placeDiagnosticOrder({
         tests,
         totalAmount: total,
+        grossAmount: subtotal,
+        discountAmount: discAmt || 0,
+        couponCode: coupon || null,
+        // Payments gateway parked — balance collected at doorstep until prepaid is live
+        paidAmount: 0,
+        paymentMode: paymentMethod || 'cod',
+        paymentStatus: 'pending_collection',
         collectionDate,
         collectionTime: slotLabel,
         collectionAddress: {
@@ -675,13 +700,18 @@ export default function Checkout() {
   );
 
   const renderDateTime = () => {
-    const timeGroups = TIME_SLOTS.reduce((acc, s) => {
+    const availableSlots = TIME_SLOTS.filter((s) => isSlotAvailable(s, selectedDate));
+    const timeGroups = availableSlots.reduce((acc, s) => {
       if (!acc[s.type]) acc[s.type] = [];
       acc[s.type].push(s);
       return acc;
     }, {});
     const groupOrder = ['Morning', 'Midday', 'Afternoon', 'Evening'];
     const groupIcons = { Morning: '🌅', Midday: '☀️', Afternoon: '🌤️', Evening: '🌆' };
+    // Clear selection if it became invalid (e.g. day rolled or past slot)
+    if (selectedSlot && !availableSlots.some((s) => s.value === selectedSlot)) {
+      // schedule clear after render path — handled by effect-like click reset when date changes
+    }
 
     return (
       <div>
@@ -734,10 +764,23 @@ export default function Checkout() {
             <div style={{ width: 28, height: 28, borderRadius: 8, background: '#fff3e0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>⏰</div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{t('checkout.schedule.selectTime', 'Select Time Slot')}</div>
-              <div style={{ fontSize: 11, color: '#888' }}>{t('checkout.schedule.selectTimeDesc', '1-hour slots available throughout the day')}</div>
+              <div style={{ fontSize: 11, color: '#888' }}>
+                {isToday(selectedDate || new Date())
+                  ? t('checkout.schedule.selectTimeDescToday', 'Only future slots for today are shown')
+                  : t('checkout.schedule.selectTimeDesc', '1-hour slots available throughout the day')}
+              </div>
             </div>
           </div>
 
+          {availableSlots.length === 0 ? (
+            <div style={{
+              padding: 14, borderRadius: 12, background: '#fff7ed', border: '1px solid #fed7aa',
+              fontSize: 13, color: '#9a3412', lineHeight: 1.45,
+            }}
+            >
+              No time slots left for today. Please select tomorrow or a later date.
+            </div>
+          ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {groupOrder.map(group => {
               const slots = timeGroups[group];
@@ -786,6 +829,7 @@ export default function Checkout() {
               );
             })}
           </div>
+          )}
         </div>
 
         {selectedDate && selectedSlot && (

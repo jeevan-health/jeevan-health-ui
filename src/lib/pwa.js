@@ -15,6 +15,8 @@ export function initPwa() {
   if (typeof window === 'undefined') return;
 
   window.addEventListener('beforeinstallprompt', (e) => {
+    // Required so Chrome keeps the event for our custom Install button
+    try { e.preventDefault(); } catch { /* ignore */ }
     deferredInstallPrompt = e;
     installListeners.forEach((fn) => fn(true));
     try {

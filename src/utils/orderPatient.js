@@ -62,7 +62,9 @@ export function formatPatientLabel(patient, fallback = '—') {
 export function parseReportNotes(notes) {
   if (!notes) return {};
   const s = String(notes);
-  const orderM = s.match(/order\s*#?\s*(\d+)/i) || s.match(/ORD-(\d+)/i);
+  const orderM = s.match(/order\s*#?\s*(\d+)/i)
+    || s.match(/ORD-(\d+)/i)
+    || s.match(/JHC-[A-Z]+-[A-Z]+-0*(\d+)/i);
   const nameM = s.match(/Patient:\s*([^|,]+)/i);
   const ageM = s.match(/Age:\s*(\d+)/i);
   const genderM = s.match(/Gender:\s*([^|,]+)/i);
