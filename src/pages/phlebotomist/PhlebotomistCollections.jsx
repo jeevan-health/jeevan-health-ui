@@ -329,31 +329,31 @@ export default function PhlebotomistCollections() {
           <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 8px', color: '#0f172a' }}>💳 Payment summary</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '4px 10px', fontSize: 13 }}>
             <span style={{ color: '#64748b' }}>Package amount</span>
-            <strong>₹{Number(job.grossAmount ?? job.payment?.grossAmount ?? job.totalAmount || 0).toLocaleString('en-IN')}</strong>
-            {(job.discountAmount ?? job.payment?.discountAmount) > 0 && (
+            <strong>₹{Number(job.grossAmount ?? job.payment?.grossAmount ?? job.totalAmount ?? 0).toLocaleString('en-IN')}</strong>
+            {(job.discountAmount ?? job.payment?.discountAmount ?? 0) > 0 && (
               <>
                 <span style={{ color: '#64748b' }}>Discount</span>
-                <strong style={{ color: '#166534' }}>− ₹{Number(job.discountAmount ?? job.payment?.discountAmount || 0).toLocaleString('en-IN')}</strong>
+                <strong style={{ color: '#166534' }}>− ₹{Number(job.discountAmount ?? job.payment?.discountAmount ?? 0).toLocaleString('en-IN')}</strong>
               </>
             )}
             <span style={{ color: '#64748b' }}>Final payable</span>
-            <strong>₹{Number(job.totalAmount || 0).toLocaleString('en-IN')}</strong>
+            <strong>₹{Number(job.totalAmount ?? 0).toLocaleString('en-IN')}</strong>
             <span style={{ color: '#64748b' }}>Paid</span>
-            <strong>₹{Number(job.paidAmount ?? job.payment?.paidAmount || 0).toLocaleString('en-IN')}</strong>
+            <strong>₹{Number(job.paidAmount ?? job.payment?.paidAmount ?? 0).toLocaleString('en-IN')}</strong>
             <span style={{ color: '#64748b' }}>Balance due</span>
-            <strong style={{ color: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#b45309' : '#166534' }}>
-              ₹{Number(job.balanceAmount ?? job.payment?.balanceAmount || 0).toLocaleString('en-IN')}
+            <strong style={{ color: (job.balanceAmount ?? job.payment?.balanceAmount ?? 0) > 0 ? '#b45309' : '#166534' }}>
+              ₹{Number(job.balanceAmount ?? job.payment?.balanceAmount ?? 0).toLocaleString('en-IN')}
             </strong>
           </div>
           <div style={{
             marginTop: 10, fontSize: 12, fontWeight: 700, textTransform: 'capitalize',
-            color: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#92400e' : '#166534',
-            background: (job.balanceAmount ?? job.payment?.balanceAmount) > 0 ? '#fffbeb' : '#f0fdf4',
+            color: (job.balanceAmount ?? job.payment?.balanceAmount ?? 0) > 0 ? '#92400e' : '#166534',
+            background: (job.balanceAmount ?? job.payment?.balanceAmount ?? 0) > 0 ? '#fffbeb' : '#f0fdf4',
             padding: '8px 10px', borderRadius: 8,
           }}
           >
-            {(job.balanceAmount ?? job.payment?.balanceAmount) > 0
-              ? `Collect ₹${Number(job.balanceAmount ?? job.payment?.balanceAmount || 0).toLocaleString('en-IN')} at doorstep (Cash / UPI / Card)`
+            {(job.balanceAmount ?? job.payment?.balanceAmount ?? 0) > 0
+              ? `Collect ₹${Number(job.balanceAmount ?? job.payment?.balanceAmount ?? 0).toLocaleString('en-IN')} at doorstep (Cash / UPI / Card)`
               : '✓ Paid — no collection needed'}
           </div>
         </div>
