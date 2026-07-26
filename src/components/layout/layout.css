@@ -84,7 +84,7 @@
 
 .header-logo img {
   display: block;
-  height: 32px;
+  height: 42px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
@@ -343,7 +343,7 @@
 
 @media (max-width: 380px) {
   .header-logo img {
-    height: 28px;
+    height: 36px;
   }
   .hdr-login {
     padding: 8px 10px !important;
@@ -362,18 +362,20 @@
     grid-template-columns: 48px minmax(0, 1fr) auto;
     column-gap: 12px;
     padding: 10px 16px;
+    min-height: 64px;
   }
   .header-logo {
     justify-content: flex-start;
   }
   .header-logo img {
-    height: 40px;
-    max-width: 260px;
+    height: 48px;
+    max-width: 280px;
+  }
+  .footer-brand img {
+    height: 56px;
+    max-width: 300px;
   }
   .header-search-bar {
     padding-bottom: 12px;
-  }
-  .hdr-icon-btn.menu {
-    /* keep menu on desktop for nav links until full top nav exists */
   }
 }
