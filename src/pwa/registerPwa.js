@@ -2,6 +2,7 @@
  * Host-aware PWA bootstrap: pick manifest + theme by hostname, register SW.
  * Three installable apps from one SPA (patient / admin / phlebo origins).
  */
+import { captureInstallPrompt } from './installPrompt.js';
 
 export function detectPwaSurface(hostname = typeof window !== 'undefined' ? window.location.hostname : '') {
   const h = String(hostname || '').toLowerCase();
@@ -89,7 +90,7 @@ export async function registerServiceWorker() {
 export function initPwa() {
   const surface = applyHostPwaMeta();
   // Capture install prompt early so Install buttons work even after banner dismiss
-  import('./installPrompt.js').then((m) => m.captureInstallPrompt()).catch(() => {});
+  captureInstallPrompt();
   registerServiceWorker();
   return surface;
 }
