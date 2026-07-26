@@ -1,14 +1,24 @@
 import { NavLink } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
+import useCartStore from '../../stores/cartStore.js';
 
 export default function MobileNav() {
   const user = useAuthStore((s) => s.user);
+  const cartCount = useCartStore((s) => s.count());
 
   const items = [
     { to: '/', label: 'Home', icon: '🏠', end: true },
     { to: '/diagnostics', label: 'Tests', icon: '🔬' },
-    { to: user ? '/dashboard' : '/signup', label: 'Bookings', icon: '📅' },
-    { to: '/diagnostics', label: 'Health', icon: '💚' },
+    {
+      to: user ? '/my-orders' : '/signup',
+      label: 'Orders',
+      icon: '📅',
+    },
+    {
+      to: '/checkout',
+      label: cartCount > 0 ? `Cart (${cartCount})` : 'Cart',
+      icon: '🛒',
+    },
     { to: user ? '/dashboard' : '/signup', label: 'Profile', icon: '👤' },
   ];
 

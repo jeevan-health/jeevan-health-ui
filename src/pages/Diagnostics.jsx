@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { searchTests, getMeta, formatInr } from '../services/diagnosticsService.js';
+import useCartStore from '../stores/cartStore.js';
 import './diagnostics.css';
 
 export default function Diagnostics() {
@@ -14,6 +15,9 @@ export default function Diagnostics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [addedId, setAddedId] = useState(null);
+  const addTest = useCartStore((s) => s.addTest);
+  const cartCount = useCartStore((s) => s.count());
 
   const load = useCallback(async (query) => {
     setLoading(true);
@@ -57,6 +61,12 @@ export default function Diagnostics() {
               <>
                 {' '}
                 <strong>{totalActive.toLocaleString('en-IN')}</strong> tests live.
+              </>
+            ) : null}
+            {cartCount > 0 ? (
+              <>
+                {' '}
+                · <Link to="/checkout" style={{ color: '#fff', fontWeight: 800 }}>Cart ({cartCount})</Link>
               </>
             ) : null}
           </p>
@@ -163,11 +173,19 @@ export default function Diagnostics() {
                 <strong>Preparation:</strong> {selected.preparation}
               </p>
             )}
-            <p className="diag-muted" style={{ marginTop: 16 }}>
-              Booking checkout ships in Phase 3. You can create an account now.
-            </p>
-            <Link to="/signup" className="btn btn-primary btn-block" style={{ marginTop: 12 }}>
-              Login to book later
+            <button
+              type="button"
+              className="btn btn-accent btn-block"
+              style={{ marginTop: 16 }}
+              onClick={() => {
+                addTest(selected);
+                setAddedId(selected.id);
+              }}
+            >
+              {addedId === selected.id ? 'Added to cart ✓' : 'Add to cart'}
+            </button>
+            <Link to="/checkout" className="btn btn-primary btn-block" style={{ marginTop: 10 }}>
+              Go to checkout {cartCount > 0 ? `(${cartCount})` : ''}
             </Link>
           </aside>
         </div>

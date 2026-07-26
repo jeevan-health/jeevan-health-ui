@@ -52,12 +52,15 @@ export default function Dashboard() {
           <li>
             <Link to="/diagnostics">Search lab tests</Link> (catalog)
           </li>
+          <li>
+            <Link to="/checkout">Checkout cart</Link> · <Link to="/my-orders">My orders</Link>
+          </li>
           {(user?.role === 'admin' || user?.role === 'super_admin') && (
             <li>
-              <Link to="/admin/catalog">Admin: Excel catalog upload</Link>
+              <Link to="/admin/catalog">Admin catalog</Link> ·{' '}
+              <Link to="/admin/orders">Admin orders</Link>
             </li>
           )}
-          <li>Booking checkout — Phase 3</li>
           <li>Digital reports — later phase</li>
         </ul>
       </div>
@@ -66,9 +69,12 @@ export default function Dashboard() {
         <Link to="/diagnostics" className="btn btn-primary">
           Browse tests
         </Link>
+        <Link to="/my-orders" className="btn btn-outline-dark">
+          My orders
+        </Link>
         {(user?.role === 'admin' || user?.role === 'super_admin') && (
-          <Link to="/admin/catalog" className="btn btn-outline-dark">
-            Admin catalog
+          <Link to="/admin/orders" className="btn btn-outline-dark">
+            Admin orders
           </Link>
         )}
         <button type="button" className="btn btn-outline-dark" onClick={() => logout()}>

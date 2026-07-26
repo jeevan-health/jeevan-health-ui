@@ -40,13 +40,13 @@ export default function AdminDashboard() {
             </p>
           </Link>
 
-          <div className="admin-dash-card muted">
+          <Link to="/admin/orders" className="admin-dash-card">
             <span className="admin-dash-icon" aria-hidden>
               🧾
             </span>
             <h2>Orders</h2>
-            <p>Booking &amp; order hub — Phase 3</p>
-          </div>
+            <p>Home collection bookings, status updates</p>
+          </Link>
 
           <div className="admin-dash-card muted">
             <span className="admin-dash-icon" aria-hidden>

@@ -26,6 +26,7 @@ export default function AdminLayout() {
               Dashboard
             </NavLink>
             <NavLink to="/admin/catalog">Catalog</NavLink>
+            <NavLink to="/admin/orders">Orders</NavLink>
           </nav>
           <div className="admin-top-user">
             <span className="admin-role">{user?.role?.replace('_', ' ')}</span>

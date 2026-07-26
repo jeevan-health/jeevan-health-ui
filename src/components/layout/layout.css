@@ -71,6 +71,28 @@
   color: #25d366;
 }
 
+.hdr-icon-btn.cart {
+  position: relative;
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
+.hdr-cart-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent, #00d9ff);
+  color: #0f4a96;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+}
+
 .header-logo {
   display: flex;
   align-items: center;

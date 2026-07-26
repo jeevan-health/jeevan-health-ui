@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
+import useCartStore from '../../stores/cartStore.js';
 
 const WA = 'https://wa.me/919700104108';
 const TEL = 'tel:+919700104108';
@@ -9,6 +10,7 @@ export default function Header() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const cartCount = useCartStore((s) => s.count());
   const [menuOpen, setMenuOpen] = useState(false);
 
   const closeMenu = () => setMenuOpen(false);
@@ -50,6 +52,14 @@ export default function Header() {
         </Link>
 
         <div className="header-right">
+          <Link to="/checkout" className="hdr-icon-btn cart" aria-label="Cart" title="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
+            {cartCount > 0 ? <span className="hdr-cart-badge">{cartCount}</span> : null}
+          </Link>
           <a
             href={WA}
             className="hdr-icon-btn wa"
@@ -102,6 +112,14 @@ export default function Header() {
             <Link to="/diagnostics" onClick={closeMenu}>
               🔬 Lab tests
             </Link>
+            <Link to="/checkout" onClick={closeMenu}>
+              🛒 Cart{cartCount > 0 ? ` (${cartCount})` : ''}
+            </Link>
+            {user && (
+              <Link to="/my-orders" onClick={closeMenu}>
+                📅 My orders
+              </Link>
+            )}
             <Link to={user ? '/dashboard' : '/signup'} onClick={closeMenu}>
               👤 {user ? 'My dashboard' : 'Login / Sign up'}
             </Link>

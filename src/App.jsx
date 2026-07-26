@@ -5,10 +5,13 @@ import Home from './pages/Home.jsx';
 import Signup from './pages/Signup.jsx';
 import Diagnostics from './pages/Diagnostics.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Checkout from './pages/Checkout.jsx';
+import MyOrders from './pages/MyOrders.jsx';
 import AdminLayout from './components/admin/AdminLayout.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import AdminCatalog from './pages/admin/AdminCatalog.jsx';
+import AdminOrders from './pages/admin/AdminOrders.jsx';
 import { isAdminHostname, isAdminRole } from './utils/authRoles.js';
 import useAuthStore from './stores/authStore.js';
 
@@ -29,6 +32,7 @@ export default function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="catalog" element={<AdminCatalog />} />
+          <Route path="orders" element={<AdminOrders />} />
         </Route>
 
         {adminHost ? (
@@ -41,6 +45,8 @@ export default function App() {
             <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Navigate to="/signup" replace />} />
             <Route path="diagnostics" element={<Diagnostics />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="my-orders" element={<MyOrders />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
