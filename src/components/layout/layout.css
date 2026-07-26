@@ -47,6 +47,16 @@
   gap: 4px;
   flex-shrink: 0;
   min-width: 0;
+  flex-wrap: wrap;
+}
+
+.drawer-install {
+  padding: 8px 0 4px;
+}
+
+.drawer-install .install-app-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 .hdr-icon-btn {

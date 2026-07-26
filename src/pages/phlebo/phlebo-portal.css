@@ -41,6 +41,10 @@
   text-align: center;
 }
 
+.phlebo-login-install {
+  margin-top: 14px;
+}
+
 .phlebo-top {
   background: #fff;
   border-bottom: 1px solid var(--border);
@@ -56,6 +60,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.phlebo-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .phlebo-brand {

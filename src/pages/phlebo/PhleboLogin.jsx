@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
 import { isPhleboRole, isAdminRole, isPhleboHostname } from '../../utils/authRoles.js';
+import InstallAppButton from '../../components/InstallAppButton.jsx';
 import '../auth.css';
 import './phlebo-portal.css';
 
@@ -125,6 +126,9 @@ export default function PhleboLogin() {
           </form>
         )}
 
+        <div className="phlebo-login-install">
+          <InstallAppButton variant="block" />
+        </div>
         <p className="auth-muted phlebo-login-switch">
           Applying for a job? <Link to="/onboarding-phlebotomist">Hire form</Link>
         </p>

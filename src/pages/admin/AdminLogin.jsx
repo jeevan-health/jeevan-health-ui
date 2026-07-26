@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
 import { isAdminRole, isAdminHostname } from '../../utils/authRoles.js';
+import InstallAppButton from '../../components/InstallAppButton.jsx';
 import '../auth.css';
 import './admin-login.css';
 
@@ -123,7 +124,6 @@ export default function AdminLogin() {
             <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
               {loading ? 'Sending…' : 'Send OTP'}
             </button>
-            {onPatient}
           </form>
         )}
 
@@ -168,6 +168,11 @@ export default function AdminLogin() {
             </button>
           </form>
         )}
+
+        <div className="admin-login-install">
+          <InstallAppButton variant="block" />
+        </div>
+        {onPatient}
       </div>
     </div>
   );

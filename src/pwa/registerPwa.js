@@ -88,6 +88,8 @@ export async function registerServiceWorker() {
 
 export function initPwa() {
   const surface = applyHostPwaMeta();
+  // Capture install prompt early so Install buttons work even after banner dismiss
+  import('./installPrompt.js').then((m) => m.captureInstallPrompt()).catch(() => {});
   registerServiceWorker();
   return surface;
 }

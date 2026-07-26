@@ -8,6 +8,7 @@ import {
   endDuty,
 } from '../../services/phleboService.js';
 import { formatInr } from '../../services/ordersService.js';
+import InstallAppButton from '../../components/InstallAppButton.jsx';
 import './phlebo-portal.css';
 
 export default function PhleboDashboard() {
@@ -81,9 +82,12 @@ export default function PhleboDashboard() {
             <img src="/logo.png" alt="" />
             <span>Phlebo field</span>
           </div>
-          <button type="button" className="btn btn-outline-dark" onClick={() => logout()}>
-            Log out
-          </button>
+          <div className="phlebo-top-actions">
+            <InstallAppButton variant="header" />
+            <button type="button" className="btn btn-outline-dark" onClick={() => logout()}>
+              Log out
+            </button>
+          </div>
         </div>
       </header>
 

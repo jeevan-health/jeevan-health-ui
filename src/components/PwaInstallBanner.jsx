@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
 import { detectPwaSurface } from '../pwa/registerPwa.js';
+import {
+  subscribeInstallPrompt,
+  promptInstall,
+  isStandaloneDisplay,
+  isIosSafari,
+} from '../pwa/installPrompt.js';
 import './pwa-install.css';
 
 const LABELS = {
@@ -9,11 +15,11 @@ const LABELS = {
 };
 
 /**
- * Soft install prompt — Android Chrome fires beforeinstallprompt;
- * iOS shows Add to Home Screen tip.
+ * Soft bottom banner only. Dismiss hides this strip for the session;
+ * permanent Install buttons remain in headers via InstallAppButton.
  */
 export default function PwaInstallBanner() {
-  const [deferred, setDeferred] = useState(null);
+  const [canPrompt, setCanPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     try {
       return sessionStorage.getItem('pwa_install_dismiss') === '1';
@@ -22,42 +28,21 @@ export default function PwaInstallBanner() {
     }
   });
   const [iosTip, setIosTip] = useState(false);
+  const [standalone, setStandalone] = useState(false);
   const surface = detectPwaSurface();
   const label = LABELS[surface] || LABELS.patient;
 
   useEffect(() => {
-    const standalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      // iOS
-      window.navigator.standalone === true;
-    if (standalone) return;
-
-    const onBip = (e) => {
-      e.preventDefault();
-      setDeferred(e);
-    };
-    window.addEventListener('beforeinstallprompt', onBip);
-
-    const ua = navigator.userAgent || '';
-    const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-    if (isIos && isSafari) setIosTip(true);
-
-    return () => window.removeEventListener('beforeinstallprompt', onBip);
+    setStandalone(isStandaloneDisplay());
+    if (isIosSafari() && !isStandaloneDisplay()) setIosTip(true);
+    return subscribeInstallPrompt((d) => setCanPrompt(Boolean(d)));
   }, []);
 
-  if (dismissed) return null;
-  if (!deferred && !iosTip) return null;
+  if (standalone || dismissed) return null;
+  if (!canPrompt && !iosTip) return null;
 
   const onInstall = async () => {
-    if (!deferred) return;
-    deferred.prompt();
-    try {
-      await deferred.userChoice;
-    } catch {
-      /* ignore */
-    }
-    setDeferred(null);
+    if (canPrompt) await promptInstall();
   };
 
   const onClose = () => {
@@ -74,13 +59,13 @@ export default function PwaInstallBanner() {
       <div className="pwa-banner-text">
         <strong>Install {label.name}</strong>
         <span>
-          {deferred
+          {canPrompt
             ? `${label.hint} · works like an app`
-            : 'Tap Share → Add to Home Screen'}
+            : 'Tap Share → Add to Home Screen (or use Install app in the header)'}
         </span>
       </div>
       <div className="pwa-banner-actions">
-        {deferred ? (
+        {canPrompt ? (
           <button type="button" className="btn btn-primary pwa-btn" onClick={onInstall}>
             Install
           </button>

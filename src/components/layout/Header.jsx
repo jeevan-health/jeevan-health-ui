@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
 import useCartStore from '../../stores/cartStore.js';
+import InstallAppButton from '../InstallAppButton.jsx';
 
 const WA = 'https://wa.me/919700104108';
 const TEL = 'tel:+919700104108';
@@ -52,6 +53,7 @@ export default function Header() {
         </Link>
 
         <div className="header-right">
+          <InstallAppButton variant="header" />
           <button
             type="button"
             className="hdr-icon-btn cart"
@@ -118,6 +120,9 @@ export default function Header() {
             <Link to="/diagnostics" onClick={closeMenu}>
               🔬 Lab tests
             </Link>
+            <div className="drawer-install" onClick={closeMenu}>
+              <InstallAppButton variant="block" />
+            </div>
             <Link to="/onboarding-phlebotomist" onClick={closeMenu}>
               💉 Join as phlebotomist
             </Link>

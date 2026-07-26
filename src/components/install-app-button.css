@@ -1,0 +1,121 @@
+.install-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.install-app-btn--header {
+  border: 1px solid var(--border);
+  background: var(--bg-light);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  min-height: 36px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.install-app-btn--header:hover {
+  background: var(--brand-secondary-light);
+}
+
+.install-app-btn--block {
+  width: 100%;
+}
+
+.install-app-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.install-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+.install-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+}
+
+.install-modal {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 18px 18px;
+  box-shadow: var(--shadow-lg);
+  max-height: min(85dvh, 560px);
+  overflow: auto;
+}
+
+.install-modal h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.install-modal > p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
+.install-steps {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-body);
+  line-height: 1.55;
+}
+
+.install-steps li {
+  margin-bottom: 8px;
+}
+
+.install-share {
+  display: inline-block;
+  margin: 0 2px;
+  font-weight: 700;
+}
+
+.install-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.install-modal-actions .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (min-width: 720px) {
+  .install-modal-root {
+    align-items: center;
+  }
+}
+
+/* Compact label on very small screens in header */
+@media (max-width: 380px) {
+  .install-app-btn--header .install-app-label {
+    /* keep text — better than mystery icon-only for install */
+    font-size: 11px;
+  }
+}
