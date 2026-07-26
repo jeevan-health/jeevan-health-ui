@@ -1,0 +1,45 @@
+.admin-report-form {
+  display: grid;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.admin-report-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-report-form input,
+.admin-report-form select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-weight: 400;
+}
+
+.admin-report-form .admin-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.admin-report-form .btn {
+  justify-self: start;
+}
+
+.admin-report-existing {
+  list-style: none;
+  font-size: 13px;
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.admin-reports h2 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}

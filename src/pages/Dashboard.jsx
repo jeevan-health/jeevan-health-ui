@@ -61,7 +61,9 @@ export default function Dashboard() {
               <Link to="/admin/orders">Admin orders</Link>
             </li>
           )}
-          <li>Digital reports — later phase</li>
+          <li>
+            <Link to="/reports">Lab reports</Link> (PDF download + email when ready)
+          </li>
         </ul>
       </div>
 
@@ -71,6 +73,9 @@ export default function Dashboard() {
         </Link>
         <Link to="/my-orders" className="btn btn-outline-dark">
           My orders
+        </Link>
+        <Link to="/reports" className="btn btn-outline-dark">
+          Reports
         </Link>
         {(user?.role === 'admin' || user?.role === 'super_admin') && (
           <Link to="/admin/orders" className="btn btn-outline-dark">

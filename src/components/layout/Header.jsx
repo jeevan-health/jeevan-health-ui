@@ -129,6 +129,11 @@ export default function Header() {
                 📅 My orders
               </Link>
             )}
+            {user && (
+              <Link to="/reports" onClick={closeMenu}>
+                📄 Reports
+              </Link>
+            )}
             <Link to={user ? '/dashboard' : '/signup'} onClick={closeMenu}>
               👤 {user ? 'My dashboard' : 'Login / Sign up'}
             </Link>

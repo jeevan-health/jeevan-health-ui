@@ -7,6 +7,7 @@ import Diagnostics from './pages/Diagnostics.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Checkout from './pages/Checkout.jsx';
 import MyOrders from './pages/MyOrders.jsx';
+import Reports from './pages/Reports.jsx';
 import PhlebotomistOnboarding from './pages/PhlebotomistOnboarding.jsx';
 import AdminLayout from './components/admin/AdminLayout.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
@@ -14,6 +15,7 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import AdminCatalog from './pages/admin/AdminCatalog.jsx';
 import AdminOrders from './pages/admin/AdminOrders.jsx';
 import AdminPhleboHire from './pages/admin/AdminPhleboHire.jsx';
+import AdminReports from './pages/admin/AdminReports.jsx';
 import PhleboLogin from './pages/phlebo/PhleboLogin.jsx';
 import PhleboDashboard from './pages/phlebo/PhleboDashboard.jsx';
 import PhleboJob from './pages/phlebo/PhleboJob.jsx';
@@ -51,6 +53,7 @@ export default function App() {
           <Route path="catalog" element={<AdminCatalog />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="phlebo" element={<AdminPhleboHire />} />
+          <Route path="reports" element={<AdminReports />} />
         </Route>
 
         {/* Phlebo portal + hire form — apex + phlebo.* */}
@@ -72,6 +75,7 @@ export default function App() {
             <Route path="diagnostics" element={<Diagnostics />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="my-orders" element={<MyOrders />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

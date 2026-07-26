@@ -15,11 +15,15 @@ export default function MobileNav() {
       icon: '📅',
     },
     {
+      to: user ? '/reports' : '/signup',
+      label: 'Reports',
+      icon: '📄',
+    },
+    {
       to: '/checkout',
       label: cartCount > 0 ? `Cart (${cartCount})` : 'Cart',
       icon: '🛒',
     },
-    { to: user ? '/dashboard' : '/signup', label: 'Profile', icon: '👤' },
   ];
 
   return (

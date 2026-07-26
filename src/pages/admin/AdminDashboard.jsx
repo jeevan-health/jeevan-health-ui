@@ -56,13 +56,13 @@ export default function AdminDashboard() {
             <p>Hire applications, promote roster, enable login</p>
           </Link>
 
-          <div className="admin-dash-card muted">
+          <Link to="/admin/reports" className="admin-dash-card">
             <span className="admin-dash-icon" aria-hidden>
               📄
             </span>
             <h2>Lab reports</h2>
-            <p>PDF upload &amp; email — later phase</p>
-          </div>
+            <p>PDF upload &amp; email patient (Brevo)</p>
+          </Link>
         </div>
       </div>
     </div>
