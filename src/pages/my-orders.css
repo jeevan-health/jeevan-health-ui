@@ -8,7 +8,63 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+}
+
+.my-orders-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.my-orders-stats div {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.my-orders-stats strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.my-orders-stats span {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.my-orders-filters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 14px;
+  padding-bottom: 2px;
+}
+
+.my-orders-filters button {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-body);
+}
+
+.my-orders-filters button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
 }
 
 .my-orders-head h1 {

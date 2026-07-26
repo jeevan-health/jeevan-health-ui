@@ -52,14 +52,20 @@ export default function Header() {
         </Link>
 
         <div className="header-right">
-          <Link to="/checkout" className="hdr-icon-btn cart" aria-label="Cart" title="Cart">
+          <button
+            type="button"
+            className="hdr-icon-btn cart"
+            aria-label="Cart"
+            title="Cart"
+            onClick={() => useCartStore.getState().setDrawerOpen(true)}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <circle cx="9" cy="21" r="1" />
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
             {cartCount > 0 ? <span className="hdr-cart-badge">{cartCount}</span> : null}
-          </Link>
+          </button>
           <a
             href={WA}
             className="hdr-icon-btn wa"

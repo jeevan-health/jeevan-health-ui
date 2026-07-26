@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header.jsx';
 import Footer from './Footer.jsx';
 import MobileNav from './MobileNav.jsx';
+import CartDrawer from './CartDrawer.jsx';
 import './layout.css';
 
 export default function Layout() {
@@ -13,6 +14,7 @@ export default function Layout() {
       </main>
       <Footer />
       <MobileNav />
+      <CartDrawer />
     </div>
   );
 }

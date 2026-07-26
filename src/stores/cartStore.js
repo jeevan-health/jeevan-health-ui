@@ -20,6 +20,9 @@ function save(items) {
  */
 const useCartStore = create((set, get) => ({
   items: load(),
+  drawerOpen: false,
+
+  setDrawerOpen: (v) => set({ drawerOpen: Boolean(v) }),
 
   count: () => get().items.reduce((n, i) => n + i.quantity, 0),
 
@@ -40,7 +43,7 @@ const useCartStore = create((set, get) => ({
       });
     }
     save(items);
-    set({ items });
+    set({ items, drawerOpen: true });
   },
 
   setQty: (testId, quantity) => {

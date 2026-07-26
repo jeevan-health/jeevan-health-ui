@@ -18,6 +18,9 @@ export default function Diagnostics() {
   const [addedId, setAddedId] = useState(null);
   const addTest = useCartStore((s) => s.addTest);
   const cartCount = useCartStore((s) => s.count());
+  const setDrawerOpen = useCartStore((s) => s.setDrawerOpen);
+
+  const QUICK = ['Diabetes', 'Thyroid', 'Vitamin', 'CBC', 'Fever', 'Lipid'];
 
   const load = useCallback(async (query) => {
     setLoading(true);
@@ -87,6 +90,26 @@ export default function Diagnostics() {
               Search
             </button>
           </form>
+          <div className="diag-chips">
+            {QUICK.map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                className="diag-chip"
+                onClick={() => {
+                  setQ(chip);
+                  setParams({ q: chip });
+                }}
+              >
+                {chip}
+              </button>
+            ))}
+            {cartCount > 0 && (
+              <button type="button" className="diag-chip cart" onClick={() => setDrawerOpen(true)}>
+                Cart ({cartCount})
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -120,7 +143,7 @@ export default function Diagnostics() {
             </p>
             <ul className="diag-list">
               {items.map((t) => (
-                <li key={t.id}>
+                <li key={t.id} className="diag-card-wrap">
                   <button type="button" className="diag-card" onClick={() => setSelected(t)}>
                     <div className="diag-card-main">
                       <strong>{t.name}</strong>
@@ -135,6 +158,16 @@ export default function Diagnostics() {
                       )}
                       <span className="diag-offer">{formatInr(t.price)}</span>
                     </div>
+                  </button>
+                  <button
+                    type="button"
+                    className="diag-add-btn"
+                    onClick={() => {
+                      addTest(t);
+                      setAddedId(t.id);
+                    }}
+                  >
+                    {addedId === t.id ? 'Added ✓' : 'Add'}
                   </button>
                 </li>
               ))}

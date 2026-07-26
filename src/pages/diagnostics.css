@@ -37,6 +37,58 @@
   color: var(--text-dark);
 }
 
+.diag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.diag-chip {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.diag-chip.cart {
+  background: var(--accent);
+  color: #0f4a96;
+  border-color: transparent;
+  font-weight: 800;
+}
+
+.diag-card-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.diag-card-wrap .diag-card {
+  height: 100%;
+}
+
+.diag-add-btn {
+  align-self: center;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 0 14px;
+  min-width: 64px;
+  min-height: 48px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .diag-body {
   padding-top: 20px;
 }

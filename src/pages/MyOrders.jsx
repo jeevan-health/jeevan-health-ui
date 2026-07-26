@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore.js';
 import { listMyOrders, cancelMyOrder, formatInr } from '../services/ordersService.js';
@@ -16,12 +16,35 @@ const STATUS_LABEL = {
   failed: 'Failed',
 };
 
+const FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'scheduled', label: 'Scheduled' },
+  { id: 'processing', label: 'In progress' },
+  { id: 'completed', label: 'Completed' },
+  { id: 'cancelled', label: 'Cancelled' },
+];
+
+function filterKey(status) {
+  if (['completed', 'report_ready'].includes(status)) return 'completed';
+  if (['processing', 'sample_collected', 'assigned'].includes(status)) return 'processing';
+  if (['confirmed', 'pending'].includes(status)) return 'scheduled';
+  if (status === 'cancelled' || status === 'failed') return 'cancelled';
+  return status;
+}
+
+const PAY_LABEL = {
+  cod: 'Cash on collection',
+  card: 'Card on collection',
+  online: 'Online (pending)',
+};
+
 export default function MyOrders() {
   const { isAuthenticated } = useAuthStore();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [filter, setFilter] = useState('all');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -39,6 +62,22 @@ export default function MyOrders() {
   useEffect(() => {
     if (isAuthenticated()) load();
   }, [isAuthenticated, load]);
+
+  const filtered = useMemo(
+    () =>
+      filter === 'all' ? orders : orders.filter((o) => filterKey(o.status) === filter),
+    [orders, filter],
+  );
+
+  const stats = useMemo(
+    () => ({
+      total: orders.length,
+      scheduled: orders.filter((o) => filterKey(o.status) === 'scheduled').length,
+      processing: orders.filter((o) => filterKey(o.status) === 'processing').length,
+      completed: orders.filter((o) => filterKey(o.status) === 'completed').length,
+    }),
+    [orders],
+  );
 
   if (!isAuthenticated()) {
     return <Navigate to="/signup" replace state={{ from: '/my-orders' }} />;
@@ -63,19 +102,51 @@ export default function MyOrders() {
         <header className="my-orders-head">
           <div>
             <h1>My orders</h1>
-            <p className="muted">Home collection bookings saved on your account</p>
+            <p className="muted">Track home collection bookings and manage open orders</p>
           </div>
           <Link to="/diagnostics" className="btn btn-primary">
             Book tests
           </Link>
         </header>
 
+        <div className="my-orders-stats">
+          <div>
+            <strong>{stats.total}</strong>
+            <span>Total</span>
+          </div>
+          <div>
+            <strong>{stats.scheduled}</strong>
+            <span>Scheduled</span>
+          </div>
+          <div>
+            <strong>{stats.processing}</strong>
+            <span>In progress</span>
+          </div>
+          <div>
+            <strong>{stats.completed}</strong>
+            <span>Completed</span>
+          </div>
+        </div>
+
+        <div className="my-orders-filters">
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={filter === f.id ? 'active' : ''}
+              onClick={() => setFilter(f.id)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
         {error && <div className="my-orders-error">{error}</div>}
         {loading && <p className="muted">Loading orders…</p>}
 
-        {!loading && !orders.length && (
+        {!loading && !filtered.length && (
           <div className="my-orders-empty">
-            <p>No orders yet.</p>
+            <p>{orders.length ? 'No orders in this filter.' : 'No orders yet.'}</p>
             <Link to="/diagnostics" className="btn btn-accent">
               Browse lab tests
             </Link>
@@ -83,7 +154,7 @@ export default function MyOrders() {
         )}
 
         <ul className="my-orders-list">
-          {orders.map((o) => {
+          {filtered.map((o) => {
             const canCancel = o.status === 'pending' || o.status === 'confirmed';
             return (
               <li key={o.id} className="my-order-card">
@@ -97,12 +168,20 @@ export default function MyOrders() {
                   <strong className="my-order-total">{formatInr(o.total)}</strong>
                 </div>
                 <p className="my-order-meta">
-                  {o.patientName} · {o.patientPhone}
-                  {o.collectionDate ? ` · ${o.collectionDate}` : ''}
+                  <strong>
+                    {o.patientName}
+                    {o.patientRelation ? ` · ${o.patientRelation}` : ''}
+                  </strong>
+                  {o.patientAge != null ? ` · ${o.patientAge} yrs` : ''}
+                  {o.patientGender ? ` · ${o.patientGender}` : ''}
+                </p>
+                <p className="my-order-meta">
+                  {o.collectionDate || 'Date TBC'}
                   {o.collectionSlot ? ` · ${o.collectionSlot}` : ''}
                 </p>
                 <p className="my-order-addr">
                   {o.addressLine1}
+                  {o.landmark ? `, ${o.landmark}` : ''}
                   {o.city ? `, ${o.city}` : ''}
                   {o.pincode ? ` ${o.pincode}` : ''}
                 </p>
@@ -122,7 +201,7 @@ export default function MyOrders() {
                 )}
                 <div className="my-order-foot">
                   <span className="muted">
-                    Payment: {o.paymentStatus}
+                    {PAY_LABEL[o.paymentMode] || o.paymentMode || 'Payment'} · {o.paymentStatus}
                     {o.createdAt
                       ? ` · ${new Date(o.createdAt).toLocaleString('en-IN')}`
                       : ''}
