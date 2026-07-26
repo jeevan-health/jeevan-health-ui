@@ -143,6 +143,21 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="home-section">
+        <div className="container">
+          <h2 className="home-section-title">Careers</h2>
+          <p className="home-careers-lead">
+            Hiring phlebotomists for camps &amp; home sample collection.
+          </p>
+          <Link to="/onboarding-phlebotomist" className="btn btn-primary">
+            Apply as phlebotomist
+          </Link>
+          <p className="home-careers-note">
+            Field portal after hire: <strong>phlebo.jeevanhealthcare.com</strong>
+          </p>
+        </div>
+      </section>
+
       <section className="home-section home-section-alt">
         <div className="container">
           <h2 className="home-section-title">Why Jeevan HealthCare</h2>

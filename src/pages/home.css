@@ -207,6 +207,18 @@
   border-top: 1px solid var(--border);
 }
 
+.home-careers-lead {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.home-careers-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
 .home-section-title {
   font-size: 1.35rem;
   font-weight: 800;

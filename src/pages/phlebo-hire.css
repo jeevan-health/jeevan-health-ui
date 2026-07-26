@@ -1,0 +1,245 @@
+.ph-hire-page {
+  min-height: 100dvh;
+  background: linear-gradient(180deg, #ecfeff 0%, #f4fcff 40%, #f8fafc 100%);
+  padding: 20px 16px 48px;
+}
+
+.ph-hire-hero {
+  max-width: 720px;
+  margin: 0 auto 16px;
+}
+
+.ph-hire-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0f766e;
+  margin-bottom: 6px;
+}
+
+.ph-hire-hero h1 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.ph-hire-hero p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.ph-hire-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 16px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ph-hire-steps {
+  list-style: none;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+  padding-bottom: 4px;
+}
+
+.ph-hire-steps li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ph-hire-steps li span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.ph-hire-steps li.active {
+  color: #0f766e;
+}
+
+.ph-hire-steps li.active span {
+  background: #0d9488;
+  border-color: #0d9488;
+  color: #fff;
+}
+
+.ph-hire-steps li.done span {
+  border-color: #0d9488;
+  color: #0d9488;
+}
+
+.ph-hire-section h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+.ph-hire-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+.ph-hire-section input,
+.ph-hire-section select,
+.ph-hire-section textarea {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.ph-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ph-hire-bullets {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-body);
+  line-height: 1.55;
+}
+
+.ph-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ph-chips .chip {
+  border: 1.5px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-body);
+}
+
+.ph-chips .chip.on {
+  background: #0d9488;
+  border-color: #0d9488;
+  color: #fff;
+}
+
+.ph-review {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.ph-review div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+.ph-review dt {
+  color: var(--text-secondary);
+}
+
+.ph-review dd {
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: right;
+}
+
+.ph-agree {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 10px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.ph-agree input {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+}
+
+.ph-hire-error {
+  background: var(--danger-light);
+  color: var(--danger);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 10px 0;
+  font-size: 13px;
+}
+
+.ph-hire-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ph-hire-nav .btn {
+  min-width: 120px;
+}
+
+.ph-hire-success {
+  text-align: center;
+  padding: 32px 20px;
+}
+
+.ph-hire-emoji {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.ph-hire-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.muted {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .ph-row {
+    grid-template-columns: 1fr;
+  }
+}

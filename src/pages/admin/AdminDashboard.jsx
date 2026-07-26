@@ -48,13 +48,13 @@ export default function AdminDashboard() {
             <p>Home collection bookings, status updates</p>
           </Link>
 
-          <div className="admin-dash-card muted">
+          <Link to="/admin/phlebo" className="admin-dash-card">
             <span className="admin-dash-icon" aria-hidden>
               💉
             </span>
             <h2>Phlebotomists</h2>
-            <p>Hire &amp; field ops — Phases 4–5</p>
-          </div>
+            <p>Hire applications, promote roster, enable login</p>
+          </Link>
 
           <div className="admin-dash-card muted">
             <span className="admin-dash-icon" aria-hidden>

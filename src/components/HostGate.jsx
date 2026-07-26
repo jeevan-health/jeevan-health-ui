@@ -1,11 +1,21 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { isAdminHostname, isAdminPath, isAdminRole, getPostLoginPath } from '../utils/authRoles.js';
+import {
+  isAdminHostname,
+  isAdminPath,
+  isAdminRole,
+  isPhleboHostname,
+  isPhleboPath,
+  isPhleboRole,
+  getPostLoginPath,
+} from '../utils/authRoles.js';
 import useAuthStore from '../stores/authStore.js';
 
 /**
- * On admin.* host: never show patient marketing.
- * Force users onto /admin/login or /admin/* only.
+ * Host-based surface isolation (single SPA):
+ * - admin.* → /admin only
+ * - phlebo.* → /phlebo + hire form only
+ * - apex → patient app (+ public hire routes)
  */
 export default function HostGate({ children }) {
   const location = useLocation();
@@ -13,28 +23,52 @@ export default function HostGate({ children }) {
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
-    if (!isAdminHostname()) return;
-
     const path = location.pathname || '/';
 
-    // Already on admin surface
-    if (isAdminPath(path)) {
-      // Logged-in admin on login → go to dashboard
-      if (path === '/admin/login' && user && isAdminRole(user.role)) {
-        navigate('/admin', { replace: true });
+    // ── Admin host ──────────────────────────────────────────────
+    if (isAdminHostname()) {
+      if (isAdminPath(path)) {
+        if (path === '/admin/login' && user && isAdminRole(user.role)) {
+          navigate('/admin', { replace: true });
+        }
+        if (user && !isAdminRole(user.role) && path !== '/admin/login') {
+          navigate('/admin/login', { replace: true });
+        }
+        return;
       }
-      // Non-admin session on admin host → strip to login
-      if (user && !isAdminRole(user.role) && path !== '/admin/login') {
+      if (user && isAdminRole(user.role)) {
+        navigate(getPostLoginPath(user.role), { replace: true });
+      } else {
         navigate('/admin/login', { replace: true });
       }
       return;
     }
 
-    // Non-admin path on admin host → bounce
-    if (user && isAdminRole(user.role)) {
-      navigate(getPostLoginPath(user.role), { replace: true });
-    } else {
-      navigate('/admin/login', { replace: true });
+    // ── Phlebo host ─────────────────────────────────────────────
+    if (isPhleboHostname()) {
+      // Allow hire form + phlebo portal paths only
+      if (isPhleboPath(path)) {
+        // Non-phlebo authed user on portal (not apply form) → login
+        if (
+          user &&
+          !isPhleboRole(user.role) &&
+          !isAdminRole(user.role) &&
+          path.startsWith('/phlebo') &&
+          path !== '/phlebo/login'
+        ) {
+          navigate('/phlebo/login', { replace: true });
+        }
+        if (path === '/phlebo/login' && user && isPhleboRole(user.role)) {
+          navigate('/phlebo', { replace: true });
+        }
+        return;
+      }
+      // Bounce unknown paths
+      if (user && isPhleboRole(user.role)) {
+        navigate('/phlebo', { replace: true });
+      } else {
+        navigate('/onboarding-phlebotomist', { replace: true });
+      }
     }
   }, [location.pathname, user, navigate]);
 

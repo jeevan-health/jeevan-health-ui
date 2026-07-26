@@ -1,0 +1,137 @@
+.admin-phlebo-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.admin-phlebo-tabs button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.admin-phlebo-tabs button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.admin-phlebo-filters {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.admin-phlebo-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-phlebo-filters input,
+.admin-phlebo-filters select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-weight: 400;
+}
+
+.admin-phlebo-ok {
+  background: var(--success-light);
+  color: #166534;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.admin-phlebo-list {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-phlebo-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.admin-phlebo-list strong {
+  margin-right: 8px;
+  color: var(--text-dark);
+}
+
+.admin-phlebo-list .badge {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-light);
+  color: var(--text-secondary);
+}
+
+.admin-phlebo-list .status-new {
+  background: #fef3c7;
+  color: #92400e;
+}
+.admin-phlebo-list .status-shortlisted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.admin-phlebo-list .status-hired {
+  background: #dcfce7;
+  color: #166534;
+}
+.admin-phlebo-list .status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.admin-phlebo-list p {
+  font-size: 13px;
+  color: var(--text-body);
+  margin: 4px 0 0;
+}
+
+.admin-phlebo-list .sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.admin-phlebo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.btn-sm {
+  padding: 8px 10px;
+  font-size: 12px;
+  min-height: 36px;
+}
+
+.admin-table .mono {
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+@media (min-width: 720px) {
+  .admin-phlebo-filters {
+    grid-template-columns: 1.4fr 0.8fr auto;
+    align-items: end;
+  }
+}

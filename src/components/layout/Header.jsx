@@ -118,6 +118,9 @@ export default function Header() {
             <Link to="/diagnostics" onClick={closeMenu}>
               🔬 Lab tests
             </Link>
+            <Link to="/onboarding-phlebotomist" onClick={closeMenu}>
+              💉 Join as phlebotomist
+            </Link>
             <Link to="/checkout" onClick={closeMenu}>
               🛒 Cart{cartCount > 0 ? ` (${cartCount})` : ''}
             </Link>

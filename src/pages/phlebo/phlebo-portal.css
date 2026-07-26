@@ -1,0 +1,173 @@
+.phlebo-login-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: linear-gradient(160deg, #042f2e 0%, #0f766e 45%, #14b8a6 100%);
+}
+
+.phlebo-login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.phlebo-login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.phlebo-login-brand img {
+  height: 40px;
+  width: auto;
+}
+
+.phlebo-login-pill {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #ccfbf1;
+  color: #115e59;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.phlebo-login-switch {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.phlebo-top {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.phlebo-top-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phlebo-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+.phlebo-brand img {
+  height: 36px;
+}
+
+.phlebo-dash {
+  min-height: 100dvh;
+  background: #f0fdfa;
+}
+
+.phlebo-dash-main {
+  padding: 20px 16px 48px;
+  max-width: 720px;
+}
+
+.phlebo-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #0f766e;
+  margin-bottom: 6px;
+}
+
+.phlebo-dash-main h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+
+.phlebo-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.phlebo-card h2 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.phlebo-card dl {
+  display: grid;
+  gap: 8px;
+}
+
+.phlebo-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.phlebo-card dt {
+  color: var(--text-secondary);
+}
+
+.phlebo-card dd {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.phlebo-card.muted-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.phlebo-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.phlebo-stats div {
+  text-align: center;
+  background: #ecfeff;
+  border-radius: 12px;
+  padding: 12px 8px;
+}
+
+.phlebo-stats strong {
+  display: block;
+  font-size: 1.2rem;
+  color: #0f766e;
+}
+
+.phlebo-stats span {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.phlebo-error {
+  background: var(--danger-light);
+  color: var(--danger);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}

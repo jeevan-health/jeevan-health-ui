@@ -7,12 +7,21 @@ import Diagnostics from './pages/Diagnostics.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Checkout from './pages/Checkout.jsx';
 import MyOrders from './pages/MyOrders.jsx';
+import PhlebotomistOnboarding from './pages/PhlebotomistOnboarding.jsx';
 import AdminLayout from './components/admin/AdminLayout.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import AdminCatalog from './pages/admin/AdminCatalog.jsx';
 import AdminOrders from './pages/admin/AdminOrders.jsx';
-import { isAdminHostname, isAdminRole } from './utils/authRoles.js';
+import AdminPhleboHire from './pages/admin/AdminPhleboHire.jsx';
+import PhleboLogin from './pages/phlebo/PhleboLogin.jsx';
+import PhleboDashboard from './pages/phlebo/PhleboDashboard.jsx';
+import {
+  isAdminHostname,
+  isPhleboHostname,
+  isAdminRole,
+  isPhleboRole,
+} from './utils/authRoles.js';
 import useAuthStore from './stores/authStore.js';
 
 function AdminCatchAll() {
@@ -21,25 +30,39 @@ function AdminCatchAll() {
   return <Navigate to="/admin/login" replace />;
 }
 
+function PhleboCatchAll() {
+  const user = useAuthStore((s) => s.user);
+  if (user && isPhleboRole(user.role)) return <Navigate to="/phlebo" replace />;
+  return <Navigate to="/onboarding-phlebotomist" replace />;
+}
+
 export default function App() {
   const adminHost = isAdminHostname();
+  const phleboHost = isPhleboHostname();
 
   return (
     <HostGate>
       <Routes>
-        {/* Admin portal — works on apex and admin.* */}
+        {/* Admin portal — apex + admin.* */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="catalog" element={<AdminCatalog />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="phlebo" element={<AdminPhleboHire />} />
         </Route>
 
+        {/* Phlebo portal + hire form — apex + phlebo.* */}
+        <Route path="/phlebo/login" element={<PhleboLogin />} />
+        <Route path="/phlebo" element={<PhleboDashboard />} />
+        <Route path="/onboarding-phlebotomist" element={<PhlebotomistOnboarding />} />
+        <Route path="/careers/phlebotomist" element={<PhlebotomistOnboarding />} />
+
         {adminHost ? (
-          /* admin.jeevanhealthcare.com — ops only, no patient home */
           <Route path="*" element={<AdminCatchAll />} />
+        ) : phleboHost ? (
+          <Route path="*" element={<PhleboCatchAll />} />
         ) : (
-          /* Main patient site */
           <Route element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="signup" element={<Signup />} />
