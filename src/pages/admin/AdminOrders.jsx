@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
-import { adminListOrders, adminUpdateOrderStatus, formatInr } from '../../services/ordersService.js';
+import {
+  adminListOrders,
+  adminUpdateOrderStatus,
+  adminAssignOrder,
+  adminListAssignablePhlebos,
+  formatInr,
+} from '../../services/ordersService.js';
 import { isAdminRole } from '../../utils/authRoles.js';
 import './admin-catalog.css';
 import './admin-orders.css';
@@ -24,9 +30,12 @@ export default function AdminOrders() {
   const [status, setStatus] = useState('');
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [roster, setRoster] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [msg, setMsg] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [assignPick, setAssignPick] = useState({});
 
   const load = useCallback(async (opts = {}) => {
     setLoading(true);
@@ -34,13 +43,17 @@ export default function AdminOrders() {
     try {
       const nextQ = opts.q !== undefined ? opts.q : q;
       const nextStatus = opts.status !== undefined ? opts.status : status;
-      const data = await adminListOrders({
-        q: nextQ,
-        status: nextStatus || undefined,
-        limit: 50,
-      });
+      const [data, phlebos] = await Promise.all([
+        adminListOrders({
+          q: nextQ,
+          status: nextStatus || undefined,
+          limit: 50,
+        }),
+        adminListAssignablePhlebos().catch(() => []),
+      ]);
       setItems(data.items || []);
       setTotal(data.total || 0);
+      setRoster(phlebos || []);
     } catch (e) {
       setError(e?.response?.data?.error?.message || e.message || 'Failed to load orders');
     } finally {
@@ -80,6 +93,29 @@ export default function AdminOrders() {
     }
   };
 
+  const onAssign = async (orderId) => {
+    const phlebotomistId = assignPick[orderId];
+    if (!phlebotomistId) {
+      setError('Select a phlebotomist first');
+      return;
+    }
+    setBusyId(orderId);
+    setError(null);
+    setMsg(null);
+    try {
+      const result = await adminAssignOrder(orderId, phlebotomistId);
+      setMsg(
+        `Assigned ${result.job?.orderCode || orderId} → ${result.job?.phlebotomist?.name || 'phlebo'}` +
+          (result.reassigned ? ' (reassigned)' : ''),
+      );
+      await load();
+    } catch (e) {
+      setError(e?.response?.data?.error?.message || e.message || 'Assign failed');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="admin-orders">
       <div className="admin-ord-hero">
@@ -87,7 +123,7 @@ export default function AdminOrders() {
           <p className="admin-ord-eyebrow">Operations</p>
           <h1>Orders</h1>
           <p>
-            Home collection bookings · <strong>{total}</strong> matching
+            Home collection · assign phlebo · <strong>{total}</strong> matching
           </p>
         </div>
       </div>
@@ -119,6 +155,7 @@ export default function AdminOrders() {
         </form>
 
         {error && <div className="admin-ord-error">{error}</div>}
+        {msg && <div className="admin-ord-ok">{msg}</div>}
 
         <div className="admin-card admin-ord-table-wrap">
           {loading && <p className="muted">Loading…</p>}
@@ -132,6 +169,7 @@ export default function AdminOrders() {
                   <th>Tests</th>
                   <th>Total</th>
                   <th>Status</th>
+                  <th>Assign phlebo</th>
                   <th>Created</th>
                 </tr>
               </thead>
@@ -141,6 +179,7 @@ export default function AdminOrders() {
                     <td>
                       <strong className="code">{o.orderCode}</strong>
                       <div className="sub">{o.paymentStatus}</div>
+                      {o.phleboStatus ? <div className="sub">field: {o.phleboStatus}</div> : null}
                     </td>
                     <td>
                       <div>{o.patientName}</div>
@@ -176,6 +215,32 @@ export default function AdminOrders() {
                           </option>
                         ))}
                       </select>
+                    </td>
+                    <td>
+                      <div className="admin-assign-cell">
+                        <select
+                          value={assignPick[o.id] || o.assignedPhlebotomistId || ''}
+                          disabled={busyId === o.id || o.status === 'cancelled'}
+                          onChange={(e) =>
+                            setAssignPick((p) => ({ ...p, [o.id]: e.target.value }))
+                          }
+                        >
+                          <option value="">Select…</option>
+                          {roster.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.employeeId} · {p.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={busyId === o.id || o.status === 'cancelled'}
+                          onClick={() => onAssign(o.id)}
+                        >
+                          Assign
+                        </button>
+                      </div>
                     </td>
                     <td className="sub">
                       {o.createdAt

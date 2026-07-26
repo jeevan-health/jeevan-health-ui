@@ -62,6 +62,35 @@
   font-size: 13px;
 }
 
+.admin-ord-ok {
+  background: var(--success-light);
+  color: #166534;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.admin-assign-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.admin-assign-cell select {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.admin-assign-cell .btn-sm {
+  padding: 8px 10px;
+  font-size: 12px;
+  min-height: 34px;
+}
+
 .admin-ord-table-wrap {
   overflow-x: auto;
 }

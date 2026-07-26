@@ -71,3 +71,5 @@ export function isPhleboPath(pathname) {
     pathname === '/careers/phlebotomist'
   );
 }
+
+// jobs path covered by /phlebo/ prefix

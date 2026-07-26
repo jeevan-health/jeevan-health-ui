@@ -16,6 +16,7 @@ import AdminOrders from './pages/admin/AdminOrders.jsx';
 import AdminPhleboHire from './pages/admin/AdminPhleboHire.jsx';
 import PhleboLogin from './pages/phlebo/PhleboLogin.jsx';
 import PhleboDashboard from './pages/phlebo/PhleboDashboard.jsx';
+import PhleboJob from './pages/phlebo/PhleboJob.jsx';
 import {
   isAdminHostname,
   isPhleboHostname,
@@ -55,6 +56,7 @@ export default function App() {
         {/* Phlebo portal + hire form — apex + phlebo.* */}
         <Route path="/phlebo/login" element={<PhleboLogin />} />
         <Route path="/phlebo" element={<PhleboDashboard />} />
+        <Route path="/phlebo/jobs/:orderId" element={<PhleboJob />} />
         <Route path="/onboarding-phlebotomist" element={<PhlebotomistOnboarding />} />
         <Route path="/careers/phlebotomist" element={<PhlebotomistOnboarding />} />
 

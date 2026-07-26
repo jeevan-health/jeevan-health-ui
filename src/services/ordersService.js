@@ -30,6 +30,16 @@ export async function adminUpdateOrderStatus(id, status) {
   return data.data.order;
 }
 
+export async function adminAssignOrder(orderId, phlebotomistId) {
+  const { data } = await api.put(`/admin/orders/${orderId}/assign`, { phlebotomistId });
+  return data.data;
+}
+
+export async function adminListAssignablePhlebos(params = {}) {
+  const { data } = await api.get('/admin/phlebotomists/assignable', { params });
+  return data.data.items || [];
+}
+
 export function formatInr(n) {
   if (n == null || Number.isNaN(Number(n))) return '—';
   return new Intl.NumberFormat('en-IN', {

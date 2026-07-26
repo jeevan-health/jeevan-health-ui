@@ -47,3 +47,28 @@ export async function getPhleboDashboard() {
   const { data } = await api.get('/phlebotomist/dashboard');
   return data.data;
 }
+
+export async function listPhleboJobs(params = {}) {
+  const { data } = await api.get('/phlebotomist/jobs', { params });
+  return data.data;
+}
+
+export async function getPhleboJob(orderId) {
+  const { data } = await api.get(`/phlebotomist/jobs/${orderId}`);
+  return data.data;
+}
+
+export async function updatePhleboJobStatus(orderId, payload) {
+  const { data } = await api.put(`/phlebotomist/jobs/${orderId}/status`, payload);
+  return data.data.job;
+}
+
+export async function startDuty(payload = {}) {
+  const { data } = await api.post('/phlebotomist/duty/start', payload);
+  return data.data.duty;
+}
+
+export async function endDuty(payload = {}) {
+  const { data } = await api.post('/phlebotomist/duty/end', payload);
+  return data.data.duty;
+}
