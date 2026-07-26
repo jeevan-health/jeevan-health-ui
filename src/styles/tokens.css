@@ -1,0 +1,51 @@
+/* Jeevan HealthCare brand tokens — retained from production design system */
+:root {
+  --brand-primary: #00d9ff;
+  --brand-primary-rgb: 0, 217, 255;
+  --brand-primary-dark: #00b8d6;
+  --brand-primary-light: #e6faff;
+
+  --brand-secondary: #1866c9;
+  --brand-secondary-rgb: 24, 102, 201;
+  --brand-secondary-dark: #0f4a96;
+  --brand-secondary-light: #e8f1fc;
+
+  --primary: #1866c9;
+  --primary-dark: #0f4a96;
+  --accent: #00d9ff;
+
+  --success: #2ecc71;
+  --success-light: #e8f8ef;
+  --warning: #ff9800;
+  --warning-light: #fff3e0;
+  --danger: #ef4444;
+  --danger-light: #fde8e8;
+
+  --bg-body: #f4fcff;
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+
+  --text-dark: #1a1a2e;
+  --text-body: #334155;
+  --text-secondary: #64748b;
+  --text-light: #8b9bb5;
+
+  --border: #e2e8f0;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --shadow-cyan: 0 4px 14px rgba(0, 217, 255, 0.35);
+
+  --header-height: 64px;
+  --bottom-nav-height: 64px;
+
+  --font: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue',
+    sans-serif;
+
+  --hero-gradient: linear-gradient(135deg, #1866c9 0%, #00d9ff 100%);
+  --hero-gradient-alt: linear-gradient(135deg, #1866c9 0%, #0f4a96 100%);
+}

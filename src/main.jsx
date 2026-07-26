@@ -1,19 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import './lib/preserve-icons.js'
-import './data/initGlobals.js'
-import { initAnalytics } from './lib/analytics.js'
-import { enableLazyImages } from './utils/enableLazyImages.js'
-import { initPwa } from './lib/pwa.js'
-import App from './App.jsx'
-
-initAnalytics();
-enableLazyImages();
-initPwa();
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App.jsx';
+import './index.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>,
-)
+);
