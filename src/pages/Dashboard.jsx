@@ -1,5 +1,7 @@
 import { Link, Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore.js';
+import './page-shell.css';
+import './dashboard.css';
 
 export default function Dashboard() {
   const { user, logout, isAuthenticated } = useAuthStore();
@@ -8,37 +10,52 @@ export default function Dashboard() {
     return <Navigate to="/signup" replace />;
   }
 
-  return (
-    <div className="container" style={{ padding: '28px 16px 48px', maxWidth: 640 }}>
-      <h1 style={{ color: 'var(--text-dark)', fontSize: '1.5rem', marginBottom: 8 }}>
-        Welcome{user?.name ? `, ${user.name}` : ''}
-      </h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: 20 }}>
-        You&apos;re signed in. Bookings, orders, and reports land in the next phases.
-      </p>
+  const first = user?.name?.split(' ')[0];
 
-      <div
-        style={{
-          background: '#fff',
-          border: '1px solid var(--border)',
-          borderRadius: 16,
-          padding: 20,
-          marginBottom: 16,
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <p style={{ fontSize: 14, marginBottom: 6 }}>
-          <strong>Phone:</strong> {user?.phone || '—'}
-        </p>
-        <p style={{ fontSize: 14, marginBottom: 6 }}>
-          <strong>Email:</strong> {user?.email || '—'}
-        </p>
-        <p style={{ fontSize: 14 }}>
-          <strong>Role:</strong> {user?.role}
-        </p>
+  return (
+    <div className="page-shell dash">
+      <div className="dash-welcome">
+        <div className="dash-avatar" aria-hidden>
+          {(first || user?.phone || 'U').slice(0, 1).toUpperCase()}
+        </div>
+        <div>
+          <h1>Hello{first ? `, ${first}` : ''}</h1>
+          <p>You&apos;re signed in to Jeevan HealthCare</p>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+      <div className="dash-card">
+        <h2>Account</h2>
+        <dl className="dash-dl">
+          <div>
+            <dt>Name</dt>
+            <dd>{user?.name || '—'}</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>{user?.phone || '—'}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{user?.email || '—'}</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd className="dash-role">{user?.role}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="dash-card dash-soon">
+        <h2>Coming next</h2>
+        <ul>
+          <li>Search &amp; book lab tests</li>
+          <li>My orders &amp; collection status</li>
+          <li>Digital reports</li>
+        </ul>
+      </div>
+
+      <div className="dash-actions">
         <Link to="/diagnostics" className="btn btn-primary">
           Browse tests
         </Link>

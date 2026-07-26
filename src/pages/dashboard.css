@@ -1,0 +1,102 @@
+.dash-welcome {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.dash-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--hero-gradient);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(24, 102, 201, 0.3);
+}
+
+.dash-welcome h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 2px;
+  letter-spacing: -0.3px;
+}
+
+.dash-welcome p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.dash-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-card h2 {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.dash-dl {
+  display: grid;
+  gap: 12px;
+}
+
+.dash-dl div {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.dash-dl dt {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.dash-dl dd {
+  margin: 0;
+  color: var(--text-dark);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.dash-role {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--brand-secondary-light);
+  color: var(--primary);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.dash-soon ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-body);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.dash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}

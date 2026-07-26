@@ -20,6 +20,7 @@ body {
   font-size: 16px;
   line-height: 1.5;
   min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -56,13 +57,15 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 22px;
+  padding: 12px 20px;
   border-radius: var(--radius-md);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.15s ease;
+  min-height: 48px;
+  text-align: center;
 }
 
 .btn:active {
@@ -81,14 +84,13 @@ textarea {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--brand-primary-dark);
-  box-shadow: var(--shadow-cyan);
+  filter: brightness(1.06);
 }
 
 .btn-accent {
-  background: #ff3b3b;
+  background: var(--cta-red);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(255, 59, 59, 0.35);
+  box-shadow: var(--shadow-red);
 }
 
 .btn-accent:hover:not(:disabled) {
@@ -96,15 +98,29 @@ textarea {
 }
 
 .btn-outline {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .btn-outline-dark {
-  background: transparent;
+  background: #fff;
   color: var(--primary);
-  border: 2px solid var(--primary);
+  border: 1.5px solid var(--primary);
+}
+
+.btn-outline-dark:hover:not(:disabled) {
+  background: var(--brand-secondary-light);
+}
+
+.btn-ghost-light {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 .btn-block {
@@ -112,9 +128,10 @@ textarea {
 }
 
 .btn-lg {
-  padding: 14px 28px;
+  padding: 14px 24px;
   font-size: 15px;
-  border-radius: 20px;
+  border-radius: 14px;
+  min-height: 52px;
 }
 
 .sr-only {
@@ -126,4 +143,15 @@ textarea {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* Focus visible for a11y */
+:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
 }

@@ -1,7 +1,11 @@
 .auth-page {
-  padding: 32px 16px 48px;
+  padding: 28px 16px 48px;
   display: flex;
   justify-content: center;
+  min-height: calc(100dvh - var(--header-height) - 120px);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(24, 102, 201, 0.08), transparent 60%),
+    var(--bg-body);
 }
 
 .auth-card {
@@ -9,7 +13,7 @@
   max-width: 420px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   padding: 28px 22px 32px;
   box-shadow: var(--shadow-md);
 }

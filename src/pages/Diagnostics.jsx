@@ -1,42 +1,42 @@
 import { useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import './page-shell.css';
 
 export default function Diagnostics() {
   const [params] = useSearchParams();
   const q = params.get('q') || '';
 
   const message = useMemo(() => {
-    if (q) return `Search for “${q}” will run against the live catalog once Phase 2 is wired.`;
-    return 'Catalog search, filters, and Excel-driven tests land in Phase 2. Admin will upload your Excel; non-tech staff can re-upload anytime to update prices and names.';
+    if (q) {
+      return `You searched for “${q}”. Live catalog search ships in the next phase — your Excel-driven tests will appear here.`;
+    }
+    return 'Browse and book from a live catalog next. Admins will upload your Excel list (JHC codes) anytime.';
   }, [q]);
 
   return (
-    <div className="container" style={{ padding: '28px 16px 48px' }}>
-      <h1 style={{ color: 'var(--text-dark)', fontSize: '1.5rem', marginBottom: 8 }}>Lab tests</h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: 20, maxWidth: 560 }}>{message}</p>
+    <div className="page-shell">
+      <div className="page-shell-head">
+        <h1>Lab tests</h1>
+        <p>{message}</p>
+      </div>
 
-      <div
-        style={{
-          background: '#fff',
-          border: '1px dashed var(--border)',
-          borderRadius: 20,
-          padding: 32,
-          textAlign: 'center',
-        }}
-      >
-        <div style={{ fontSize: 40, marginBottom: 12 }} aria-hidden>
+      <div className="empty-panel">
+        <div className="empty-panel-icon" aria-hidden>
           🔬
         </div>
-        <h2 style={{ color: 'var(--text-dark)', fontSize: '1.15rem', marginBottom: 8 }}>
-          Catalog coming online
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 16 }}>
-          Your Excel has ~490 individual tests (JHC codes). We will import and enable admin Excel
-          re-upload so catalog updates stay easy.
+        <h2>Catalog coming online</h2>
+        <p>
+          We keep your real brand and booking flow production-ready. The test catalog and Excel
+          upload are the next vertical slice.
         </p>
-        <Link to="/signup" className="btn btn-primary">
-          Create account (Phase 1)
-        </Link>
+        <div className="empty-panel-actions">
+          <Link to="/signup" className="btn btn-primary">
+            Create account
+          </Link>
+          <Link to="/" className="btn btn-outline-dark">
+            Back home
+          </Link>
+        </div>
       </div>
     </div>
   );

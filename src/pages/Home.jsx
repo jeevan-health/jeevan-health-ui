@@ -1,33 +1,77 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './home.css';
 
-const trustChips = [
-  { icon: '🧪', title: '5000+', sub: 'Tests' },
-  { icon: '🏠', title: 'Free Home', sub: 'Collection' },
-  { icon: '🏅', title: 'NABL Certified', sub: 'Labs' },
-  { icon: '⏱', title: 'Reports in', sub: '24 Hours' },
+const trustStats = [
+  { icon: '🧪', label: '5000+', sub: 'Tests' },
+  { icon: '🏠', label: 'Free Home', sub: 'Collection' },
+  { icon: '🏅', label: 'NABL Certified', sub: 'Labs' },
+  { icon: '⏱', label: 'Reports in', sub: '24 Hours' },
+];
+
+const whyItems = [
+  {
+    icon: '🏠',
+    title: 'Free home collection',
+    desc: 'Trained phlebotomists visit your doorstep at your preferred slot.',
+  },
+  {
+    icon: '🔬',
+    title: 'NABL partner labs',
+    desc: 'Samples processed at accredited labs with quality controls.',
+  },
+  {
+    icon: '📱',
+    title: 'Digital reports',
+    desc: 'PDF reports on email and your dashboard — no paper chase.',
+  },
+  {
+    icon: '⚡',
+    title: 'Fast turnaround',
+    desc: 'Most routine tests reported within 24 hours.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Search & book',
+    desc: 'Pick tests from the catalog and choose a home collection slot.',
+  },
+  {
+    title: 'Sample at home',
+    desc: 'A phlebotomist collects your sample safely at your address.',
+  },
+  {
+    title: 'Get reports',
+    desc: 'Receive digital PDFs by email and in your Jeevan account.',
+  },
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
+
+  const onSearch = (e) => {
+    e.preventDefault();
+    const q = new FormData(e.currentTarget).get('q');
+    navigate(q ? `/diagnostics?q=${encodeURIComponent(String(q))}` : '/diagnostics');
+  };
+
   return (
-    <div className="home">
-      <section className="hero">
-        <div className="container hero-inner">
-          <p className="hero-badge">
-            <span className="dot" aria-hidden />
+    <div className="home-page">
+      <section className="home-hero">
+        <div className="home-hero-inner">
+          <p className="home-hero-eyebrow">
+            <span className="home-hero-eyebrow-dot" aria-hidden />
             Trusted diagnostics at your doorstep
           </p>
 
-          <div className="trust-grid">
-            {trustChips.map((c) => (
-              <div key={c.title} className="trust-card">
-                <span className="trust-icon" aria-hidden>
-                  {c.icon}
+          <div className="home-hero-stats" aria-label="Highlights">
+            {trustStats.map((s) => (
+              <div key={s.label} className="home-hero-stat">
+                <span className="home-hero-stat-icon" aria-hidden>
+                  {s.icon}
                 </span>
-                <div>
-                  <strong>{c.title}</strong>
-                  <span>{c.sub}</span>
-                </div>
+                <span className="home-hero-stat-label">{s.label}</span>
+                <span className="home-hero-stat-sub">{s.sub}</span>
               </div>
             ))}
           </div>
@@ -37,69 +81,101 @@ export default function Home() {
             <br />
             Trusted Diagnostics at Your Doorstep
           </h1>
-          <p className="hero-lead">
-            Book lab tests from home with free sample collection. NABL certified labs, digital reports
-            delivered to your phone and email.
+          <p className="home-hero-sub">
+            Book lab tests from home with free sample collection. 5000+ tests, NABL certified labs,
+            reports in 24 hours.
           </p>
 
-          <div className="hero-actions">
-            <Link to="/diagnostics" className="btn btn-accent btn-lg">
+          <div className="home-hero-ctas">
+            <Link to="/diagnostics" className="btn btn-accent home-hero-cta-primary">
               Book Lab Tests
             </Link>
-            <Link to="/signup" className="btn btn-outline btn-lg">
+            <Link to="/signup" className="btn btn-outline home-hero-cta-secondary">
               Login / Sign up
             </Link>
           </div>
 
-          <div className="hero-search">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const q = new FormData(e.currentTarget).get('q');
-                window.location.href = q
-                  ? `/diagnostics?q=${encodeURIComponent(String(q))}`
-                  : '/diagnostics';
-              }}
-            >
-              <label className="sr-only" htmlFor="hero-q">
-                Search tests
-              </label>
-              <input
-                id="hero-q"
-                name="q"
-                type="search"
-                placeholder="Search tests, symptoms, diseases…"
-                autoComplete="off"
-              />
-            </form>
-          </div>
+          <form className="home-hero-search" onSubmit={onSearch}>
+            <label className="sr-only" htmlFor="hero-search">
+              Search tests
+            </label>
+            <input
+              id="hero-search"
+              name="q"
+              type="search"
+              placeholder="Search tests, symptoms, diseases…"
+              autoComplete="off"
+              enterKeyHint="search"
+            />
+          </form>
 
-          <p className="hero-social-proof">★ 4.9 · Trusted home collection across Hyderabad</p>
+          <div className="home-hero-proof">
+            <div className="home-hero-stars" aria-hidden>
+              <span>★</span>
+              <span>★</span>
+              <span>★</span>
+              <span>★</span>
+              <span>★</span>
+            </div>
+            <span className="home-hero-rating">4.9</span>
+            <span className="home-hero-proof-sep" aria-hidden />
+            <span className="home-hero-rating-label">Trusted home collection · Hyderabad</span>
+          </div>
         </div>
       </section>
 
       <section className="home-section">
         <div className="container">
-          <h2>How it works</h2>
-          <ol className="steps">
-            <li>
-              <strong>Search & book</strong>
-              <span>Pick tests from our catalog and choose a home collection slot.</span>
-            </li>
-            <li>
-              <strong>Phlebo visits</strong>
-              <span>A trained phlebotomist collects your sample at home.</span>
-            </li>
-            <li>
-              <strong>Get reports</strong>
-              <span>Digital PDF reports via email and your dashboard.</span>
-            </li>
+          <h2 className="home-section-title">How it works</h2>
+          <ol className="home-steps">
+            {steps.map((s, i) => (
+              <li key={s.title}>
+                <span className="home-step-num" aria-hidden>
+                  {i + 1}
+                </span>
+                <div>
+                  <strong>{s.title}</strong>
+                  <p>{s.desc}</p>
+                </div>
+              </li>
+            ))}
           </ol>
-          <Link to="/diagnostics" className="btn btn-primary" style={{ marginTop: 20 }}>
-            Browse tests
-          </Link>
         </div>
       </section>
+
+      <section className="home-section home-section-alt">
+        <div className="container">
+          <h2 className="home-section-title">Why Jeevan HealthCare</h2>
+          <div className="home-why-grid">
+            {whyItems.map((item) => (
+              <article key={item.title} className="home-why-card">
+                <span className="home-why-icon" aria-hidden>
+                  {item.icon}
+                </span>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+              </article>
+            ))}
+          </div>
+          <div className="home-section-cta">
+            <Link to="/diagnostics" className="btn btn-primary btn-lg">
+              Browse lab tests
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Sticky mobile CTA — client pattern */}
+      <div className="home-sticky-cta" role="region" aria-label="Quick actions">
+        <div className="home-sticky-cta-inner">
+          <Link to="/diagnostics" className="btn btn-accent">
+            Book Lab Test
+          </Link>
+          <Link to="/signup" className="btn btn-outline-dark">
+            Login
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
