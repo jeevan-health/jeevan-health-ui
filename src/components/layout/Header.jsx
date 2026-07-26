@@ -1,7 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
+import useAuthStore from '../../stores/authStore.js';
 
 export default function Header() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   return (
     <header className="site-header">
@@ -28,9 +31,29 @@ export default function Header() {
         </div>
 
         <div className="header-actions">
-          <Link to="/signup" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
-            Login
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="btn btn-outline-dark"
+                style={{ padding: '8px 12px', fontSize: 13 }}
+              >
+                {user.name?.split(' ')[0] || user.phone || 'Account'}
+              </Link>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ padding: '8px 14px', fontSize: 13 }}
+                onClick={() => logout()}
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <Link to="/signup" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </header>
