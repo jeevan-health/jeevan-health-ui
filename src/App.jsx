@@ -16,6 +16,7 @@ import AdminCatalog from './pages/admin/AdminCatalog.jsx';
 import AdminOrders from './pages/admin/AdminOrders.jsx';
 import AdminPhleboHire from './pages/admin/AdminPhleboHire.jsx';
 import AdminReports from './pages/admin/AdminReports.jsx';
+import PhleboHome from './pages/phlebo/PhleboHome.jsx';
 import PhleboLogin from './pages/phlebo/PhleboLogin.jsx';
 import PhleboDashboard from './pages/phlebo/PhleboDashboard.jsx';
 import PhleboJob from './pages/phlebo/PhleboJob.jsx';
@@ -34,10 +35,13 @@ function AdminCatchAll() {
   return <Navigate to="/admin/login" replace />;
 }
 
+/** Unknown paths on phlebo host → landing (login-first), never hire form by default */
 function PhleboCatchAll() {
   const user = useAuthStore((s) => s.user);
-  if (user && isPhleboRole(user.role)) return <Navigate to="/phlebo" replace />;
-  return <Navigate to="/onboarding-phlebotomist" replace />;
+  if (user && (isPhleboRole(user.role) || isAdminRole(user.role))) {
+    return <Navigate to="/phlebo" replace />;
+  }
+  return <Navigate to="/" replace />;
 }
 
 export default function App() {
@@ -68,7 +72,11 @@ export default function App() {
         {adminHost ? (
           <Route path="*" element={<AdminCatchAll />} />
         ) : phleboHost ? (
-          <Route path="*" element={<PhleboCatchAll />} />
+          <>
+            {/* Login-first landing — not the hire form */}
+            <Route index element={<PhleboHome />} />
+            <Route path="*" element={<PhleboCatchAll />} />
+          </>
         ) : (
           <Route element={<Layout />}>
             <Route index element={<Home />} />
@@ -79,6 +87,7 @@ export default function App() {
             <Route path="my-orders" element={<MyOrders />} />
             <Route path="reports" element={<Reports />} />
             <Route path="dashboard" element={<Dashboard />} />
+            {/* Hire form still available from patient site careers link */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         )}

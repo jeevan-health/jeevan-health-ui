@@ -147,22 +147,26 @@ export default function PhlebotomistOnboarding() {
           </p>
           {phleboHost ? (
             <p className="muted">
-              After approval you can sign in at{' '}
-              <Link to="/phlebo/login">phlebo portal login</Link>.
+              After admin promotes you, sign in with this phone on{' '}
+              <Link to="/phlebo/login">Field login</Link>.
             </p>
           ) : (
             <p className="muted">
-              Field portal: <code>phlebo.jeevanhealthcare.com</code>
+              After approval: <code>phlebo.jeevanhealthcare.com</code> → Field login
             </p>
           )}
           <div className="ph-hire-actions">
-            {!phleboHost && (
+            {phleboHost ? (
+              <Link to="/" className="btn btn-outline-dark">
+                Phlebo home
+              </Link>
+            ) : (
               <Link to="/" className="btn btn-outline-dark">
                 Back home
               </Link>
             )}
             <Link to="/phlebo/login" className="btn btn-primary">
-              Phlebo login
+              Field login
             </Link>
           </div>
         </div>

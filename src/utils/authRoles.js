@@ -65,6 +65,7 @@ export function isAdminPath(pathname) {
 
 export function isPhleboPath(pathname) {
   return (
+    pathname === '/' || // phlebo host landing only (HostGate checks host first)
     pathname === '/phlebo' ||
     pathname.startsWith('/phlebo/') ||
     pathname === '/onboarding-phlebotomist' ||

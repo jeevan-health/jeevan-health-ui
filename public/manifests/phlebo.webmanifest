@@ -3,7 +3,7 @@
   "name": "Jeevan Phlebo",
   "short_name": "JH Phlebo",
   "description": "Jeevan HealthCare field portal — duty, jobs, home collections.",
-  "start_url": "/phlebo?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

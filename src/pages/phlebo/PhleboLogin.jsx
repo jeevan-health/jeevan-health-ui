@@ -68,10 +68,10 @@ export default function PhleboLogin() {
           <img src="/logo.png" alt="Jeevan HealthCare" />
           <span className="phlebo-login-pill">Phlebo portal</span>
         </div>
-        <h1>Field sign in</h1>
+        <h1>Field login</h1>
         <p className="auth-lead">
-          Phone OTP for hired phlebotomists
-          {isPhleboHostname() ? ' · phlebo.jeevanhealthcare.com' : ''}.
+          Sign in with the mobile number admin enabled after hire. Phone OTP only — no password.
+          {isPhleboHostname() ? ' · phlebo.jeevanhealthcare.com' : ''}
         </p>
 
         {step === 'identify' ? (
@@ -130,7 +130,9 @@ export default function PhleboLogin() {
           <InstallAppButton variant="block" />
         </div>
         <p className="auth-muted phlebo-login-switch">
-          Applying for a job? <Link to="/onboarding-phlebotomist">Hire form</Link>
+          <Link to="/">← Phlebo home</Link>
+          {' · '}
+          Applying? <Link to="/onboarding-phlebotomist">Hire form</Link>
         </p>
       </div>
     </div>

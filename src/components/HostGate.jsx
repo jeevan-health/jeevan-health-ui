@@ -45,10 +45,12 @@ export default function HostGate({ children }) {
     }
 
     // ── Phlebo host ─────────────────────────────────────────────
+    // Landing `/` = home with Field login. Hire form is opt-in only.
     if (isPhleboHostname()) {
-      // Allow hire form + phlebo portal paths only
-      if (isPhleboPath(path)) {
-        // Non-phlebo authed user on portal (not apply form) → login
+      const allowed = path === '/' || isPhleboPath(path);
+
+      if (allowed) {
+        // Customer token on field routes → force field login
         if (
           user &&
           !isPhleboRole(user.role) &&
@@ -57,17 +59,20 @@ export default function HostGate({ children }) {
           path !== '/phlebo/login'
         ) {
           navigate('/phlebo/login', { replace: true });
+          return;
         }
-        if (path === '/phlebo/login' && user && isPhleboRole(user.role)) {
+        // Already hired → skip login page into dashboard
+        if (path === '/phlebo/login' && user && (isPhleboRole(user.role) || isAdminRole(user.role))) {
           navigate('/phlebo', { replace: true });
         }
         return;
       }
-      // Bounce unknown paths
-      if (user && isPhleboRole(user.role)) {
+
+      // Unknown path → landing (login-first), never default to hire form
+      if (user && (isPhleboRole(user.role) || isAdminRole(user.role))) {
         navigate('/phlebo', { replace: true });
       } else {
-        navigate('/onboarding-phlebotomist', { replace: true });
+        navigate('/', { replace: true });
       }
     }
   }, [location.pathname, user, navigate]);
