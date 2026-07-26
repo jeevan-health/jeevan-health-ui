@@ -1,7 +1,7 @@
 /* Jeevan HealthCare — shared service worker (per-origin install).
  * Cache app shell for offline shell; network-first for API/navigation.
  */
-const CACHE = 'jeevan-pwa-v7-1';
+const CACHE = 'jeevan-pwa-v8-1';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -86,20 +86,33 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Phase 7 push hook — ready for VAPID later
+// Phase 8 — Web Push (VAPID payload: { title, body, url, icon, tag })
+function defaultIcon() {
+  const h = self.location.hostname || '';
+  if (h.startsWith('admin.')) return '/icons/admin-192.png';
+  if (h.startsWith('phlebo.')) return '/icons/phlebo-192.png';
+  return '/icons/patient-192.png';
+}
+
 self.addEventListener('push', (event) => {
   let data = { title: 'Jeevan HealthCare', body: 'You have an update' };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch {
-    /* ignore */
+    try {
+      if (event.data) data.body = event.data.text();
+    } catch {
+      /* ignore */
+    }
   }
+  const icon = data.icon || defaultIcon();
   event.waitUntil(
     self.registration.showNotification(data.title || 'Jeevan HealthCare', {
       body: data.body || '',
-      icon: data.icon || '/icons/patient-192.png',
-      badge: '/icons/patient-192.png',
-      data: data.url ? { url: data.url } : {},
+      icon,
+      badge: icon,
+      tag: data.tag || undefined,
+      data: { url: data.url || '/' },
     }),
   );
 });
@@ -111,7 +124,9 @@ self.addEventListener('notificationclick', (event) => {
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const c of list) {
         if ('focus' in c) {
-          c.navigate(url);
+          if (typeof c.navigate === 'function') {
+            c.navigate(url);
+          }
           return c.focus();
         }
       }

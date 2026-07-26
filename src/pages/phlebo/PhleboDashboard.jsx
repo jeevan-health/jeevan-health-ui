@@ -9,6 +9,7 @@ import {
 } from '../../services/phleboService.js';
 import { formatInr } from '../../services/ordersService.js';
 import InstallAppButton from '../../components/InstallAppButton.jsx';
+import EnablePushButton from '../../components/EnablePushButton.jsx';
 import './phlebo-portal.css';
 
 export default function PhleboDashboard() {
@@ -84,6 +85,7 @@ export default function PhleboDashboard() {
           </div>
           <div className="phlebo-top-actions">
             <InstallAppButton variant="header" />
+            <EnablePushButton variant="header" />
             <button type="button" className="btn btn-outline-dark" onClick={() => logout()}>
               Log out
             </button>

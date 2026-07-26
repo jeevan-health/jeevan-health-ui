@@ -2,6 +2,7 @@ import { NavLink, Outlet, Navigate, Link } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
 import { isAdminRole } from '../../utils/authRoles.js';
 import InstallAppButton from '../InstallAppButton.jsx';
+import EnablePushButton from '../EnablePushButton.jsx';
 import './admin-layout.css';
 
 export default function AdminLayout() {
@@ -33,6 +34,7 @@ export default function AdminLayout() {
           </nav>
           <div className="admin-top-user">
             <InstallAppButton variant="header" />
+            <EnablePushButton variant="header" />
             <span className="admin-role">{user?.role?.replace('_', ' ')}</span>
             <button type="button" className="btn btn-outline-dark admin-logout" onClick={() => logout()}>
               Log out

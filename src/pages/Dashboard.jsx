@@ -1,6 +1,7 @@
 import { Link, Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore.js';
 import InstallAppButton from '../components/InstallAppButton.jsx';
+import EnablePushButton from '../components/EnablePushButton.jsx';
 import './page-shell.css';
 import './dashboard.css';
 
@@ -70,6 +71,7 @@ export default function Dashboard() {
 
       <div className="dash-actions">
         <InstallAppButton variant="block" />
+        <EnablePushButton variant="block" />
         <Link to="/diagnostics" className="btn btn-primary">
           Browse tests
         </Link>
