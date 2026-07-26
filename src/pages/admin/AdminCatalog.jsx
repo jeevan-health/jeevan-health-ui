@@ -28,8 +28,8 @@ export default function AdminCatalog() {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminListTests({ q: query, limit: 100, active: 'all' });
-      // active: false means all? Our API activeOnly false when active=false
+      // active=false → admin list includes disabled rows
+      const data = await adminListTests({ q: query, limit: 100, active: 'false' });
       setItems(data.items || []);
       setTotal(data.total || 0);
       setTotalActive(data.totalActive || 0);
