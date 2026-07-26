@@ -4,6 +4,7 @@ import Home from './pages/Home.jsx';
 import Signup from './pages/Signup.jsx';
 import Diagnostics from './pages/Diagnostics.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import AdminCatalog from './pages/admin/AdminCatalog.jsx';
 
 export default function App() {
   return (
@@ -14,6 +15,8 @@ export default function App() {
         <Route path="login" element={<Navigate to="/signup" replace />} />
         <Route path="diagnostics" element={<Diagnostics />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="admin/catalog" element={<AdminCatalog />} />
+        <Route path="admin" element={<Navigate to="/admin/catalog" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

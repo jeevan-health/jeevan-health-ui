@@ -47,11 +47,18 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-card dash-soon">
-        <h2>Coming next</h2>
+        <h2>What&apos;s live</h2>
         <ul>
-          <li>Search &amp; book lab tests</li>
-          <li>My orders &amp; collection status</li>
-          <li>Digital reports</li>
+          <li>
+            <Link to="/diagnostics">Search lab tests</Link> (catalog)
+          </li>
+          {(user?.role === 'admin' || user?.role === 'super_admin') && (
+            <li>
+              <Link to="/admin/catalog">Admin: Excel catalog upload</Link>
+            </li>
+          )}
+          <li>Booking checkout — Phase 3</li>
+          <li>Digital reports — later phase</li>
         </ul>
       </div>
 
@@ -59,6 +66,11 @@ export default function Dashboard() {
         <Link to="/diagnostics" className="btn btn-primary">
           Browse tests
         </Link>
+        {(user?.role === 'admin' || user?.role === 'super_admin') && (
+          <Link to="/admin/catalog" className="btn btn-outline-dark">
+            Admin catalog
+          </Link>
+        )}
         <button type="button" className="btn btn-outline-dark" onClick={() => logout()}>
           Log out
         </button>

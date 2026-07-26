@@ -1,43 +1,177 @@
-import { useMemo } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import './page-shell.css';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { searchTests, getMeta, formatInr } from '../services/diagnosticsService.js';
+import './diagnostics.css';
 
 export default function Diagnostics() {
-  const [params] = useSearchParams();
-  const q = params.get('q') || '';
+  const [params, setParams] = useSearchParams();
+  const qParam = params.get('q') || '';
 
-  const message = useMemo(() => {
-    if (q) {
-      return `You searched for “${q}”. Live catalog search ships in the next phase — your Excel-driven tests will appear here.`;
+  const [q, setQ] = useState(qParam);
+  const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [totalActive, setTotalActive] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selected, setSelected] = useState(null);
+
+  const load = useCallback(async (query) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [res, meta] = await Promise.all([
+        searchTests({ q: query, limit: 60 }),
+        getMeta().catch(() => ({ totalActive: null })),
+      ]);
+      setItems(res.items || []);
+      setTotal(res.total || 0);
+      if (meta?.totalActive != null) setTotalActive(meta.totalActive);
+    } catch (e) {
+      setError(e?.response?.data?.error?.message || e.message || 'Failed to load tests');
+      setItems([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
     }
-    return 'Browse and book from a live catalog next. Admins will upload your Excel list (JHC codes) anytime.';
-  }, [q]);
+  }, []);
+
+  useEffect(() => {
+    setQ(qParam);
+    load(qParam);
+  }, [qParam, load]);
+
+  const onSearch = (e) => {
+    e.preventDefault();
+    const next = q.trim();
+    setParams(next ? { q: next } : {});
+  };
 
   return (
-    <div className="page-shell">
-      <div className="page-shell-head">
-        <h1>Lab tests</h1>
-        <p>{message}</p>
+    <div className="diag-page">
+      <div className="diag-hero">
+        <div className="container">
+          <h1>Lab tests</h1>
+          <p>
+            Search our catalog and book home collection.
+            {totalActive != null ? (
+              <>
+                {' '}
+                <strong>{totalActive.toLocaleString('en-IN')}</strong> tests live.
+              </>
+            ) : null}
+          </p>
+          <form className="diag-search" onSubmit={onSearch}>
+            <label className="sr-only" htmlFor="diag-q">
+              Search tests
+            </label>
+            <input
+              id="diag-q"
+              type="search"
+              placeholder="Search by name or JHC code…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              autoComplete="off"
+              enterKeyHint="search"
+            />
+            <button type="submit" className="btn btn-primary">
+              Search
+            </button>
+          </form>
+        </div>
       </div>
 
-      <div className="empty-panel">
-        <div className="empty-panel-icon" aria-hidden>
-          🔬
-        </div>
-        <h2>Catalog coming online</h2>
-        <p>
-          We keep your real brand and booking flow production-ready. The test catalog and Excel
-          upload are the next vertical slice.
-        </p>
-        <div className="empty-panel-actions">
-          <Link to="/signup" className="btn btn-primary">
-            Create account
-          </Link>
-          <Link to="/" className="btn btn-outline-dark">
-            Back home
-          </Link>
-        </div>
+      <div className="container diag-body">
+        {error && <div className="diag-error">{error}</div>}
+
+        {loading && <p className="diag-muted">Loading catalog…</p>}
+
+        {!loading && !error && total === 0 && (
+          <div className="diag-empty">
+            <div className="diag-empty-icon" aria-hidden>
+              🔬
+            </div>
+            <h2>{qParam ? `No matches for “${qParam}”` : 'Catalog is empty'}</h2>
+            <p>
+              {qParam
+                ? 'Try another name or JHC code.'
+                : 'An admin can upload the Excel test list from Admin → Catalog.'}
+            </p>
+            <Link to="/" className="btn btn-outline-dark">
+              Back home
+            </Link>
+          </div>
+        )}
+
+        {!loading && items.length > 0 && (
+          <>
+            <p className="diag-count">
+              Showing {items.length} of {total.toLocaleString('en-IN')}
+              {qParam ? ` for “${qParam}”` : ''}
+            </p>
+            <ul className="diag-list">
+              {items.map((t) => (
+                <li key={t.id}>
+                  <button type="button" className="diag-card" onClick={() => setSelected(t)}>
+                    <div className="diag-card-main">
+                      <strong>{t.name}</strong>
+                      <span className="diag-code">{t.jhcCode}</span>
+                      {t.homeCollection && (
+                        <span className="diag-badge">Home collection</span>
+                      )}
+                    </div>
+                    <div className="diag-card-price">
+                      {t.marketMrp != null && t.marketMrp > t.price && (
+                        <span className="diag-mrp">{formatInr(t.marketMrp)}</span>
+                      )}
+                      <span className="diag-offer">{formatInr(t.price)}</span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
+
+      {selected && (
+        <div className="diag-drawer-backdrop" onClick={() => setSelected(null)} role="presentation">
+          <aside
+            className="diag-drawer"
+            role="dialog"
+            aria-label={selected.name}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button type="button" className="diag-drawer-close" onClick={() => setSelected(null)}>
+              ✕
+            </button>
+            <p className="diag-code">{selected.jhcCode}</p>
+            <h2>{selected.name}</h2>
+            <div className="diag-drawer-price">
+              {selected.marketMrp != null && selected.marketMrp > selected.price && (
+                <span className="diag-mrp">{formatInr(selected.marketMrp)}</span>
+              )}
+              <span className="diag-offer">{formatInr(selected.price)}</span>
+            </div>
+            <ul className="diag-drawer-meta">
+              <li>Home collection: {selected.homeCollection ? 'Yes' : 'No'}</li>
+              <li>Fasting: {selected.fastingRequired ? 'Required' : 'Not required'}</li>
+              {selected.reportTime && <li>Report time: {selected.reportTime}</li>}
+              {selected.category && <li>Category: {selected.category}</li>}
+            </ul>
+            {selected.preparation && (
+              <p className="diag-prep">
+                <strong>Preparation:</strong> {selected.preparation}
+              </p>
+            )}
+            <p className="diag-muted" style={{ marginTop: 16 }}>
+              Booking checkout ships in Phase 3. You can create an account now.
+            </p>
+            <Link to="/signup" className="btn btn-primary btn-block" style={{ marginTop: 12 }}>
+              Login to book later
+            </Link>
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
