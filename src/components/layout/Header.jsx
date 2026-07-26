@@ -7,7 +7,7 @@ export default function Header() {
     <header className="site-header">
       <div className="header-inner">
         <Link to="/" className="header-logo" aria-label="Jeevan HealthCare home">
-          <img src="/logo.svg" alt="Jeevan HealthCare at Home" />
+          <img src="/logo.png" alt="Jeevan HealthCare at Home" width="180" height="48" />
         </Link>
 
         <div className="header-search">

@@ -35,11 +35,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .header-logo img {
-  height: 40px;
+  height: 34px;
   width: auto;
+  max-width: min(200px, 52vw);
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .header-logo img {
+    height: 28px;
+  }
 }
 
 .header-actions {
@@ -99,8 +109,11 @@
 }
 
 .footer-brand img {
-  height: 36px;
+  height: 40px;
   width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  /* Wordmark is dark blue on white — invert for dark footer */
   filter: brightness(0) invert(1);
 }
 

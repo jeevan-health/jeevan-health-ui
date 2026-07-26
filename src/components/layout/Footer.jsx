@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-inner">
         <div className="footer-brand">
-          <img src="/logo.svg" alt="" aria-hidden />
+          <img src="/logo.png" alt="Jeevan HealthCare at Home" width="180" height="48" />
           <p className="footer-copy">
             Complete healthcare at your doorstep. Home sample collection · NABL partner labs · Digital
             reports.
