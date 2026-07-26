@@ -131,6 +131,17 @@ const useAuthStore = create((set, get) => ({
     clearSession();
     set({ user: null, accessToken: null, refreshToken: null, error: null });
     if (refreshToken) await authService.logout(refreshToken);
+    // On admin host, land on admin login after logout
+    try {
+      const h = window.location.hostname.toLowerCase();
+      if (h === 'admin.jeevanhealthcare.com' || h.startsWith('admin.')) {
+        if (!window.location.pathname.startsWith('/admin/login')) {
+          window.location.assign('/admin/login');
+        }
+      }
+    } catch {
+      /* ignore */
+    }
   },
 }));
 

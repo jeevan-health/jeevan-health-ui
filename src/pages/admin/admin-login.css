@@ -1,0 +1,52 @@
+.admin-login-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(15, 74, 150, 0.18), transparent 55%),
+    linear-gradient(180deg, #e8f1fc 0%, #f4fcff 40%, #fff 100%);
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.admin-login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-login-brand img {
+  height: 44px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.admin-login-pill {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+  background: var(--brand-secondary-light);
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.admin-login-switch {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.admin-login-switch a {
+  color: var(--primary);
+  font-weight: 700;
+}

@@ -60,18 +60,10 @@ export default function AdminCatalog() {
   }, [user, isAuthenticated]);
 
   if (!isAuthenticated()) {
-    return <Navigate to="/signup" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
   if (!isAdminRole(user?.role)) {
-    return (
-      <div className="admin-cat container">
-        <h1>Admin only</h1>
-        <p>Your account role is <strong>{user?.role}</strong>. Catalog upload needs admin.</p>
-        <Link to="/dashboard" className="btn btn-primary">
-          Dashboard
-        </Link>
-      </div>
-    );
+    return <Navigate to="/admin/login" replace />;
   }
 
   const onSearch = async (e) => {

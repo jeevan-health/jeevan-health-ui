@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore.js';
 import GoogleSignIn from '../components/GoogleSignIn.jsx';
+import { getPostLoginPath, isAdminRole } from '../utils/authRoles.js';
 import './auth.css';
 
 export default function Signup() {
@@ -18,6 +19,7 @@ export default function Signup() {
   const [info, setInfo] = useState(null);
 
   if (user) {
+    const home = getPostLoginPath(user.role);
     return (
       <div className="auth-page">
         <div className="auth-card">
@@ -28,8 +30,8 @@ export default function Signup() {
             <span className="auth-muted">Role: {user.role}</span>
           </p>
           <div className="auth-actions">
-            <Link to="/dashboard" className="btn btn-primary btn-block">
-              Go to dashboard
+            <Link to={home} className="btn btn-primary btn-block">
+              {isAdminRole(user.role) ? 'Go to admin' : 'Go to dashboard'}
             </Link>
             <button type="button" className="btn btn-outline-dark btn-block" onClick={() => logout()}>
               Log out
@@ -59,13 +61,13 @@ export default function Signup() {
     e.preventDefault();
     clearError();
     try {
-      await verifyOtp({
+      const data = await verifyOtp({
         channel,
         destination: destination.trim(),
         code: code.trim(),
         name: name.trim() || undefined,
       });
-      navigate('/dashboard', { replace: true });
+      navigate(getPostLoginPath(data.user?.role), { replace: true });
     } catch {
       /* store sets error */
     }
@@ -149,8 +151,8 @@ export default function Signup() {
               onCredential={async (credential) => {
                 clearError();
                 try {
-                  await loginWithGoogle(credential);
-                  navigate('/dashboard', { replace: true });
+                  const data = await loginWithGoogle(credential);
+                  navigate(getPostLoginPath(data.user?.role), { replace: true });
                 } catch {
                   /* store */
                 }
