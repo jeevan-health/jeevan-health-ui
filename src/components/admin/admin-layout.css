@@ -16,12 +16,14 @@
 
 .admin-top-inner {
   max-width: 1120px;
+  width: 100%;
   margin: 0 auto;
   padding: 10px 16px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px 16px;
   flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .admin-brand {
@@ -50,8 +52,13 @@
 
 .admin-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-nav a {

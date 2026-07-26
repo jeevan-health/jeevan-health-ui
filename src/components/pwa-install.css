@@ -1,0 +1,62 @@
+.pwa-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + 10px);
+  z-index: 9000;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pwa-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pwa-banner-text strong {
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.pwa-banner-text span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pwa-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pwa-btn {
+  min-height: 40px !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+}
+
+/* Admin / phlebo shells without bottom nav */
+html[data-pwa-surface='admin'] .pwa-banner,
+html[data-pwa-surface='phlebo'] .pwa-banner {
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 900px) {
+  .pwa-banner {
+    left: auto;
+    right: 24px;
+    width: min(400px, calc(100vw - 48px));
+    bottom: 24px;
+  }
+}

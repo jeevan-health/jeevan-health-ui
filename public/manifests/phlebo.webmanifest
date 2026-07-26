@@ -1,38 +1,38 @@
 {
-  "id": "jeevan-patient",
-  "name": "Jeevan Healthcare",
-  "short_name": "Jeevan",
-  "description": "Book lab tests with free home sample collection. View reports and orders.",
-  "start_url": "/?source=pwa",
+  "id": "jeevan-phlebo",
+  "name": "Jeevan Phlebo",
+  "short_name": "JH Phlebo",
+  "description": "Jeevan HealthCare field portal — duty, jobs, home collections.",
+  "start_url": "/phlebo?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#F4FCFF",
-  "theme_color": "#1866C9",
+  "background_color": "#0F766E",
+  "theme_color": "#0D9488",
   "lang": "en-IN",
   "dir": "ltr",
   "categories": ["health", "medical"],
   "icons": [
     {
-      "src": "/icons/patient-192.png",
+      "src": "/icons/phlebo-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/patient-512.png",
+      "src": "/icons/phlebo-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/patient-192.png",
+      "src": "/icons/phlebo-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/patient-512.png",
+      "src": "/icons/phlebo-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

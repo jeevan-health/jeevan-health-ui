@@ -11,6 +11,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -21,6 +22,10 @@ body {
   line-height: 1.5;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* Safe area for notched phones / PWA standalone */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 a {
@@ -39,10 +44,20 @@ input,
 select,
 textarea {
   font: inherit;
+  max-width: 100%;
+}
+
+/* iOS: prevent zoom-on-focus; keep ≥16px on mobile inputs */
+input,
+select,
+textarea {
+  font-size: 16px;
 }
 
 #root {
   min-height: 100dvh;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .container {
@@ -50,6 +65,38 @@ textarea {
   max-width: 1120px;
   margin: 0 auto;
   padding: 0 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Tables / wide admin content scroll inside, not the whole page */
+.admin-ord-table-wrap,
+.admin-table-wrap,
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Forms: no horizontal blowout */
+form,
+.auth-card,
+.checkout-panel,
+.ph-hire-card,
+.admin-card {
+  max-width: 100%;
+}
+
+label {
+  min-width: 0;
 }
 
 .btn {

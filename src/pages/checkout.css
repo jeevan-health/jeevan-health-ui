@@ -1,5 +1,15 @@
 .checkout-page {
   padding: 20px 0 48px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.checkout-wizard,
+.checkout-wizard-grid,
+.checkout-panel,
+.checkout-cart {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .checkout-wizard-head h1 {

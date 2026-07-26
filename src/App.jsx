@@ -26,6 +26,7 @@ import {
   isPhleboRole,
 } from './utils/authRoles.js';
 import useAuthStore from './stores/authStore.js';
+import PwaInstallBanner from './components/PwaInstallBanner.jsx';
 
 function AdminCatchAll() {
   const user = useAuthStore((s) => s.user);
@@ -45,6 +46,7 @@ export default function App() {
 
   return (
     <HostGate>
+      <PwaInstallBanner />
       <Routes>
         {/* Admin portal — apex + admin.* */}
         <Route path="/admin/login" element={<AdminLogin />} />

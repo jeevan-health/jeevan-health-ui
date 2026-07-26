@@ -2,6 +2,11 @@
   min-height: 100dvh;
   background: linear-gradient(180deg, #ecfeff 0%, #f4fcff 40%, #f8fafc 100%);
   padding: 20px 16px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .ph-hire-hero {
