@@ -1,9 +1,37 @@
 import api from './api.js';
 
-/** Public hire application */
+/** Public hire application — returns { application, assessment } (Phase 9) */
 export async function submitPhlebotomistApplication(payload) {
   const { data } = await api.post('/staff-applications/phlebotomist', payload);
-  return data.data.application;
+  return data.data;
+}
+
+/** Public assessment by token */
+export async function getAssessmentByToken(token) {
+  const { data } = await api.get(`/staff-applications/assessment/${encodeURIComponent(token)}`);
+  return data.data;
+}
+
+export async function submitAssessmentByToken(token, answers) {
+  const { data } = await api.post(`/staff-applications/assessment/${encodeURIComponent(token)}/submit`, {
+    answers,
+  });
+  return data.data;
+}
+
+export async function resendAssessment(applicationId) {
+  const { data } = await api.post(`/staff-applications/${applicationId}/assessment/resend`);
+  return data.data;
+}
+
+export async function extendAssessment(applicationId, hours = 24) {
+  const { data } = await api.post(`/staff-applications/${applicationId}/assessment/extend`, { hours });
+  return data.data.assessment;
+}
+
+export async function overrideAssessment(applicationId, body) {
+  const { data } = await api.post(`/staff-applications/${applicationId}/assessment/override`, body);
+  return data.data.assessment;
 }
 
 /** Admin */

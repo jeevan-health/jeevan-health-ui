@@ -1,0 +1,416 @@
+/* Mobile-first — phlebotomists often take this on phone browsers / PWA */
+
+.ph-assess-page {
+  /* room for fixed submit dock + home indicator */
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ph-assess-page .ph-hire-hero {
+  margin-bottom: 12px;
+}
+
+.ph-assess-page .ph-hire-hero h1 {
+  font-size: clamp(1.25rem, 5.5vw, 1.55rem);
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.ph-assess-page .ph-hire-hero p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ph-assess-deadline {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #0f766e;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Sticky progress — always visible while scrolling */
+.ph-assess-progress {
+  max-width: 720px;
+  margin: 0 auto 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+  position: sticky;
+  top: max(0px, env(safe-area-inset-top, 0px));
+  z-index: 40;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ph-assess-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ph-assess-progress-pct {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f766e;
+  flex-shrink: 0;
+}
+
+.ph-assess-bar {
+  margin-top: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.ph-assess-bar span {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  background: linear-gradient(90deg, #0d9488, #14b8a6);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.ph-assess-error {
+  max-width: 720px;
+  margin: 0 auto 12px;
+  word-break: break-word;
+}
+
+.ph-assess-form {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ph-assess-section {
+  margin-bottom: 12px;
+  padding: 14px 12px !important;
+}
+
+.ph-assess-section h2 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f766e;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+.ph-assess-q {
+  border: none;
+  margin: 0 0 16px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.ph-assess-q:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ph-assess-q legend {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  line-height: 1.45;
+  padding: 0;
+  width: 100%;
+  float: none;
+  display: block;
+}
+
+.ph-assess-num {
+  color: #0f766e;
+  margin-right: 4px;
+}
+
+.ph-assess-options {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Large finger-friendly options (48px+ min height) */
+.ph-assess-options label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 12px;
+  min-height: 48px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-body);
+  cursor: pointer;
+  background: #fff;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.ph-assess-options label.picked {
+  border-color: #0d9488;
+  background: #f0fdfa;
+  color: var(--text-dark);
+  box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.25);
+}
+
+.ph-assess-options input {
+  /* visually hidden but accessible — whole label is the hit target */
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.ph-assess-letter {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #ecfeff;
+  color: #0f766e;
+  font-weight: 800;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+}
+
+.ph-assess-options label.picked .ph-assess-letter {
+  background: #0d9488;
+  color: #fff;
+}
+
+.ph-assess-opt-text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
+  padding-top: 3px;
+  word-break: break-word;
+}
+
+/* Fixed bottom dock — always reachable on small screens */
+.ph-assess-submit-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  max-width: 100%;
+  margin: 0;
+  padding: 10px 12px max(12px, env(safe-area-inset-bottom, 0px));
+  background: #fff;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.1);
+  box-sizing: border-box;
+}
+
+.ph-assess-submit-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: grid;
+  gap: 8px;
+}
+
+.ph-assess-submit-bar .muted {
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.ph-assess-submit-bar .btn {
+  min-height: 48px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  width: 100%;
+  touch-action: manipulation;
+}
+
+.ph-assess-submit-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+}
+
+.ph-assess-submit-actions .btn-outline-dark {
+  min-height: 48px !important;
+  font-size: 13px !important;
+}
+
+.ph-assess-result {
+  text-align: center;
+  padding: 28px 18px !important;
+}
+
+.ph-assess-result .ph-assess-score {
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: var(--text-dark);
+}
+
+.ph-assess-band {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ccfbf1;
+  color: #115e59;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  line-height: 1.35;
+  max-width: 100%;
+}
+
+.ph-assess-result .ph-hire-actions {
+  flex-direction: column;
+  width: 100%;
+}
+
+.ph-assess-result .ph-hire-actions .btn {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+}
+
+/* Confirm sheet — bottom sheet on mobile */
+.ph-assess-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.ph-assess-modal-bg {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(15, 23, 42, 0.5);
+  cursor: pointer;
+}
+
+.ph-assess-modal-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.14);
+  box-sizing: border-box;
+}
+
+.ph-assess-modal-card h2 {
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+
+.ph-assess-modal-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.ph-assess-modal-card .ph-hire-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.ph-assess-modal-card .ph-hire-actions .btn {
+  min-height: 48px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Unanswered highlight when user tries to submit incomplete */
+.ph-assess-q.needs-answer {
+  background: #fff7ed;
+  margin-left: -8px;
+  margin-right: -8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 8px;
+  border-radius: 12px;
+  border-bottom-color: transparent;
+}
+
+.ph-assess-q.needs-answer legend {
+  color: #c2410c;
+}
+
+@media (min-width: 520px) {
+  .ph-assess-section {
+    padding: 18px 16px !important;
+  }
+
+  .ph-assess-options label {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 720px) {
+  .ph-assess-submit-bar {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(720px, calc(100% - 32px));
+    bottom: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+
+  .ph-assess-page {
+    padding-bottom: 120px;
+  }
+
+  .ph-assess-modal {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .ph-assess-modal-card {
+    border-radius: 16px;
+    max-width: 400px;
+  }
+
+  .ph-assess-result .ph-hire-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .ph-assess-result .ph-hire-actions .btn {
+    width: auto;
+    min-width: 140px;
+  }
+}

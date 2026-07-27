@@ -78,8 +78,34 @@
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--bg-light);
-  color: var(--text-secondary);
+  margin-left: 6px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.admin-phlebo-list .badge.assess-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.admin-phlebo-list .badge.assess-passed {
+  background: #dcfce7;
+  color: #166534;
+}
+.admin-phlebo-list .badge.assess-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.admin-phlebo-list .badge.assess-expired {
+  background: #f1f5f9;
+  color: #475569;
+}
+.admin-phlebo-list .badge.assess-override {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.admin-phlebo-list .badge.assess-none {
+  background: #f8fafc;
+  color: #64748b;
 }
 
 .admin-phlebo-list .status-new {
@@ -115,6 +141,7 @@
   flex-wrap: wrap;
   gap: 6px;
   align-items: flex-start;
+  max-width: 100%;
 }
 
 .btn-sm {

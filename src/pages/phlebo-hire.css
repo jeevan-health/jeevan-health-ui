@@ -1,3 +1,60 @@
+.ph-field-hint {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.ph-assess-next {
+  text-align: left;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 14px;
+  padding: 14px 14px 4px;
+  margin: 16px 0;
+}
+
+.ph-assess-next h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f766e;
+  margin-bottom: 6px;
+}
+
+.ph-assess-next p {
+  font-size: 14px;
+  color: var(--text-body);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+/* Success card CTAs stack full-width on phones */
+.ph-hire-success .ph-hire-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.ph-hire-success .ph-hire-actions .btn {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (min-width: 520px) {
+  .ph-hire-success .ph-hire-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ph-hire-success .ph-hire-actions .btn {
+    width: auto;
+    min-width: 160px;
+  }
+}
+
 .ph-hire-page {
   min-height: 100dvh;
   background: linear-gradient(180deg, #ecfeff 0%, #f4fcff 40%, #f8fafc 100%);

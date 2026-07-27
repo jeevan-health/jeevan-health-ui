@@ -9,6 +9,7 @@ import Checkout from './pages/Checkout.jsx';
 import MyOrders from './pages/MyOrders.jsx';
 import Reports from './pages/Reports.jsx';
 import PhlebotomistOnboarding from './pages/PhlebotomistOnboarding.jsx';
+import PhleboAssessment from './pages/PhleboAssessment.jsx';
 import AdminLayout from './components/admin/AdminLayout.jsx';
 import AdminLogin from './pages/admin/AdminLogin.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
@@ -68,6 +69,8 @@ export default function App() {
         <Route path="/phlebo/jobs/:orderId" element={<PhleboJob />} />
         <Route path="/onboarding-phlebotomist" element={<PhlebotomistOnboarding />} />
         <Route path="/careers/phlebotomist" element={<PhlebotomistOnboarding />} />
+        <Route path="/careers/assessment/:token" element={<PhleboAssessment />} />
+        <Route path="/assessment/:token" element={<PhleboAssessment />} />
 
         {adminHost ? (
           <Route path="*" element={<AdminCatchAll />} />

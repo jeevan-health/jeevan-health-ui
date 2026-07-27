@@ -50,6 +50,7 @@ export default function PhlebotomistOnboarding() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(null);
+  const [assessment, setAssessment] = useState(null);
   const phleboHost = isPhleboHostname();
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
@@ -62,6 +63,7 @@ export default function PhlebotomistOnboarding() {
         return (
           form.fullName.trim().length >= 2 &&
           form.phone.replace(/\D/g, '').length >= 10 &&
+          form.email.trim().includes('@') &&
           form.gender &&
           form.education
         );
@@ -93,11 +95,15 @@ export default function PhlebotomistOnboarding() {
     }
     setLoading(true);
     setError('');
+    if (!form.email.trim().includes('@')) {
+      setError('Email is required so we can send your competency assessment link.');
+      return;
+    }
     try {
-      const app = await submitPhlebotomistApplication({
+      const data = await submitPhlebotomistApplication({
         fullName: form.fullName.trim(),
         phone: form.phone.trim(),
-        email: form.email.trim() || null,
+        email: form.email.trim(),
         dob: form.dob || null,
         age: form.age ? Number(form.age) : null,
         gender: form.gender || null,
@@ -122,7 +128,8 @@ export default function PhlebotomistOnboarding() {
         },
         files: [],
       });
-      setDone(app);
+      setDone(data.application || data);
+      setAssessment(data.assessment || null);
     } catch (e) {
       setError(e?.response?.data?.error?.message || e.message || 'Could not submit application');
     } finally {
@@ -131,6 +138,17 @@ export default function PhlebotomistOnboarding() {
   };
 
   if (done) {
+    const assessPath = assessment?.url
+      ? new URL(assessment.url).pathname + (new URL(assessment.url).search || '')
+      : null;
+    const deadline = assessment?.deadlineAt
+      ? new Date(assessment.deadlineAt).toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : null;
     return (
       <div className="ph-hire-page">
         <div className="ph-hire-card ph-hire-success">
@@ -139,23 +157,38 @@ export default function PhlebotomistOnboarding() {
           </div>
           <h1>Application received</h1>
           <p>
-            Thank you, <strong>{done.fullName}</strong>. Our hiring team will review your profile
-            and contact you on <strong>{done.phone}</strong>.
+            Thank you, <strong>{done.fullName}</strong>. Profile saved
+            {done.phone ? (
+              <>
+                {' '}
+                for <strong>{done.phone}</strong>
+              </>
+            ) : null}
+            .
           </p>
-          <p className="muted">
-            Status: <strong>{done.status}</strong>
-          </p>
-          {phleboHost ? (
-            <p className="muted">
-              After admin promotes you, sign in with this phone on{' '}
-              <Link to="/phlebo/login">Field login</Link>.
+          <div className="ph-assess-next">
+            <h2>Next: competency assessment</h2>
+            <p>
+              Complete the Level-1 MCQ (50 questions, pass 80%) so we can review you for the roster.
+              {deadline ? (
+                <>
+                  {' '}
+                  Deadline: <strong>{deadline}</strong>
+                  {assessment?.hours ? ` (${assessment.hours}h window)` : ''}.
+                </>
+              ) : null}
             </p>
-          ) : (
             <p className="muted">
-              After approval: <code>phlebo.jeevanhealthcare.com</code> → Field login
+              We also emailed the link to <strong>{done.email || form.email}</strong>
+              {assessment?.emailSent === false ? ' (if mail is not configured, use the button below)' : ''}.
             </p>
-          )}
+          </div>
           <div className="ph-hire-actions">
+            {assessPath ? (
+              <Link to={assessPath} className="btn btn-primary">
+                Take assessment now
+              </Link>
+            ) : null}
             {phleboHost ? (
               <Link to="/" className="btn btn-outline-dark">
                 Phlebo home
@@ -165,9 +198,6 @@ export default function PhlebotomistOnboarding() {
                 Back home
               </Link>
             )}
-            <Link to="/phlebo/login" className="btn btn-primary">
-              Field login
-            </Link>
           </div>
         </div>
       </div>
@@ -226,11 +256,13 @@ export default function PhlebotomistOnboarding() {
                 />
               </label>
               <label>
-                Email
+                Email * <span className="ph-field-hint">(assessment link)</span>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => set('email', e.target.value)}
+                  required
+                  autoComplete="email"
                 />
               </label>
             </div>

@@ -69,7 +69,9 @@ export function isPhleboPath(pathname) {
     pathname === '/phlebo' ||
     pathname.startsWith('/phlebo/') ||
     pathname === '/onboarding-phlebotomist' ||
-    pathname === '/careers/phlebotomist'
+    pathname === '/careers/phlebotomist' ||
+    pathname.startsWith('/careers/assessment/') ||
+    pathname.startsWith('/assessment/')
   );
 }
 

@@ -7,10 +7,37 @@ import {
   updateApplication,
   promoteApplication,
   listRoster,
+  resendAssessment,
+  extendAssessment,
+  overrideAssessment,
 } from '../../services/phleboService.js';
 import './admin-catalog.css';
 import './admin-phlebo.css';
 import './admin-orders.css';
+
+function assessBadge(a) {
+  const ass = a?.assessment;
+  if (!ass) return { cls: 'assess-none', text: 'No assessment' };
+  const st = ass.status;
+  if (st === 'passed') {
+    return {
+      cls: 'assess-passed',
+      text: `Passed ${ass.score != null ? `${ass.score}/${ass.maxScore || 50}` : ''}`.trim(),
+    };
+  }
+  if (st === 'failed') {
+    return {
+      cls: 'assess-failed',
+      text: `Failed ${ass.score != null ? `${ass.score}/${ass.maxScore || 50}` : ''}`.trim(),
+    };
+  }
+  if (st === 'overridden') {
+    const out = ass.resultDetail?.overrideOutcome || 'override';
+    return { cls: 'assess-override', text: `Overridden (${out})` };
+  }
+  if (st === 'expired') return { cls: 'assess-expired', text: 'Expired' };
+  return { cls: 'assess-pending', text: 'Assessment pending' };
+}
 
 export default function AdminPhleboHire() {
   const { user, isAuthenticated } = useAuthStore();
@@ -109,13 +136,69 @@ export default function AdminPhleboHire() {
     }
   };
 
+  const onResend = async (id) => {
+    setBusyId(id);
+    setMsg(null);
+    setError(null);
+    try {
+      const data = await resendAssessment(id);
+      setMsg(
+        data.emailQueued
+          ? 'Assessment invite re-sent by email (new deadline).'
+          : 'Assessment link refreshed (no email on file / queued).',
+      );
+      await loadApps();
+    } catch (e) {
+      setError(e?.response?.data?.error?.message || e.message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const onExtend = async (id) => {
+    setBusyId(id);
+    setMsg(null);
+    try {
+      await extendAssessment(id, 24);
+      setMsg('Deadline extended by 24 hours');
+      await loadApps();
+    } catch (e) {
+      setError(e?.response?.data?.error?.message || e.message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const onOverride = async (id, outcome) => {
+    const note = window.prompt(
+      outcome === 'waived'
+        ? 'Note for waiving assessment (required for audit):'
+        : outcome === 'passed'
+          ? 'Note for override pass:'
+          : 'Note for override fail:',
+      '',
+    );
+    if (note === null) return;
+    setBusyId(id);
+    setMsg(null);
+    try {
+      await overrideAssessment(id, { outcome, note: note || null });
+      setMsg(`Assessment overridden: ${outcome}`);
+      await loadApps();
+    } catch (e) {
+      setError(e?.response?.data?.error?.message || e.message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="admin-phlebo">
       <div className="admin-ord-hero">
         <div className="container">
           <p className="admin-ord-eyebrow">Hiring</p>
           <h1>Phlebotomists</h1>
-          <p>Review applications, promote to roster, enable field login</p>
+          <p>Applications · competency assessment · promote to roster</p>
         </div>
       </div>
 
@@ -174,60 +257,131 @@ export default function AdminPhleboHire() {
           <div className="admin-card">
             {!apps.length && <p className="muted">No applications yet.</p>}
             <ul className="admin-phlebo-list">
-              {apps.map((a) => (
-                <li key={a.id}>
-                  <div>
-                    <strong>{a.fullName}</strong>
-                    <span className={`badge status-${a.status}`}>{a.status}</span>
-                    <p>
-                      {a.phone}
-                      {a.education ? ` · ${a.education}` : ''}
-                      {a.preferredLocation ? ` · ${a.preferredLocation}` : ''}
-                    </p>
-                    <p className="sub">
-                      {a.data?.preferredJobs?.length
-                        ? a.data.preferredJobs.join(', ')
-                        : '—'}
-                      {a.createdAt
-                        ? ` · ${new Date(a.createdAt).toLocaleString('en-IN')}`
-                        : ''}
-                    </p>
-                  </div>
-                  <div className="admin-phlebo-actions">
-                    {a.status !== 'hired' && a.status !== 'rejected' && (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn-outline-dark btn-sm"
-                          disabled={busyId === a.id}
-                          onClick={() => onShortlist(a.id)}
-                        >
-                          Shortlist
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm"
-                          disabled={busyId === a.id}
-                          onClick={() => onPromote(a.id)}
-                        >
-                          Promote &amp; enable login
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline-dark btn-sm"
-                          disabled={busyId === a.id}
-                          onClick={() => onReject(a.id)}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                    {a.status === 'hired' && (
-                      <span className="sub">On roster · login enabled</span>
-                    )}
-                  </div>
-                </li>
-              ))}
+              {apps.map((a) => {
+                const badge = assessBadge(a);
+                const canPromote = a.assessmentCanPromote || a.assessment?.canPromote;
+                const ass = a.assessment;
+                return (
+                  <li key={a.id}>
+                    <div>
+                      <strong>{a.fullName}</strong>
+                      <span className={`badge status-${a.status}`}>{a.status}</span>
+                      <span className={`badge ${badge.cls}`}>{badge.text}</span>
+                      <p>
+                        {a.phone}
+                        {a.email ? ` · ${a.email}` : ''}
+                        {a.education ? ` · ${a.education}` : ''}
+                        {a.preferredLocation ? ` · ${a.preferredLocation}` : ''}
+                      </p>
+                      <p className="sub">
+                        {a.data?.preferredJobs?.length
+                          ? a.data.preferredJobs.join(', ')
+                          : '—'}
+                        {a.createdAt
+                          ? ` · ${new Date(a.createdAt).toLocaleString('en-IN')}`
+                          : ''}
+                      </p>
+                      {ass?.deadlineAt && ass.status === 'pending' && (
+                        <p className="sub">
+                          Assessment due{' '}
+                          {new Date(ass.deadlineAt).toLocaleString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      )}
+                      {ass?.band && (ass.status === 'passed' || ass.status === 'failed') && (
+                        <p className="sub">Band: {ass.band.replace('_', ' ')}</p>
+                      )}
+                      {ass?.overrideNote && (
+                        <p className="sub">Override note: {ass.overrideNote}</p>
+                      )}
+                    </div>
+                    <div className="admin-phlebo-actions">
+                      {a.status !== 'hired' && a.status !== 'rejected' && (
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn-outline-dark btn-sm"
+                            disabled={busyId === a.id}
+                            onClick={() => onShortlist(a.id)}
+                          >
+                            Shortlist
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            disabled={busyId === a.id || !canPromote}
+                            title={
+                              canPromote
+                                ? 'Hire to roster'
+                                : 'Requires passed assessment or admin override (waive/pass)'
+                            }
+                            onClick={() => onPromote(a.id)}
+                          >
+                            Promote &amp; enable login
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-dark btn-sm"
+                            disabled={busyId === a.id}
+                            onClick={() => onReject(a.id)}
+                          >
+                            Reject
+                          </button>
+                          {ass && (ass.status === 'pending' || ass.status === 'expired') && (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-outline-dark btn-sm"
+                                disabled={busyId === a.id}
+                                onClick={() => onResend(a.id)}
+                              >
+                                Resend assessment
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-outline-dark btn-sm"
+                                disabled={busyId === a.id}
+                                onClick={() => onExtend(a.id)}
+                              >
+                                +24h deadline
+                              </button>
+                            </>
+                          )}
+                          {ass && ass.status !== 'overridden' && a.status !== 'hired' && (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-outline-dark btn-sm"
+                                disabled={busyId === a.id}
+                                onClick={() => onOverride(a.id, 'waived')}
+                              >
+                                Override waive
+                              </button>
+                              {ass.status === 'failed' && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-dark btn-sm"
+                                  disabled={busyId === a.id}
+                                  onClick={() => onOverride(a.id, 'passed')}
+                                >
+                                  Override pass
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </>
+                      )}
+                      {a.status === 'hired' && (
+                        <span className="sub">On roster · login enabled</span>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
