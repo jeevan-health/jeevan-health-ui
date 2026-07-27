@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { detectPwaSurface } from '../pwa/registerPwa.js';
 import {
   subscribeInstallPrompt,
@@ -7,6 +8,13 @@ import {
   isIosSafari,
 } from '../pwa/installPrompt.js';
 import './pwa-install.css';
+
+function isAssessmentPath(pathname) {
+  return (
+    pathname.startsWith('/careers/assessment/') ||
+    pathname.startsWith('/assessment/')
+  );
+}
 
 const LABELS = {
   patient: { name: 'Jeevan Healthcare', hint: 'Book tests & reports' },
@@ -19,6 +27,7 @@ const LABELS = {
  * permanent Install buttons remain in headers via InstallAppButton.
  */
 export default function PwaInstallBanner() {
+  const { pathname } = useLocation();
   const [canPrompt, setCanPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     try {
@@ -38,6 +47,8 @@ export default function PwaInstallBanner() {
     return subscribeInstallPrompt((d) => setCanPrompt(Boolean(d)));
   }, []);
 
+  // Never interrupt the competency assessment with install prompts
+  if (isAssessmentPath(pathname)) return null;
   if (standalone || dismissed) return null;
   if (!canPrompt && !iosTip) return null;
 

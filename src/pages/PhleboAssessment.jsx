@@ -4,13 +4,6 @@ import { getAssessmentByToken, submitAssessmentByToken } from '../services/phleb
 import './phlebo-hire.css';
 import './phlebo-assessment.css';
 
-const BAND_LABEL = {
-  excellent: 'Excellent — Immediate interview',
-  qualified: 'Qualified',
-  training: 'Training required',
-  not_qualified: 'Not qualified',
-};
-
 export default function PhleboAssessment() {
   const { token } = useParams();
   const [loading, setLoading] = useState(true);
@@ -139,34 +132,26 @@ export default function PhleboAssessment() {
   }
 
   if (result || alreadySubmitted) {
-    const passed = result?.passed || assessment?.status === 'passed' || assessment?.canPromote;
     return (
       <div className="ph-hire-page ph-assess-page">
         <div className="ph-hire-card ph-assess-result">
           <div className="ph-hire-emoji" aria-hidden>
-            {passed ? '✅' : '📋'}
+            ✅
           </div>
-          <h1>{passed ? 'Assessment passed' : 'Assessment submitted'}</h1>
-          {result?.score != null && (
-            <p className="ph-assess-score">
-              Score: <strong>{result.score}</strong> / {result.maxScore || 50}
-              {result.passMark != null ? ` · Pass mark ${result.passMark}` : ''}
-            </p>
-          )}
-          {result?.band && (
-            <p className="ph-assess-band">{BAND_LABEL[result.band] || result.band}</p>
-          )}
+          <h1>Assessment submitted</h1>
+          <p>
+            Thank you. Your answers have been recorded. Our hiring team will review your application
+            and contact you for further steps.
+          </p>
           <p className="muted">
-            Our hiring team will review your application
-            {passed
-              ? ' and contact you about next steps.'
-              : '. You may be invited for training or a re-attempt at their discretion.'}
+            You do not need to do anything else right now. For questions, call support or wait for
+            our team to reach out on your registered phone or email.
           </p>
           <div className="ph-hire-actions">
-            <Link to="/onboarding-phlebotomist" className="btn btn-outline-dark">
-              Hire form
+            <Link to="/" className="btn btn-primary">
+              Phlebo home
             </Link>
-            <Link to="/phlebo/login" className="btn btn-primary">
+            <Link to="/phlebo/login" className="btn btn-outline-dark">
               Field login
             </Link>
           </div>
@@ -215,8 +200,8 @@ export default function PhleboAssessment() {
         <p className="ph-hire-eyebrow">Jeevan HealthCare · Level 1</p>
         <h1>Phlebotomist competency assessment</h1>
         <p>
-          Home sample collection · {paper?.totalQuestions || 50} MCQs · Pass {paper?.passMark || 40}/
-          {paper?.maxScore || 50} (80%)
+          Home sample collection · {paper?.totalQuestions || 50} multiple-choice questions · one
+          attempt
         </p>
         {deadline && (
           <p className="ph-assess-deadline">

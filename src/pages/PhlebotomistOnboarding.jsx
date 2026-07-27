@@ -138,9 +138,6 @@ export default function PhlebotomistOnboarding() {
   };
 
   if (done) {
-    const assessPath = assessment?.url
-      ? new URL(assessment.url).pathname + (new URL(assessment.url).search || '')
-      : null;
     const deadline = assessment?.deadlineAt
       ? new Date(assessment.deadlineAt).toLocaleString('en-IN', {
           day: '2-digit',
@@ -149,6 +146,7 @@ export default function PhlebotomistOnboarding() {
           minute: '2-digit',
         })
       : null;
+    const hours = assessment?.hours || 48;
     return (
       <div className="ph-hire-page">
         <div className="ph-hire-card ph-hire-success">
@@ -157,7 +155,7 @@ export default function PhlebotomistOnboarding() {
           </div>
           <h1>Application received</h1>
           <p>
-            Thank you, <strong>{done.fullName}</strong>. Profile saved
+            Thank you, <strong>{done.fullName}</strong>. We saved your details
             {done.phone ? (
               <>
                 {' '}
@@ -167,34 +165,35 @@ export default function PhlebotomistOnboarding() {
             .
           </p>
           <div className="ph-assess-next">
-            <h2>Next: competency assessment</h2>
+            <h2>Next step — check your email</h2>
             <p>
-              Complete the Level-1 MCQ (50 questions, pass 80%) so we can review you for the roster.
+              We will email a <strong>competency assessment link</strong> to{' '}
+              <strong>{done.email || form.email}</strong>. You must complete the assessment to move
+              to the next steps in hiring.
+            </p>
+            <p>
+              Please open the link from your email (it opens on the Phlebo portal). You typically
+              have about <strong>{hours} hours</strong> to finish
               {deadline ? (
                 <>
                   {' '}
-                  Deadline: <strong>{deadline}</strong>
-                  {assessment?.hours ? ` (${assessment.hours}h window)` : ''}.
+                  (deadline around <strong>{deadline}</strong>)
                 </>
               ) : null}
+              . Use the same email inbox and check spam if you do not see it soon.
             </p>
             <p className="muted">
-              We also emailed the link to <strong>{done.email || form.email}</strong>
-              {assessment?.emailSent === false ? ' (if mail is not configured, use the button below)' : ''}.
+              After you submit the assessment, our team will review and contact you. Do not share
+              the assessment link with others.
             </p>
           </div>
           <div className="ph-hire-actions">
-            {assessPath ? (
-              <Link to={assessPath} className="btn btn-primary">
-                Take assessment now
-              </Link>
-            ) : null}
             {phleboHost ? (
-              <Link to="/" className="btn btn-outline-dark">
+              <Link to="/" className="btn btn-primary">
                 Phlebo home
               </Link>
             ) : (
-              <Link to="/" className="btn btn-outline-dark">
+              <Link to="/" className="btn btn-primary">
                 Back home
               </Link>
             )}
