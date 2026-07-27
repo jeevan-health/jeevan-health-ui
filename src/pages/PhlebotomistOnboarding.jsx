@@ -142,6 +142,17 @@ export default function PhlebotomistOnboarding() {
     const windowHours = assessment?.hours || 48;
     const deadline = formatDeadlineIst(assessment?.deadlineAt);
     const left = hoursRemaining(assessment?.deadlineAt);
+    // Prefer absolute phlebo-host URL from API so apex hire form also lands on phlebo portal
+    const assessUrl = assessment?.url || null;
+    let assessPath = null;
+    if (assessUrl) {
+      try {
+        const u = new URL(assessUrl);
+        assessPath = u.pathname + (u.search || '');
+      } catch {
+        assessPath = null;
+      }
+    }
     return (
       <div className="ph-hire-page">
         <div className="ph-hire-card ph-hire-success">
@@ -160,14 +171,10 @@ export default function PhlebotomistOnboarding() {
             .
           </p>
           <div className="ph-assess-next">
-            <h2>Next step — check your email</h2>
+            <h2>Next step — competency assessment</h2>
             <p>
-              We will email a <strong>competency assessment link</strong> to{' '}
-              <strong>{done.email || form.email}</strong>. You must complete the assessment to move
-              to the next steps in hiring.
-            </p>
-            <p>
-              You have <strong>{windowHours} hours from now</strong> to finish the assessment
+              You must complete the assessment to move to the next steps in hiring. You have{' '}
+              <strong>{windowHours} hours from now</strong>
               {deadline ? (
                 <>
                   {' '}
@@ -175,22 +182,37 @@ export default function PhlebotomistOnboarding() {
                   {left != null && left > 0 ? ` (about ${left} hours left)` : ''}
                 </>
               ) : null}
-              . Open the link from your email (Phlebo portal). Check spam if you do not see the mail
-              soon.
+              .
+            </p>
+            <p>
+              <strong>Ready now?</strong> Start the test on this device. If you prefer later, use the
+              link we email to <strong>{done.email || form.email}</strong> (check spam if needed). The
+              same link will also be sent by SMS / WhatsApp once those channels are enabled.
             </p>
             <p className="muted">
-              After you submit the assessment, our team will review and contact you. Do not share
-              the assessment link with others.
+              After you submit, our team will review and contact you. Do not share the assessment
+              link with others.
             </p>
           </div>
           <div className="ph-hire-actions">
+            {assessUrl || assessPath ? (
+              phleboHost && assessPath ? (
+                <Link to={assessPath} className="btn btn-primary">
+                  Start assessment now
+                </Link>
+              ) : (
+                <a href={assessUrl} className="btn btn-primary">
+                  Start assessment now
+                </a>
+              )
+            ) : null}
             {phleboHost ? (
-              <Link to="/" className="btn btn-primary">
-                Phlebo home
+              <Link to="/" className="btn btn-outline-dark">
+                Do it later · Phlebo home
               </Link>
             ) : (
-              <Link to="/" className="btn btn-primary">
-                Back home
+              <Link to="/" className="btn btn-outline-dark">
+                Do it later · Home
               </Link>
             )}
           </div>
