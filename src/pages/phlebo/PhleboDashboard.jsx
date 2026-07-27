@@ -84,9 +84,7 @@ export default function PhleboDashboard() {
             <span>Phlebo field</span>
           </div>
           <div className="phlebo-top-actions">
-            <InstallAppButton variant="header" />
-            <EnablePushButton variant="header" />
-            <button type="button" className="btn btn-outline-dark" onClick={() => logout()}>
+            <button type="button" className="btn btn-outline-dark phlebo-logout-btn" onClick={() => logout()}>
               Log out
             </button>
           </div>
@@ -97,6 +95,11 @@ export default function PhleboDashboard() {
         <p className="phlebo-eyebrow">Field portal · {data?.today || 'today IST'}</p>
         <h1>Hello{p?.name || user?.name ? `, ${p?.name || user?.name}` : ''}</h1>
         {p?.employeeId ? <p className="muted">{p.employeeId}</p> : null}
+
+        <div className="phlebo-tools-row">
+          <InstallAppButton variant="block" />
+          <EnablePushButton variant="block" />
+        </div>
 
         {loading && <p className="muted">Loading…</p>}
         {error && <div className="phlebo-error">{error}</div>}

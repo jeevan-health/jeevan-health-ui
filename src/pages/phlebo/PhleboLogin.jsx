@@ -76,16 +76,19 @@ export default function PhleboLogin() {
 
         {step === 'identify' ? (
           <form onSubmit={onSend} className="auth-form">
-            <label>
+            <label className="auth-label" htmlFor="phlebo-dest">
               Mobile number
-              <input
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="10-digit mobile"
-                inputMode="tel"
-                required
-              />
             </label>
+            <input
+              id="phlebo-dest"
+              className="auth-input"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              placeholder="10-digit mobile"
+              inputMode="tel"
+              autoComplete="tel"
+              required
+            />
             {(localError || error) && <div className="auth-error">{localError || error}</div>}
             <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
               {loading ? 'Sending…' : 'Send OTP'}
@@ -99,15 +102,18 @@ export default function PhleboLogin() {
                 Console OTP: <strong>{devCode}</strong>
               </p>
             )}
-            <label>
+            <label className="auth-label" htmlFor="phlebo-otp">
               Enter OTP
-              <input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                inputMode="numeric"
-                required
-              />
             </label>
+            <input
+              id="phlebo-otp"
+              className="auth-input auth-otp"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              required
+            />
             {(localError || error) && <div className="auth-error">{localError || error}</div>}
             <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
               {loading ? 'Verifying…' : 'Verify & enter'}

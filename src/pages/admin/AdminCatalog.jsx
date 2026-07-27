@@ -183,16 +183,18 @@ export default function AdminCatalog() {
               <tbody>
                 {items.map((t) => (
                   <tr key={t.id} className={t.isActive ? '' : 'inactive'}>
-                    <td className="mono">{t.jhcCode}</td>
-                    <td>{t.name}</td>
-                    <td>
+                    <td className="mono" data-label="Code">
+                      {t.jhcCode}
+                    </td>
+                    <td data-label="Name">{t.name}</td>
+                    <td data-label="Price">
                       {formatInr(t.price)}
                       {t.marketMrp != null && t.marketMrp > t.price && (
                         <span className="mrp"> {formatInr(t.marketMrp)}</span>
                       )}
                     </td>
-                    <td>{t.isActive ? 'Active' : 'Off'}</td>
-                    <td>
+                    <td data-label="Status">{t.isActive ? 'Active' : 'Off'}</td>
+                    <td data-label="Action">
                       <button type="button" className="linkish" onClick={() => toggleActive(t)}>
                         {t.isActive ? 'Disable' : 'Enable'}
                       </button>

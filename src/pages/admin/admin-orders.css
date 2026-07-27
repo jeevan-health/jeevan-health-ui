@@ -125,3 +125,92 @@
     align-items: end;
   }
 }
+
+/* Mobile: order cards — full controls, no crushed columns */
+@media (max-width: 720px) {
+  .admin-ord-table-wrap {
+    overflow: visible;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .admin-ord-table,
+  .admin-ord-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-ord-table thead {
+    display: none;
+  }
+
+  .admin-ord-table tr {
+    display: grid;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .admin-ord-table td {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 8px;
+    align-items: start;
+    padding: 0;
+    border: none;
+    font-size: 14px;
+  }
+
+  .admin-ord-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    padding-top: 2px;
+  }
+
+  .admin-ord-table .code {
+    word-break: break-all;
+    font-size: 13px;
+  }
+
+  .ord-tests {
+    max-width: none;
+  }
+
+  .admin-ord-status {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .admin-assign-cell {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .admin-assign-cell select {
+    width: 100%;
+  }
+
+  .admin-assign-cell .btn-sm {
+    width: 100%;
+  }
+
+  .admin-ord-table td[data-label='Status'],
+  .admin-ord-table td[data-label='Assign phlebo'] {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-ord-table td[data-label='Status']::before,
+  .admin-ord-table td[data-label='Assign phlebo']::before {
+    margin-bottom: 4px;
+  }
+}

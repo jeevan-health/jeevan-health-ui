@@ -219,22 +219,26 @@
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
-  z-index: 200;
+  /* above bottom nav (90) and header (100) */
+  z-index: 10500;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .diag-drawer {
   background: #fff;
   width: 100%;
   max-width: 480px;
-  max-height: 85dvh;
+  max-height: min(88dvh, 100%);
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 20px 20px 0 0;
-  padding: 20px 18px 28px;
+  padding: 20px 18px max(28px, calc(16px + env(safe-area-inset-bottom, 0px)));
   position: relative;
   box-shadow: var(--shadow-lg);
+  box-sizing: border-box;
 }
 
 .diag-drawer-close {

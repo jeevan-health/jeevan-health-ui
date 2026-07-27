@@ -42,6 +42,41 @@
   gap: 10px;
 }
 
+/* Bare <label>…<input> forms (phlebo login etc.) must stack on mobile */
+.auth-form > label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  width: 100%;
+  min-width: 0;
+}
+
+.auth-form > label > input,
+.auth-form > label > select,
+.auth-form > label > textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 400;
+  background: #fff;
+  outline: none;
+}
+
+.auth-form > label > input:focus,
+.auth-form > label > select:focus,
+.auth-form > label > textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(24, 102, 201, 0.15);
+}
+
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   background: var(--bg-body);
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .admin-top {
@@ -14,72 +16,51 @@
   box-shadow: var(--shadow-sm);
 }
 
-.admin-top-inner {
+/* Row 1: brand + actions */
+.admin-top-bar {
   max-width: 1120px;
   width: 100%;
   margin: 0 auto;
-  padding: 10px 16px;
+  padding: 8px 12px 0;
   display: flex;
   align-items: center;
-  gap: 8px 16px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
   box-sizing: border-box;
 }
 
 .admin-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-weight: 800;
   color: var(--primary);
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .admin-brand img {
-  height: 36px;
+  height: 32px;
   width: auto;
-  max-width: 160px;
+  max-width: 140px;
   object-fit: contain;
 }
 
 .admin-brand span {
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   background: var(--brand-secondary-light);
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 
-.admin-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.admin-nav a {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.admin-nav a:hover,
-.admin-nav a.active {
-  background: var(--brand-secondary-light);
-  color: var(--primary);
-}
-
-.admin-top-user {
+.admin-top-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-left: auto;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .admin-role {
@@ -89,22 +70,186 @@
   text-transform: capitalize;
 }
 
+.admin-role--desktop {
+  display: none;
+}
+
 .admin-logout {
   min-height: 36px !important;
   padding: 8px 12px !important;
   font-size: 12px !important;
 }
 
+.admin-tools-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-light);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Row 2: horizontal scroll nav — never wraps under logo */
+.admin-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px 12px 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  box-sizing: border-box;
+}
+
+.admin-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-nav a {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.admin-nav a:hover,
+.admin-nav a.active {
+  background: var(--brand-secondary-light);
+  color: var(--primary);
+}
+
+/* Desktop-only tools under nav (hidden on mobile — use More sheet) */
+.admin-top-tools {
+  display: none;
+}
+
 .admin-main {
   flex: 1;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Mobile tools bottom sheet */
+.admin-tools-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+}
+
+.admin-tools-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+}
+
+.admin-tools-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 18px 16px max(20px, env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  max-height: min(70dvh, 420px);
+  overflow: auto;
+}
+
+.admin-tools-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 4px;
+}
+
+.admin-tools-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0 0 14px;
+}
+
+.admin-tools-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-tools-stack .btn,
+.admin-tools-stack .install-app-btn,
+.admin-tools-stack .enable-push-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 @media (max-width: 600px) {
   .admin-brand span {
     display: none;
   }
-  .admin-role {
+  /* Prefer More sheet for logout on very small screens to free space */
+  .admin-logout {
     display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .admin-top {
+    /* desktop: single compact header strip */
+  }
+
+  .admin-top-bar {
+    padding: 10px 16px 0;
+  }
+
+  .admin-brand img {
+    height: 36px;
+    max-width: 160px;
+  }
+
+  .admin-brand span {
+    display: inline-block;
+  }
+
+  .admin-role--desktop {
+    display: inline;
+  }
+
+  .admin-tools-toggle {
+    display: none;
+  }
+
+  .admin-logout {
+    display: inline-flex !important;
+  }
+
+  .admin-nav {
+    padding: 8px 16px 10px;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .admin-top-tools--desktop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 16px 10px;
+    box-sizing: border-box;
   }
 }

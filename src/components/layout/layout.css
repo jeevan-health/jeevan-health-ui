@@ -44,10 +44,17 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 2px;
   flex-shrink: 0;
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+/* Install in header crowds logo + Login on phones — drawer already has it */
+@media (max-width: 720px) {
+  .header-right .install-app-btn--header {
+    display: none;
+  }
 }
 
 .drawer-install {
@@ -181,13 +188,15 @@
   color: var(--text-light);
 }
 
-/* Drawer */
+/* Drawer — above header (100), bottom nav (90), PWA banner (9000) */
 .nav-drawer-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
-  z-index: 200;
+  z-index: 11000;
   animation: fadeIn 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .nav-drawer {
@@ -196,14 +205,17 @@
   left: 0;
   bottom: 0;
   width: min(300px, 86vw);
+  max-width: 100%;
   background: #fff;
-  z-index: 210;
-  padding: 20px 16px;
+  z-index: 11010;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom, 0px));
   box-shadow: var(--shadow-lg);
   animation: slideIn 0.22s ease;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-drawer img {

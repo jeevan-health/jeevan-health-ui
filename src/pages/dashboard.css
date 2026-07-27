@@ -99,4 +99,10 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 8px;
+  /* keep last actions clear of fixed bottom nav */
+  padding-bottom: 8px;
+}
+
+.dash-actions .btn {
+  min-height: 44px;
 }

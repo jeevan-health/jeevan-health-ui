@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../stores/authStore.js';
 import useCartStore from '../../stores/cartStore.js';
@@ -12,9 +12,18 @@ export default function Header() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const cartCount = useCartStore((s) => s.count());
+  const cartOpen = useCartStore((s) => s.drawerOpen);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    const lock = menuOpen || cartOpen;
+    document.body.style.overflow = lock ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen, cartOpen]);
 
   const onSearch = (e) => {
     e.preventDefault();

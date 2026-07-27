@@ -325,7 +325,7 @@
   justify-content: center;
 }
 
-/* Sticky bottom CTAs (above bottom nav) */
+/* Sticky bottom CTAs (above bottom nav) — shown only after hero CTAs scroll away */
 .home-sticky-cta {
   display: block;
   position: fixed;
@@ -337,6 +337,18 @@
   background: linear-gradient(180deg, rgba(244, 252, 255, 0) 0%, rgba(244, 252, 255, 0.95) 35%, #fff 100%);
   border-top: 1px solid transparent;
   pointer-events: none;
+  animation: stickyCtaIn 0.2s ease;
+}
+
+@keyframes stickyCtaIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .home-sticky-cta-inner {

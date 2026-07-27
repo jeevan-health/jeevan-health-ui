@@ -131,8 +131,15 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 520px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 }
 
 .field-narrow {

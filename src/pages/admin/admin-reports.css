@@ -18,6 +18,21 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   font-weight: 400;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.admin-report-form .btn {
+  width: 100%;
+  min-height: 44px;
+}
+
+@media (min-width: 520px) {
+  .admin-report-form .btn {
+    width: auto;
+  }
 }
 
 .admin-report-form .admin-check {

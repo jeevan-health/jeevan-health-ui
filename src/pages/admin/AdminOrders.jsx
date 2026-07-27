@@ -176,12 +176,12 @@ export default function AdminOrders() {
               <tbody>
                 {items.map((o) => (
                   <tr key={o.id}>
-                    <td>
+                    <td data-label="Order">
                       <strong className="code">{o.orderCode}</strong>
                       <div className="sub">{o.paymentStatus}</div>
                       {o.phleboStatus ? <div className="sub">field: {o.phleboStatus}</div> : null}
                     </td>
-                    <td>
+                    <td data-label="Patient">
                       <div>{o.patientName}</div>
                       <div className="sub">{o.patientPhone}</div>
                       <div className="sub">
@@ -189,7 +189,7 @@ export default function AdminOrders() {
                         {o.collectionSlot ? ` · ${o.collectionSlot}` : ''}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Tests">
                       <div className="ord-tests">
                         {(o.items || []).slice(0, 3).map((it) => (
                           <span key={it.id}>
@@ -201,8 +201,8 @@ export default function AdminOrders() {
                         ) : null}
                       </div>
                     </td>
-                    <td>{formatInr(o.total)}</td>
-                    <td>
+                    <td data-label="Total">{formatInr(o.total)}</td>
+                    <td data-label="Status">
                       <select
                         className="admin-ord-status"
                         value={o.status}
@@ -216,7 +216,7 @@ export default function AdminOrders() {
                         ))}
                       </select>
                     </td>
-                    <td>
+                    <td data-label="Assign phlebo">
                       <div className="admin-assign-cell">
                         <select
                           value={assignPick[o.id] || o.assignedPhlebotomistId || ''}
@@ -242,7 +242,7 @@ export default function AdminOrders() {
                         </button>
                       </div>
                     </td>
-                    <td className="sub">
+                    <td className="sub" data-label="Created">
                       {o.createdAt
                         ? new Date(o.createdAt).toLocaleString('en-IN', {
                             day: '2-digit',

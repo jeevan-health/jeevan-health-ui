@@ -18,11 +18,14 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .phlebo-login-brand img {
   height: 40px;
   width: auto;
+  max-width: min(180px, 55%);
+  object-fit: contain;
 }
 
 .phlebo-login-pill {
@@ -56,19 +59,52 @@
 .phlebo-top-inner {
   max-width: 720px;
   margin: 0 auto;
-  padding: 10px 16px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .phlebo-top-actions {
   display: flex;
   align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.phlebo-tools-row {
+  display: grid;
   gap: 8px;
-  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.phlebo-logout-btn {
+  min-height: 36px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .phlebo-brand span {
+    font-size: 13px;
+  }
+  .phlebo-brand img {
+    height: 30px;
+  }
+  .phlebo-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 520px) {
+  .phlebo-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .phlebo-brand {

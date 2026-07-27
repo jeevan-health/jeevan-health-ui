@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './home.css';
 
@@ -48,6 +49,23 @@ const steps = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const heroCtasRef = useRef(null);
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const el = heroCtasRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setShowSticky(true);
+      return undefined;
+    }
+    // Sticky bar only after hero CTAs leave the viewport — avoids double CTAs stacking
+    const io = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { root: null, threshold: 0, rootMargin: '-8px 0px 0px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const onSearch = (e) => {
     e.preventDefault();
@@ -86,7 +104,7 @@ export default function Home() {
             reports in 24 hours.
           </p>
 
-          <div className="home-hero-ctas">
+          <div className="home-hero-ctas" ref={heroCtasRef}>
             <Link to="/diagnostics" className="btn btn-accent home-hero-cta-primary">
               Book Lab Tests
             </Link>
@@ -180,17 +198,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sticky mobile CTA — client pattern */}
-      <div className="home-sticky-cta" role="region" aria-label="Quick actions">
-        <div className="home-sticky-cta-inner">
-          <Link to="/diagnostics" className="btn btn-accent">
-            Book Lab Test
-          </Link>
-          <Link to="/signup" className="btn btn-outline-dark">
-            Login
-          </Link>
+      {/* Sticky mobile CTA — only after scrolling past hero CTAs */}
+      {showSticky ? (
+        <div className="home-sticky-cta" role="region" aria-label="Quick actions">
+          <div className="home-sticky-cta-inner">
+            <Link to="/diagnostics" className="btn btn-accent">
+              Book Lab Test
+            </Link>
+            <Link to="/signup" className="btn btn-outline-dark">
+              Login
+            </Link>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
