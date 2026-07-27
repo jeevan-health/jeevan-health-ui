@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { submitPhlebotomistApplication } from '../services/phleboService.js';
 import { isPhleboHostname } from '../utils/authRoles.js';
+import { formatDeadlineIst, hoursRemaining } from '../utils/formatDeadline.js';
 import './phlebo-hire.css';
 
 const STEPS = ['Welcome', 'Personal', 'Skills', 'Address', 'Review'];
@@ -138,15 +139,9 @@ export default function PhlebotomistOnboarding() {
   };
 
   if (done) {
-    const deadline = assessment?.deadlineAt
-      ? new Date(assessment.deadlineAt).toLocaleString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : null;
-    const hours = assessment?.hours || 48;
+    const windowHours = assessment?.hours || 48;
+    const deadline = formatDeadlineIst(assessment?.deadlineAt);
+    const left = hoursRemaining(assessment?.deadlineAt);
     return (
       <div className="ph-hire-page">
         <div className="ph-hire-card ph-hire-success">
@@ -172,15 +167,16 @@ export default function PhlebotomistOnboarding() {
               to the next steps in hiring.
             </p>
             <p>
-              Please open the link from your email (it opens on the Phlebo portal). You typically
-              have about <strong>{hours} hours</strong> to finish
+              You have <strong>{windowHours} hours from now</strong> to finish the assessment
               {deadline ? (
                 <>
                   {' '}
-                  (deadline around <strong>{deadline}</strong>)
+                  — complete by <strong>{deadline}</strong>
+                  {left != null && left > 0 ? ` (about ${left} hours left)` : ''}
                 </>
               ) : null}
-              . Use the same email inbox and check spam if you do not see it soon.
+              . Open the link from your email (Phlebo portal). Check spam if you do not see the mail
+              soon.
             </p>
             <p className="muted">
               After you submit the assessment, our team will review and contact you. Do not share

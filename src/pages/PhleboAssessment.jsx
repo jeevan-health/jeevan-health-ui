@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAssessmentByToken, submitAssessmentByToken } from '../services/phleboService.js';
+import { formatDeadlineIst, hoursRemaining } from '../utils/formatDeadline.js';
 import './phlebo-hire.css';
 import './phlebo-assessment.css';
 
@@ -174,14 +175,8 @@ export default function PhleboAssessment() {
     );
   }
 
-  const deadline = assessment?.deadlineAt
-    ? new Date(assessment.deadlineAt).toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
+  const deadline = formatDeadlineIst(assessment?.deadlineAt);
+  const leftHrs = hoursRemaining(assessment?.deadlineAt);
 
   // Group by section
   const sections = [];
@@ -206,6 +201,14 @@ export default function PhleboAssessment() {
         {deadline && (
           <p className="ph-assess-deadline">
             Complete by <strong>{deadline}</strong>
+            {leftHrs != null && leftHrs > 0 ? (
+              <>
+                {' '}
+                · about <strong>{leftHrs} hour{leftHrs === 1 ? '' : 's'}</strong> left
+              </>
+            ) : leftHrs === 0 ? (
+              <> · <strong>deadline reached</strong></>
+            ) : null}
           </p>
         )}
       </div>
