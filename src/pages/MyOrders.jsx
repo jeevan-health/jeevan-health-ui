@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore.js';
 import { listMyOrders, cancelMyOrder, formatInr } from '../services/ordersService.js';
 import { formatOrderStatus } from '../utils/orderStatus.js';
+import EnablePushButton from '../components/EnablePushButton.jsx';
 import './my-orders.css';
 
 const FILTERS = [
@@ -97,6 +98,13 @@ export default function MyOrders() {
             Book tests
           </Link>
         </header>
+
+        <div className="my-orders-push">
+          <p className="muted">
+            Enable browser alerts for booking updates, phlebo assignment, and report ready.
+          </p>
+          <EnablePushButton variant="block" />
+        </div>
 
         <div className="my-orders-stats">
           <div>

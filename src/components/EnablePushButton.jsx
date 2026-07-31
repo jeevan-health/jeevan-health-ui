@@ -4,16 +4,19 @@ import {
   enablePushNotifications,
   getExistingPushSubscription,
   notificationPermission,
+  sendTestPush,
 } from '../services/pushService.js';
 import './enable-push-button.css';
 
 /**
  * Opt-in Web Push (Phase 8). Shown when signed in and browser supports push.
+ * When alerts are on, block variant can send a self-test notification.
  */
 export default function EnablePushButton({ variant = 'default', className = '' }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [state, setState] = useState('idle'); // idle | loading | on | off | blocked | unsupported | not_configured
   const [hint, setHint] = useState('');
+  const [testBusy, setTestBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,6 +76,19 @@ export default function EnablePushButton({ variant = 'default', className = '' }
     }
   };
 
+  const onTest = async () => {
+    setTestBusy(true);
+    setHint('');
+    try {
+      const r = await sendTestPush();
+      setHint(r.message || (r.sent > 0 ? 'Test sent' : 'No delivery'));
+    } catch (e) {
+      setHint(e?.response?.data?.error?.message || e.message || 'Test failed');
+    } finally {
+      setTestBusy(false);
+    }
+  };
+
   const label =
     state === 'on'
       ? 'Alerts on'
@@ -106,6 +122,16 @@ export default function EnablePushButton({ variant = 'default', className = '' }
         </span>
         <span className="enable-push-label">{label}</span>
       </button>
+      {state === 'on' && variant === 'block' ? (
+        <button
+          type="button"
+          className="btn btn-outline-dark enable-push-test"
+          onClick={onTest}
+          disabled={testBusy}
+        >
+          {testBusy ? 'Sending…' : 'Send test alert'}
+        </button>
+      ) : null}
       {hint && variant === 'block' ? <p className="enable-push-hint muted">{hint}</p> : null}
     </div>
   );

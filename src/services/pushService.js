@@ -109,3 +109,9 @@ export async function disablePushNotifications() {
   }
   return { ok: true };
 }
+
+/** Ask API to push a test notification to this user's subscribed devices. */
+export async function sendTestPush() {
+  const { data } = await api.post('/push/test', {});
+  return data?.data || { sent: 0, message: 'No result' };
+}

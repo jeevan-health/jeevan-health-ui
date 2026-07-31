@@ -11,6 +11,20 @@
   margin-bottom: 14px;
 }
 
+.my-orders-push {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.my-orders-push .muted {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
 .my-orders-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
