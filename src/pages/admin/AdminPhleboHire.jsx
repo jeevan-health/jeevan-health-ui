@@ -19,23 +19,26 @@ function assessBadge(a) {
   const ass = a?.assessment;
   if (!ass) return { cls: 'assess-none', text: 'No assessment' };
   const st = ass.status;
+  const score =
+    ass.score != null ? `${ass.score}/${ass.maxScore || 50}` : '';
+  // Score is competency evidence — hire decision is separate (admin review)
   if (st === 'passed') {
     return {
       cls: 'assess-passed',
-      text: `Passed ${ass.score != null ? `${ass.score}/${ass.maxScore || 50}` : ''}`.trim(),
+      text: `Score ${score} (meets mark)`.trim(),
     };
   }
   if (st === 'failed') {
     return {
       cls: 'assess-failed',
-      text: `Failed ${ass.score != null ? `${ass.score}/${ass.maxScore || 50}` : ''}`.trim(),
+      text: `Score ${score} (below mark)`.trim(),
     };
   }
   if (st === 'overridden') {
     const out = ass.resultDetail?.overrideOutcome || 'override';
     return { cls: 'assess-override', text: `Overridden (${out})` };
   }
-  if (st === 'expired') return { cls: 'assess-expired', text: 'Expired' };
+  if (st === 'expired') return { cls: 'assess-expired', text: 'Expired — not submitted' };
   return { cls: 'assess-pending', text: 'Assessment pending' };
 }
 
@@ -172,7 +175,7 @@ export default function AdminPhleboHire() {
   const onOverride = async (id, outcome) => {
     const note = window.prompt(
       outcome === 'waived'
-        ? 'Note for waiving assessment (required for audit):'
+        ? 'Note for waiving assessment (exception only — required for audit):'
         : outcome === 'passed'
           ? 'Note for override pass:'
           : 'Note for override fail:',
@@ -198,7 +201,9 @@ export default function AdminPhleboHire() {
         <div className="container">
           <p className="admin-ord-eyebrow">Hiring</p>
           <h1>Phlebotomists</h1>
-          <p>Applications · competency assessment · promote to roster</p>
+          <p>
+            Applications · mandatory competency paper (score is evidence) · you decide hire
+          </p>
         </div>
       </div>
 
@@ -292,8 +297,13 @@ export default function AdminPhleboHire() {
                           })}
                         </p>
                       )}
-                      {ass?.band && (ass.status === 'passed' || ass.status === 'failed') && (
-                        <p className="sub">Band: {ass.band.replace('_', ' ')}</p>
+                      {ass?.score != null && (ass.status === 'passed' || ass.status === 'failed') && (
+                        <p className="sub">
+                          Competency: {ass.score}/{ass.maxScore || 50}
+                          {ass.passMark != null ? ` · mark ${ass.passMark}` : ''}
+                          {ass.band ? ` · band ${String(ass.band).replace(/_/g, ' ')}` : ''}
+                          {' · review score then hire or reject'}
+                        </p>
                       )}
                       {ass?.overrideNote && (
                         <p className="sub">Override note: {ass.overrideNote}</p>
@@ -316,8 +326,8 @@ export default function AdminPhleboHire() {
                             disabled={busyId === a.id || !canPromote}
                             title={
                               canPromote
-                                ? 'Hire to roster'
-                                : 'Requires passed assessment or admin override (waive/pass)'
+                                ? 'Assessment on file — hire if you are satisfied with the score'
+                                : 'Mandatory: candidate must submit the assessment (or waive with note if exceptional)'
                             }
                             onClick={() => onPromote(a.id)}
                           >
@@ -351,28 +361,19 @@ export default function AdminPhleboHire() {
                               </button>
                             </>
                           )}
-                          {ass && ass.status !== 'overridden' && a.status !== 'hired' && (
-                            <>
+                          {ass &&
+                            (ass.status === 'pending' || ass.status === 'expired') &&
+                            a.status !== 'hired' && (
                               <button
                                 type="button"
                                 className="btn btn-outline-dark btn-sm"
                                 disabled={busyId === a.id}
                                 onClick={() => onOverride(a.id, 'waived')}
+                                title="Exception only — skip paper with audit note"
                               >
-                                Override waive
+                                Waive assessment
                               </button>
-                              {ass.status === 'failed' && (
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-dark btn-sm"
-                                  disabled={busyId === a.id}
-                                  onClick={() => onOverride(a.id, 'passed')}
-                                >
-                                  Override pass
-                                </button>
-                              )}
-                            </>
-                          )}
+                            )}
                         </>
                       )}
                       {a.status === 'hired' && (

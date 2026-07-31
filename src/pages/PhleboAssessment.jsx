@@ -141,12 +141,12 @@ export default function PhleboAssessment() {
           </div>
           <h1>Assessment submitted</h1>
           <p>
-            Thank you. Your answers have been recorded. Our hiring team will review your application
-            and contact you for further steps.
+            Thank you. Your answers have been recorded as a competency measure. Our hiring team will
+            review your score with the rest of your application and decide next steps.
           </p>
           <p className="muted">
-            You do not need to do anything else right now. For questions, call support or wait for
-            our team to reach out on your registered phone or email.
+            Completing this assessment is required for hiring review. You do not need to do anything
+            else right now — we will contact you on your registered phone or email.
           </p>
           <div className="ph-hire-actions">
             <Link to="/" className="btn btn-primary">
