@@ -44,6 +44,18 @@
   margin-top: 12px;
 }
 
+.diag-cats {
+  margin-top: 8px;
+  opacity: 0.98;
+}
+
+.diag-chip.active {
+  background: #fff;
+  color: var(--primary, #1866c9);
+  border-color: #fff;
+  font-weight: 800;
+}
+
 .diag-chip {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -151,6 +163,8 @@
   align-items: center;
   gap: 12px;
   text-align: left;
+  text-decoration: none;
+  color: inherit;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 16px;

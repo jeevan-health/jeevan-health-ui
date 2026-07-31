@@ -188,6 +188,45 @@
   color: var(--text-light);
 }
 
+/* Desktop IA secondary nav */
+.header-ia-nav {
+  display: none;
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 16px 10px;
+  gap: 6px 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.header-ia-nav a {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.header-ia-nav a:hover {
+  color: var(--primary);
+  background: var(--brand-secondary-light);
+}
+
+@media (min-width: 900px) {
+  .header-ia-nav {
+    display: flex;
+  }
+}
+
+.nav-drawer-indent {
+  padding-left: 28px !important;
+  font-size: 14px !important;
+  opacity: 0.95;
+}
+
 /* Drawer — above header (100), bottom nav (90), PWA banner (9000) */
 .nav-drawer-backdrop {
   position: fixed;

@@ -2,19 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore.js';
 import { listMyOrders, cancelMyOrder, formatInr } from '../services/ordersService.js';
+import { formatOrderStatus } from '../utils/orderStatus.js';
 import './my-orders.css';
-
-const STATUS_LABEL = {
-  pending: 'Pending',
-  confirmed: 'Confirmed',
-  assigned: 'Phlebo assigned',
-  sample_collected: 'Sample collected',
-  processing: 'Processing',
-  report_ready: 'Report ready',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-  failed: 'Failed',
-};
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -101,7 +90,7 @@ export default function MyOrders() {
       <div className="container">
         <header className="my-orders-head">
           <div>
-            <h1>My orders</h1>
+            <h1>My Bookings</h1>
             <p className="muted">Track home collection bookings and manage open orders</p>
           </div>
           <Link to="/diagnostics" className="btn btn-primary">
@@ -162,7 +151,7 @@ export default function MyOrders() {
                   <div>
                     <span className="my-order-code">{o.orderCode}</span>
                     <span className={`my-order-status status-${o.status}`}>
-                      {STATUS_LABEL[o.status] || o.status}
+                      {formatOrderStatus(o.status, o.phleboStatus)}
                     </span>
                   </div>
                   <strong className="my-order-total">{formatInr(o.total)}</strong>

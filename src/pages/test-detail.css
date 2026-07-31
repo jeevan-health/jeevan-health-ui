@@ -1,0 +1,174 @@
+.td-page {
+  padding-bottom: 40px;
+}
+
+.td-loading,
+.td-empty {
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.td-empty h1 {
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+}
+
+.td-empty p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.td-hero {
+  color: #fff;
+  padding: 20px 0 28px;
+}
+
+.td-back {
+  border: none;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.td-code {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+  margin: 0 0 6px;
+}
+
+.td-hero h1 {
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  font-weight: 800;
+  margin: 0 0 12px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+}
+
+.td-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.td-mrp {
+  text-decoration: line-through;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.td-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.td-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.td-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.td-body {
+  padding-top: 20px;
+  max-width: 720px;
+}
+
+.td-section {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.td-section h2 {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+}
+
+.td-section-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-body);
+}
+
+.td-muted {
+  color: var(--text-secondary) !important;
+}
+
+.td-meta-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.td-meta-list li {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.td-meta-list strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.td-note {
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin: 8px 0 18px;
+}
+
+.td-note strong {
+  display: block;
+  font-size: 14px;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.td-note p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.td-actions {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 24px;
+}
+
+.td-more-link {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  padding: 8px;
+}

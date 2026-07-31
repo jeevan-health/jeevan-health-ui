@@ -9,6 +9,7 @@ import {
   formatInr,
 } from '../../services/ordersService.js';
 import { isAdminRole } from '../../utils/authRoles.js';
+import { formatOrderStatus } from '../../utils/orderStatus.js';
 import './admin-catalog.css';
 import './admin-orders.css';
 
@@ -144,7 +145,7 @@ export default function AdminOrders() {
               <option value="">All</option>
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {s}
+                  {formatOrderStatus(s)} ({s})
                 </option>
               ))}
             </select>
@@ -211,7 +212,7 @@ export default function AdminOrders() {
                       >
                         {STATUSES.map((s) => (
                           <option key={s} value={s}>
-                            {s}
+                            {formatOrderStatus(s)}
                           </option>
                         ))}
                       </select>

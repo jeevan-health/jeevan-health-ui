@@ -1,38 +1,57 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { searchTests, getMeta, formatInr } from '../services/diagnosticsService.js';
+import {
+  searchTests,
+  getMeta,
+  getPopularTests,
+  formatInr,
+} from '../services/diagnosticsService.js';
 import useCartStore from '../stores/cartStore.js';
 import './diagnostics.css';
+
+const QUICK = ['Diabetes', 'Thyroid', 'Vitamin', 'CBC', 'Fever', 'Lipid'];
 
 export default function Diagnostics() {
   const [params, setParams] = useSearchParams();
   const qParam = params.get('q') || '';
+  const filter = params.get('filter') || '';
+  const categoryParam = params.get('category') || '';
 
   const [q, setQ] = useState(qParam);
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [totalActive, setTotalActive] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selected, setSelected] = useState(null);
   const [addedId, setAddedId] = useState(null);
   const addTest = useCartStore((s) => s.addTest);
   const cartCount = useCartStore((s) => s.count());
   const setDrawerOpen = useCartStore((s) => s.setDrawerOpen);
 
-  const QUICK = ['Diabetes', 'Thyroid', 'Vitamin', 'CBC', 'Fever', 'Lipid'];
-
-  const load = useCallback(async (query) => {
+  const load = useCallback(async (query, category, mode) => {
     setLoading(true);
     setError(null);
     try {
-      const [res, meta] = await Promise.all([
-        searchTests({ q: query, limit: 60 }),
-        getMeta().catch(() => ({ totalActive: null })),
-      ]);
-      setItems(res.items || []);
-      setTotal(res.total || 0);
-      if (meta?.totalActive != null) setTotalActive(meta.totalActive);
+      if (mode === 'popular') {
+        const [popular, meta] = await Promise.all([
+          getPopularTests(30),
+          getMeta().catch(() => ({ totalActive: null, categories: [] })),
+        ]);
+        setItems(popular || []);
+        setTotal((popular || []).length);
+        if (meta?.totalActive != null) setTotalActive(meta.totalActive);
+        if (meta?.categories) setCategories(meta.categories);
+      } else {
+        const [res, meta] = await Promise.all([
+          searchTests({ q: query, category: category || undefined, limit: 60 }),
+          getMeta().catch(() => ({ totalActive: null, categories: [] })),
+        ]);
+        setItems(res.items || []);
+        setTotal(res.total || 0);
+        if (meta?.totalActive != null) setTotalActive(meta.totalActive);
+        if (meta?.categories) setCategories(meta.categories);
+      }
     } catch (e) {
       setError(e?.response?.data?.error?.message || e.message || 'Failed to load tests');
       setItems([]);
@@ -44,20 +63,48 @@ export default function Diagnostics() {
 
   useEffect(() => {
     setQ(qParam);
-    load(qParam);
-  }, [qParam, load]);
+    load(qParam, categoryParam, filter);
+  }, [qParam, categoryParam, filter, load]);
 
   const onSearch = (e) => {
     e.preventDefault();
     const next = q.trim();
-    setParams(next ? { q: next } : {});
+    const nextParams = {};
+    if (next) nextParams.q = next;
+    if (categoryParam) nextParams.category = categoryParam;
+    setParams(nextParams);
   };
+
+  const setFilterMode = (mode) => {
+    if (mode === 'popular') {
+      setParams({ filter: 'popular' });
+      return;
+    }
+    setParams({});
+  };
+
+  const setCategory = (cat) => {
+    if (!cat) {
+      setParams(qParam ? { q: qParam } : {});
+      return;
+    }
+    const next = { category: cat };
+    if (qParam) next.q = qParam;
+    setParams(next);
+  };
+
+  const title =
+    filter === 'popular'
+      ? 'Popular tests'
+      : categoryParam
+        ? categoryParam
+        : 'Diagnostics';
 
   return (
     <div className="diag-page">
       <div className="diag-hero">
         <div className="container">
-          <h1>Lab tests</h1>
+          <h1>{title}</h1>
           <p>
             Search our catalog and book home collection.
             {totalActive != null ? (
@@ -69,7 +116,10 @@ export default function Diagnostics() {
             {cartCount > 0 ? (
               <>
                 {' '}
-                · <Link to="/checkout" style={{ color: '#fff', fontWeight: 800 }}>Cart ({cartCount})</Link>
+                ·{' '}
+                <Link to="/checkout" style={{ color: '#fff', fontWeight: 800 }}>
+                  Cart ({cartCount})
+                </Link>
               </>
             ) : null}
           </p>
@@ -80,7 +130,7 @@ export default function Diagnostics() {
             <input
               id="diag-q"
               type="search"
-              placeholder="Search by name or JHC code…"
+              placeholder="Search test, disease, symptoms…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               autoComplete="off"
@@ -91,6 +141,20 @@ export default function Diagnostics() {
             </button>
           </form>
           <div className="diag-chips">
+            <button
+              type="button"
+              className={`diag-chip${filter !== 'popular' && !categoryParam ? ' active' : ''}`}
+              onClick={() => setFilterMode('all')}
+            >
+              All tests
+            </button>
+            <button
+              type="button"
+              className={`diag-chip${filter === 'popular' ? ' active' : ''}`}
+              onClick={() => setFilterMode('popular')}
+            >
+              Popular
+            </button>
             {QUICK.map((chip) => (
               <button
                 key={chip}
@@ -110,6 +174,23 @@ export default function Diagnostics() {
               </button>
             )}
           </div>
+          {categories.length > 0 ? (
+            <div className="diag-chips diag-cats" aria-label="Categories">
+              {categories.slice(0, 12).map((c) => (
+                <button
+                  key={c.category}
+                  type="button"
+                  className={`diag-chip${categoryParam === c.category ? ' active' : ''}`}
+                  onClick={() =>
+                    setCategory(categoryParam === c.category ? '' : c.category)
+                  }
+                >
+                  {c.category}
+                  {c.count != null ? ` (${c.count})` : ''}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -138,13 +219,18 @@ export default function Diagnostics() {
         {!loading && items.length > 0 && (
           <>
             <p className="diag-count">
-              Showing {items.length} of {total.toLocaleString('en-IN')}
+              Showing {items.length}
+              {filter === 'popular' ? '' : ` of ${total.toLocaleString('en-IN')}`}
               {qParam ? ` for “${qParam}”` : ''}
+              {filter === 'popular' ? ' · popular' : ''}
             </p>
             <ul className="diag-list">
               {items.map((t) => (
                 <li key={t.id} className="diag-card-wrap">
-                  <button type="button" className="diag-card" onClick={() => setSelected(t)}>
+                  <Link
+                    to={`/tests/${encodeURIComponent(t.jhcCode)}`}
+                    className="diag-card"
+                  >
                     <div className="diag-card-main">
                       <strong>{t.name}</strong>
                       <span className="diag-code">{t.jhcCode}</span>
@@ -158,7 +244,7 @@ export default function Diagnostics() {
                       )}
                       <span className="diag-offer">{formatInr(t.price)}</span>
                     </div>
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     className="diag-add-btn"
@@ -175,54 +261,6 @@ export default function Diagnostics() {
           </>
         )}
       </div>
-
-      {selected && (
-        <div className="diag-drawer-backdrop" onClick={() => setSelected(null)} role="presentation">
-          <aside
-            className="diag-drawer"
-            role="dialog"
-            aria-label={selected.name}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button type="button" className="diag-drawer-close" onClick={() => setSelected(null)}>
-              ✕
-            </button>
-            <p className="diag-code">{selected.jhcCode}</p>
-            <h2>{selected.name}</h2>
-            <div className="diag-drawer-price">
-              {selected.marketMrp != null && selected.marketMrp > selected.price && (
-                <span className="diag-mrp">{formatInr(selected.marketMrp)}</span>
-              )}
-              <span className="diag-offer">{formatInr(selected.price)}</span>
-            </div>
-            <ul className="diag-drawer-meta">
-              <li>Home collection: {selected.homeCollection ? 'Yes' : 'No'}</li>
-              <li>Fasting: {selected.fastingRequired ? 'Required' : 'Not required'}</li>
-              {selected.reportTime && <li>Report time: {selected.reportTime}</li>}
-              {selected.category && <li>Category: {selected.category}</li>}
-            </ul>
-            {selected.preparation && (
-              <p className="diag-prep">
-                <strong>Preparation:</strong> {selected.preparation}
-              </p>
-            )}
-            <button
-              type="button"
-              className="btn btn-accent btn-block"
-              style={{ marginTop: 16 }}
-              onClick={() => {
-                addTest(selected);
-                setAddedId(selected.id);
-              }}
-            >
-              {addedId === selected.id ? 'Added to cart ✓' : 'Add to cart'}
-            </button>
-            <Link to="/checkout" className="btn btn-primary btn-block" style={{ marginTop: 10 }}>
-              Go to checkout {cartCount > 0 ? `(${cartCount})` : ''}
-            </Link>
-          </aside>
-        </div>
-      )}
     </div>
   );
 }

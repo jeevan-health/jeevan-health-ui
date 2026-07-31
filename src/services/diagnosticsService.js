@@ -7,9 +7,17 @@ export async function searchTests({ q = '', limit = 50, offset = 0, category } =
   return data.data;
 }
 
-export async function getTest(id) {
-  const { data } = await api.get(`/diagnostics/tests/${id}`);
+/** @param {string} idOrCode UUID or JHC code */
+export async function getTest(idOrCode) {
+  const { data } = await api.get(`/diagnostics/tests/${encodeURIComponent(idOrCode)}`);
   return data.data.test;
+}
+
+export async function getPopularTests(limit = 10) {
+  const { data } = await api.get('/diagnostics/tests/popular', {
+    params: { limit },
+  });
+  return data.data.items || [];
 }
 
 export async function getMeta() {

@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getPopularTests, formatInr } from '../services/diagnosticsService.js';
+import useCartStore from '../stores/cartStore.js';
 import './home.css';
 
 const trustStats = [
-  { icon: '🧪', label: '5000+', sub: 'Tests' },
-  { icon: '🏠', label: 'Free Home', sub: 'Collection' },
-  { icon: '🏅', label: 'NABL Certified', sub: 'Labs' },
-  { icon: '⏱', label: 'Reports in', sub: '24 Hours' },
+  { icon: '🧪', label: '5000+', sub: 'Tests available' },
+  { icon: '🏠', label: 'Home', sub: 'Collection' },
+  { icon: '🏅', label: 'NABL', sub: 'Certified labs' },
+  { icon: '⏱', label: '24–48 hr', sub: 'Reports' },
+];
+
+const concernChips = [
+  { label: 'Diabetes', q: 'Diabetes' },
+  { label: 'Thyroid', q: 'Thyroid' },
+  { label: 'Fever', q: 'Fever' },
+  { label: 'Vitamins', q: 'Vitamin' },
+  { label: 'Heart', q: 'Lipid' },
 ];
 
 const whyItems = [
@@ -28,7 +38,7 @@ const whyItems = [
   {
     icon: '⚡',
     title: 'Fast turnaround',
-    desc: 'Most routine tests reported within 24 hours.',
+    desc: 'Most routine tests reported within 24–48 hours.',
   },
 ];
 
@@ -51,6 +61,10 @@ export default function Home() {
   const navigate = useNavigate();
   const heroCtasRef = useRef(null);
   const [showSticky, setShowSticky] = useState(false);
+  const [popular, setPopular] = useState([]);
+  const [popularLoading, setPopularLoading] = useState(true);
+  const addTest = useCartStore((s) => s.addTest);
+  const [addedId, setAddedId] = useState(null);
 
   useEffect(() => {
     const el = heroCtasRef.current;
@@ -58,13 +72,30 @@ export default function Home() {
       setShowSticky(true);
       return undefined;
     }
-    // Sticky bar only after hero CTAs leave the viewport — avoids double CTAs stacking
     const io = new IntersectionObserver(
       ([entry]) => setShowSticky(!entry.isIntersecting),
       { root: null, threshold: 0, rootMargin: '-8px 0px 0px 0px' },
     );
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setPopularLoading(true);
+    getPopularTests(10)
+      .then((items) => {
+        if (!cancelled) setPopular(items || []);
+      })
+      .catch(() => {
+        if (!cancelled) setPopular([]);
+      })
+      .finally(() => {
+        if (!cancelled) setPopularLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const onSearch = (e) => {
@@ -79,7 +110,7 @@ export default function Home() {
         <div className="home-hero-inner">
           <p className="home-hero-eyebrow">
             <span className="home-hero-eyebrow-dot" aria-hidden />
-            Trusted diagnostics at your doorstep
+            Healthcare testing at your doorstep
           </p>
 
           <div className="home-hero-stats" aria-label="Highlights">
@@ -95,21 +126,20 @@ export default function Home() {
           </div>
 
           <h1>
-            Your Health, Our Priority
+            Healthcare Testing
             <br />
-            Trusted Diagnostics at Your Doorstep
+            At Your Doorstep
           </h1>
           <p className="home-hero-sub">
-            Book lab tests from home with free sample collection. 5000+ tests, NABL certified labs,
-            reports in 24 hours.
+            5000+ tests · NABL labs · Free home collection · Digital reports in 24–48 hours.
           </p>
 
           <div className="home-hero-ctas" ref={heroCtasRef}>
             <Link to="/diagnostics" className="btn btn-accent home-hero-cta-primary">
-              Book Lab Tests
+              Book Test
             </Link>
-            <Link to="/signup" className="btn btn-outline home-hero-cta-secondary">
-              Login / Sign up
+            <Link to="/upload-prescription" className="btn btn-outline home-hero-cta-secondary">
+              Upload Prescription
             </Link>
           </div>
 
@@ -121,11 +151,26 @@ export default function Home() {
               id="hero-search"
               name="q"
               type="search"
-              placeholder="Search tests, symptoms, diseases…"
+              placeholder="Search test, package, disease, symptoms…"
               autoComplete="off"
               enterKeyHint="search"
             />
           </form>
+
+          <div className="home-concern-chips" aria-label="Popular concerns">
+            {concernChips.map((c) => (
+              <Link
+                key={c.label}
+                to={`/diagnostics?q=${encodeURIComponent(c.q)}`}
+                className="home-concern-chip"
+              >
+                {c.label}
+              </Link>
+            ))}
+            <Link to="/health-concerns" className="home-concern-chip home-concern-chip-more">
+              All concerns
+            </Link>
+          </div>
 
           <div className="home-hero-proof">
             <div className="home-hero-stars" aria-hidden>
@@ -139,6 +184,75 @@ export default function Home() {
             <span className="home-hero-proof-sep" aria-hidden />
             <span className="home-hero-rating-label">Trusted home collection · Hyderabad</span>
           </div>
+        </div>
+      </section>
+
+      {/* Trust strip */}
+      <section className="home-trust-strip" aria-label="Trust metrics">
+        <div className="container home-trust-inner">
+          <div>
+            <strong>Home collection</strong>
+            <span>Doorstep phlebotomy</span>
+          </div>
+          <div>
+            <strong>5000+ tests</strong>
+            <span>Live catalog</span>
+          </div>
+          <div>
+            <strong>NABL labs</strong>
+            <span>Quality partner labs</span>
+          </div>
+          <div>
+            <strong>24–48 hr</strong>
+            <span>Typical reports</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Popular tests rail — live API only */}
+      <section className="home-section">
+        <div className="container">
+          <div className="home-section-head">
+            <h2 className="home-section-title">Popular tests</h2>
+            <Link to="/diagnostics?filter=popular" className="home-section-link">
+              View all
+            </Link>
+          </div>
+          {popularLoading ? (
+            <p className="home-rail-muted">Loading popular tests…</p>
+          ) : popular.length === 0 ? (
+            <p className="home-rail-muted">
+              Catalog will appear here once tests are published.{' '}
+              <Link to="/diagnostics">Browse diagnostics</Link>
+            </p>
+          ) : (
+            <ul className="home-test-rail">
+              {popular.map((t) => (
+                <li key={t.id} className="home-test-card">
+                  <Link to={`/tests/${encodeURIComponent(t.jhcCode)}`} className="home-test-card-main">
+                    <strong>{t.name}</strong>
+                    <span className="home-test-code">{t.jhcCode}</span>
+                    <span className="home-test-price">
+                      {t.marketMrp != null && t.marketMrp > t.price ? (
+                        <span className="home-test-mrp">{formatInr(t.marketMrp)}</span>
+                      ) : null}
+                      {formatInr(t.price)}
+                    </span>
+                  </Link>
+                  <button
+                    type="button"
+                    className="btn btn-accent home-test-add"
+                    onClick={() => {
+                      addTest(t);
+                      setAddedId(t.id);
+                    }}
+                  >
+                    {addedId === t.id ? 'Added ✓' : 'Add'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 
@@ -158,21 +272,6 @@ export default function Home() {
               </li>
             ))}
           </ol>
-        </div>
-      </section>
-
-      <section className="home-section">
-        <div className="container">
-          <h2 className="home-section-title">Careers</h2>
-          <p className="home-careers-lead">
-            Hiring phlebotomists for camps &amp; home sample collection.
-          </p>
-          <Link to="/onboarding-phlebotomist" className="btn btn-primary">
-            Apply as phlebotomist
-          </Link>
-          <p className="home-careers-note">
-            Field portal after hire: <strong>phlebo.jeevanhealthcare.com</strong>
-          </p>
         </div>
       </section>
 
@@ -198,15 +297,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sticky mobile CTA — only after scrolling past hero CTAs */}
+      <section className="home-section">
+        <div className="container">
+          <h2 className="home-section-title">Careers</h2>
+          <p className="home-careers-lead">
+            Hiring phlebotomists for camps &amp; home sample collection.
+          </p>
+          <Link to="/onboarding-phlebotomist" className="btn btn-primary">
+            Apply as phlebotomist
+          </Link>
+          <p className="home-careers-note">
+            Field portal after hire: <strong>phlebo.jeevanhealthcare.com</strong>
+          </p>
+        </div>
+      </section>
+
       {showSticky ? (
         <div className="home-sticky-cta" role="region" aria-label="Quick actions">
           <div className="home-sticky-cta-inner">
             <Link to="/diagnostics" className="btn btn-accent">
-              Book Lab Test
+              Book Test
             </Link>
-            <Link to="/signup" className="btn btn-outline-dark">
-              Login
+            <Link to="/upload-prescription" className="btn btn-outline-dark">
+              Prescription
             </Link>
           </div>
         </div>

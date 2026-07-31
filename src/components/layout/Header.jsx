@@ -7,6 +7,17 @@ import InstallAppButton from '../InstallAppButton.jsx';
 const WA = 'https://wa.me/919700104108';
 const TEL = 'tel:+919700104108';
 
+const DRAWER_LINKS = [
+  { to: '/', label: 'Home', icon: '🏠' },
+  { to: '/diagnostics', label: 'Diagnostics', icon: '🔬' },
+  { to: '/diagnostics?filter=popular', label: 'Popular tests', icon: '⭐', indent: true },
+  { to: '/health-concerns', label: 'Health Concerns', icon: '💚' },
+  { to: '/upload-prescription', label: 'Upload Prescription', icon: '📋' },
+  { to: '/my-orders', label: 'My Bookings', icon: '📅', auth: true },
+  { to: '/reports', label: 'Reports', icon: '📄', auth: true },
+  { to: '/checkout', label: 'Cart', icon: '🛒', cart: true },
+];
+
 export default function Header() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -91,7 +102,7 @@ export default function Header() {
           </a>
 
           {user ? (
-            <Link to="/dashboard" className="hdr-user-chip" title="Dashboard">
+            <Link to="/dashboard" className="hdr-user-chip" title="My Health">
               {user.name?.split(' ')[0] || user.phone || 'Account'}
             </Link>
           ) : (
@@ -111,45 +122,67 @@ export default function Header() {
             id="global-search"
             name="q"
             type="search"
-            placeholder="Search tests, packages, symptoms…"
+            placeholder="Search test, package, disease, symptoms…"
             autoComplete="off"
             enterKeyHint="search"
           />
         </form>
       </div>
 
+      {/* Desktop secondary nav — IA labels */}
+      <nav className="header-ia-nav" aria-label="Site sections">
+        <Link to="/">Home</Link>
+        <Link to="/diagnostics">Diagnostics</Link>
+        <Link to="/health-concerns">Health Concerns</Link>
+        <Link to="/upload-prescription">Upload Prescription</Link>
+        {user ? (
+          <>
+            <Link to="/my-orders">My Bookings</Link>
+            <Link to="/reports">Reports</Link>
+          </>
+        ) : (
+          <Link to="/signup">Login</Link>
+        )}
+      </nav>
+
       {menuOpen && (
         <>
           <button type="button" className="nav-drawer-backdrop" aria-label="Close menu" onClick={closeMenu} />
           <nav className="nav-drawer" aria-label="Main menu">
             <img src="/logo.png" alt="" />
-            <Link to="/" onClick={closeMenu}>
-              🏠 Home
-            </Link>
-            <Link to="/diagnostics" onClick={closeMenu}>
-              🔬 Lab tests
-            </Link>
+            {DRAWER_LINKS.map((item) => {
+              if (item.auth && !user) return null;
+              const label =
+                item.cart && cartCount > 0 ? `${item.label} (${cartCount})` : item.label;
+              return (
+                <Link
+                  key={item.to + item.label}
+                  to={item.to}
+                  onClick={closeMenu}
+                  className={item.indent ? 'nav-drawer-indent' : undefined}
+                >
+                  {item.icon} {label}
+                </Link>
+              );
+            })}
+            {!user && (
+              <Link to="/my-orders" onClick={closeMenu}>
+                📅 My Bookings
+              </Link>
+            )}
+            {!user && (
+              <Link to="/reports" onClick={closeMenu}>
+                📄 Reports
+              </Link>
+            )}
             <div className="drawer-install" onClick={closeMenu}>
               <InstallAppButton variant="block" />
             </div>
             <Link to="/onboarding-phlebotomist" onClick={closeMenu}>
               💉 Join as phlebotomist
             </Link>
-            <Link to="/checkout" onClick={closeMenu}>
-              🛒 Cart{cartCount > 0 ? ` (${cartCount})` : ''}
-            </Link>
-            {user && (
-              <Link to="/my-orders" onClick={closeMenu}>
-                📅 My orders
-              </Link>
-            )}
-            {user && (
-              <Link to="/reports" onClick={closeMenu}>
-                📄 Reports
-              </Link>
-            )}
             <Link to={user ? '/dashboard' : '/signup'} onClick={closeMenu}>
-              👤 {user ? 'My dashboard' : 'Login / Sign up'}
+              👤 {user ? 'My Health' : 'Login / Sign up'}
             </Link>
             <a href={TEL} onClick={closeMenu}>
               📞 Call us

@@ -4,6 +4,9 @@ import HostGate from './components/HostGate.jsx';
 import Home from './pages/Home.jsx';
 import Signup from './pages/Signup.jsx';
 import Diagnostics from './pages/Diagnostics.jsx';
+import TestDetail from './pages/TestDetail.jsx';
+import HealthConcerns from './pages/HealthConcerns.jsx';
+import UploadPrescription from './pages/UploadPrescription.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Checkout from './pages/Checkout.jsx';
 import MyOrders from './pages/MyOrders.jsx';
@@ -86,6 +89,9 @@ export default function App() {
             <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Navigate to="/signup" replace />} />
             <Route path="diagnostics" element={<Diagnostics />} />
+            <Route path="tests/:code" element={<TestDetail />} />
+            <Route path="health-concerns" element={<HealthConcerns />} />
+            <Route path="upload-prescription" element={<UploadPrescription />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="my-orders" element={<MyOrders />} />
             <Route path="reports" element={<Reports />} />

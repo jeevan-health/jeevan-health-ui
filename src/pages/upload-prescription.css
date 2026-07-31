@@ -1,0 +1,72 @@
+.up-page {
+  padding-bottom: 32px;
+  max-width: 560px;
+}
+
+.up-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--brand-secondary-light);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin: 0 0 10px;
+}
+
+.up-head h1 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--text-dark);
+}
+
+.up-head p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.up-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.up-card-alt {
+  background: linear-gradient(180deg, #fff 0%, var(--bg-body) 100%);
+}
+
+.up-card h2 {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  color: var(--text-dark);
+}
+
+.up-card p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.up-card ol {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-body);
+  line-height: 1.7;
+}
+
+.up-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

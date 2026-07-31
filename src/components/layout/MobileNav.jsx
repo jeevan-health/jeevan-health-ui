@@ -11,7 +11,7 @@ export default function MobileNav() {
     { to: '/diagnostics', label: 'Tests', icon: '🔬' },
     {
       to: user ? '/my-orders' : '/signup',
-      label: 'Orders',
+      label: 'Bookings',
       icon: '📅',
     },
     {
@@ -20,9 +20,9 @@ export default function MobileNav() {
       icon: '📄',
     },
     {
-      to: '/checkout',
-      label: cartCount > 0 ? `Cart (${cartCount})` : 'Cart',
-      icon: '🛒',
+      to: user ? '/dashboard' : '/signup',
+      label: user ? 'Health' : 'Login',
+      icon: '👤',
     },
   ];
 
@@ -33,10 +33,19 @@ export default function MobileNav() {
           key={`${item.label}-${i}`}
           to={item.to}
           end={item.end}
-          className={({ isActive }) => (isActive && item.end ? 'active' : isActive && !item.end && item.label !== 'Health' ? 'active' : undefined)}
+          className={({ isActive }) =>
+            isActive && item.end
+              ? 'active'
+              : isActive && !item.end
+                ? 'active'
+                : undefined
+          }
         >
           <span className="nav-icon-wrap" aria-hidden>
             {item.icon}
+            {item.label === 'Bookings' && cartCount > 0 ? (
+              <span className="mobile-nav-dot" aria-hidden />
+            ) : null}
           </span>
           {item.label}
         </NavLink>
