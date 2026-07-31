@@ -38,6 +38,8 @@
   text-decoration: none;
   color: inherit;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
+  /* clear sticky site-header + search bar on mobile */
+  scroll-margin-top: 140px;
 }
 
 .hc-card:hover {

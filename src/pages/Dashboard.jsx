@@ -143,7 +143,7 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-card">
-        <h2>My Health menu</h2>
+        <h2>Quick links</h2>
         <ul className="dash-hub">
           {HUB.map((item) => (
             <li key={item.to}>

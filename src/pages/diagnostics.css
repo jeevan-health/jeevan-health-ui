@@ -172,6 +172,8 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
+  /* clear sticky site-header + search bar on mobile */
+  scroll-margin-top: 140px;
 }
 
 .diag-card:hover {
